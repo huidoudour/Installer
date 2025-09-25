@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Shizuku Shell安装器"
+        android:text="Shizuku Shell Installer"
         android:textSize="24sp"
         android:textStyle="bold"
         android:gravity="center"
@@ -35,7 +35,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="应用状态"
+                android:text="App Status"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
@@ -44,7 +44,7 @@
                 android:id="@+id/tvShizukuStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Shizuku权限: 未授权"
+                android:text="Shizuku permission: not grant"
                 android:textSize="14sp"
                 android:padding="8dp"
                 android:background="#ffeeee"
@@ -54,7 +54,7 @@
                 android:id="@+id/tvSelectedFile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="已选择文件: 无"
+                android:text="Selected File: none"
                 android:textSize="14sp"
                 android:layout_marginTop="8dp"
                 android:padding="8dp"
@@ -78,7 +78,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="操作面板"
+                android:text="Operation Panel"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp" />
@@ -88,7 +88,7 @@
                 android:id="@+id/btnSelectFile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="选择APK文件"
+                android:text="Select APK File"
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp"
                 android:backgroundTint="#2196F3"
@@ -99,7 +99,7 @@
                 android:id="@+id/btnRequestPermission"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="请求Shizuku权限"
+                android:text="Request Shizuku Permission"
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp"
                 android:backgroundTint="#4CAF50"
@@ -110,7 +110,7 @@
                 android:id="@+id/btnInstall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="安装APK"
+                android:text="Install APK"
                 android:textSize="16sp"
                 android:enabled="false"
                 android:backgroundTint="#9E9E9E"
@@ -135,7 +135,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="操作日志"
+                android:text="Log"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:padding="16dp" />
@@ -150,7 +150,7 @@
                     android:id="@+id/tvLog"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="等待操作..."
+                    android:text="Watting..."
                     android:textSize="12sp"
                     android:textColor="#666666" />
             </ScrollView>
