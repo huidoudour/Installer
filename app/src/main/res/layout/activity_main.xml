@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Shizuku Shell Installer"
+        android:text="@string/top_text"
         android:textSize="24sp"
         android:textStyle="bold"
         android:gravity="center"
@@ -35,7 +35,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="App Status"
+                android:text="@string/status_area_text1"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
@@ -44,7 +44,7 @@
                 android:id="@+id/tvShizukuStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Shizuku permission: not grant"
+                android:text="@string/status_area_text2"
                 android:textSize="14sp"
                 android:padding="8dp"
                 android:background="#ffeeee"
@@ -54,7 +54,7 @@
                 android:id="@+id/tvSelectedFile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Selected File: none"
+                android:text="@string/status_area_text3"
                 android:textSize="14sp"
                 android:layout_marginTop="8dp"
                 android:padding="8dp"
@@ -78,7 +78,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Operation Panel"
+                android:text="@string/operator_area_text1"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp" />
@@ -88,29 +88,29 @@
                 android:id="@+id/btnSelectFile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Select APK File"
+                android:text="@string/operator_area_text2"
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp"
                 android:backgroundTint="#2196F3"
-                android:textColor="#ffffff" />
+                android:textColor="#000000" />
 
             <!-- 权限请求按钮 -->
             <Button
                 android:id="@+id/btnRequestPermission"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Request Shizuku Permission"
+                android:text="@string/operator_area_text3"
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp"
                 android:backgroundTint="#4CAF50"
-                android:textColor="#ffffff" />
+                android:textColor="#000000" />
 
             <!-- 安装按钮（默认禁用） -->
             <Button
                 android:id="@+id/btnInstall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Install APK"
+                android:text="@string/operator_area_text4"
                 android:textSize="16sp"
                 android:enabled="false"
                 android:backgroundTint="#9E9E9E"
@@ -135,7 +135,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Log"
+                android:text="@string/log_area_text1"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:padding="16dp" />
@@ -150,7 +150,7 @@
                     android:id="@+id/tvLog"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Watting..."
+                    android:text="@string/log_area_text2"
                     android:textSize="12sp"
                     android:textColor="#666666" />
             </ScrollView>

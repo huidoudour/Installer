@@ -1,5 +1,6 @@
 package io.github.huidoudour.Installer;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         checkShizukuAvailability();
     }
 
+    @SuppressLint("SetTextI18n")
     private void initViews() {
         tvShizukuStatus = findViewById(R.id.tvShizukuStatus);
         tvSelectedFile = findViewById(R.id.tvSelectedFile);

@@ -1,10 +1,21 @@
 <resources>
-    <string name="app_name">钟锦盛</string>
+    <string name="app_name">"慧兜兜's Installer"</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="top_text">Shizuku Shell Installer</string>
+    <string name="status_area_text1">程序状态</string>
+    <string name="status_area_text2">Shizuku 权限: 未授予</string>
+    <string name="status_area_text3">已选择的APK文件: 无</string>
+    <string name="operator_area_text1">操作面板</string>
+    <string name="operator_area_text2">选择APK文件</string>
+    <string name="operator_area_text3">请求 Shizuku 权限</string>
+    <string name="operator_area_text4">Install</string>
+    <string name="log_area_text1">日志</string>"
+    <string name="log_area_text2">等待进程……</string>"
+
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

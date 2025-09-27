@@ -1,0 +1,6 @@
+<adaptive-icon xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:ignore="MonochromeLauncherIcon">
+    <background android:drawable="@drawable/ic_icon_background"/>
+    <foreground android:drawable="@drawable/ic_icon_roegeround"/>
+</adaptive-icon>
