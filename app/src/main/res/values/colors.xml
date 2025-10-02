@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- ... other colors ... -->
+    <color name="install_button_enabled_color">#4CAF50</color> <!-- Green, for example -->
+    <color name="install_button_enabled_text_color">#FFFFFF</color> <!-- White -->
+    <color name="install_button_disabled_color">#9E9E9E</color> <!-- Grey (from your XML) -->
+    <color name="install_button_disabled_text_color">#FFFFFF</color>
 </resources>

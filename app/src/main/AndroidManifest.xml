@@ -3,10 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="io.github.huidoudour.Installer">
     <!-- 添加必要权限 -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
+    <uses-permission
+        android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
     <application
         android:allowBackup="true"
@@ -18,6 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Installer">
         <activity
+            android:name=".HomeActivity"
+            android:exported="true" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -25,8 +34,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <!-- 启用Shizuku Provider -->
+        </activity> <!-- 启用Shizuku Provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"

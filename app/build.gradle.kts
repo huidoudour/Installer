@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = "io.github.huidoudour.Installer"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer"
-        minSdk = 26  // 修改：将minSdk从24提升至26以支持自适应图标
-        targetSdk = 34
+        minSdk = 24  // Android 7
+        targetSdk = 34  //Android 14
         versionCode = 1
         versionName = "1.0"
     }
@@ -37,9 +37,24 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.cardview:cardview:1.0.0")
+
+    // 添加这些依赖以支持 EdgeToEdge 和新版 Activity
+    implementation("androidx.activity:activity:1.8.0")
+    implementation("androidx.fragment:fragment:1.6.1")
+    implementation("androidx.core:core:1.12.0")
+
     // Shizuku依赖
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
-    implementation(libs.navigation.fragment)
-    implementation(libs.navigation.ui)
+
+    // 统一 Kotlin 版本
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.22"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.22")
+
+    // 删除或注释掉这些重复的依赖
+    // implementation(libs.navigation.fragment)
+    // implementation(libs.navigation.ui)
+    // implementation(libs.activity)
+    // implementation(libs.api)
+    // implementation(libs.provider)
 }
