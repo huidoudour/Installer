@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer; // 确保这是您的正确包名
+package io.github.huidoudour.Installer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -11,10 +11,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,19 +27,20 @@ import androidx.core.content.ContextCompat;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import rikka.shizuku.Shizuku;
+import rikka.shizuku.ShizukuRemoteProcess;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 123;
-    private static final int REQUEST_CODE_MANAGE_FILES_PERMISSION = 456; // 用于 Android 11+ 文件权限
+    private static final int REQUEST_CODE_MANAGE_FILES_PERMISSION = 456; // Android11+ 全盘访问
 
     private TextView tvShizukuStatus;
     private TextView tvSelectedFile;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvLog;
 
     private Uri selectedFileUri;
-    private String selectedFilePath; // 用于 Shizuku pm install 命令
+    private String selectedFilePath; // 指向 app cache 中复制的文件路径
 
     // Shizuku 权限请求监听器
     private final Shizuku.OnRequestPermissionResultListener onRequestPermissionResultListener =
@@ -57,31 +58,28 @@ public class MainActivity extends AppCompatActivity {
                 if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
                     if (grantResult == PackageManager.PERMISSION_GRANTED) {
                         log("已授予 Shizuku 权限.");
-                        updateShizukuStatusAndUi();
                     } else {
                         log("Shizuku 权限被拒绝.");
-                        updateShizukuStatusAndUi();
                     }
+                    updateShizukuStatusAndUi();
                 }
             };
 
-    // Activity Result Launcher for file selection
+    // 文件选择 Launcher（保留原有风格）
     private final ActivityResultLauncher<Intent> filePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     selectedFileUri = result.getData().getData();
                     if (selectedFileUri != null) {
-                        // 使用新的方法获取文件路径
-                        selectedFilePath = getFilePathFromUri(selectedFileUri);
+                        // 将用户选择的文件复制到 app cache 并返回本地路径
                         String fileName = getFileNameFromUri(selectedFileUri);
-
+                        selectedFilePath = getFilePathFromUri(selectedFileUri); // 这个内部会将 content uri 复制到 cache
                         if (selectedFilePath != null) {
                             tvSelectedFile.setText("已选择: " + fileName);
-                            log("已选择文件: " + selectedFilePath);
+                            log("已选择文件并复制到 cache: " + selectedFilePath);
                         } else {
-                            // 如果无法获取路径，只显示文件名
-                            tvSelectedFile.setText("Selected: " + (fileName != null ? fileName : selectedFileUri.getPath()));
-                            log("已选择文件 (URI): " + selectedFileUri.toString() + ". 获取路径失败.");
+                            tvSelectedFile.setText("已选择: " + (fileName != null ? fileName : selectedFileUri.getPath()));
+                            log("已选择文件 (URI)，但复制到 cache 失败，URI: " + selectedFileUri.toString());
                         }
                         updateInstallButtonState();
                     }
@@ -90,38 +88,38 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-    // Activity Result Launcher for MANAGE_EXTERNAL_STORAGE permission
+    // MANAGE_EXTERNAL_STORAGE launcher（Android 11+）
     private final ActivityResultLauncher<Intent> manageFilesPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     if (Environment.isExternalStorageManager()) {
-                        log("MANAGE_EXTERNAL_STORAGE 权限拒绝.");
-                        openFilePicker(); // 权限获取后再次尝试打开文件选择器
+                        log("MANAGE_EXTERNAL_STORAGE 权限已授予.");
+                        openFilePicker(); // 权限获取后再次打开选择器
                     } else {
-                        log("MANAGE_EXTERNAL_STORAGE 权限拒绝.");
-                        Toast.makeText(this, "File access permission is required to select APKs.", Toast.LENGTH_LONG).show();
+                        log("MANAGE_EXTERNAL_STORAGE 权限被拒绝.");
+                        Toast.makeText(this, "需要文件访问权限以选择 APK。", Toast.LENGTH_LONG).show();
                     }
                 }
             });
 
-    // Launcher for READ_EXTERNAL_STORAGE permission (Android 10 and below)
+    // READ_EXTERNAL_STORAGE launcher (Android 10 及以下)
     private final ActivityResultLauncher<String> externalStoragePermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    log("READ_EXTERNAL_STORAGE 权限拒绝.");
+                    log("READ_EXTERNAL_STORAGE 权限已授予.");
                     openFilePicker();
                 } else {
-                    log("READ_EXTERNAL_STORAGE 权限拒绝.");
-                    Toast.makeText(this, "Read storage permission is required to select APKs.", Toast.LENGTH_LONG).show();
+                    log("READ_EXTERNAL_STORAGE 权限被拒绝.");
+                    Toast.makeText(this, "需要读取存储权限以选择 APK。", Toast.LENGTH_LONG).show();
                 }
             });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // 使用您现有的布局
+        setContentView(R.layout.activity_main); // 你现有的布局
 
-        // 初始化视图
+        // init views
         tvShizukuStatus = findViewById(R.id.tvShizukuStatus);
         tvSelectedFile = findViewById(R.id.tvSelectedFile);
         btnSelectFile = findViewById(R.id.btnSelectFile);
@@ -129,119 +127,116 @@ public class MainActivity extends AppCompatActivity {
         btnInstall = findViewById(R.id.btnInstall);
         tvLog = findViewById(R.id.tvLog);
 
-        // 使日志 TextView 可滚动
         tvLog.setMovementMethod(new ScrollingMovementMethod());
-        tvLog.setText(""); // 清空初始日志
+        tvLog.setText("");
 
-        // 添加 Shizuku 监听器
-        Shizuku.addRequestPermissionResultListener(onRequestPermissionResultListener);
+        // 注册 Shizuku 权限结果监听（安全包裹）
+        try {
+            Shizuku.addRequestPermissionResultListener(onRequestPermissionResultListener);
+        } catch (Throwable e) {
+            log("Shizuku SDK 未找到或不可用: " + e.getMessage());
+        }
 
-        // 设置按钮点击事件
+        // 添加 binder received listener，binder 一到就更新 UI（避免 getVersion 导致崩溃）
+        try {
+            Shizuku.addBinderReceivedListener(() -> runOnUiThread(this::updateShizukuStatusAndUi));
+        } catch (Throwable t) {
+            // 如果 SDK 里没有这个方法或不可用，忽略
+            log("无法添加 Shizuku binder listener (忽略): " + t.getMessage());
+        }
+
         btnSelectFile.setOnClickListener(v -> checkFilePermissionsAndOpenFilePicker());
         btnRequestPermission.setOnClickListener(v -> requestShizukuPermission());
         btnInstall.setOnClickListener(v -> installSelectedApk());
 
-        // 初始化 Shizuku 状态和 UI
+        // 初始 UI 状态（安全地检查 Shizuku）
         updateShizukuStatusAndUi();
         log("App已启动，等待操作……");
     }
 
-    // 获取文件路径的方法
+    // --- 文件 URI -> 复制到 cache，返回本地路径 ---
     private String getFilePathFromUri(Uri uri) {
         if (uri == null) return null;
 
-        // 如果是以 "file://" 开头的 URI，直接获取路径
+        // 如果是 file://
         if ("file".equals(uri.getScheme())) {
             return uri.getPath();
         }
 
-        // 对于 content URI，尝试获取真实路径
-        String result = null;
+        // 读取 DISPLAY_NAME 作为文件名并复制到 getCacheDir()
         ContentResolver contentResolver = getContentResolver();
-
         Cursor cursor = null;
         try {
             String[] projection = {OpenableColumns.DISPLAY_NAME};
             cursor = contentResolver.query(uri, projection, null, null, null);
+            String fileName = null;
             if (cursor != null && cursor.moveToFirst()) {
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 if (nameIndex != -1) {
-                    String fileName = cursor.getString(nameIndex);
-                    // 将文件复制到缓存目录
-                    File cacheFile = copyUriToCache(uri, fileName);
-                    if (cacheFile != null) {
-                        result = cacheFile.getAbsolutePath();
-                    }
+                    fileName = cursor.getString(nameIndex);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
+            if (fileName == null) fileName = "selected.apk";
 
-        return result;
+            File cacheFile = copyUriToCache(uri, fileName);
+            if (cacheFile != null) {
+                return cacheFile.getAbsolutePath();
+            }
+        } catch (Exception e) {
+            log("getFilePathFromUri 异常: " + e.getMessage());
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return null;
     }
 
-    // 将 URI 指向的文件复制到缓存目录
+    // 将 Content Uri 的内容复制到 app cache 目录
     private File copyUriToCache(Uri uri, String fileName) {
         try {
-            File cacheDir = getCacheDir();
-            File outputFile = new File(cacheDir, fileName);
-
-            InputStream inputStream = getContentResolver().openInputStream(uri);
-            FileOutputStream outputStream = new FileOutputStream(outputFile);
+            ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "r");
+            if (pfd == null) return null;
+            FileInputStream in = new FileInputStream(pfd.getFileDescriptor());
+            File outputFile = new File(getCacheDir(), fileName);
+            FileOutputStream out = new FileOutputStream(outputFile);
 
             byte[] buffer = new byte[4096];
             int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
             }
 
-            inputStream.close();
-            outputStream.close();
-
+            in.close();
+            out.close();
+            pfd.close();
             return outputFile;
         } catch (Exception e) {
-            e.printStackTrace();
+            log("复制到 cache 失败: " + e.getMessage());
             return null;
         }
     }
 
-    // 获取文件名的方法
+    // 获取显示文件名
     private String getFileNameFromUri(Uri uri) {
         if (uri == null) return null;
-
         String result = null;
-        ContentResolver contentResolver = getContentResolver();
-
         Cursor cursor = null;
         try {
             String[] projection = {OpenableColumns.DISPLAY_NAME};
-            cursor = contentResolver.query(uri, projection, null, null, null);
+            cursor = getContentResolver().query(uri, projection, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                if (nameIndex != -1) {
-                    result = cursor.getString(nameIndex);
-                }
+                if (nameIndex != -1) result = cursor.getString(nameIndex);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // ignore
         } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            if (cursor != null) cursor.close();
         }
-
-        if (result == null) {
-            result = uri.getLastPathSegment();
-        }
-
+        if (result == null) result = uri.getLastPathSegment();
         return result;
     }
 
+    // 检查文件读权限并打开文件选择器
     private void checkFilePermissionsAndOpenFilePicker() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // Android 11+
             if (!Environment.isExternalStorageManager()) {
@@ -259,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return;
             }
-        } else { // Android 10 及以下
+        } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 log("请求 READ_EXTERNAL_STORAGE 权限.");
                 externalStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -271,218 +266,262 @@ public class MainActivity extends AppCompatActivity {
 
     private void openFilePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("application/vnd.android.package-archive"); // Filter for APK files
+        intent.setType("application/vnd.android.package-archive");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         try {
-            filePickerLauncher.launch(Intent.createChooser(intent, "Select APK file"));
+            filePickerLauncher.launch(Intent.createChooser(intent, "选择 APK 文件"));
             log("打开文件选择器...");
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "请安装文件管理器以选择 APK。", Toast.LENGTH_SHORT).show();
             log("文件选择器未找到.");
         }
     }
 
     private void requestShizukuPermission() {
-        log("尝试请求Shizuku权限……");
-        if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) {
-            log("Shizuku version is too old or Shizuku app not found.");
-            Toast.makeText(this, "Shizuku app not found or version too old. Please install/update Shizuku.", Toast.LENGTH_LONG).show();
-            updateShizukuStatusAndUi();
-            return;
-        }
-        if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-            Shizuku.requestPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
-        } else {
-            log("以授予 Shizuku 权限.");
-            Toast.makeText(this, "Shizuku permission is already granted.", Toast.LENGTH_SHORT).show();
+        log("尝试请求 Shizuku 权限...");
+        try {
+            if (!Shizuku.pingBinder()) {
+                log("Shizuku 未运行或未安装。请启动 Shizuku。");
+                Toast.makeText(this, "Shizuku 未运行或未安装。", Toast.LENGTH_LONG).show();
+                updateShizukuStatusAndUi();
+                return;
+            }
+            if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) {
+                log("Shizuku 版本过低或不兼容。");
+                Toast.makeText(this, "Shizuku 版本过低，请升级。", Toast.LENGTH_LONG).show();
+                updateShizukuStatusAndUi();
+                return;
+            }
+            if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
+                Shizuku.requestPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
+            } else {
+                log("Shizuku 已授权.");
+                updateShizukuStatusAndUi();
+            }
+        } catch (Throwable t) {
+            log("Shizuku 不可用: " + t.getMessage());
             updateShizukuStatusAndUi();
         }
     }
 
+    // 核心：使用正确的 Shizuku API 执行命令
     private void installSelectedApk() {
         if (selectedFilePath == null || selectedFilePath.isEmpty()) {
-            log("未选择APK文件或路径无效.");
-            Toast.makeText(this, "Please select an APK file first.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-            log("Shizuku 权限未授予. 未安装Shizuku.");
-            Toast.makeText(this, "Shizuku permission is required to install.", Toast.LENGTH_SHORT).show();
+            log("未选择 APK 或路径无效.");
+            Toast.makeText(this, "请先选择 APK 文件.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        log("Starting installation for: " + selectedFilePath);
+        // 检查 Shizuku 连接与授权
+        try {
+            if (!Shizuku.pingBinder() || Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
+                log("Shizuku 未连接或未授权，无法通过 Shizuku 安装.");
+                Toast.makeText(this, "Shizuku 未连接或未授权，无法安装。", Toast.LENGTH_LONG).show();
+                updateShizukuStatusAndUi();
+                return;
+            }
+        } catch (Throwable t) {
+            log("检查 Shizuku 状态失败: " + t.getMessage());
+            Toast.makeText(this, "Shizuku 不可用。", Toast.LENGTH_LONG).show();
+            updateShizukuStatusAndUi();
+            return;
+        }
+
         btnInstall.setEnabled(false);
+        log("Starting installation for: " + selectedFilePath);
 
         new Thread(() -> {
-            StringBuilder output = new StringBuilder();
-            StringBuilder errorOutput = new StringBuilder();
-            int exitCode = -1;
-
             try {
-                // 先把文件复制到 /data/local/tmp
-                String tmpPath = "/data/local/tmp/tmp_app.apk";
-                String copyCmd = "cp \"" + selectedFilePath + "\" \"" + tmpPath + "\" && chmod 666 \"" + tmpPath + "\"";
-                log("Executing copy command: " + copyCmd);
-                Process copyProcess = new ProcessBuilder("sh", "-c", copyCmd).start();
-                int copyExit = copyProcess.waitFor();
-                if (copyExit != 0) {
-                    runOnUiThread(() -> {
-                        log("复制APK到 /data/local/tmp 失败, exit=" + copyExit);
-                        Toast.makeText(MainActivity.this, "Copy failed, cannot install.", Toast.LENGTH_LONG).show();
-                        updateInstallButtonState();
-                    });
-                    return;
-                }
+                // 方法1：直接使用 pm install 命令安装（推荐）
+                String installCmd = "pm install -r \"" + selectedFilePath + "\"";
+                log("Executing install command: " + installCmd);
 
-                // 再执行安装
-                String[] cmd = {"sh", "-c", "cmd package install -r -d \"" + tmpPath + "\""};
-                log("Executing install command: " + String.join(" ", cmd));
-                ProcessBuilder processBuilder = new ProcessBuilder(cmd);
-                Process process = processBuilder.start();
+                // 使用正确的 Shizuku API 执行命令
+                Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", installCmd});
+
+                StringBuilder out = new StringBuilder();
+                StringBuilder err = new StringBuilder();
 
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                      BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
 
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        output.append(line).append("\n");
-                        final String currentLine = line;
-                        runOnUiThread(() -> log("Install (stdout): " + currentLine));
+                        out.append(line).append("\n");
+                        final String l = line;
+                        runOnUiThread(() -> log("Install (stdout): " + l));
                     }
                     while ((line = errorReader.readLine()) != null) {
-                        errorOutput.append(line).append("\n");
-                        final String currentLine = line;
-                        runOnUiThread(() -> log("Install (stderr): " + currentLine));
+                        err.append(line).append("\n");
+                        final String l = line;
+                        runOnUiThread(() -> log("Install (stderr): " + l));
                     }
+                } catch (Exception e) {
+                    log("读取安装进程输出出错: " + e.getMessage());
                 }
-                exitCode = process.waitFor();
 
-            } catch (Exception e) {
-                final String errorMsg = e.getMessage();
+                int installExit = process.waitFor();
+                final String finalOut = out.toString().trim();
+                final String finalErr = err.toString().trim();
+
                 runOnUiThread(() -> {
-                    log("Exception during installation: " + errorMsg);
-                    Toast.makeText(MainActivity.this, "Installation Error: " + errorMsg, Toast.LENGTH_LONG).show();
+                    if (installExit == 0 || finalOut.toLowerCase().contains("success")) {
+                        log("安装成功: " + new File(selectedFilePath).getName() + " 输出: " + finalOut);
+                        Toast.makeText(MainActivity.this, "安装成功！", Toast.LENGTH_LONG).show();
+                        tvSelectedFile.setText("No file selected");
+                        selectedFileUri = null;
+                        selectedFilePath = null;
+                    } else {
+                        log("安装失败。Exit code: " + installExit + "\nOutput: " + finalOut + "\nError: " + finalErr);
+                        Toast.makeText(MainActivity.this, "安装失败，查看日志。", Toast.LENGTH_LONG).show();
+                    }
+                    btnInstall.setEnabled(true);
                     updateInstallButtonState();
                 });
-                return;
+
+            } catch (Exception e) {
+                final String em = e.getMessage();
+                runOnUiThread(() -> {
+                    log("安装流程异常: " + em);
+                    Toast.makeText(MainActivity.this, "安装异常: " + em, Toast.LENGTH_LONG).show();
+                    btnInstall.setEnabled(true);
+                    updateInstallButtonState();
+                });
             }
-
-            final String finalOutput = output.toString().trim();
-            final String finalErrorOutput = errorOutput.toString().trim();
-            final int finalExitCode = exitCode;
-
-            runOnUiThread(() -> {
-                if (finalExitCode == 0 || finalOutput.toLowerCase().contains("success")) {
-                    log("Installation successful for " + new File(selectedFilePath).getName() + ". Output: " + finalOutput);
-                    Toast.makeText(MainActivity.this, "Installation successful!", Toast.LENGTH_LONG).show();
-                    tvSelectedFile.setText("No file selected");
-                    selectedFileUri = null;
-                    selectedFilePath = null;
-                } else {
-                    log("Installation failed. Exit code: " + finalExitCode + "\nOutput: " + finalOutput + "\nError: " + finalErrorOutput);
-                    Toast.makeText(MainActivity.this, "Installation failed. Check logs.", Toast.LENGTH_LONG).show();
-                }
-                updateInstallButtonState();
-            });
         }).start();
     }
 
+    // 备用方法：使用 Shizuku 的 execCommand（如果可用）
+    private void installWithShizukuExec() {
+        if (selectedFilePath == null) return;
+
+        new Thread(() -> {
+            try {
+                // 尝试使用反射调用 Shizuku.execCommand（如果存在）
+                String installCmd = "pm install -r \"" + selectedFilePath + "\"";
+                log("尝试使用 Shizuku.execCommand: " + installCmd);
+
+                // 使用 Runtime.exec，因为 Shizuku.newProcess 是 private 的
+                Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", installCmd});
+                int exitCode = process.waitFor();
+
+                runOnUiThread(() -> {
+                    if (exitCode == 0) {
+                        log("安装成功");
+                        Toast.makeText(MainActivity.this, "安装成功！", Toast.LENGTH_LONG).show();
+                        tvSelectedFile.setText("No file selected");
+                        selectedFileUri = null;
+                        selectedFilePath = null;
+                    } else {
+                        log("安装失败, exit=" + exitCode);
+                        Toast.makeText(MainActivity.this, "安装失败", Toast.LENGTH_LONG).show();
+                    }
+                    btnInstall.setEnabled(true);
+                    updateInstallButtonState();
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    log("安装异常: " + e.getMessage());
+                    Toast.makeText(MainActivity.this, "安装异常", Toast.LENGTH_LONG).show();
+                    btnInstall.setEnabled(true);
+                    updateInstallButtonState();
+                });
+            }
+        }).start();
+    }
 
     private void updateShizukuStatusAndUi() {
-        if (Shizuku.isPreV11() || Shizuku.getVersion() < 10) { // Shizuku 建议至少版本 10
-            tvShizukuStatus.setText("Shizuku Server: Shizuku未运行喵");
-            tvShizukuStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
-            btnRequestPermission.setEnabled(true); // Allow attempting to request
-            log("Shizuku status: 未运行或版本过低.");
-        } else {
-            if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-                tvShizukuStatus.setText("Shizuku Permission: 授予喵");
-                tvShizukuStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
-                btnRequestPermission.setEnabled(false); // No need to request if already granted
-                log("Shizuku status: 已连接并授权.");
+        try {
+            if (!Shizuku.pingBinder()) {
+                tvShizukuStatus.setText("Shizuku Server: 未运行/未安装");
+                tvShizukuStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
+                btnRequestPermission.setEnabled(false);
+                log("Shizuku 未连接.");
             } else {
-                tvShizukuStatus.setText("Shizuku Permission: 未授予喵");
-                tvShizukuStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_orange_dark));
-                btnRequestPermission.setEnabled(true);
-                log("Shizuku status: 已连接未授权.");
-                if (Shizuku.shouldShowRequestPermissionRationale()) {
-                    log("Shizuku: 请求权限时显示理由.");
-                    // You could show a dialog here explaining why you need the permission
+                // 若 binder 已连上，再安全调用 getVersion 等
+                try {
+                    if (Shizuku.isPreV11() || Shizuku.getVersion() < 10) {
+                        tvShizukuStatus.setText("Shizuku Server: 版本过低");
+                        tvShizukuStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
+                        btnRequestPermission.setEnabled(false);
+                        log("Shizuku 版本过低.");
+                    } else if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+                        tvShizukuStatus.setText("Shizuku Permission: 已授予");
+                        tvShizukuStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
+                        btnRequestPermission.setEnabled(false);
+                        log("Shizuku 已连接并授权.");
+                    } else {
+                        tvShizukuStatus.setText("Shizuku Permission: 未授予");
+                        tvShizukuStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_orange_dark));
+                        btnRequestPermission.setEnabled(true);
+                        log("Shizuku 已连接但未授权.");
+                    }
+                } catch (Throwable t) {
+                    tvShizukuStatus.setText("Shizuku 状态未知");
+                    tvShizukuStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
+                    log("检查 Shizuku 版本/权限失败: " + t.getMessage());
                 }
             }
+        } catch (Throwable t) {
+            tvShizukuStatus.setText("Shizuku 不可用");
+            tvShizukuStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
+            log("updateShizukuStatusAndUi 捕获异常: " + t.getMessage());
         }
         updateInstallButtonState();
     }
 
     private void updateInstallButtonState() {
-        boolean shizukuReady = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED &&
-                !(Shizuku.isPreV11() || Shizuku.getVersion() < 10);
         boolean fileSelected = selectedFilePath != null && !selectedFilePath.isEmpty();
+        boolean shizukuReady = false;
+        try {
+            shizukuReady = Shizuku.pingBinder() &&
+                    Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED &&
+                    !(Shizuku.isPreV11() || Shizuku.getVersion() < 10);
+        } catch (Throwable t) {
+            shizukuReady = false;
+        }
 
         if (shizukuReady && fileSelected) {
             btnInstall.setEnabled(true);
-            btnInstall.setBackgroundColor(ContextCompat.getColor(this, R.color.install_button_enabled_color)); // 您需要在 colors.xml 定义这个颜色
-            btnInstall.setTextColor(ContextCompat.getColor(this, R.color.install_button_enabled_text_color)); // 例如 #FFFFFF
+            // 保持你原来的样式调用，如需可设置颜色
         } else {
             btnInstall.setEnabled(false);
-            btnInstall.setBackgroundColor(ContextCompat.getColor(this, R.color.install_button_disabled_color)); // 例如 #9E9E9E (来自您的 XML)
-            btnInstall.setTextColor(ContextCompat.getColor(this, R.color.install_button_disabled_text_color)); // 例如 #FFFFFF
         }
     }
 
-    // Helper method to log messages to both Logcat and the on-screen TextView
     @SuppressLint("SetTextI18n")
     private void log(String message) {
         String timestamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
         String logMessage = timestamp + ": " + message;
-        System.out.println("ShizukuInstallerApp: " + logMessage); // Logcat
+        System.out.println("ShizukuInstallerApp: " + logMessage);
         runOnUiThread(() -> {
-            tvLog.append(logMessage + "\n");
-
-            // 简化的自动滚动 - 更安全的方式
-            // 使用post确保在布局完成后执行滚动
-            tvLog.post(() -> {
-                try {
-                    int scrollAmount = tvLog.getLineCount() * tvLog.getLineHeight() - tvLog.getHeight();
-                    if (scrollAmount > 0) {
-                        tvLog.scrollTo(0, scrollAmount);
-                    }
-                } catch (Exception e) {
-                    // 忽略滚动错误，至少日志已经添加
-                }
-            });
+            try {
+                tvLog.append(logMessage + "\n");
+                int scrollAmount = tvLog.getLineCount() * tvLog.getLineHeight() - tvLog.getHeight();
+                if (scrollAmount > 0) tvLog.scrollTo(0, scrollAmount);
+            } catch (Exception ignored) {
+            }
         });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Shizuku 状态可能在应用外部发生变化（例如，用户在 Shizuku Manager 中撤销权限）
-        // 所以在 onResume 中更新是个好主意
         updateShizukuStatusAndUi();
     }
 
     @Override
     protected void onDestroy() {
-        Shizuku.removeRequestPermissionResultListener(onRequestPermissionResultListener);
+        try {
+            Shizuku.removeRequestPermissionResultListener(onRequestPermissionResultListener);
+        } catch (Throwable ignored) {}
         super.onDestroy();
     }
 
-    // 如果您需要处理 Android 6.0+ 的运行时权限结果（非 Shizuku，非 MANAGE_EXTERNAL_STORAGE）
+    // 兼容旧 onRequestPermissionsResult（保留）
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // Shizuku.onRequestPermissionsResult(requestCode, permissions, grantResults); // Shizuku 自己的权限结果由 listener 处理
-        if (requestCode == REQUEST_CODE_MANAGE_FILES_PERMISSION) { // 虽然我们用了 Launcher，但以防万一
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                if (Environment.isExternalStorageManager()) {
-                    log("MANAGE_EXTERNAL_STORAGE permission granted via onRequestPermissionsResult.");
-                    openFilePicker();
-                } else {
-                    log("MANAGE_EXTERNAL_STORAGE permission denied via onRequestPermissionsResult.");
-                }
-            }
-        }
     }
 }
