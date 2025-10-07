@@ -31,7 +31,7 @@ jobs:
         cp app/build/outputs/apk/release/*.apk output/ || true
 
     - name: Upload APKs as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: apks
         path: output/
