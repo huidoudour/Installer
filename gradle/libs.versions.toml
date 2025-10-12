@@ -11,6 +11,8 @@ navigationFragment = "2.9.3"
 navigationUi = "2.9.3"
 api = "13.1.5' // Shizuku API"
 provider = "13.1.5' // Shizuku Provider，如果您需要通过 Shizuku Manager 启动您的服务"
+lifecycleLivedataKtx = "2.9.4"
+lifecycleViewmodelKtx = "2.9.4"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -24,6 +26,8 @@ navigation-fragment = { group = "androidx.navigation", name = "navigation-fragme
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 api = { group = "'dev.rikka.shizuku", name = "api", version.ref = "api" }
 provider = { group = "'dev.rikka.shizuku", name = "provider", version.ref = "provider" }
+lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
