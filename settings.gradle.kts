@@ -8,3 +8,4 @@ pluginManagement {
 
 rootProject.name = "Installer"
 include(":app")
+include(":app-debug")
