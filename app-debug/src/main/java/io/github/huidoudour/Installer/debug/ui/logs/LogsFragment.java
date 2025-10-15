@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.debug.ui.notifications;
+package io.github.huidoudour.Installer.debug.ui.logs;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,12 +21,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import io.github.huidoudour.Installer.debug.databinding.FragmentNotificationsBinding;
+import io.github.huidoudour.Installer.debug.databinding.FragmentLogsBinding;
 import io.github.huidoudour.Installer.debug.utils.LogManager;
 
-public class NotificationsFragment extends Fragment implements LogManager.LogListener {
+public class LogsFragment extends Fragment implements LogManager.LogListener {
 
-    private FragmentNotificationsBinding binding;
+    private FragmentLogsBinding binding;
     private TextView tvFullLog;
     private TextView tvLogCount;
     private TextView tvLastUpdate;
@@ -36,7 +36,7 @@ public class NotificationsFragment extends Fragment implements LogManager.LogLis
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false);
+        binding = FragmentLogsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         // 初始化视图

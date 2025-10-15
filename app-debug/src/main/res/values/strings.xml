@@ -3,5 +3,5 @@
     <string name="title_home">主页</string>
     <string name="title_shell">Shell</string>
     <string name="title_dashboard">工具</string>
-    <string name="title_notifications">关于我</string>
+    <string name="title_notifications">日志</string>
 </resources>
