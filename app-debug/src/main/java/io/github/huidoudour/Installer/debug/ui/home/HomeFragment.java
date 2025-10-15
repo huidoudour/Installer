@@ -346,19 +346,19 @@ public class HomeFragment extends Fragment {
         new Thread(() -> {
             String tmpFilePath = null;
             try {
-                // 步骤 1: 复制文件到 /data/local/tmp/
+                // 步骤 1: 复制文件到 /data/local/tmp/ (解决 SELinux 权限问题)
                 File sourceFile = new File(selectedFilePath);
                 String tmpFileName = "installer_" + System.currentTimeMillis() + "_" + sourceFile.getName();
                 tmpFilePath = "/data/local/tmp/" + tmpFileName;
                 
                 log("正在复制文件到系统临时目录: " + tmpFilePath);
                 
-                String copyCmd = "cp \"" + selectedFilePath + "\" \"" + tmpFilePath + "\"";
+                // 使用 cat 命令复制文件（比 cp 更可靠）
+                String copyCmd = "cat \"" + selectedFilePath + "\" > \"" + tmpFilePath + "\"";
                 Process copyProcess = Runtime.getRuntime().exec(new String[]{"sh", "-c", copyCmd});
                 int copyExit = copyProcess.waitFor();
                 
                 if (copyExit != 0) {
-                    final String tmpPath = tmpFilePath;
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
                             log("复制文件到临时目录失败喵 Exit code: " + copyExit);

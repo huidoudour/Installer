@@ -28,8 +28,6 @@ public class NotificationsFragment extends Fragment implements LogManager.LogLis
 
     private FragmentNotificationsBinding binding;
     private TextView tvFullLog;
-    private TextView tvLogCount;
-    private TextView tvLastUpdate;
     private Button btnClearLog;
     private Button btnExportLog;
     private LogManager logManager;
@@ -41,8 +39,6 @@ public class NotificationsFragment extends Fragment implements LogManager.LogLis
 
         // 初始化视图
         tvFullLog = binding.tvFullLog;
-        tvLogCount = binding.tvLogCount;
-        tvLastUpdate = binding.tvLastUpdate;
         btnClearLog = binding.btnClearLog;
         btnExportLog = binding.btnExportLog;
 
@@ -71,8 +67,6 @@ public class NotificationsFragment extends Fragment implements LogManager.LogLis
         
         getActivity().runOnUiThread(() -> {
             tvFullLog.setText(logManager.getAllLogs());
-            tvLogCount.setText(String.valueOf(logManager.getLogCount()));
-            tvLastUpdate.setText(logManager.getLastUpdateTime());
             
             // 滚动到底部
             scrollToBottom();

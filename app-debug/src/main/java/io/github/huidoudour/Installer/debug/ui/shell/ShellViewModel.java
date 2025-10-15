@@ -10,7 +10,7 @@ public class ShellViewModel extends ViewModel {
 
     public ShellViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("Shell 页面");
+        mText.setValue("Shell 页面 待开发");
     }
 
     public LiveData<String> getText() {
