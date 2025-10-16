@@ -1,12 +1,6 @@
 # huidoudour's Installer
 ## Supported Versions
-Android 8 ~ 14
+[![Android](https://img.shields.io/badge/Android-24--34-3DDC84.svg?logo=android&logoColor=white)]()[![Min SDK](https://img.shields.io/badge/Min%20SDK-24-important.svg)]()[![Target SDK](https://img.shields.io/badge/Target%20SDK-34-blue.svg)]()
+[![License](https://img.shields.io/github/license/huidoudour/Installer.svg)]()[![Android Build](https://github.com/huidoudour/Installer/workflows/Android%20CI/badge.svg)](https://github.com/huidoudour/Installer/actions/workflows/android.yml)
 <br>
-![主要语言](https://img.shields.io/github/languages/top/huidoudour/Installer)
-
-## Graph
-
-<p>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=huidoudour&repo=Installer">
-</p>
-
+[![主要语言](https://img.shields.io/github/languages/top/huidoudour/Installer)]()
