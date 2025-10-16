@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="io.github.huidoudour.Installer.debug.ui.home.HomeFragment"
+        android:name="io.github.huidoudour.Installer.debug.ui.installer.InstallerFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_installer" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="io.github.huidoudour.Installer.debug.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:name="io.github.huidoudour.Installer.debug.ui.shell.ShellFragment"
+        android:label="@string/title_shell"
+        tools:layout="@layout/fragment_shell" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="io.github.huidoudour.Installer.debug.ui.notifications.NotificationsFragment"
+        android:name="io.github.huidoudour.Installer.debug.ui.logs.LogsFragment"
         android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_logs" />
 </navigation>

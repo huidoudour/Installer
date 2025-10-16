@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.debug.ui.home;
+package io.github.huidoudour.Installer.debug.ui.installer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -39,13 +39,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import io.github.huidoudour.Installer.debug.databinding.FragmentHomeBinding;
+import io.github.huidoudour.Installer.debug.databinding.FragmentInstallerBinding;
 import io.github.huidoudour.Installer.debug.utils.LogManager;
 import rikka.shizuku.Shizuku;
 
-public class HomeFragment extends Fragment {
+public class InstallerFragment extends Fragment {
 
-    private FragmentHomeBinding binding;
+    private FragmentInstallerBinding binding;
     private LogManager logManager;
     
     private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 123;
@@ -125,7 +125,7 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        binding = FragmentInstallerBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         // 初始化视图

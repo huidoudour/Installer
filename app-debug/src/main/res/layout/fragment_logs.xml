@@ -7,7 +7,7 @@
     android:background="#F5F5F5"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".ui.notifications.NotificationsFragment">
+    tools:context=".ui.logs.LogsFragment">
 
     <!-- 日志卡片 -->
     <com.google.android.material.card.MaterialCardView
