@@ -50,6 +50,10 @@ public class InstallerFragment extends Fragment {
     
     private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 123;
     
+    // 添加标志位，避免重复输出初始化日志
+    private static boolean isFirstInit = true;
+    private String lastShizukuStatus = ""; // 记录上次状态，避免重复日志
+    
     private TextView tvShizukuStatus;
     private TextView tvSelectedFile;
     private Button btnSelectFile;
@@ -166,7 +170,12 @@ public class InstallerFragment extends Fragment {
 
         // 初始 UI 状态
         updateShizukuStatusAndUi();
-        log("Installer 已启动，等待操作喵……");
+        
+        // 只在第一次初始化时输出日志
+        if (isFirstInit) {
+            log("Installer 已启动，等待操作喵……");
+            isFirstInit = false;
+        }
 
         return root;
     }
@@ -361,6 +370,8 @@ public class InstallerFragment extends Fragment {
                 if (switchGrantPermissions.isChecked()) {
                     createCmd.append(" -g");
                 }
+                // 添加安装执行者参数 (-i 指定installer包名)
+                createCmd.append(" -i io.github.huidoudour.zjs");
                 
                 log("创建安装会话: " + createCmd);
                 String createOutput = executeShizukuCommand(createCmd.toString());
@@ -526,47 +537,68 @@ public class InstallerFragment extends Fragment {
     }
 
     private void updateShizukuStatusAndUi() {
+        String currentStatus = "";
         try {
             if (!Shizuku.pingBinder()) {
+                currentStatus = "未连接";
                 tvShizukuStatus.setText("未运行/未安装");
                 tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 btnRequestPermission.setEnabled(false);
-                log("Shizuku 未连接喵.");
+                if (!currentStatus.equals(lastShizukuStatus)) {
+                    log("Shizuku 未连接喵.");
+                }
             } else {
                 try {
                     if (Shizuku.isPreV11() || Shizuku.getVersion() < 10) {
+                        currentStatus = "版本过低";
                         tvShizukuStatus.setText("版本过低喵");
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         btnRequestPermission.setEnabled(false);
-                        log("Shizuku 版本过低喵.");
+                        if (!currentStatus.equals(lastShizukuStatus)) {
+                            log("Shizuku 版本过低喵.");
+                        }
                     } else if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+                        currentStatus = "已授权";
                         tvShizukuStatus.setText("已授予喵");
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         btnRequestPermission.setEnabled(false);
-                        log("Shizuku 已连接并授权喵.");
+                        // 只在状态变化或第一次初始化时输出日志
+                        if (!currentStatus.equals(lastShizukuStatus)) {
+                            log("Shizuku 已连接并授权喵.");
+                        }
                     } else {
+                        currentStatus = "未授权";
                         tvShizukuStatus.setText("未授予喵");
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                         btnRequestPermission.setEnabled(true);
-                        log("Shizuku 已连接但未授权喵.");
+                        if (!currentStatus.equals(lastShizukuStatus)) {
+                            log("Shizuku 已连接但未授权喵.");
+                        }
                     }
                 } catch (Throwable t) {
+                    currentStatus = "状态未知";
                     tvShizukuStatus.setText("状态未知喵");
                     tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                     statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                    log("检查 Shizuku 版本/权限失败喵: " + t.getMessage());
+                    if (!currentStatus.equals(lastShizukuStatus)) {
+                        log("检查 Shizuku 版本/权限失败喵: " + t.getMessage());
+                    }
                 }
             }
         } catch (Throwable t) {
+            currentStatus = "不可用";
             tvShizukuStatus.setText("不可用喵");
             tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-            log("updateShizukuStatusAndUi 捕获异常喵: " + t.getMessage());
+            if (!currentStatus.equals(lastShizukuStatus)) {
+                log("updateShizukuStatusAndUi 捕获异常喵: " + t.getMessage());
+            }
         }
+        lastShizukuStatus = currentStatus; // 更新状态
         updateInstallButtonState();
     }
 

@@ -69,10 +69,11 @@
                     android:layout_height="56dp"
                     android:text="授予 Shizuku 权限"
                     android:textSize="15sp"
+                    android:backgroundTint="@color/button_secondary"
                     app:cornerRadius="12dp"
                     app:icon="@android:drawable/ic_lock_idle_lock"
                     app:iconGravity="textStart"
-                    style="@style/Widget.Material3.Button.TonalButton" />
+                    style="@style/Widget.Material3.Button" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -120,10 +121,11 @@
                     android:layout_height="56dp"
                     android:text="选择 APK 文件"
                     android:textSize="15sp"
+                    android:backgroundTint="@color/button_primary"
                     app:cornerRadius="12dp"
                     app:icon="@android:drawable/ic_menu_upload"
                     app:iconGravity="textStart"
-                    style="@style/Widget.Material3.Button.ElevatedButton" />
+                    style="@style/Widget.Material3.Button" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -177,6 +179,7 @@
                     android:text="安装 APK"
                     android:textSize="16sp"
                     android:enabled="false"
+                    android:backgroundTint="@color/button_install"
                     app:cornerRadius="12dp"
                     app:icon="@android:drawable/stat_sys_download_done"
                     app:iconGravity="textStart"

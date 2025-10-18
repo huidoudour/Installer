@@ -7,4 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- 自定义按钮颜色 -->
+    <color name="button_primary">#FF2196F3</color>
+    <color name="button_secondary">#FF4CAF50</color>
+    <color name="button_accent">#FFFF9800</color>
+    <color name="button_install">#FF009688</color>
 </resources>
