@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
     android:orientation="vertical"
     android:padding="16dp"
     tools:context=".ui.logs.LogsFragment">
@@ -13,9 +12,10 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:contentPadding="16dp">
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:contentPadding="20dp"
+        style="@style/Widget.Material3.CardView.Elevated">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="16dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -36,25 +36,26 @@
                     android:text="完整日志"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    android:textColor="#212121" />
+                    android:textColor="?attr/colorOnSurface" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnClearLog"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="清空"
                     android:textSize="14sp"
-                    android:textColor="@color/purple_500" />
+                    android:layout_marginEnd="8dp"
+                    app:icon="@android:drawable/ic_menu_delete"
+                    style="@style/Widget.Material3.Button.TextButton" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnExportLog"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="导出"
                     android:textSize="14sp"
-                    android:textColor="@color/teal_700" />
+                    app:icon="@android:drawable/ic_menu_save"
+                    style="@style/Widget.Material3.Button.TextButton" />
             </LinearLayout>
 
             <TextView
@@ -62,15 +63,15 @@
                 android:layout_height="wrap_content"
                 android:text="实时显示所有操作日志"
                 android:textSize="14sp"
-                android:textColor="#666666"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:layout_marginBottom="12dp" />
 
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="#FAFAFA"
-                android:padding="12dp"
+                android:background="?attr/colorSurfaceVariant"
+                android:padding="16dp"
                 android:fillViewport="true"
                 android:scrollbars="vertical">
 
@@ -79,9 +80,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="等待操作..."
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:fontFamily="monospace"
-                    android:textColor="#424242" />
+                    android:textColor="?attr/colorOnSurface" />
             </ScrollView>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
