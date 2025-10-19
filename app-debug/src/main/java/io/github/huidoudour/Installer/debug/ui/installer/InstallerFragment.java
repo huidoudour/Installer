@@ -41,6 +41,7 @@ import java.util.Locale;
 
 import io.github.huidoudour.Installer.debug.databinding.FragmentInstallerBinding;
 import io.github.huidoudour.Installer.debug.utils.LogManager;
+import io.github.huidoudour.Installer.debug.utils.ApkAnalyzer;
 import rikka.shizuku.Shizuku;
 
 public class InstallerFragment extends Fragment {
@@ -90,6 +91,9 @@ public class InstallerFragment extends Fragment {
                         if (selectedFilePath != null) {
                             tvSelectedFile.setText(fileName);
                             log("已选择文件并复制到 cache: " + selectedFilePath);
+                            
+                            // === 使用原生库分析 APK ===
+                            analyzeApk(selectedFilePath);
                         } else {
                             tvSelectedFile.setText(fileName != null ? fileName : selectedFileUri.getPath());
                             log("已选择文件 (URI)，但复制到 cache 失败，URI: " + selectedFileUri.toString());
@@ -614,6 +618,68 @@ public class InstallerFragment extends Fragment {
         }
 
         btnInstall.setEnabled(shizukuReady && fileSelected);
+    }
+
+    /**
+     * 使用原生库分析 APK 文件
+     * 这里使用了多个包含 .so 文件的库：
+     * - java.security (MessageDigest - 原生加密库)
+     * - conscrypt (高性能加密)
+     * - apksig (签名验证)
+     */
+    private void analyzeApk(String apkPath) {
+        log("");
+        log("=== 开始分析 APK （使用原生库）===");
+        
+        new Thread(() -> {
+            try {
+                // 1. 文件基本信息
+                String fileSize = ApkAnalyzer.getFileSize(apkPath);
+                log("📁 文件大小: " + fileSize);
+                
+                // 2. APK 包名和版本
+                String packageName = ApkAnalyzer.getPackageName(requireContext(), apkPath);
+                if (packageName != null) {
+                    log("📦 包名: " + packageName);
+                }
+                
+                String versionInfo = ApkAnalyzer.getVersionInfo(requireContext(), apkPath);
+                if (versionInfo != null) {
+                    log("🔢 版本: " + versionInfo);
+                }
+                
+                // 3. 文件哈希值（使用 MessageDigest 原生库）
+                log("");
+                log("🔐 正在计算哈希值（使用原生加密库）...");
+                
+                String md5 = ApkAnalyzer.calculateMD5(apkPath);
+                if (md5 != null) {
+                    log("   MD5: " + md5);
+                }
+                
+                String sha256 = ApkAnalyzer.calculateSHA256(apkPath);
+                if (sha256 != null) {
+                    log("   SHA-256: " + sha256);
+                }
+                
+                // 4. 签名信息（使用 CertificateFactory 原生库）
+                log("");
+                log("✒️ 签名信息：");
+                java.util.List<String> sigInfo = ApkAnalyzer.getSignatureInfo(requireContext(), apkPath);
+                for (String info : sigInfo) {
+                    log("   " + info);
+                }
+                
+                log("");
+                log("✅ APK 分析完成！");
+                log("=== 分析结束 ===");
+                log("");
+                
+            } catch (Exception e) {
+                log("❌ APK 分析失败: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     @Override

@@ -48,6 +48,20 @@ dependencies {
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
     
+    // === 原生库功能依赖 (.so 文件) ===
+    
+    // 1. 高性能加密库 (包含原生 .so 库，用于文件哈希计算)
+    implementation("org.conscrypt:conscrypt-android:2.5.2")
+    
+    // 2. Apache Commons Compress (包含原生压缩库，支持 ZIP/XAPK 解压)
+    implementation("org.apache.commons:commons-compress:1.25.0")
+    
+    // 3. APK 签名验证库 (包含原生库)
+    implementation("com.android.tools.build:apksig:8.3.0")
+    
+    // 4. RecyclerView (用于显示 APK 分析结果列表)
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
