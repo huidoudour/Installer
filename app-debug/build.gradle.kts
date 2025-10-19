@@ -62,6 +62,8 @@ dependencies {
     // 4. RecyclerView (用于显示 APK 分析结果列表)
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     
+    // 注意: Shell 终端功能使用 Shizuku 的原生能力，不需要额外的终端库
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

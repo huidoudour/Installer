@@ -95,31 +95,54 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="选择 APK"
+                    android:text="选择安装包"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface"
                     android:layout_marginBottom="16dp" />
 
-                <TextView
-                    android:id="@+id/tvSelectedFile"
+                <!-- 文件信息容器 -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="未选择文件"
-                    android:textSize="14sp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:orientation="vertical"
                     android:padding="16dp"
                     android:background="?attr/colorSurfaceVariant"
-                    android:layout_marginBottom="16dp"
-                    android:drawablePadding="12dp"
-                    android:gravity="center_vertical"
-                    android:minHeight="56dp" />
+                    android:layout_marginBottom="12dp">
+
+                    <!-- 文件名 -->
+                    <TextView
+                        android:id="@+id/tvSelectedFile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="未选择文件"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
+                        android:drawablePadding="8dp"
+                        android:gravity="center_vertical" />
+
+                    <!-- 文件类型标签 -->
+                    <TextView
+                        android:id="@+id/tvFileType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorPrimary"
+                        android:background="?attr/colorPrimaryContainer"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSelectFile"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:text="选择 APK 文件"
+                    android:text="选择安装包 (APK/XAPK/APKS)"
                     android:textSize="15sp"
                     android:backgroundTint="@color/button_primary"
                     app:cornerRadius="12dp"

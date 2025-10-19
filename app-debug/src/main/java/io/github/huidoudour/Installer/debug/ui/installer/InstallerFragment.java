@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,11 +38,14 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import io.github.huidoudour.Installer.debug.databinding.FragmentInstallerBinding;
 import io.github.huidoudour.Installer.debug.utils.LogManager;
 import io.github.huidoudour.Installer.debug.utils.ApkAnalyzer;
+import io.github.huidoudour.Installer.debug.utils.XapkInstaller;
+import io.github.huidoudour.Installer.debug.utils.ShizukuInstallHelper;
 import rikka.shizuku.Shizuku;
 
 public class InstallerFragment extends Fragment {
@@ -57,6 +61,7 @@ public class InstallerFragment extends Fragment {
     
     private TextView tvShizukuStatus;
     private TextView tvSelectedFile;
+    private TextView tvFileType;  // 新增：文件类型显示
     private Button btnSelectFile;
     private Button btnRequestPermission;
     private Button btnInstall;
@@ -66,6 +71,7 @@ public class InstallerFragment extends Fragment {
     
     private Uri selectedFileUri;
     private String selectedFilePath;
+    private boolean isXapkFile = false;  // 新增：标记是否为 XAPK 文件
 
     // Shizuku 权限请求监听器
     private final Shizuku.OnRequestPermissionResultListener onRequestPermissionResultListener =
@@ -90,10 +96,25 @@ public class InstallerFragment extends Fragment {
                         selectedFilePath = getFilePathFromUri(selectedFileUri);
                         if (selectedFilePath != null) {
                             tvSelectedFile.setText(fileName);
+                            
+                            // === 检测文件类型并显示 ===
+                            isXapkFile = XapkInstaller.isXapkFile(selectedFilePath);
+                            String fileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
+                            tvFileType.setText(fileType);
+                            tvFileType.setVisibility(View.VISIBLE);
+                            
+                            // 如果是 XAPK，显示包含的 APK 数量
+                            if (isXapkFile) {
+                                int apkCount = XapkInstaller.getApkCount(selectedFilePath);
+                                log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
+                            }
+                            
                             log("已选择文件并复制到 cache: " + selectedFilePath);
                             
                             // === 使用原生库分析 APK ===
-                            analyzeApk(selectedFilePath);
+                            if (!isXapkFile) {
+                                analyzeApk(selectedFilePath);
+                            }
                         } else {
                             tvSelectedFile.setText(fileName != null ? fileName : selectedFileUri.getPath());
                             log("已选择文件 (URI)，但复制到 cache 失败，URI: " + selectedFileUri.toString());
@@ -139,6 +160,7 @@ public class InstallerFragment extends Fragment {
         // 初始化视图
         tvShizukuStatus = binding.tvShizukuStatus;
         tvSelectedFile = binding.tvSelectedFile;
+        tvFileType = binding.tvFileType;  // 新增
         btnSelectFile = binding.btnSelectFile;
         btnRequestPermission = binding.btnRequestPermission;
         btnInstall = binding.btnInstall;
@@ -335,7 +357,7 @@ public class InstallerFragment extends Fragment {
     private void installSelectedApk() {
         if (selectedFilePath == null || selectedFilePath.isEmpty()) {
             log("未选择 APK 或路径无效喵.");
-            Toast.makeText(requireContext(), "请先选择 APK 文件喵.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "请先选择安装包文件喵.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -354,190 +376,103 @@ public class InstallerFragment extends Fragment {
         }
 
         btnInstall.setEnabled(false);
+        log("");
         log("=== 开始安装流程 ===");
-        log("APK路径: " + selectedFilePath);
 
-        new Thread(() -> {
-            FileInputStream fis = null;
-            try {
-                File apkFile = new File(selectedFilePath);
-                log("APK文件大小: " + apkFile.length() + " bytes");
-                
-                // 使用 Shizuku 执行 shell 命令的正确方法
-                // 方法1: 使用 pm install-create/install-write/install-commit 流程
-                
-                // 步骤1: 创建安装会话
-                StringBuilder createCmd = new StringBuilder("pm install-create");
-                if (switchReplaceExisting.isChecked()) {
-                    createCmd.append(" -r");
-                }
-                if (switchGrantPermissions.isChecked()) {
-                    createCmd.append(" -g");
-                }
-                // 添加安装执行者参数 (-i 指定installer包名)
-                createCmd.append(" -i io.github.huidoudour.zjs");
-                
-                log("创建安装会话: " + createCmd);
-                String createOutput = executeShizukuCommand(createCmd.toString());
-                log("会话创建输出: " + createOutput);
-                
-                // 解析会话ID (格式: "Success: created install session [123]")
-                if (createOutput == null || !createOutput.contains("Success")) {
-                    throw new Exception("创建安装会话失败: " + createOutput);
-                }
-                
-                String sessionId = createOutput.substring(
-                    createOutput.indexOf("[") + 1,
-                    createOutput.indexOf("]")
-                );
-                log("会话ID: " + sessionId);
-                
-                // 步骤2: 写入APK数据到会话
-                String writeCmd = "pm install-write -S " + apkFile.length() + " " + sessionId + " base.apk -";
-                log("写入APK数据: " + writeCmd);
-                
-                String writeOutput = executeShizukuCommandWithInput(writeCmd, apkFile);
-                log("写入结果: " + writeOutput);
-                
-                if (writeOutput == null || !writeOutput.contains("Success")) {
-                    throw new Exception("写入APK失败: " + writeOutput);
-                }
-                
-                // 步骤3: 提交安装
-                String commitCmd = "pm install-commit " + sessionId;
-                log("提交安装: " + commitCmd);
-                String commitOutput = executeShizukuCommand(commitCmd);
-                
-                final String finalOut = commitOutput != null ? commitOutput.trim() : "";
-                
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        if (finalOut.toLowerCase().contains("success")) {
-                            log("✓ 安装成功喵: " + apkFile.getName());
-                            log("输出: " + finalOut);
-                            Toast.makeText(requireContext(), "安装成功喵~", Toast.LENGTH_LONG).show();
-                            tvSelectedFile.setText("未选择文件");
-                            selectedFileUri = null;
-                            selectedFilePath = null;
-                        } else {
-                            log("✗ 安装失败喵");
-                            log("输出: " + finalOut);
-                            Toast.makeText(requireContext(), "安装失败，查看日志喵。", Toast.LENGTH_LONG).show();
+        // === 根据文件类型选择安装方式 ===
+        if (isXapkFile) {
+            // XAPK/APKS 安装（使用原生压缩库）
+            ShizukuInstallHelper.installXapk(
+                requireContext(),
+                selectedFilePath,
+                switchReplaceExisting.isChecked(),
+                switchGrantPermissions.isChecked(),
+                new ShizukuInstallHelper.InstallCallback() {
+                    @Override
+                    public void onProgress(String message) {
+                        log(message);
+                    }
+
+                    @Override
+                    public void onSuccess(String message) {
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                log(message);
+                                log("=== 安装流程结束 ===");
+                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+                                clearSelection();
+                                btnInstall.setEnabled(true);
+                                updateInstallButtonState();
+                            });
                         }
-                        log("=== 安装流程结束 ===");
-                        btnInstall.setEnabled(true);
-                        updateInstallButtonState();
-                    });
-                }
+                    }
 
-            } catch (Exception e) {
-                final String em = e.getMessage();
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        log("✗ 安装流程异常喵: " + em);
-                        e.printStackTrace();
-                        Toast.makeText(requireContext(), "安装异常: " + em, Toast.LENGTH_LONG).show();
-                        log("=== 安装流程异常结束 ===");
-                        btnInstall.setEnabled(true);
-                        updateInstallButtonState();
-                    });
+                    @Override
+                    public void onError(String error) {
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                log("❌ " + error);
+                                log("=== 安装流程结束 ===");
+                                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                                btnInstall.setEnabled(true);
+                                updateInstallButtonState();
+                            });
+                        }
+                    }
                 }
-            } finally {
-                if (fis != null) {
-                    try {
-                        fis.close();
-                    } catch (Exception ignored) {}
-                }
-            }
-        }).start();
-    }
+            );
+        } else {
+            // 单个 APK 安装
+            ShizukuInstallHelper.installSingleApk(
+                new File(selectedFilePath),
+                switchReplaceExisting.isChecked(),
+                switchGrantPermissions.isChecked(),
+                new ShizukuInstallHelper.InstallCallback() {
+                    @Override
+                    public void onProgress(String message) {
+                        log(message);
+                    }
 
-    // 使用 Shizuku 执行 shell 命令
-    private String executeShizukuCommand(String command) throws Exception {
-        try {
-            // 使用反射调用 Shizuku 的隐藏 API
-            Class<?> shizukuClass = Class.forName("rikka.shizuku.Shizuku");
-            java.lang.reflect.Method newProcessMethod = shizukuClass.getDeclaredMethod(
-                "newProcess", 
-                String[].class, 
-                String[].class, 
-                String.class
+                    @Override
+                    public void onSuccess(String message) {
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                log(message);
+                                log("=== 安装流程结束 ===");
+                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+                                clearSelection();
+                                btnInstall.setEnabled(true);
+                                updateInstallButtonState();
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                log("❌ " + error);
+                                log("=== 安裈流程结束 ===");
+                                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                                btnInstall.setEnabled(true);
+                                updateInstallButtonState();
+                            });
+                        }
+                    }
+                }
             );
-            newProcessMethod.setAccessible(true);
-            
-            Process process = (Process) newProcessMethod.invoke(
-                null,
-                new String[]{"sh", "-c", command},
-                null,
-                null
-            );
-            
-            StringBuilder output = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            reader.close();
-            
-            process.waitFor();
-            return output.toString().trim();
-        } catch (Exception e) {
-            throw new Exception("执行命令失败: " + e.getMessage(), e);
         }
     }
 
-    // 使用 Shizuku 执行 shell 命令并传入文件数据
-    private String executeShizukuCommandWithInput(String command, File inputFile) throws Exception {
-        try {
-            // 使用反射调用 Shizuku 的隐藏 API
-            Class<?> shizukuClass = Class.forName("rikka.shizuku.Shizuku");
-            java.lang.reflect.Method newProcessMethod = shizukuClass.getDeclaredMethod(
-                "newProcess", 
-                String[].class, 
-                String[].class, 
-                String.class
-            );
-            newProcessMethod.setAccessible(true);
-            
-            Process process = (Process) newProcessMethod.invoke(
-                null,
-                new String[]{"sh", "-c", command},
-                null,
-                null
-            );
-            
-            // 将文件数据写入进程的标准输入
-            FileInputStream fis = new FileInputStream(inputFile);
-            java.io.OutputStream os = process.getOutputStream();
-            
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            long totalBytes = 0;
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                os.write(buffer, 0, bytesRead);
-                totalBytes += bytesRead;
-            }
-            os.flush();
-            os.close();
-            fis.close();
-            
-            log("已写入 " + totalBytes + " bytes");
-            
-            // 读取输出
-            StringBuilder output = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            reader.close();
-            
-            process.waitFor();
-            return output.toString().trim();
-        } catch (Exception e) {
-            throw new Exception("执行命令失败: " + e.getMessage(), e);
-        }
+    /**
+     * 清除选择的文件
+     */
+    private void clearSelection() {
+        tvSelectedFile.setText("未选择文件");
+        tvFileType.setVisibility(View.GONE);
+        selectedFileUri = null;
+        selectedFilePath = null;
+        isXapkFile = false;
     }
 
     private void updateShizukuStatusAndUi() {
