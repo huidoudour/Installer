@@ -84,26 +84,24 @@ public class ShellFragment extends Fragment {
             return false;
         });
         
-        // 防止点击其他区域时输入框失去焦点
-        etCommandInput.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus && !isExecuting) {
-                // 如果不是在执行命令，重新获取焦点
-                etCommandInput.postDelayed(() -> etCommandInput.requestFocus(), 50);
+        // 只在用户点击输入框时打开键盘
+        etCommandInput.setOnClickListener(v -> {
+            InputMethodManager imm = (InputMethodManager) 
+                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(etCommandInput, InputMethodManager.SHOW_FORCED);
             }
         });
+        
+        // 移除自动重新获取焦点的逻辑
 
         // 更新 Shizuku 状态
         updateShizukuStatus();
         
-        // 初始化时自动打开键盘
-        etCommandInput.requestFocus();
-        etCommandInput.postDelayed(() -> {
-            InputMethodManager imm = (InputMethodManager) 
-                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(etCommandInput, InputMethodManager.SHOW_IMPLICIT);
-            }
-        }, 200);
+        // 显示欢迎信息
+        showWelcomeMessage();
+        
+        // 不要自动打开键盘，等待用户点击输入框
         
         // 显示欢迎信息
         showWelcomeMessage();
@@ -404,28 +402,37 @@ public class ShellFragment extends Fragment {
      * 追加输出（使用颜色字符串）
      */
     private void appendOutput(String text, String colorHex, boolean bold) {
-        SpannableStringBuilder builder = new SpannableStringBuilder(tvTerminalOutput.getText());
+        if (getActivity() == null) return;
         
-        int start = builder.length();
-        builder.append(text).append("\n");
-        int end = builder.length();
-        
-        try {
-            int color = Color.parseColor(colorHex);
-            builder.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            if (bold) {
-                builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 
-                               start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        requireActivity().runOnUiThread(() -> {
+            SpannableStringBuilder builder = new SpannableStringBuilder(tvTerminalOutput.getText());
+            
+            int start = builder.length();
+            builder.append(text).append("\n");
+            int end = builder.length();
+            
+            try {
+                int color = Color.parseColor(colorHex);
+                builder.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if (bold) {
+                    builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 
+                                   start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            } catch (Exception e) {
+                // 默认绿色
+                builder.setSpan(new ForegroundColorSpan(0xFF00FF00), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
-        } catch (Exception e) {
-            // 默认绿色
-            builder.setSpan(new ForegroundColorSpan(0xFF00FF00), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-        
-        tvTerminalOutput.setText(builder);
-        
-        // 使用封装的滚动方法
-        scrollToBottom();
+            
+            tvTerminalOutput.setText(builder);
+            
+            // 强制滚动到底部
+            tvTerminalOutput.post(() -> {
+                scrollViewOutput.fullScroll(View.FOCUS_DOWN);
+                scrollViewOutput.post(() -> {
+                    scrollViewOutput.scrollTo(0, tvTerminalOutput.getBottom());
+                });
+            });
+        });
     }
 
     /**
@@ -448,12 +455,15 @@ public class ShellFragment extends Fragment {
      * 强制滚动到底部
      */
     private void scrollToBottom() {
-        scrollViewOutput.post(() -> {
-            scrollViewOutput.fullScroll(View.FOCUS_DOWN);
-            // 再次确保滚动
-            scrollViewOutput.postDelayed(() -> {
-                scrollViewOutput.scrollTo(0, tvTerminalOutput.getHeight());
-            }, 50);
+        if (getActivity() == null) return;
+        
+        requireActivity().runOnUiThread(() -> {
+            tvTerminalOutput.post(() -> {
+                scrollViewOutput.fullScroll(View.FOCUS_DOWN);
+                scrollViewOutput.post(() -> {
+                    scrollViewOutput.scrollTo(0, tvTerminalOutput.getBottom());
+                });
+            });
         });
     }
     
@@ -478,10 +488,7 @@ public class ShellFragment extends Fragment {
     public void onResume() {
         super.onResume();
         updateShizukuStatus();
-        // 恢复时也打开键盘
-        if (etCommandInput != null) {
-            keepKeyboardOpen();
-        }
+        // 不要自动打开键盘
     }
 
     @Override

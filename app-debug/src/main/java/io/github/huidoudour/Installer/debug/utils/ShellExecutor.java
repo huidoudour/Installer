@@ -320,8 +320,16 @@ public class ShellExecutor {
                     Thread stderrThread = new Thread(() -> {
                         try {
                             String line;
-                            while ((line = persistentShellStderr.readLine()) != null && !commandEnded[0]) {
-                                callback.onError(line);
+                            // 使用非阻塞读取
+                            while (!commandEnded[0]) {
+                                if (persistentShellStderr.ready()) {
+                                    line = persistentShellStderr.readLine();
+                                    if (line != null) {
+                                        callback.onError(line);
+                                    }
+                                } else {
+                                    Thread.sleep(50);
+                                }
                             }
                         } catch (Exception e) {
                             // 忽略
@@ -367,9 +375,10 @@ public class ShellExecutor {
                 for (java.lang.reflect.Method method : shizukuClass.getDeclaredMethods()) {
                     if (method.getName().equals("newProcess")) {
                         method.setAccessible(true);
+                        // 使用交互式shell
                         persistentShellProcess = (Process) method.invoke(
                             null,
-                            new String[]{"sh"},
+                            new String[]{"sh", "-i"},  // 交互式模式
                             null,
                             null
                         );
@@ -381,8 +390,8 @@ public class ShellExecutor {
                 throw new Exception("Shizuku session creation failed: " + e.getMessage());
             }
         } else {
-            // 普通模式
-            persistentShellProcess = Runtime.getRuntime().exec(new String[]{"sh"});
+            // 普通模式 - 使用交互式shell
+            persistentShellProcess = Runtime.getRuntime().exec(new String[]{"sh", "-i"});
             isShizukuSession = false;
         }
         
@@ -397,9 +406,18 @@ public class ShellExecutor {
                 new InputStreamReader(persistentShellProcess.getErrorStream())
             );
             
-            // 初始化环境
+            // 初始化环境 - 清除提示符
             persistentShellWriter.write("export PS1=''\n");
+            persistentShellWriter.write("export PS2=''\n");
             persistentShellWriter.flush();
+            
+            // 等待初始化完成
+            Thread.sleep(100);
+            
+            // 清空初始输出
+            while (persistentShellStdout.ready()) {
+                persistentShellStdout.readLine();
+            }
         }
     }
     
