@@ -1,5 +1,6 @@
 package io.github.huidoudour.Installer.debug.ui.shell;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +23,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputEditText;
 
 import io.github.huidoudour.Installer.debug.R;
 import io.github.huidoudour.Installer.debug.databinding.FragmentShellBinding;
@@ -35,13 +37,16 @@ public class ShellFragment extends Fragment {
 
     private FragmentShellBinding binding;
     private TextView tvTerminalOutput;
-    private TextInputEditText etCommandInput;
+    private EditText etCommandInput;
+    private TextView tvPrompt;
     private ScrollView scrollViewOutput;
     private View shizukuIndicator;
     private TextView tvShizukuStatus;
     
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
     private boolean isExecuting = false;
+    private int commandCount = 0;
+    private int historyIndex = -1;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -51,28 +56,54 @@ public class ShellFragment extends Fragment {
         // 初始化视图
         tvTerminalOutput = binding.tvTerminalOutput;
         etCommandInput = binding.etCommandInput;
+        tvPrompt = binding.tvPrompt;
         scrollViewOutput = binding.scrollViewOutput;
         shizukuIndicator = binding.shizukuIndicator;
         tvShizukuStatus = binding.tvShizukuStatus;
 
         // 设置点击事件
-        binding.btnExecuteCommand.setOnClickListener(v -> executeCommand());
         binding.btnClearScreen.setOnClickListener(v -> clearScreen());
         binding.btnCopyOutput.setOnClickListener(v -> copyOutput());
         binding.btnQuickCommands.setOnClickListener(v -> showQuickCommands());
+        
+        // 功能键监听
+        binding.btnHistoryUp.setOnClickListener(v -> navigateHistoryUp());
+        binding.btnHistoryDown.setOnClickListener(v -> navigateHistoryDown());
+        binding.btnTab.setOnClickListener(v -> showPathCompletion());
+        binding.btnCtrlC.setOnClickListener(v -> cancelCommand());
+        binding.btnEsc.setOnClickListener(v -> etCommandInput.setText(""));
 
-        // 输入框监听
+        // 输入框监听 - 回车键执行命令
         etCommandInput.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND || 
-                (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                (event != null && event.getAction() == KeyEvent.ACTION_DOWN && 
+                 event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
                 executeCommand();
                 return true;
             }
             return false;
         });
+        
+        // 防止点击其他区域时输入框失去焦点
+        etCommandInput.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus && !isExecuting) {
+                // 如果不是在执行命令，重新获取焦点
+                etCommandInput.postDelayed(() -> etCommandInput.requestFocus(), 50);
+            }
+        });
 
         // 更新 Shizuku 状态
         updateShizukuStatus();
+        
+        // 初始化时自动打开键盘
+        etCommandInput.requestFocus();
+        etCommandInput.postDelayed(() -> {
+            InputMethodManager imm = (InputMethodManager) 
+                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(etCommandInput, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 200);
         
         // 显示欢迎信息
         showWelcomeMessage();
@@ -84,21 +115,121 @@ public class ShellFragment extends Fragment {
      * 显示欢迎信息
      */
     private void showWelcomeMessage() {
-        appendOutput("💻 Shell 终端模拟器", Color.parseColor("#4CAF50"), true);
-        appendOutput("版本: 1.0.0 | Powered by Shizuku", Color.GRAY, false);
-        appendOutput("", Color.WHITE, false);
+        appendOutput("Welcome to Termux Shell Emulator", "#00FF00", false);
+        appendOutput("Android Shell Environment v1.0", "#808080", false);
+        appendOutput("", "#00FF00", false);
         
         if (ShellExecutor.isShizukuAvailable()) {
-            appendOutput("✅ Root 模式已启用 (通过 Shizuku)", Color.parseColor("#4CAF50"), false);
+            appendOutput("[*] Root mode enabled via Shizuku", "#00FF00", false);
         } else {
-            appendOutput("⚠️ 普通模式 (请授予 Shizuku 权限以启用 Root 模式)", Color.parseColor("#FF9800"), false);
+            appendOutput("[!] User mode (grant Shizuku for root)", "#FFA500", false);
         }
         
-        appendOutput("", Color.WHITE, false);
-        appendOutput("输入 'help' 查看帮助信息", Color.GRAY, false);
-        appendOutput("", Color.WHITE, false);
+        appendOutput("", "#00FF00", false);
+        appendOutput("Type 'help' for command list", "#808080", false);
+        appendOutput("", "#00FF00", false);
     }
 
+    /**
+     * 导航到历史上一条命令
+     */
+    private void navigateHistoryUp() {
+        var history = ShellExecutor.CommandHistory.getAll();
+        if (history.isEmpty()) return;
+        
+        if (historyIndex == -1) {
+            historyIndex = history.size() - 1;
+        } else if (historyIndex > 0) {
+            historyIndex--;
+        }
+        
+        if (historyIndex >= 0 && historyIndex < history.size()) {
+            etCommandInput.setText(history.get(historyIndex));
+            etCommandInput.setSelection(etCommandInput.getText().length());
+        }
+    }
+    
+    /**
+     * 导航到历史下一条命令
+     */
+    private void navigateHistoryDown() {
+        var history = ShellExecutor.CommandHistory.getAll();
+        if (historyIndex == -1) return;
+        
+        if (historyIndex < history.size() - 1) {
+            historyIndex++;
+            etCommandInput.setText(history.get(historyIndex));
+            etCommandInput.setSelection(etCommandInput.getText().length());
+        } else {
+            historyIndex = -1;
+            etCommandInput.setText("");
+        }
+    }
+    
+    /**
+     * 显示路径补全菜单 (简化版Tab功能)
+     */
+    private void showPathCompletion() {
+        String[] commonPaths = {
+            "/",
+            "/sdcard/",
+            "/sdcard/Download/",
+            "/data/local/tmp/",
+            "/data/data/",
+            "/system/",
+            "/system/bin/",
+            "~/"
+        };
+        
+        String[] pathNames = {
+            "Root (/)",
+            "SD卡 (/sdcard/)",
+            "Download (/sdcard/Download/)",
+            "Tmp (/data/local/tmp/)",
+            "App Data (/data/data/)",
+            "System (/system/)",
+            "System Bin (/system/bin/)",
+            "Home (~/) "
+        };
+        
+        new MaterialAlertDialogBuilder(requireContext())
+            .setTitle("📁 Quick Path")
+            .setItems(pathNames, (dialog, which) -> {
+                String currentText = etCommandInput.getText().toString();
+                String path = commonPaths[which];
+                
+                // 如果已经有cd命令，只替换路径
+                if (currentText.startsWith("cd ")) {
+                    etCommandInput.setText("cd " + path);
+                } else {
+                    etCommandInput.setText("cd " + path);
+                }
+                etCommandInput.setSelection(etCommandInput.getText().length());
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+    
+    /**
+     * 取消当前命令 (Ctrl+C)
+     */
+    private void cancelCommand() {
+        if (isExecuting) {
+            // 重置Shell会话
+            ShellExecutor.resetSession();
+            appendOutput("^C", "#FF4444", true);
+            appendOutput("[Command cancelled, session reset]", "#FFA500", false);
+            appendOutput("", "#00FF00", false);
+            
+            etCommandInput.setEnabled(true);
+            etCommandInput.requestFocus();
+            isExecuting = false;
+        } else {
+            // 清空输入
+            etCommandInput.setText("");
+        }
+    }
+    
     /**
      * 执行命令
      */
@@ -107,17 +238,18 @@ public class ShellFragment extends Fragment {
         if (command.isEmpty()) return;
 
         if (isExecuting) {
-            Toast.makeText(requireContext(), "命令正在执行中...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Command running...", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // 添加到历史
         ShellExecutor.CommandHistory.addCommand(command);
+        historyIndex = -1;  // 重置历史索引
+        commandCount++;
 
-        // 显示命令
-        String timestamp = timeFormat.format(new Date());
-        appendOutput("", Color.WHITE, false);
-        appendOutput("$ " + command, Color.parseColor("#2196F3"), true);
+        // 显示命令提示符和命令
+        String prompt = ShellExecutor.isShizukuAvailable() ? "root@termux:~#" : "user@termux:~$";
+        appendOutput(prompt + " " + command, "#00FFFF", true);
 
         // 内置命令
         if (handleBuiltinCommand(command)) {
@@ -128,38 +260,44 @@ public class ShellFragment extends Fragment {
         // 清空输入框
         etCommandInput.setText("");
         etCommandInput.setEnabled(false);
-        binding.btnExecuteCommand.setEnabled(false);
         isExecuting = true;
 
         // 执行命令
         ShellExecutor.executeCommand(command, new ShellExecutor.ExecuteCallback() {
             @Override
             public void onOutput(String line) {
-                requireActivity().runOnUiThread(() -> {
-                    appendOutput(line, Color.WHITE, false);
-                });
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(() -> {
+                        appendOutput(line, "#FFFFFF", false);
+                    });
+                }
             }
 
             @Override
             public void onError(String error) {
-                requireActivity().runOnUiThread(() -> {
-                    appendOutput(error, Color.parseColor("#F44336"), false);
-                });
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(() -> {
+                        appendOutput(error, "#FF4444", false);
+                    });
+                }
             }
 
             @Override
             public void onComplete(int exitCode) {
-                requireActivity().runOnUiThread(() -> {
-                    String status = exitCode == 0 ? 
-                        "✅ 命令执行完成" : 
-                        "❌ 命令执行失败 (退出码: " + exitCode + ")";
-                    int color = exitCode == 0 ? Color.parseColor("#4CAF50") : Color.parseColor("#F44336");
-                    appendOutput(status, color, false);
-                    
-                    etCommandInput.setEnabled(true);
-                    binding.btnExecuteCommand.setEnabled(true);
-                    isExecuting = false;
-                });
+                if (getActivity() != null) {
+                    requireActivity().runOnUiThread(() -> {
+                        if (exitCode != 0) {
+                            appendOutput("[Process completed with exit code " + exitCode + "]", "#FFA500", false);
+                        }
+                        appendOutput("", "#00FF00", false);
+                        
+                        etCommandInput.setEnabled(true);
+                        isExecuting = false;
+                        
+                        // 保持键盘打开
+                        keepKeyboardOpen();
+                    });
+                }
             }
         });
     }
@@ -181,7 +319,7 @@ public class ShellFragment extends Fragment {
                 return true;
             case "exit":
             case "quit":
-                appendOutput("👋 请使用应用导航移到其他页面", Color.GRAY, false);
+                appendOutput("👋 Please use app navigation to switch pages", "#808080", false);
                 return true;
             default:
                 return false;
@@ -192,22 +330,20 @@ public class ShellFragment extends Fragment {
      * 显示帮助信息
      */
     private void showHelpMessage() {
-        appendOutput("", Color.WHITE, false);
-        appendOutput("📚 帮助信息", Color.parseColor("#4CAF50"), true);
-        appendOutput("", Color.WHITE, false);
-        appendOutput("内置命令:", Color.parseColor("#2196F3"), true);
-        appendOutput("  help     - 显示此帮助信息", Color.WHITE, false);
-        appendOutput("  clear    - 清除屏幕输出", Color.WHITE, false);
-        appendOutput("  history  - 显示命令历史", Color.WHITE, false);
-        appendOutput("  exit     - 退出提示", Color.WHITE, false);
-        appendOutput("", Color.WHITE, false);
-        appendOutput("快捷按钮:", Color.parseColor("#2196F3"), true);
-        appendOutput("  清屏   - 清除所有输出", Color.WHITE, false);
-        appendOutput("  复制   - 复制终端输出到剪贴板", Color.WHITE, false);
-        appendOutput("  快捷   - 显示快捷命令列表", Color.WHITE, false);
-        appendOutput("", Color.WHITE, false);
-        appendOutput("💡 提示: 所有 Linux Shell 命令都可以使用", Color.GRAY, false);
-        appendOutput("", Color.WHITE, false);
+        appendOutput("", "#00FF00", false);
+        appendOutput("Built-in commands:", "#00FF00", true);
+        appendOutput("  help     - Show this help", "#FFFFFF", false);
+        appendOutput("  clear    - Clear screen", "#FFFFFF", false);
+        appendOutput("  history  - Show command history", "#FFFFFF", false);
+        appendOutput("  exit     - Exit tip", "#FFFFFF", false);
+        appendOutput("", "#00FF00", false);
+        appendOutput("Shortcuts:", "#00FF00", true);
+        appendOutput("  C   - Clear screen", "#FFFFFF", false);
+        appendOutput("  📋  - Copy output", "#FFFFFF", false);
+        appendOutput("  ⚡  - Quick commands", "#FFFFFF", false);
+        appendOutput("", "#00FF00", false);
+        appendOutput("All Linux shell commands supported", "#808080", false);
+        appendOutput("", "#00FF00", false);
     }
 
     /**
@@ -215,18 +351,18 @@ public class ShellFragment extends Fragment {
      */
     private void showHistory() {
         var history = ShellExecutor.CommandHistory.getAll();
-        appendOutput("", Color.WHITE, false);
-        appendOutput("📜 命令历史", Color.parseColor("#4CAF50"), true);
-        appendOutput("", Color.WHITE, false);
+        appendOutput("", "#00FF00", false);
+        appendOutput("Command History:", "#00FF00", true);
+        appendOutput("", "#00FF00", false);
         
         if (history.isEmpty()) {
-            appendOutput("暂无历史记录", Color.GRAY, false);
+            appendOutput("No history yet", "#808080", false);
         } else {
             for (int i = 0; i < history.size(); i++) {
-                appendOutput((i + 1) + ". " + history.get(i), Color.WHITE, false);
+                appendOutput("  " + (i + 1) + ". " + history.get(i), "#FFFFFF", false);
             }
         }
-        appendOutput("", Color.WHITE, false);
+        appendOutput("", "#00FF00", false);
     }
 
     /**
@@ -234,13 +370,13 @@ public class ShellFragment extends Fragment {
      */
     private void showQuickCommands() {
         new MaterialAlertDialogBuilder(requireContext())
-            .setTitle("🚀 快捷命令")
+            .setTitle("⚡ Quick Commands")
             .setItems(ShellExecutor.QuickCommands.COMMAND_NAMES, (dialog, which) -> {
                 String command = ShellExecutor.QuickCommands.COMMANDS[which];
                 etCommandInput.setText(command);
                 executeCommand();
             })
-            .setNegativeButton("取消", null)
+            .setNegativeButton("Cancel", null)
             .show();
     }
 
@@ -258,46 +394,83 @@ public class ShellFragment extends Fragment {
     private void copyOutput() {
         String output = tvTerminalOutput.getText().toString();
         if (ShellExecutor.copyToClipboard(requireContext(), output)) {
-            Toast.makeText(requireContext(), "✅ 已复制到剪贴板", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(requireContext(), "❌ 复制失败", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Copy failed", Toast.LENGTH_SHORT).show();
         }
     }
 
     /**
-     * 追加输出
+     * 追加输出（使用颜色字符串）
      */
-    private void appendOutput(String text, int color, boolean bold) {
+    private void appendOutput(String text, String colorHex, boolean bold) {
         SpannableStringBuilder builder = new SpannableStringBuilder(tvTerminalOutput.getText());
         
         int start = builder.length();
         builder.append(text).append("\n");
         int end = builder.length();
         
-        builder.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        if (bold) {
-            builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 
-                           start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        try {
+            int color = Color.parseColor(colorHex);
+            builder.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (bold) {
+                builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 
+                               start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        } catch (Exception e) {
+            // 默认绿色
+            builder.setSpan(new ForegroundColorSpan(0xFF00FF00), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         
         tvTerminalOutput.setText(builder);
         
-        // 自动滚动到底部
-        scrollViewOutput.post(() -> scrollViewOutput.fullScroll(View.FOCUS_DOWN));
+        // 使用封装的滚动方法
+        scrollToBottom();
     }
 
+    /**
+     * 保持软键盘打开
+     */
+    private void keepKeyboardOpen() {
+        etCommandInput.postDelayed(() -> {
+            if (getContext() != null && etCommandInput != null) {
+                etCommandInput.requestFocus();
+                InputMethodManager imm = (InputMethodManager) 
+                    requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.showSoftInput(etCommandInput, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }
+        }, 100);
+    }
+    
+    /**
+     * 强制滚动到底部
+     */
+    private void scrollToBottom() {
+        scrollViewOutput.post(() -> {
+            scrollViewOutput.fullScroll(View.FOCUS_DOWN);
+            // 再次确保滚动
+            scrollViewOutput.postDelayed(() -> {
+                scrollViewOutput.scrollTo(0, tvTerminalOutput.getHeight());
+            }, 50);
+        });
+    }
+    
     /**
      * 更新 Shizuku 状态
      */
     private void updateShizukuStatus() {
         if (ShellExecutor.isShizukuAvailable()) {
-            shizukuIndicator.setBackgroundColor(Color.parseColor("#4CAF50"));
-            tvShizukuStatus.setText("Root");
-            tvShizukuStatus.setTextColor(Color.parseColor("#4CAF50"));
+            shizukuIndicator.setBackgroundColor(Color.parseColor("#00FF00"));
+            tvShizukuStatus.setText("root");
+            tvShizukuStatus.setTextColor(Color.parseColor("#00FF00"));
+            tvPrompt.setText("#");
         } else {
-            shizukuIndicator.setBackgroundColor(Color.parseColor("#FF9800"));
-            tvShizukuStatus.setText("User");
-            tvShizukuStatus.setTextColor(Color.parseColor("#FF9800"));
+            shizukuIndicator.setBackgroundColor(Color.parseColor("#FFA500"));
+            tvShizukuStatus.setText("user");
+            tvShizukuStatus.setTextColor(Color.parseColor("#FFA500"));
+            tvPrompt.setText("$");
         }
     }
 
@@ -305,6 +478,10 @@ public class ShellFragment extends Fragment {
     public void onResume() {
         super.onResume();
         updateShizukuStatus();
+        // 恢复时也打开键盘
+        if (etCommandInput != null) {
+            keepKeyboardOpen();
+        }
     }
 
     @Override
