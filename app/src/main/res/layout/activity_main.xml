@@ -132,18 +132,54 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/log_area_text1"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:padding="16dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/log_area_text1"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnClearLog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="清空"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#FF9800"
+                    android:textColor="#000000"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:minWidth="0dp" />
+
+                <Button
+                    android:id="@+id/btnExportLog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="导出"
+                    android:textSize="13sp"
+                    android:backgroundTint="#4CAF50"
+                    android:textColor="#000000"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:minWidth="0dp" />
+            </LinearLayout>
 
             <ScrollView
+                android:id="@+id/scrollViewLog"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="16dp"
+                android:paddingTop="8dp"
                 android:background="#f8f8f8">
 
                 <TextView
@@ -152,7 +188,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/log_area_text2"
                     android:textSize="12sp"
-                    android:textColor="#666666" />
+                    android:textColor="#666666"
+                    android:fontFamily="monospace" />
             </ScrollView>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

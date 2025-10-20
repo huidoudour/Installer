@@ -16,6 +16,7 @@ import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     private Button btnRequestPermission;
     private Button btnInstall;
     private TextView tvLog;
+    private Button btnClearLog;
+    private Button btnExportLog;
+    private ScrollView scrollViewLog;
 
     private Uri selectedFileUri;
     private String selectedFilePath; // 指向 app cache 中复制的文件路径
@@ -126,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
         btnRequestPermission = findViewById(R.id.btnRequestPermission);
         btnInstall = findViewById(R.id.btnInstall);
         tvLog = findViewById(R.id.tvLog);
+        btnClearLog = findViewById(R.id.btnClearLog);
+        btnExportLog = findViewById(R.id.btnExportLog);
+        scrollViewLog = findViewById(R.id.scrollViewLog);
 
         tvLog.setMovementMethod(new ScrollingMovementMethod());
         tvLog.setText("");
@@ -148,6 +156,8 @@ public class MainActivity extends AppCompatActivity {
         btnSelectFile.setOnClickListener(v -> checkFilePermissionsAndOpenFilePicker());
         btnRequestPermission.setOnClickListener(v -> requestShizukuPermission());
         btnInstall.setOnClickListener(v -> installSelectedApk());
+        btnClearLog.setOnClickListener(v -> clearLogs());
+        btnExportLog.setOnClickListener(v -> exportLogs());
 
         // 初始 UI 状态（安全地检查 Shizuku）
         updateShizukuStatusAndUi();
@@ -328,53 +338,72 @@ public class MainActivity extends AppCompatActivity {
         }
 
         btnInstall.setEnabled(false);
-        log("Starting installation for: " + selectedFilePath);
+        log("=== 开始安装流程 ===");
+        log("APK路径: " + selectedFilePath);
 
         new Thread(() -> {
+            File tempFile = new File(selectedFilePath);
             try {
-                // 方法1：直接使用 pm install 命令安装（推荐）
-                String installCmd = "pm install -r \"" + selectedFilePath + "\"";
-                log("Executing install command: " + installCmd);
-
-                // 使用正确的 Shizuku API 执行命令
-                Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", installCmd});
-
-                StringBuilder out = new StringBuilder();
-                StringBuilder err = new StringBuilder();
-
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                     BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        out.append(line).append("\n");
-                        final String l = line;
-                        runOnUiThread(() -> log("Install (stdout): " + l));
-                    }
-                    while ((line = errorReader.readLine()) != null) {
-                        err.append(line).append("\n");
-                        final String l = line;
-                        runOnUiThread(() -> log("Install (stderr): " + l));
-                    }
-                } catch (Exception e) {
-                    log("读取安装进程输出出错喵: " + e.getMessage());
+                log("APK文件大小: " + tempFile.length() + " bytes");
+                
+                // 使用 pm install-create/install-write/install-commit 流程
+                
+                // 步骤1: 创建安装会话
+                String createCmd = "pm install-create -r";
+                log("创建安装会话: " + createCmd);
+                String createOutput = executeShizukuCommand(createCmd);
+                log("会话创建输出: " + createOutput);
+                
+                // 解析会诚ID (格式: "Success: created install session [123]")
+                if (createOutput == null || !createOutput.contains("Success")) {
+                    throw new Exception("创建安装会话失败: " + createOutput);
                 }
-
-                int installExit = process.waitFor();
-                final String finalOut = out.toString().trim();
-                final String finalErr = err.toString().trim();
+                
+                String sessionId = createOutput.substring(
+                    createOutput.indexOf("[") + 1,
+                    createOutput.indexOf("]")
+                );
+                log("会诚ID: " + sessionId);
+                
+                // 步骤2: 写入APK数据到会话
+                String writeCmd = "pm install-write -S " + tempFile.length() + " " + sessionId + " base.apk -";
+                log("写入APK数据: " + writeCmd);
+                
+                String writeOutput = executeShizukuCommandWithInput(writeCmd, tempFile);
+                log("写入结果: " + writeOutput);
+                
+                if (writeOutput == null || !writeOutput.contains("Success")) {
+                    throw new Exception("写入APK失败: " + writeOutput);
+                }
+                
+                // 步骤3: 提交安装
+                String commitCmd = "pm install-commit " + sessionId;
+                log("提交安装: " + commitCmd);
+                String commitOutput = executeShizukuCommand(commitCmd);
+                
+                final String finalOut = commitOutput != null ? commitOutput.trim() : "";
 
                 runOnUiThread(() -> {
-                    if (installExit == 0 || finalOut.toLowerCase().contains("success")) {
-                        log("安装成功喵: " + new File(selectedFilePath).getName() + " 输出: " + finalOut);
+                    if (finalOut.toLowerCase().contains("success")) {
+                        log("✓ 安装成功: " + tempFile.getName());
+                        log("输出: " + finalOut);
                         Toast.makeText(MainActivity.this, "安装成功喵~", Toast.LENGTH_LONG).show();
                         tvSelectedFile.setText("No file selected");
                         selectedFileUri = null;
                         selectedFilePath = null;
+                        
+                        // 安装成功后清理临时文件
+                        if (tempFile.exists()) {
+                            if (tempFile.delete()) {
+                                log("临时文件已清理");
+                            }
+                        }
                     } else {
-                        log("安装失败喵。Exit code: " + installExit + "\nOutput: " + finalOut + "\nError: " + finalErr);
-                        Toast.makeText(MainActivity.this, "安装失败，查看日志喵。", Toast.LENGTH_LONG).show();
+                        log("✗ 安装失败");
+                        log("输出: " + finalOut);
+                        Toast.makeText(MainActivity.this, "安装失败，请查看日志喵。", Toast.LENGTH_LONG).show();
                     }
+                    log("=== 安装流程结束 ===");
                     btnInstall.setEnabled(true);
                     updateInstallButtonState();
                 });
@@ -382,8 +411,10 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 final String em = e.getMessage();
                 runOnUiThread(() -> {
-                    log("安装流程异常喵: " + em);
+                    log("✗ 安装流程异常: " + em);
+                    e.printStackTrace();
                     Toast.makeText(MainActivity.this, "安装异常: " + em, Toast.LENGTH_LONG).show();
+                    log("=== 安装流程异常结束 ===");
                     btnInstall.setEnabled(true);
                     updateInstallButtonState();
                 });
@@ -391,44 +422,150 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    // 备用方法：使用 Shizuku 的 execCommand（如果可用）
-    private void installWithShizukuExec() {
-        if (selectedFilePath == null) return;
-
-        new Thread(() -> {
-            try {
-                // 尝试使用反射调用 Shizuku.execCommand（如果存在）
-                String installCmd = "pm install -r \"" + selectedFilePath + "\"";
-                log("尝试使用 Shizuku.execCommand: " + installCmd);
-
-                // 使用 Runtime.exec，因为 Shizuku.newProcess 是 private 的
-                Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", installCmd});
-                int exitCode = process.waitFor();
-
-                runOnUiThread(() -> {
-                    if (exitCode == 0) {
-                        log("安装成功喵");
-                        Toast.makeText(MainActivity.this, "安装成功喵！", Toast.LENGTH_LONG).show();
-                        tvSelectedFile.setText("No file selected");
-                        selectedFileUri = null;
-                        selectedFilePath = null;
-                    } else {
-                        log("安装失败喵, exit=" + exitCode);
-                        Toast.makeText(MainActivity.this, "安装失败喵", Toast.LENGTH_LONG).show();
-                    }
-                    btnInstall.setEnabled(true);
-                    updateInstallButtonState();
-                });
-
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    log("安装异常喵: " + e.getMessage());
-                    Toast.makeText(MainActivity.this, "安装异常喵", Toast.LENGTH_LONG).show();
-                    btnInstall.setEnabled(true);
-                    updateInstallButtonState();
-                });
+    // 使用 Shizuku 执行 shell 命令并传入文件数据
+    private String executeShizukuCommandWithInput(String command, File inputFile) throws Exception {
+        Process process = null;
+        FileInputStream fis = null;
+        try {
+            // 使用反射调用 Shizuku.newProcess
+            Class<?> shizukuClass = Class.forName("rikka.shizuku.Shizuku");
+            java.lang.reflect.Method newProcessMethod = shizukuClass.getDeclaredMethod(
+                "newProcess", 
+                String[].class, 
+                String[].class, 
+                String.class
+            );
+            newProcessMethod.setAccessible(true);
+            
+            process = (Process) newProcessMethod.invoke(
+                null,
+                new String[]{"sh", "-c", command},
+                null,
+                null
+            );
+            
+            if (process == null) {
+                throw new Exception("无法创建进程");
             }
-        }).start();
+            
+            // 将文件数据写入进程的标准输入
+            fis = new FileInputStream(inputFile);
+            java.io.OutputStream os = process.getOutputStream();
+            
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            long totalBytes = 0;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+                totalBytes += bytesRead;
+            }
+            os.flush();
+            os.close();
+            fis.close();
+            fis = null;
+            
+            log("已写入 " + totalBytes + " bytes");
+            
+            // 读取输出
+            StringBuilder output = new StringBuilder();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            reader.close();
+            
+            process.waitFor();
+            return output.toString().trim();
+        } catch (Exception e) {
+            log("执行命令异常: " + e.getMessage());
+            throw new Exception("执行命令失败: " + e.getMessage(), e);
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (Exception ignored) {}
+            }
+            if (process != null) {
+                try {
+                    process.destroy();
+                } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    // 使用反射调用 Shizuku 的隐藏 API 执行 shell 命令
+    private String executeShizukuCommand(String command) throws Exception {
+        Process process = null;
+        try {
+            // 使用反射调用 Shizuku.newProcess
+            Class<?> shizukuClass = Class.forName("rikka.shizuku.Shizuku");
+            java.lang.reflect.Method newProcessMethod = shizukuClass.getDeclaredMethod(
+                "newProcess", 
+                String[].class, 
+                String[].class, 
+                String.class
+            );
+            newProcessMethod.setAccessible(true);
+            
+            process = (Process) newProcessMethod.invoke(
+                null,
+                new String[]{"sh", "-c", command},
+                null,
+                null
+            );
+            
+            if (process == null) {
+                throw new Exception("无法创建进程，Shizuku可能未正确授权");
+            }
+            
+            // 同时读取标准输出和错误输出
+            StringBuilder output = new StringBuilder();
+            StringBuilder error = new StringBuilder();
+            
+            BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            
+            String line;
+            while ((line = stdoutReader.readLine()) != null) {
+                output.append(line).append("\n");
+                log("命令输出: " + line);
+            }
+            while ((line = stderrReader.readLine()) != null) {
+                error.append(line).append("\n");
+                log("命令错误: " + line);
+            }
+            
+            stdoutReader.close();
+            stderrReader.close();
+            
+            int exitCode = process.waitFor();
+            log("进程退出码: " + exitCode);
+            
+            // 如果有输出就返回输出，否则返回错误信息
+            String result = output.toString().trim();
+            if (result.isEmpty() && error.length() > 0) {
+                result = error.toString().trim();
+            }
+            
+            if (result.isEmpty()) {
+                throw new Exception("命令执行无输出，退出码: " + exitCode);
+            }
+            
+            return result;
+        } catch (Exception e) {
+            log("执行命令异常详情: " + e.getClass().getName() + ": " + e.getMessage());
+            if (e.getCause() != null) {
+                log("异常原因: " + e.getCause().getMessage());
+            }
+            throw new Exception("执行命令失败: " + e.getMessage(), e);
+        } finally {
+            if (process != null) {
+                try {
+                    process.destroy();
+                } catch (Exception ignored) {}
+            }
+        }
     }
 
     private void updateShizukuStatusAndUi() {
@@ -498,11 +635,53 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(() -> {
             try {
                 tvLog.append(logMessage + "\n");
-                int scrollAmount = tvLog.getLineCount() * tvLog.getLineHeight() - tvLog.getHeight();
-                if (scrollAmount > 0) tvLog.scrollTo(0, scrollAmount);
+                // 使用 ScrollView 滚动到底部
+                scrollViewLog.post(() -> scrollViewLog.fullScroll(ScrollView.FOCUS_DOWN));
             } catch (Exception ignored) {
             }
         });
+    }
+
+    // 清空日志
+    private void clearLogs() {
+        runOnUiThread(() -> {
+            tvLog.setText("");
+            Toast.makeText(this, "日志已清空喵", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    // 导出日志
+    private void exportLogs() {
+        try {
+            String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            String fileName = "installer_log_" + timestamp + ".txt";
+            File logFile = new File(getExternalCacheDir(), fileName);
+
+            FileWriter writer = new FileWriter(logFile);
+            writer.write("=== Installer Log Export ===\n");
+            writer.write("Export Time: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()) + "\n");
+            writer.write("\n=== Log Content ===\n");
+            writer.write(tvLog.getText().toString());
+            writer.close();
+
+            // 分享文件
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Installer Log");
+            
+            // 使用 content:// URI 而不是 file:// URI
+            Uri fileUri = Uri.parse("content://" + getPackageName() + ".fileprovider/external_cache/" + fileName);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            
+            startActivity(Intent.createChooser(shareIntent, "导出日志"));
+            
+            Toast.makeText(this, "日志已导出: " + fileName, Toast.LENGTH_LONG).show();
+            log("日志已导出到: " + logFile.getAbsolutePath());
+        } catch (Exception e) {
+            Toast.makeText(this, "导出失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            log("导出日志失败: " + e.getMessage());
+        }
     }
 
     @Override

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">"慧兜兜's Installer"</string>
-    <string name="main_top_text">Shizuku Shell Installer</string>
+    <string name="main_top_text">Installer</string>
     <string name="home_top_text">安装器喵</string>
     <string name="status_area_text1">程序状态喵</string>
     <string name="status_area_text2">Shizuku Permission: 未授予喵</string>
