@@ -8,8 +8,8 @@ android {
 
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer.debug"
-        minSdk = 24
-        targetSdk = 36
+        minSdk = 28 //Android 9
+        targetSdk = 36 //Android 16
         versionCode = 1
         versionName = "1.0"
 

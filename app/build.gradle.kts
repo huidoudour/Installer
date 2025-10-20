@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer"
-        minSdk = 24  // Android 7
+        minSdk = 28  // Android 9
         targetSdk = 34  //Android 14
         versionCode = 1
         versionName = "1.0"
