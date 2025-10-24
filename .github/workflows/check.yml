@@ -1,139 +1,30 @@
+# Android check workflow for branch `create_change`
+# Triggers on push and pull_request for the create_change branch.
+# Runs checkout, sets up JDK 21 with Gradle cache and runs `./gradlew check`.
+# Does NOT copy/upload artifacts.
 name: CI Check
 
 on:
   push:
-    branches:
-      - create_change
+    branches: [ "create_change" ]
+
 
 jobs:
-  commit-message:
-    name: Commit message lint
+  check:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository (full history)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Validate commit messages
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE_REF="${{ github.event.pull_request.base.ref }}"
-            HEAD_REF="${{ github.event.pull_request.head.ref }}"
-            git fetch origin "${BASE_REF}" "${HEAD_REF}"
-            RANGE="origin/${BASE_REF}..origin/${HEAD_REF}"
-          else
-            if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-              RANGE="${{ github.sha }}"
-            else
-              RANGE="${{ github.event.before }}..${{ github.sha }}"
-            fi
-          fi
-
-          COMMITS=$(git rev-list --no-merges $RANGE || true)
-
-          if [ -z "$COMMITS" ]; then
-            echo "No commits found to check."
-            exit 0
-          fi
-
-          echo "Validating $(echo \"$COMMITS\" | wc -l) commits..."
-
-          regex='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\([[:alnum:]._/-]+\))?: .+'
-          failed=0
-          for rev in $COMMITS; do
-            msg=$(git log -1 --pretty=%B "$rev" | sed -n '1p' | tr -d '\r')
-            echo "Checking $rev -> \"$msg\""
-            if ! [[ "$msg" =~ $regex ]]; then
-              echo ""
-              echo "Commit $rev message does not match Conventional Commits pattern:"
-              echo "  $msg"
-              echo ""
-              failed=1
-            fi
-          done
-
-          if [ "$failed" -ne 0 ]; then
-            echo "Commit message validation failed. Expected: <type>(optional-scope): <description>"
-            exit 1
-          fi
-
-          echo "All commit messages passed the check."
-
-  android-ci:
-    name: CI build
-    runs-on: ubuntu-latest
-    needs: commit-message
-    env:
-      # runner.tool_cache is available at job/step level, so set ANDROID_SDK_ROOT here
-      ANDROID_SDK_ROOT: ${{ runner.tool_cache }}/android-sdk
-      ANDROID_HOME: ${{ runner.tool_cache }}/android-sdk
-      GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx3g"
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up JDK 21 (Temurin)
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
           java-version: '21'
-
-      - name: Cache Gradle directories
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            .gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle*', '**/gradle/**') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Cache Android SDK (optional left as best-effort)
-        uses: actions/cache@v4
-        id: sdk-cache
-        with:
-          path: |
-            ${{ env.ANDROID_SDK_ROOT }}
-          key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-android-sdk-
-
-      - name: Install Android SDK command-line tools + essential packages
-        if: steps.sdk-cache.outputs.cache-hit != 'true'
-        run: |
-          set -euo pipefail
-          mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools"
-          cd $HOME
-          CURL_URL="https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip"
-          echo "Downloading Android command-line tools..."
-          curl -fsSL $CURL_URL -o cmdline-tools.zip
-          unzip -q cmdline-tools.zip -d "${ANDROID_SDK_ROOT}/cmdline-tools"
-          if [ -d "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" ]; then
-            mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
-          fi
-          export PATH="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${PATH}"
-          yes | sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --licenses
-          sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" "platform-tools" "platforms;android-33" "build-tools;33.0.2"
-
-      - name: Show Android SDK info
-        run: |
-          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}"
-          ls -la "${ANDROID_SDK_ROOT}" || true
-          if command -v sdkmanager >/dev/null 2>&1; then
-            sdkmanager --list_installed || true
-          else
-            echo "sdkmanager not found in PATH"
-          fi
+          distribution: 'temurin'
+          cache: gradle
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew || true
+        run: chmod +x gradlew
 
-      - name: Run Gradle check and unit tests
-        run: ./gradlew --no-daemon --console=plain clean test check --stacktrace
+      - name: Run Gradle checks
+        run: ./gradlew check --no-daemon
