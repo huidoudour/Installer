@@ -12,7 +12,7 @@
         android:id="@+id/outputCard"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/toolbarContainer"
+        android:layout_above="@+id/toolbarCard"
         android:layout_margin="8dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
@@ -44,7 +44,7 @@
         android:id="@+id/toolbarCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/functionKeysContainer"
+        android:layout_above="@+id/functionKeysCard"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         app:cardCornerRadius="12dp"
@@ -157,7 +157,7 @@
         android:id="@+id/functionKeysCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/inputContainer"
+        android:layout_above="@+id/inputCard"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="4dp"
@@ -264,6 +264,7 @@
 
     <!-- 命令输入区域 - Material You 风格 -->
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/inputCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

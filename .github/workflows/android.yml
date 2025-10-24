@@ -23,12 +23,19 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build --stacktrace
 
     - name: Copy APK to output
       run: |
-        cp app/build/outputs/apk/debug/*.apk output/ || true
-        cp app/build/outputs/apk/release/*.apk output/ || true
+        mkdir -p output
+        # Copy app module APKs
+        cp app/build/outputs/apk/debug/*.apk output/app-debug.apk 2>/dev/null || true
+        cp app/build/outputs/apk/release/*.apk output/app-release.apk 2>/dev/null || true
+        # Copy app-debug module APKs
+        cp app-debug/build/outputs/apk/debug/*.apk output/app-debug-module-debug.apk 2>/dev/null || true
+        cp app-debug/build/outputs/apk/release/*.apk output/app-debug-module-release.apk 2>/dev/null || true
+        # List generated files
+        ls -lh output/
 
     - name: Upload APKs as artifact
       uses: actions/upload-artifact@v4
