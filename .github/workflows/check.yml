@@ -67,7 +67,7 @@ jobs:
           echo "All commit messages passed the check."
 
   android-ci:
-    name: Android build & unit tests (JDK 21)
+    name: CI build
     runs-on: ubuntu-latest
     needs: commit-message
     env:
