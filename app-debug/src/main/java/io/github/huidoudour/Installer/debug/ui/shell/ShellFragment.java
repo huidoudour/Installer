@@ -2,6 +2,7 @@ package io.github.huidoudour.Installer.debug.ui.shell;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -27,6 +28,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import io.github.huidoudour.Installer.debug.R;
 import io.github.huidoudour.Installer.debug.databinding.FragmentShellBinding;
 import io.github.huidoudour.Installer.debug.utils.ShellExecutor;
+import io.github.huidoudour.Installer.debug.utils.NativeHelper;
 import rikka.shizuku.Shizuku;
 
 import java.text.SimpleDateFormat;
@@ -47,6 +49,13 @@ public class ShellFragment extends Fragment {
     private boolean isExecuting = false;
     private int commandCount = 0;
     private int historyIndex = -1;
+    
+    // Material You 颜色
+    private int colorPrimary;
+    private int colorOnSurface;
+    private int colorError;
+    private int colorTertiary;
+    private int colorOnSurfaceVariant;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -60,6 +69,9 @@ public class ShellFragment extends Fragment {
         scrollViewOutput = binding.scrollViewOutput;
         shizukuIndicator = binding.shizukuIndicator;
         tvShizukuStatus = binding.tvShizukuStatus;
+        
+        // 获取Material You颜色
+        initMaterialColors();
 
         // 设置点击事件
         binding.btnClearScreen.setOnClickListener(v -> clearScreen());
@@ -110,22 +122,49 @@ public class ShellFragment extends Fragment {
     }
 
     /**
+     * 初始化Material You颜色
+     */
+    private void initMaterialColors() {
+        // 获取主题颜色，如果无法获取则使用默认值
+        try {
+            TypedArray ta = requireContext().obtainStyledAttributes(new int[]{
+                android.R.attr.colorPrimary,
+                android.R.attr.colorError
+            });
+            
+            colorPrimary = ta.getColor(0, 0xFF6750A4);
+            colorError = ta.getColor(1, 0xFFB3261E);
+            ta.recycle();
+        } catch (Exception e) {
+            colorPrimary = 0xFF6750A4;
+            colorError = 0xFFB3261E;
+        }
+        
+        // 使用Material Design预设颜色
+        colorOnSurface = 0xFF1C1B1F;  // 深色模式下会自动反转
+        colorTertiary = 0xFF7D5260;
+        colorOnSurfaceVariant = 0xFF49454F;
+    }
+    
+    /**
      * 显示欢迎信息
      */
     private void showWelcomeMessage() {
-        appendOutput("Welcome to Termux Shell Emulator", "#00FF00", false);
-        appendOutput("Android Shell Environment v1.0", "#808080", false);
-        appendOutput("", "#00FF00", false);
+        appendOutput("Welcome to aShell You - Style Terminal", colorPrimary, true);
+        appendOutput("Android Shell Environment v2.0", colorOnSurfaceVariant, false);
+        appendOutput("", colorOnSurface, false);
         
         if (ShellExecutor.isShizukuAvailable()) {
-            appendOutput("[*] Root mode enabled via Shizuku", "#00FF00", false);
+            appendOutput("[*] Root mode enabled via Shizuku", colorPrimary, false);
+            appendOutput("[*] Working directory: /data/local/tmp", colorOnSurfaceVariant, false);
         } else {
-            appendOutput("[!] User mode (grant Shizuku for root)", "#FFA500", false);
+            appendOutput("[!] User mode (grant Shizuku for root)", colorTertiary, false);
+            appendOutput("[*] Working directory: /sdcard", colorOnSurfaceVariant, false);
         }
         
-        appendOutput("", "#00FF00", false);
-        appendOutput("Type 'help' for command list", "#808080", false);
-        appendOutput("", "#00FF00", false);
+        appendOutput("", colorOnSurface, false);
+        appendOutput("Type 'help' for command list", colorOnSurfaceVariant, false);
+        appendOutput("", colorOnSurface, false);
     }
 
     /**
@@ -215,9 +254,9 @@ public class ShellFragment extends Fragment {
         if (isExecuting) {
             // 重置Shell会话
             ShellExecutor.resetSession();
-            appendOutput("^C", "#FF4444", true);
-            appendOutput("[Command cancelled, session reset]", "#FFA500", false);
-            appendOutput("", "#00FF00", false);
+            appendOutput("^C", colorError, true);
+            appendOutput("[Command cancelled, session reset]", colorTertiary, false);
+            appendOutput("", colorOnSurface, false);
             
             etCommandInput.setEnabled(true);
             etCommandInput.requestFocus();
@@ -246,8 +285,8 @@ public class ShellFragment extends Fragment {
         commandCount++;
 
         // 显示命令提示符和命令
-        String prompt = ShellExecutor.isShizukuAvailable() ? "root@termux:~#" : "user@termux:~$";
-        appendOutput(prompt + " " + command, "#00FFFF", true);
+        String prompt = ShellExecutor.isShizukuAvailable() ? "root@ashell:~#" : "user@ashell:~$";
+        appendOutput(prompt + " " + command, colorPrimary, true);
 
         // 内置命令
         if (handleBuiltinCommand(command)) {
@@ -266,7 +305,7 @@ public class ShellFragment extends Fragment {
             public void onOutput(String line) {
                 if (getActivity() != null) {
                     requireActivity().runOnUiThread(() -> {
-                        appendOutput(line, "#FFFFFF", false);
+                        appendOutput(line, colorOnSurface, false);
                     });
                 }
             }
@@ -275,7 +314,7 @@ public class ShellFragment extends Fragment {
             public void onError(String error) {
                 if (getActivity() != null) {
                     requireActivity().runOnUiThread(() -> {
-                        appendOutput(error, "#FF4444", false);
+                        appendOutput(error, colorError, false);
                     });
                 }
             }
@@ -285,9 +324,9 @@ public class ShellFragment extends Fragment {
                 if (getActivity() != null) {
                     requireActivity().runOnUiThread(() -> {
                         if (exitCode != 0) {
-                            appendOutput("[Process completed with exit code " + exitCode + "]", "#FFA500", false);
+                            appendOutput("[Process completed with exit code " + exitCode + "]", colorTertiary, false);
                         }
-                        appendOutput("", "#00FF00", false);
+                        appendOutput("", colorOnSurface, false);
                         
                         etCommandInput.setEnabled(true);
                         isExecuting = false;
@@ -304,6 +343,12 @@ public class ShellFragment extends Fragment {
      * 处理内置命令
      */
     private boolean handleBuiltinCommand(String command) {
+        // Native库命令
+        if (command.startsWith("native:")) {
+            handleNativeCommand(command.substring(7));
+            return true;
+        }
+        
         switch (command.toLowerCase()) {
             case "help":
                 showHelpMessage();
@@ -317,31 +362,130 @@ public class ShellFragment extends Fragment {
                 return true;
             case "exit":
             case "quit":
-                appendOutput("👋 Please use app navigation to switch pages", "#808080", false);
+                appendOutput("👋 Please use app navigation to switch pages", colorOnSurfaceVariant, false);
                 return true;
             default:
                 return false;
         }
+    }
+    
+    /**
+     * 处理Native库命令
+     */
+    private void handleNativeCommand(String subCommand) {
+        NativeHelper helper = new NativeHelper();
+        
+        if (!NativeHelper.isNativeLibraryAvailable()) {
+            appendOutput("", colorOnSurface, false);
+            appendOutput("❌ Native library not available", colorError, true);
+            appendOutput("The C++ shared library (.so) is not loaded.", colorOnSurfaceVariant, false);
+            appendOutput("", colorOnSurface, false);
+            return;
+        }
+        
+        switch (subCommand.toLowerCase()) {
+            case "info":
+                showNativeLibraryInfo(helper);
+                break;
+            case "test":
+                runNativePerformanceTest(helper);
+                break;
+            case "hash":
+                showNativeHashExample(helper);
+                break;
+            default:
+                appendOutput("", colorOnSurface, false);
+                appendOutput("Native Commands:", colorPrimary, true);
+                appendOutput("  native:info  - Show library info", colorOnSurface, false);
+                appendOutput("  native:test  - Run performance test", colorOnSurface, false);
+                appendOutput("  native:hash  - SHA-256 example", colorOnSurface, false);
+                appendOutput("", colorOnSurface, false);
+                break;
+        }
+    }
+    
+    /**
+     * 显示Native库信息
+     */
+    private void showNativeLibraryInfo(NativeHelper helper) {
+        appendOutput("", colorOnSurface, false);
+        appendOutput("=== C++ Native Library Info ===", colorPrimary, true);
+        appendOutput("", colorOnSurface, false);
+        appendOutput("Version: " + helper.getNativeVersion(), colorOnSurface, false);
+        appendOutput("CPU Architecture: " + helper.getCPUArchitecture(), colorOnSurface, false);
+        appendOutput("Status: ✅ Loaded and Ready", colorPrimary, false);
+        appendOutput("", colorOnSurface, false);
+        appendOutput("Features:", colorPrimary, true);
+        appendOutput("  • High-performance SHA-256 calculation", colorOnSurface, false);
+        appendOutput("  • Native system information", colorOnSurface, false);
+        appendOutput("  • Performance benchmarking", colorOnSurface, false);
+        appendOutput("", colorOnSurface, false);
+    }
+    
+    /**
+     * 运行Native性能测试
+     */
+    private void runNativePerformanceTest(NativeHelper helper) {
+        appendOutput("", colorOnSurface, false);
+        appendOutput("=== Performance Test ===", colorPrimary, true);
+        appendOutput("Running SHA-256 benchmark...", colorOnSurfaceVariant, false);
+        appendOutput("", colorOnSurface, false);
+        
+        new Thread(() -> {
+            String result = helper.runPerformanceComparison();
+            if (getActivity() != null) {
+                requireActivity().runOnUiThread(() -> {
+                    String[] lines = result.split("\n");
+                    for (String line : lines) {
+                        if (line.contains("Native C++")) {
+                            appendOutput(line, colorPrimary, false);
+                        } else if (line.contains("Speedup")) {
+                            appendOutput(line, colorTertiary, true);
+                        } else {
+                            appendOutput(line, colorOnSurface, false);
+                        }
+                    }
+                    appendOutput("", colorOnSurface, false);
+                });
+            }
+        }).start();
+    }
+    
+    /**
+     * 显示Native哈希示例
+     */
+    private void showNativeHashExample(NativeHelper helper) {
+        appendOutput("", colorOnSurface, false);
+        appendOutput("=== SHA-256 Hash Example ===", colorPrimary, true);
+        appendOutput("", colorOnSurface, false);
+        
+        String testString = "Hello from C++ Native Library!";
+        appendOutput("Input: " + testString, colorOnSurfaceVariant, false);
+        
+        String hash = helper.calculateSHA256(testString);
+        appendOutput("SHA-256: " + hash, colorPrimary, false);
+        appendOutput("", colorOnSurface, false);
     }
 
     /**
      * 显示帮助信息
      */
     private void showHelpMessage() {
-        appendOutput("", "#00FF00", false);
-        appendOutput("Built-in commands:", "#00FF00", true);
-        appendOutput("  help     - Show this help", "#FFFFFF", false);
-        appendOutput("  clear    - Clear screen", "#FFFFFF", false);
-        appendOutput("  history  - Show command history", "#FFFFFF", false);
-        appendOutput("  exit     - Exit tip", "#FFFFFF", false);
-        appendOutput("", "#00FF00", false);
-        appendOutput("Shortcuts:", "#00FF00", true);
-        appendOutput("  C   - Clear screen", "#FFFFFF", false);
-        appendOutput("  📋  - Copy output", "#FFFFFF", false);
-        appendOutput("  ⚡  - Quick commands", "#FFFFFF", false);
-        appendOutput("", "#00FF00", false);
-        appendOutput("All Linux shell commands supported", "#808080", false);
-        appendOutput("", "#00FF00", false);
+        appendOutput("", colorOnSurface, false);
+        appendOutput("Built-in commands:", colorPrimary, true);
+        appendOutput("  help     - Show this help", colorOnSurface, false);
+        appendOutput("  clear    - Clear screen", colorOnSurface, false);
+        appendOutput("  history  - Show command history", colorOnSurface, false);
+        appendOutput("  native   - C++ library commands", colorOnSurface, false);
+        appendOutput("  exit     - Exit tip", colorOnSurface, false);
+        appendOutput("", colorOnSurface, false);
+        appendOutput("Shortcuts:", colorPrimary, true);
+        appendOutput("  C   - Clear screen", colorOnSurface, false);
+        appendOutput("  📋  - Copy output", colorOnSurface, false);
+        appendOutput("  ⚡  - Quick commands", colorOnSurface, false);
+        appendOutput("", colorOnSurface, false);
+        appendOutput("All Linux shell commands supported", colorOnSurfaceVariant, false);
+        appendOutput("", colorOnSurface, false);
     }
 
     /**
@@ -349,18 +493,18 @@ public class ShellFragment extends Fragment {
      */
     private void showHistory() {
         var history = ShellExecutor.CommandHistory.getAll();
-        appendOutput("", "#00FF00", false);
-        appendOutput("Command History:", "#00FF00", true);
-        appendOutput("", "#00FF00", false);
+        appendOutput("", colorOnSurface, false);
+        appendOutput("Command History:", colorPrimary, true);
+        appendOutput("", colorOnSurface, false);
         
         if (history.isEmpty()) {
-            appendOutput("No history yet", "#808080", false);
+            appendOutput("No history yet", colorOnSurfaceVariant, false);
         } else {
             for (int i = 0; i < history.size(); i++) {
-                appendOutput("  " + (i + 1) + ". " + history.get(i), "#FFFFFF", false);
+                appendOutput("  " + (i + 1) + ". " + history.get(i), colorOnSurface, false);
             }
         }
-        appendOutput("", "#00FF00", false);
+        appendOutput("", colorOnSurface, false);
     }
 
     /**
@@ -371,8 +515,15 @@ public class ShellFragment extends Fragment {
             .setTitle("⚡ Quick Commands")
             .setItems(ShellExecutor.QuickCommands.COMMAND_NAMES, (dialog, which) -> {
                 String command = ShellExecutor.QuickCommands.COMMANDS[which];
-                etCommandInput.setText(command);
-                executeCommand();
+                
+                // 处理Native命令
+                if (command.startsWith("native:")) {
+                    etCommandInput.setText(command);
+                    executeCommand();
+                } else {
+                    etCommandInput.setText(command);
+                    executeCommand();
+                }
             })
             .setNegativeButton("Cancel", null)
             .show();
@@ -399,9 +550,9 @@ public class ShellFragment extends Fragment {
     }
 
     /**
-     * 追加输出（使用颜色字符串）
+     * 追加输出（使用Material You颜色）
      */
-    private void appendOutput(String text, String colorHex, boolean bold) {
+    private void appendOutput(String text, int color, boolean bold) {
         if (getActivity() == null) return;
         
         requireActivity().runOnUiThread(() -> {
@@ -411,16 +562,10 @@ public class ShellFragment extends Fragment {
             builder.append(text).append("\n");
             int end = builder.length();
             
-            try {
-                int color = Color.parseColor(colorHex);
-                builder.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                if (bold) {
-                    builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 
-                                   start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
-            } catch (Exception e) {
-                // 默认绿色
-                builder.setSpan(new ForegroundColorSpan(0xFF00FF00), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (bold) {
+                builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 
+                               start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             
             tvTerminalOutput.setText(builder);
@@ -472,15 +617,17 @@ public class ShellFragment extends Fragment {
      */
     private void updateShizukuStatus() {
         if (ShellExecutor.isShizukuAvailable()) {
-            shizukuIndicator.setBackgroundColor(Color.parseColor("#00FF00"));
+            shizukuIndicator.setBackgroundColor(colorPrimary);
             tvShizukuStatus.setText("root");
-            tvShizukuStatus.setTextColor(Color.parseColor("#00FF00"));
+            tvShizukuStatus.setTextColor(colorPrimary);
             tvPrompt.setText("#");
+            tvPrompt.setTextColor(colorPrimary);
         } else {
-            shizukuIndicator.setBackgroundColor(Color.parseColor("#FFA500"));
+            shizukuIndicator.setBackgroundColor(colorTertiary);
             tvShizukuStatus.setText("user");
-            tvShizukuStatus.setTextColor(Color.parseColor("#FFA500"));
+            tvShizukuStatus.setTextColor(colorTertiary);
             tvPrompt.setText("$");
+            tvPrompt.setTextColor(colorTertiary);
         }
     }
 

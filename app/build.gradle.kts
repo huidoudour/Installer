@@ -30,6 +30,33 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    
+    // Lint 配置 - 与 app-debug 模块保持一致
+    lint {
+        warningsAsErrors = false
+        abortOnError = true
+        disable += setOf(
+            "HardcodedText",
+            "SetTextI18n",
+            "DefaultLocale",
+            "SdCardPath",
+            "UseTomlInstead",
+            "ObsoleteSdkInt",
+            "UnusedResources",
+            "Overdraw",
+            "UselessParent",
+            "Autofill",
+            "FragmentTagUsage",
+            "GradleDependency",
+            "NewerVersionAvailable",
+            "Aligned16KB"
+        )
+        checkOnly += setOf(
+            "NotSibling",
+            "DuplicateIds",
+            "UnknownId"
+        )
+    }
 }
 
 dependencies {

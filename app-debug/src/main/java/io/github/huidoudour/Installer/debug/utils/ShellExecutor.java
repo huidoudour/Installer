@@ -375,10 +375,10 @@ public class ShellExecutor {
                 for (java.lang.reflect.Method method : shizukuClass.getDeclaredMethods()) {
                     if (method.getName().equals("newProcess")) {
                         method.setAccessible(true);
-                        // 使用交互式shell
+                        // 使用非交互式shell，避免TTY错误
                         persistentShellProcess = (Process) method.invoke(
                             null,
-                            new String[]{"sh", "-i"},  // 交互式模式
+                            new String[]{"sh"},  // 非交互式模式
                             null,
                             null
                         );
@@ -390,8 +390,8 @@ public class ShellExecutor {
                 throw new Exception("Shizuku session creation failed: " + e.getMessage());
             }
         } else {
-            // 普通模式 - 使用交互式shell
-            persistentShellProcess = Runtime.getRuntime().exec(new String[]{"sh", "-i"});
+            // 普通模式 - 使用非交互式shell
+            persistentShellProcess = Runtime.getRuntime().exec(new String[]{"sh"});
             isShizukuSession = false;
         }
         
@@ -406,17 +406,31 @@ public class ShellExecutor {
                 new InputStreamReader(persistentShellProcess.getErrorStream())
             );
             
-            // 初始化环境 - 清除提示符
+            // 初始化环境 - 清除提示符并禁用作业控制
             persistentShellWriter.write("export PS1=''\n");
             persistentShellWriter.write("export PS2=''\n");
+            persistentShellWriter.write("set +m\n");  // 禁用作业控制，避免TTY错误
+            
+            // 切换到用户可访问的目录（/sdcard 或 /data/local/tmp）
+            if (useShizuku) {
+                // Shizuku模式下可以访问任何目录，使用/data/local/tmp
+                persistentShellWriter.write("cd /data/local/tmp 2>/dev/null || cd /sdcard\n");
+            } else {
+                // 普通模式使用/sdcard
+                persistentShellWriter.write("cd /sdcard 2>/dev/null || cd /data/local/tmp\n");
+            }
+            
             persistentShellWriter.flush();
             
             // 等待初始化完成
-            Thread.sleep(100);
+            Thread.sleep(200);
             
             // 清空初始输出
             while (persistentShellStdout.ready()) {
                 persistentShellStdout.readLine();
+            }
+            while (persistentShellStderr.ready()) {
+                persistentShellStderr.readLine();
             }
         }
     }
@@ -491,7 +505,9 @@ public class ShellExecutor {
             "ps aux",
             "pm list packages",
             "getprop",
-            "logcat -d -v time"
+            "logcat -d -v time",
+            "native:info",
+            "native:test"
         };
         
         public static final String[] COMMAND_NAMES = {
@@ -504,7 +520,9 @@ public class ShellExecutor {
             "进程列表",
             "已安装应用",
             "系统属性",
-            "系统日志"
+            "系统日志",
+            "🔧 Native库信息",
+            "🚀 性能测试"
         };
     }
 
