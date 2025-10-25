@@ -7,37 +7,172 @@
     android:background="?android:attr/colorBackground"
     tools:context=".ui.shell.ShellFragment">
 
-    <!-- 终端输出区域 - Material You 风格 -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/outputCard"
+    <!-- 命令输入区域 - Material You 风格 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/inputCard"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/toolbarCard"
-        android:layout_margin="8dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="?attr/colorSurfaceVariant">
+        app:cardElevation="3dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
+        app:strokeWidth="2dp"
+        app:strokeColor="?attr/colorPrimary">
 
-    <ScrollView
-        android:id="@+id/scrollViewOutput"
+    <LinearLayout
+        android:id="@+id/inputContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        android:fadeScrollbars="false"
-        android:background="?attr/colorSurfaceVariant">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="?attr/colorSurfaceContainerHighest"
+        android:padding="12dp"
+        android:gravity="center_vertical">
 
+        <!-- 命令提示符 -->
         <TextView
-            android:id="@+id/tvTerminalOutput"
-            android:layout_width="match_parent"
+            android:id="@+id/tvPrompt"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:textSize="13sp"
+            android:text="$"
+            android:textSize="16sp"
+            android:textColor="?attr/colorPrimary"
+            android:fontFamily="monospace"
+            android:textStyle="bold"
+            android:paddingEnd="12dp"
+            android:paddingStart="4dp" />
+
+        <!-- 命令输入框 -->
+        <EditText
+            android:id="@+id/etCommandInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="textNoSuggestions"
+            android:maxLines="1"
+            android:textSize="15sp"
             android:textColor="?attr/colorOnSurface"
             android:fontFamily="monospace"
-            android:lineSpacingExtra="4dp"
-            android:textIsSelectable="true" />
-    </ScrollView>
-    </androidx.cardview.widget.CardView>
+            android:background="@android:color/transparent"
+            android:textCursorDrawable="@null"
+            android:hint="Enter command..."
+            android:textColorHint="?attr/colorOnSurfaceVariant"
+            android:imeOptions="actionSend|flagNoExtractUi"
+            android:windowSoftInputMode="adjustResize" />
+    </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 功能键容器 (Tab, 上下箭头等) - Material You 风格 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/functionKeysCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/inputCard"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="4dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="1dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutlineVariant">
+
+    <LinearLayout
+        android:id="@+id/functionKeysContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="?attr/colorSurfaceContainer"
+        android:padding="8dp"
+        android:gravity="center">
+
+        <!-- 上箭头 (历史上一条) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnHistoryUp"
+            android:layout_width="44dp"
+            android:layout_height="36dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:padding="0dp"
+            android:text="↑"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnTertiaryContainer"
+            android:layout_marginEnd="4dp"
+            app:cornerRadius="8dp"
+            style="@style/Widget.Material3.Button.TonalButton" />
+
+        <!-- 下箭头 (历史下一条) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnHistoryDown"
+            android:layout_width="44dp"
+            android:layout_height="36dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:padding="0dp"
+            android:text="↓"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnTertiaryContainer"
+            android:layout_marginEnd="8dp"
+            app:cornerRadius="8dp"
+            style="@style/Widget.Material3.Button.TonalButton" />
+
+        <!-- Tab键 (自动补全 - 暂时显示常用目录) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTab"
+            android:layout_width="54dp"
+            android:layout_height="36dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:padding="0dp"
+            android:text="TAB"
+            android:textSize="11sp"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            android:layout_marginEnd="8dp"
+            app:cornerRadius="8dp"
+            style="@style/Widget.Material3.Button.TonalButton" />
+
+        <!-- Ctrl+C (终止命令) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCtrlC"
+            android:layout_width="54dp"
+            android:layout_height="36dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:padding="0dp"
+            android:text="^C"
+            android:textSize="12sp"
+            android:textColor="?attr/colorError"
+            android:layout_marginEnd="4dp"
+            app:cornerRadius="8dp"
+            style="@style/Widget.Material3.Button.TonalButton" />
+
+        <!-- ESC键 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEsc"
+            android:layout_width="54dp"
+            android:layout_height="36dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:padding="0dp"
+            android:text="ESC"
+            android:textSize="11sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:cornerRadius="8dp"
+            style="@style/Widget.Material3.Button.TonalButton" />
+    </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- 工具栏容器 - Material You 风格 -->
     <com.google.android.material.card.MaterialCardView
@@ -152,171 +287,36 @@
     </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 功能键容器 (Tab, 上下箭头等) - Material You 风格 -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/functionKeysCard"
+    <!-- 终端输出区域 - Material You 风格 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/outputCard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/inputCard"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="4dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="1dp"
-        app:cardBackgroundColor="?attr/colorSurfaceContainer"
-        app:strokeWidth="1dp"
-        app:strokeColor="?attr/colorOutlineVariant">
-
-    <LinearLayout
-        android:id="@+id/functionKeysContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="?attr/colorSurfaceContainer"
-        android:padding="8dp"
-        android:gravity="center">
-
-        <!-- 上箭头 (历史上一条) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnHistoryUp"
-            android:layout_width="44dp"
-            android:layout_height="36dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:padding="0dp"
-            android:text="↑"
-            android:textSize="16sp"
-            android:textColor="?attr/colorOnTertiaryContainer"
-            android:layout_marginEnd="4dp"
-            app:cornerRadius="8dp"
-            style="@style/Widget.Material3.Button.TonalButton" />
-
-        <!-- 下箭头 (历史下一条) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnHistoryDown"
-            android:layout_width="44dp"
-            android:layout_height="36dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:padding="0dp"
-            android:text="↓"
-            android:textSize="16sp"
-            android:textColor="?attr/colorOnTertiaryContainer"
-            android:layout_marginEnd="8dp"
-            app:cornerRadius="8dp"
-            style="@style/Widget.Material3.Button.TonalButton" />
-
-        <!-- Tab键 (自动补全 - 暂时显示常用目录) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnTab"
-            android:layout_width="54dp"
-            android:layout_height="36dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:padding="0dp"
-            android:text="TAB"
-            android:textSize="11sp"
-            android:textColor="?attr/colorOnSecondaryContainer"
-            android:layout_marginEnd="8dp"
-            app:cornerRadius="8dp"
-            style="@style/Widget.Material3.Button.TonalButton" />
-
-        <!-- Ctrl+C (终止命令) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCtrlC"
-            android:layout_width="54dp"
-            android:layout_height="36dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:padding="0dp"
-            android:text="^C"
-            android:textSize="12sp"
-            android:textColor="?attr/colorError"
-            android:layout_marginEnd="4dp"
-            app:cornerRadius="8dp"
-            style="@style/Widget.Material3.Button.TonalButton" />
-
-        <!-- ESC键 -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEsc"
-            android:layout_width="54dp"
-            android:layout_height="36dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:padding="0dp"
-            android:text="ESC"
-            android:textSize="11sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            app:cornerRadius="8dp"
-            style="@style/Widget.Material3.Button.TonalButton" />
-    </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- 命令输入区域 - Material You 风格 -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/inputCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/toolbarCard"
+        android:layout_margin="8dp"
         app:cardCornerRadius="16dp"
-        app:cardElevation="3dp"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
-        app:strokeWidth="2dp"
-        app:strokeColor="?attr/colorPrimary">
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="?attr/colorSurfaceVariant">
 
-    <LinearLayout
-        android:id="@+id/inputContainer"
+    <ScrollView
+        android:id="@+id/scrollViewOutput"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="?attr/colorSurfaceContainerHighest"
-        android:padding="12dp"
-        android:gravity="center_vertical">
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:background="?attr/colorSurfaceVariant">
 
-        <!-- 命令提示符 -->
         <TextView
-            android:id="@+id/tvPrompt"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvTerminalOutput"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="$"
-            android:textSize="16sp"
-            android:textColor="?attr/colorPrimary"
-            android:fontFamily="monospace"
-            android:textStyle="bold"
-            android:paddingEnd="12dp"
-            android:paddingStart="4dp" />
-
-        <!-- 命令输入框 -->
-        <EditText
-            android:id="@+id/etCommandInput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="textNoSuggestions"
-            android:maxLines="1"
-            android:textSize="15sp"
+            android:padding="16dp"
+            android:textSize="13sp"
             android:textColor="?attr/colorOnSurface"
             android:fontFamily="monospace"
-            android:background="@android:color/transparent"
-            android:textCursorDrawable="@null"
-            android:hint="Enter command..."
-            android:textColorHint="?attr/colorOnSurfaceVariant"
-            android:imeOptions="actionSend|flagNoExtractUi"
-            android:windowSoftInputMode="adjustResize" />
-    </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+            android:lineSpacingExtra="4dp"
+            android:textIsSelectable="true" />
+    </ScrollView>
+    </androidx.cardview.widget.CardView>
 
 </RelativeLayout>
