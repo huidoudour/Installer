@@ -25,7 +25,20 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags += "-std=c++17"
-                arguments += "-DANDROID_STL=c++_shared"
+                arguments += listOf(
+                    "-DANDROID_STL=c++_shared",
+                    // 启用 16KB 页面对齐支持 (Android 15+兼容性)
+                    "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+                )
+            }
+        }
+        
+        // 启用 16KB 页面大小支持 (适配未来 Android 版本)
+        // 这确保原生库在 16KB 页面大小的设备上正常运行
+        packaging {
+            jniLibs {
+                // 保持原生库的调试符号
+                keepDebugSymbols += "**/*.so"
             }
         }
     }
@@ -67,8 +80,8 @@ android {
             "Autofill",                // 不强制自动填充提示
             "FragmentTagUsage",        // 允许使用fragment标签
             "GradleDependency",        // 不强制更新依赖
-            "NewerVersionAvailable",   // 不强制更新到最新版本
-            "Aligned16KB"              // 16KB对齐警告(依赖库问题)
+            "NewerVersionAvailable"    // 不强制更新到最新版本
+            // 注意: 已移除 "Aligned16KB"，因为我们已正确配置 16KB 对齐
         )
         // 仅检查致命错误
         checkOnly += setOf(
