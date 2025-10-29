@@ -2,6 +2,7 @@ package io.github.huidoudour.Installer.debug;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.DynamicColors;
@@ -13,6 +14,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import io.github.huidoudour.Installer.debug.databinding.ActivityHomeBinding;
+import io.github.huidoudour.Installer.debug.utils.KotlinUtils;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -40,6 +42,16 @@ public class HomeActivity extends AppCompatActivity {
         
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_home);
         NavigationUI.setupWithNavController(binding.navView, navController);
+        
+        // 测试调用Kotlin代码
+        testKotlinIntegration();
     }
-
-}
+    
+    /**
+     * 测试Kotlin集成
+     */
+    private void testKotlinIntegration() {
+        // 调用Kotlin工具类中的函数
+        int sum = KotlinUtils.addNumbers(5, 3);
+        Log.d("HomeActivity", "Kotlin addNumbers result: " + sum);
+    }

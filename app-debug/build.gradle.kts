@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -68,6 +69,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
     }
     buildFeatures {
         viewBinding = true
@@ -145,6 +149,10 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     
     // 注意: Shell 终端功能使用 Shizuku 的原生能力，不需要额外的终端库
+    
+    // Kotlin support
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.20")
+    implementation("androidx.core:core-ktx:1.15.0")
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
