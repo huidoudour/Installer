@@ -1,6 +1,8 @@
 package io.github.huidoudour.Installer;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.DynamicColors;
@@ -39,5 +41,6 @@ public class HomeActivity extends AppCompatActivity {
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_home);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
     }
 }
