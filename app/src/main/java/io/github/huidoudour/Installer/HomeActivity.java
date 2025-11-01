@@ -1,31 +1,43 @@
 package io.github.huidoudour.Installer;
 
 import android.os.Bundle;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.color.DynamicColors;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
+
+import io.github.huidoudour.Installer.databinding.ActivityHomeBinding;
 
 public class HomeActivity extends AppCompatActivity {
 
+    private ActivityHomeBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 启用动态颜色（壁纸取色）- Android 12+
+        DynamicColors.applyToActivityIfAvailable(this);
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
 
-        // 启用边缘到边缘显示（替代 EdgeToEdge.enable(this)）
-        enableEdgeToEdge();
-    }
+        binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-    private void enableEdgeToEdge() {
-        // 让内容延伸到系统栏后面
+        // 隐藏 ActionBar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
+        // 启用边到边显示
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-        // 设置状态栏和导航栏的样式
-        WindowInsetsControllerCompat windowInsetsController =
-                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        BottomNavigationView navView = findViewById(R.id.nav_view);
 
-        // 根据需要设置亮色或暗色图标
-        windowInsetsController.setAppearanceLightStatusBars(true);
-        windowInsetsController.setAppearanceLightNavigationBars(true);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_home);
+        NavigationUI.setupWithNavController(binding.navView, navController);
     }
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="io.github.huidoudour.Installer">
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- 添加必要权限 -->
     <uses-permission
         android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
@@ -25,16 +24,15 @@
         android:theme="@style/Theme.Installer">
         <activity
             android:name=".HomeActivity"
-            android:exported="true" />
-        <activity
-            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- 启用Shizuku Provider -->
+        </activity>
+        
+        <!-- 启用Shizuku Provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"

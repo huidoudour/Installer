@@ -64,10 +64,16 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.cardview:cardview:1.0.0")
-
-    // 添加这些依赖以支持 EdgeToEdge 和新版 Activity
-    implementation("androidx.activity:activity:1.8.0")
+    
+    // 添加 Fragment 和 Navigation 组件
     implementation("androidx.fragment:fragment:1.6.1")
+    implementation("androidx.navigation:navigation-fragment:2.7.5")
+    implementation("androidx.navigation:navigation-ui:2.7.5")
+    
+    // 添加 Activity 组件
+    implementation("androidx.activity:activity:1.8.0")
+    
+    // 添加 Core 组件
     implementation("androidx.core:core:1.12.0")
 
     // Shizuku依赖
@@ -77,11 +83,4 @@ dependencies {
     // 统一 Kotlin 版本
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.22"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.22")
-
-    // 删除或注释掉这些重复的依赖
-    // implementation(libs.navigation.fragment)
-    // implementation(libs.navigation.ui)
-    // implementation(libs.activity)
-    // implementation(libs.api)
-    // implementation(libs.provider)
 }
