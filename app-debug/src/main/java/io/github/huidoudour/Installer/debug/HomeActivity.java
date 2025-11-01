@@ -14,7 +14,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import io.github.huidoudour.Installer.debug.databinding.ActivityHomeBinding;
-import io.github.huidoudour.Installer.debug.utils.KotlinUtils;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -24,7 +23,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // 启用动态颜色（壁纸取色）- Android 12+
         DynamicColors.applyToActivityIfAvailable(this);
-        
+
         super.onCreate(savedInstanceState);
 
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
@@ -34,24 +33,15 @@ public class HomeActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
-        
+
         // 启用边到边显示
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_home);
         NavigationUI.setupWithNavController(binding.navView, navController);
-        
-        // 测试调用Kotlin代码
-        testKotlinIntegration();
+
     }
-    
-    /**
-     * 测试Kotlin集成
-     */
-    private void testKotlinIntegration() {
-        // 调用Kotlin工具类中的函数
-        int sum = KotlinUtils.addNumbers(5, 3);
-        Log.d("HomeActivity", "Kotlin addNumbers result: " + sum);
-    }
+
+}
