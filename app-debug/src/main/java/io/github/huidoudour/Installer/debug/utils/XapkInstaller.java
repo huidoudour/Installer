@@ -3,29 +3,24 @@ package io.github.huidoudour.Installer.debug.utils;
 import android.content.Context;
 import android.util.Log;
 
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
-
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * XAPK/APKS 安装工具类
  * 
- * 使用 Apache Commons Compress 原生库解压 ZIP 格式的安装包
+ * 使用 Android 内置的 ZIP 解压功能处理安装包
  * 
  * 支持格式：
  * - XAPK (APKPure 格式)
  * - APKS (App Bundle 导出格式)
  * - APKM (APKMirror 格式)
- * 
- * 原生库：
- * - libcommons-compress.so (如果有原生实现)
- * - 使用原生 zlib 库加速解压
  */
 public class XapkInstaller {
 
@@ -50,65 +45,94 @@ public class XapkInstaller {
         Log.d(TAG, "开始解压 XAPK: " + xapkPath);
         Log.d(TAG, "解压目标目录: " + extractDir.getAbsolutePath());
         
-        // 使用 Commons Compress (包含原生库优化)
-        ZipFile zipFile = null;
+        FileInputStream fis = null;
+        ZipInputStream zis = null;
+        
         try {
-            zipFile = new ZipFile(new File(xapkPath));
-            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+            Log.d(TAG, "正在打开 ZIP 文件...");
+            fis = new FileInputStream(xapkPath);
+            zis = new ZipInputStream(fis);
+            Log.d(TAG, "ZIP 文件打开成功");
             
             int totalEntries = 0;
             int extractedApks = 0;
             
-            while (entries.hasMoreElements()) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
                 totalEntries++;
-            }
-            
-            // 重新获取枚举
-            entries = zipFile.getEntries();
-            
-            while (entries.hasMoreElements()) {
-                ZipArchiveEntry entry = entries.nextElement();
                 String entryName = entry.getName();
                 
-                Log.d(TAG, "处理条目: " + entryName + " (大小: " + entry.getSize() + " bytes)");
+                Log.d(TAG, "处理条目 #" + totalEntries + ": " + entryName + " (大小: " + entry.getSize() + " bytes)");
                 
                 // 只解压 APK 文件，忽略其他文件（如 icon.png, manifest.json）
                 if (entryName.toLowerCase().endsWith(".apk")) {
                     File destFile = new File(extractDir, new File(entryName).getName());
                     
-                    // 解压文件
-                    InputStream inputStream = zipFile.getInputStream(entry);
-                    FileOutputStream outputStream = new FileOutputStream(destFile);
-                    
-                    byte[] buffer = new byte[8192];
-                    int bytesRead;
-                    long totalRead = 0;
-                    
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                        totalRead += bytesRead;
+                    // 确保父目录存在
+                    File parent = destFile.getParentFile();
+                    if (parent != null && !parent.exists()) {
+                        parent.mkdirs();
                     }
                     
-                    outputStream.close();
-                    inputStream.close();
+                    Log.d(TAG, "正在解压 APK: " + destFile.getName());
                     
-                    apkFiles.add(destFile);
-                    extractedApks++;
-                    
-                    Log.d(TAG, "✓ 已解压 APK: " + destFile.getName() + 
-                            " (" + totalRead + " bytes)");
+                    // 解压文件
+                    FileOutputStream fos = null;
+                    try {
+                        fos = new FileOutputStream(destFile);
+                        
+                        byte[] buffer = new byte[8192];
+                        int bytesRead;
+                        long totalRead = 0;
+                        
+                        while ((bytesRead = zis.read(buffer)) != -1) {
+                            fos.write(buffer, 0, bytesRead);
+                            totalRead += bytesRead;
+                        }
+                        
+                        fos.close();
+                        
+                        apkFiles.add(destFile);
+                        extractedApks++;
+                        
+                        Log.d(TAG, "✓ 已解压 APK: " + destFile.getName() + 
+                                " (" + totalRead + " bytes)");
+                    } catch (Exception e) {
+                        Log.e(TAG, "解压 APK 失败: " + destFile.getName(), e);
+                        // 确保流被关闭
+                        if (fos != null) {
+                            try { fos.close(); } catch (Exception ignored) {}
+                        }
+                        throw e;
+                    }
                 }
+                
+                // 关闭当前条目
+                zis.closeEntry();
             }
             
             Log.d(TAG, "解压完成！共处理 " + totalEntries + " 个条目，" +
                     "提取 " + extractedApks + " 个 APK 文件");
             
+        } catch (Exception e) {
+            Log.e(TAG, "解压 XAPK 过程中发生错误", e);
+            throw e;
         } finally {
-            if (zipFile != null) {
+            // 关闭流
+            if (zis != null) {
                 try {
-                    zipFile.close();
+                    zis.close();
+                    Log.d(TAG, "ZIP 输入流已关闭");
                 } catch (Exception e) {
-                    Log.e(TAG, "关闭 ZipFile 失败", e);
+                    Log.e(TAG, "关闭 ZIP 输入流失败", e);
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                    Log.d(TAG, "文件输入流已关闭");
+                } catch (Exception e) {
+                    Log.e(TAG, "关闭文件输入流失败", e);
                 }
             }
         }
@@ -176,24 +200,28 @@ public class XapkInstaller {
      */
     public static int getApkCount(String xapkPath) {
         int count = 0;
-        ZipFile zipFile = null;
+        FileInputStream fis = null;
+        ZipInputStream zis = null;
+        
         try {
-            zipFile = new ZipFile(new File(xapkPath));
-            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+            fis = new FileInputStream(xapkPath);
+            zis = new ZipInputStream(fis);
             
-            while (entries.hasMoreElements()) {
-                ZipArchiveEntry entry = entries.nextElement();
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
                 if (entry.getName().toLowerCase().endsWith(".apk")) {
                     count++;
                 }
+                zis.closeEntry();
             }
         } catch (Exception e) {
             Log.e(TAG, "读取 XAPK 失败", e);
         } finally {
-            if (zipFile != null) {
-                try {
-                    zipFile.close();
-                } catch (Exception ignored) {}
+            if (zis != null) {
+                try { zis.close(); } catch (Exception ignored) {}
+            }
+            if (fis != null) {
+                try { fis.close(); } catch (Exception ignored) {}
             }
         }
         return count;

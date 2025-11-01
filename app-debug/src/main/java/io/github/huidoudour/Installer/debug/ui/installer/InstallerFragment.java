@@ -316,13 +316,22 @@ public class InstallerFragment extends Fragment {
 
     private void openFilePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("application/vnd.android.package-archive");
+        // 进一步优化文件选择器配置以支持华为/鸿蒙设备上的XAPK/APKS文件
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
+            "application/vnd.android.package-archive",  // APK
+            "application/zip",  // XAPK, APKS (ZIP格式)
+            "application/octet-stream"  // 二进制流（用于兼容华为等设备将APKS识别为bin文件的情况）
+        });
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // 添加额外的标志以提高兼容性
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         try {
-            filePickerLauncher.launch(Intent.createChooser(intent, "选择 APK 文件喵"));
+            filePickerLauncher.launch(Intent.createChooser(intent, "选择安装包文件 (APK/XAPK/APKS)"));
             log("打开文件选择器喵~...");
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(requireContext(), "请安装文件管理器以选择 APK喵。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "请安装文件管理器以选择安装包文件喵。", Toast.LENGTH_SHORT).show();
             log("文件选择器未找到喵.");
         }
     }
