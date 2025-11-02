@@ -461,7 +461,7 @@ public class InstallerFragment extends Fragment {
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 log("❌ " + error);
-                                log("=== 安装流程结束 ===");
+                                log("=== 安裈流程结束 ===");
                                 Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
                                 btnInstall.setEnabled(true);
                                 updateInstallButtonState();

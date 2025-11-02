@@ -51,7 +51,7 @@ extern "C" {
  * @return 十六进制格式的哈希值
  */
 JNIEXPORT jstring JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_calculateSHA256(
+Java_io_github_huidoudour_Installer_debug_utils_NativeHelper_calculateSHA256(
         JNIEnv* env,
         jobject /* this */,
         jstring input) {
@@ -72,7 +72,7 @@ Java_io_github_huidoudour_Installer_utils_NativeHelper_calculateSHA256(
  * 获取Native库版本信息
  */
 JNIEXPORT jstring JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_getNativeVersion(
+Java_io_github_huidoudour_Installer_debug_utils_NativeHelper_getNativeVersion(
         JNIEnv* env,
         jobject /* this */) {
     
@@ -84,7 +84,7 @@ Java_io_github_huidoudour_Installer_utils_NativeHelper_getNativeVersion(
  * 获取CPU架构信息
  */
 JNIEXPORT jstring JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_getCPUArchitecture(
+Java_io_github_huidoudour_Installer_debug_utils_NativeHelper_getCPUArchitecture(
         JNIEnv* env,
         jobject /* this */) {
     
@@ -111,7 +111,7 @@ Java_io_github_huidoudour_Installer_utils_NativeHelper_getCPUArchitecture(
  * @return 执行时间(毫秒)
  */
 JNIEXPORT jlong JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_performanceTest(
+Java_io_github_huidoudour_Installer_debug_utils_NativeHelper_performanceTest(
         JNIEnv* env,
         jobject /* this */,
         jint count) {

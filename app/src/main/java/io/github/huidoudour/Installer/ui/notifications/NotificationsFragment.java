@@ -106,7 +106,7 @@ public class NotificationsFragment extends Fragment implements LogManager.LogLis
             // 如果支持FileProvider，可以共享文件
             shareIntent.putExtra(Intent.EXTRA_STREAM, 
                 FileProvider.getUriForFile(requireContext(), 
-                    requireContext().getPackageName() + ".fileprovider", logFile));
+                    requireContext().getPackageName() + ".provider", logFile));
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             
             startActivity(Intent.createChooser(shareIntent, "导出日志"));

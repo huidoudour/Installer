@@ -1,5 +1,6 @@
 plugins {
-    id("com.android.application")
+    alias(libs.plugins.android.application)
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -8,25 +9,29 @@ android {
 
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer"
-        minSdk = 28  // Android 9
-        targetSdk = 36  //Android 16
+        minSdk = 28 //Android 9
+        targetSdk = 36 //Android 16
         versionCode = 1
         versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        // 添加原生库支持
+        // 启用NDK - 配置C++共享库编译
+        ndk {
+            // 支持的CPU架构
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+        }
+        
+        // CMake配置
         externalNativeBuild {
             cmake {
                 cppFlags += "-std=c++17"
                 arguments += listOf(
                     "-DANDROID_STL=c++_shared",
+                    // 启用 16KB 页面对齐支持 (Android 15+兼容性)
                     "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
                 )
             }
-        }
-        
-        // 支持的CPU架构
-        ndk {
-            abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
         }
         
         // === 完整的 16KB 页面大小支持配置 ===
@@ -65,34 +70,41 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
     buildFeatures {
         viewBinding = true
     }
     
-    // Lint 配置 - 与 app-debug 模块保持一致
+    // Lint 配置 - 避免非关键警告阻塞 CI
     lint {
+        // 将警告视为警告,不要作为错误
         warningsAsErrors = false
+        // 出现错误时终止构建
         abortOnError = true
+        // 禁用某些检查
         disable += setOf(
-            "HardcodedText",
-            "SetTextI18n",
-            "DefaultLocale",
-            "SdCardPath",
-            "UseTomlInstead",
-            "ObsoleteSdkInt",
-            "UnusedResources",
-            "Overdraw",
-            "UselessParent",
-            "Autofill",
-            "FragmentTagUsage",
-            "GradleDependency",
-            "NewerVersionAvailable"
+            "HardcodedText",           // 允许硬编码文本(调试阶段)
+            "SetTextI18n",             // 允许文本拼接
+            "DefaultLocale",           // 允许默认Locale
+            "SdCardPath",              // 允许硬编码路径(系统工具)
+            "UseTomlInstead",          // 暂不强制使用版本目录
+            "ObsoleteSdkInt",          // 允许过时的SDK版本检查
+            "UnusedResources",         // 允许未使用资源(可能被动态引用)
+            "Overdraw",                // 允许过度绘制
+            "UselessParent",           // 允许冗余父布局
+            "Autofill",                // 不强制自动填充提示
+            "FragmentTagUsage",        // 允许使用fragment标签
+            "GradleDependency",        // 不强制更新依赖
+            "NewerVersionAvailable"    // 不强制更新到最新版本
             // 注意: 已移除 "Aligned16KB"，因为我们已正确配置 16KB 对齐
         )
+        // 仅检查致命错误
         checkOnly += setOf(
-            "NotSibling",
-            "DuplicateIds",
-            "UnknownId"
+            "NotSibling",              // 必须检查布局引用错误
+            "DuplicateIds",            // 必须检查重复ID
+            "UnknownId"                // 必须检查未知ID引用
         )
     }
     
@@ -106,33 +118,18 @@ android {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("com.google.android.material:material:1.13.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("androidx.cardview:cardview:1.0.0")
-    
-    // 添加 Fragment 和 Navigation 组件
-    implementation("androidx.fragment:fragment:1.6.1")
-    implementation("androidx.navigation:navigation-fragment:2.9.3")
-    implementation("androidx.navigation:navigation-ui:2.9.3")
-    
-    // 添加 Activity 组件
-    implementation("androidx.activity:activity:1.11.0")
-    
-    // 添加 Core 组件
-    implementation("androidx.core:core:1.12.0")
-    
-    // 添加 Lifecycle 组件
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
 
-    // Shizuku依赖
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    implementation(libs.constraintlayout)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
+    
+    // Shizuku dependencies
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
-
-    // 统一 Kotlin 版本
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.22"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.22")
     
     // === 原生库功能依赖 (.so 文件) - 已更新到支持 16KB 的版本 ===
     
@@ -150,4 +147,35 @@ dependencies {
     
     // 4. RecyclerView (用于显示 APK 分析结果列表)
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    
+    // 注意: Shell 终端功能使用 Shizuku 的原生能力，不需要额外的终端库
+    
+    // Kotlin support
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.20")
+    implementation("androidx.core:core-ktx:1.15.0")
+    
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+}
+
+// === 16KB 页面对齐验证任务 ===
+// 此任务用于验证 APK 中的所有原生库是否正确对齐到 16KB
+tasks.register("verify16KBAlignment") {
+    group = "verification"
+    description = "验证 APK 中所有原生库的 16KB 对齐"
+    
+    doLast {
+        val apkFile = file("build/outputs/apk/debug/app-debug-debug.apk")
+        if (apkFile.exists()) {
+            println("✅ 找到 APK: ${apkFile.absolutePath}")
+            println("⚠️  请使用以下命令手动验证原生库对齐:")
+            println("   unzip -l ${apkFile.absolutePath} | grep '\\.so$'")
+            println("   然后对每个 .so 文件执行:")
+            println("   readelf -l <.so文件> | grep LOAD")
+            println("   应该看到对齐值为 0x4000 (16384)")
+        } else {
+            println("❌ APK 文件不存在，请先构建: ./gradlew assembleDebug")
+        }
+    }
 }
