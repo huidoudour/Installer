@@ -7,14 +7,44 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="light_pink">#FFB6C1</color> <!-- 淡粉色 -->
+    <color name="light_pink">#FFFFB6C1</color> <!-- 淡粉色 -->
+    <color name="light_pink_dark">#FF9A8A8D</color> <!-- 淡粉色深色变体 -->
     <!-- 或者使用其他淡粉色 -->
     <color name="light_pink2">#FFE4E1</color> <!-- 更淡的粉色 -->
     <color name="light_pink3">#FFDAB9</color> <!-- 桃粉色 -->
     
     <!-- 自定义按钮颜色 -->
     <color name="button_primary">#FF2196F3</color>
+    <color name="button_primary_dark">#FF1976D2</color>
     <color name="button_secondary">#FF4CAF50</color>
+    <color name="button_secondary_dark">#FF388E3C</color>
     <color name="button_accent">#FFFF9800</color>
+    <color name="button_accent_dark">#FFF57C00</color>
     <color name="button_install">#FF009688</color>
+    <color name="button_install_dark">#FF00796B</color>
+    
+    <!-- 按钮样式设计指南颜色方案 -->
+    <!-- 成功/确认按钮 -->
+    <color name="success_green">#FF4CAF50</color> <!-- Material Green 500 -->
+    <color name="success_green_light">#FF81C784</color> <!-- Material Green 300 -->
+    <color name="success_green_dark">#FF388E3C</color> <!-- Material Green 700 -->
+    
+    <!-- 警告/注意按钮 -->
+    <color name="warning_orange">#FFFF9800</color> <!-- Material Orange 500 -->
+    <color name="warning_orange_light">#FFFFB74D</color> <!-- Material Orange 300 -->
+    <color name="warning_orange_dark">#FFF57C00</color> <!-- Material Orange 700 -->
+    
+    <!-- 危险/取消按钮 -->
+    <color name="danger_red">#FFF44336</color> <!-- Material Red 500 -->
+    <color name="danger_red_light">#FFEF9A9A</color> <!-- Material Red 200 -->
+    <color name="danger_red_dark">#FFD32F2F</color> <!-- Material Red 700 -->
+    
+    <!-- 主要/主要操作按钮 -->
+    <color name="primary_blue">#FF2196F3</color> <!-- Material Blue 500 -->
+    <color name="primary_blue_light">#FF64B5F6</color> <!-- Material Blue 300 -->
+    <color name="primary_blue_dark">#FF1976D2</color> <!-- Material Blue 700 -->
+    
+    <!-- 中性色 -->
+    <color name="grey_400">#FFBDBDBD</color> <!-- Material Grey 400 -->
+    <color name="grey_600">#FF757575</color> <!-- Material Grey 600 -->
 </resources>

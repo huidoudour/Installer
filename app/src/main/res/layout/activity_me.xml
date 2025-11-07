@@ -42,21 +42,24 @@
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <!-- 按钮单独定位到底部 -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_website"
-        android:layout_width="135dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
         android:text="@string/find_me"
+        android:textSize="15sp"
         android:textColor="@color/black"
-        android:background="@drawable/button_green_background"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:padding="0dp"
-        android:backgroundTint="@null"
+        android:backgroundTint="@color/light_pink"
+        app:cornerRadius="12dp"
+
+        app:iconGravity="textStart"
+        app:iconTint="@color/black"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        style="@style/Widget.Material3.Button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginBottom="80dp" />
-
+<!--        app:icon="@android:drawable/ic_menu_search"-->
 </androidx.constraintlayout.widget.ConstraintLayout>
