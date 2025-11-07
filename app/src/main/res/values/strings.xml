@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">慧兜兜\'s Installer</string>
+    <string name="app_name">Installer</string>
     <string name="title_home">安装</string>
     <string name="title_shell">Shell</string>
     <string name="title_dashboard">工具</string>
