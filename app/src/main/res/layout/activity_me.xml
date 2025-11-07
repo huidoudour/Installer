@@ -42,7 +42,7 @@
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <!-- 按钮单独定位到底部 -->
-    <TextView
+    <Button
         android:id="@+id/btn_website"
         android:layout_width="135dp"
         android:layout_height="48dp"
@@ -50,10 +50,10 @@
         android:textColor="@color/black"
         android:background="@drawable/button_green_background"
         android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
         android:textStyle="bold"
         android:textSize="16sp"
+        android:padding="0dp"
+        android:backgroundTint="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
