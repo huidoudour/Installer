@@ -27,6 +27,11 @@
             </intent-filter>
         </activity>
         
+        <activity
+            android:name=".MeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Installer" />
+        
         <!-- Shizuku provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"

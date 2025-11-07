@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    
+    <!-- 绿色背景 -->
+    <solid android:color="@color/button_secondary" />
+    
+    <!-- 圆角效果 -->
+    <corners android:radius="16dp" />
+    
+    <!-- 内边距 -->
+    <padding
+        android:left="16dp"
+        android:top="12dp"
+        android:right="16dp"
+        android:bottom="12dp" />
+        
+</shape>

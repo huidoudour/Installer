@@ -7,6 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="light_pink">#FFB6C1</color> <!-- 淡粉色 -->
+    <!-- 或者使用其他淡粉色 -->
+    <color name="light_pink2">#FFE4E1</color> <!-- 更淡的粉色 -->
+    <color name="light_pink3">#FFDAB9</color> <!-- 桃粉色 -->
     
     <!-- 自定义按钮颜色 -->
     <color name="button_primary">#FF2196F3</color>
