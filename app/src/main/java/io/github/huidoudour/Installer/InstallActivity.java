@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import io.github.huidoudour.Installer.utils.ApkAnalyzer;
 import io.github.huidoudour.Installer.utils.XapkInstaller;
@@ -246,11 +247,17 @@ public class InstallActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String message) {
                     runOnUiThread(() -> {
-                        new MaterialAlertDialogBuilder(InstallActivity.this)
-                            .setTitle("安装完成")
-                            .setMessage(message)
-                            .setPositiveButton("确定", (dialog, which) -> finish())
-                            .show();
+                        // 切换到安装完成状态界面
+                        layoutInstallInfo.setVisibility(View.VISIBLE);
+                        layoutProgress.setVisibility(View.GONE);
+                        
+                        // 修改按钮文本和功能
+                        btnInstall.setText("打开");
+                        btnCancel.setText("完成");
+                        
+                        // 设置按钮点击事件
+                        btnInstall.setOnClickListener(v -> openApp());
+                        btnCancel.setOnClickListener(v -> finish());
                     });
                 }
 
@@ -287,11 +294,17 @@ public class InstallActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String message) {
                     runOnUiThread(() -> {
-                        new MaterialAlertDialogBuilder(InstallActivity.this)
-                            .setTitle("安装完成")
-                            .setMessage(message)
-                            .setPositiveButton("确定", (dialog, which) -> finish())
-                            .show();
+                        // 切换到安装完成状态界面
+                        layoutInstallInfo.setVisibility(View.VISIBLE);
+                        layoutProgress.setVisibility(View.GONE);
+                        
+                        // 修改按钮文本和功能
+                        btnInstall.setText("打开");
+                        btnCancel.setText("完成");
+                        
+                        // 设置按钮点击事件
+                        btnInstall.setOnClickListener(v -> openApp());
+                        btnCancel.setOnClickListener(v -> finish());
                     });
                 }
 
@@ -490,6 +503,49 @@ public class InstallActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e(TAG, "关闭流失败", e);
             }
+        }
+    }
+    
+    /**
+     * 打开已安装的应用
+     */
+    private void openApp() {
+        try {
+            // 获取已安装应用的包名
+            String packageName = null;
+            if (!isXapkFile) {
+                // 单个APK文件，直接从APK中获取包名
+                packageName = ApkAnalyzer.getPackageName(this, filePath);
+            } else {
+                // XAPK文件，解压并获取第一个APK的包名
+                try {
+                    List<File> apkFiles = XapkInstaller.extractXapk(this, filePath);
+                    if (!apkFiles.isEmpty()) {
+                        packageName = ApkAnalyzer.getPackageName(this, apkFiles.get(0).getAbsolutePath());
+                        // 清理临时文件
+                        XapkInstaller.cleanupTempFiles(apkFiles);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "解压XAPK文件失败", e);
+                }
+            }
+            
+            if (packageName != null) {
+                // 尝试打开应用
+                Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
+                if (launchIntent != null) {
+                    startActivity(launchIntent);
+                    finish(); // 打开应用后关闭安装页面
+                } else {
+                    // 应用可能没有启动器Activity，显示提示
+                    Toast.makeText(this, "无法打开应用，可能没有启动器界面", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "无法获取应用包名", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "打开应用失败", e);
+            Toast.makeText(this, "打开应用失败", Toast.LENGTH_SHORT).show();
         }
     }
 }
