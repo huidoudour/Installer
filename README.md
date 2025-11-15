@@ -4,3 +4,5 @@
 [![License](https://img.shields.io/github/license/huidoudour/Installer.svg)]()[![Android Build](https://github.com/huidoudour/Installer/workflows/Android%20CI/badge.svg)](https://github.com/huidoudour/Installer/actions/workflows/android.yml)
 <br>
 [![主要语言](https://img.shields.io/github/languages/top/huidoudour/Installer)]()
+<br>
+[![AI Assisted](https://img.shields.io/badge/AI-Assisted-blue.svg)](https://github.com/huidoudour/Installer)
