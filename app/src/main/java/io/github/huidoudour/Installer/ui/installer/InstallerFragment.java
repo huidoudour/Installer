@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.res.ColorStateList;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -73,6 +74,8 @@ public class InstallerFragment extends Fragment {
     private Uri selectedFileUri;
     private String selectedFilePath;
     private boolean isXapkFile = false;  // 新增：标记是否为 XAPK 文件
+    private boolean isInstallationComplete = false;  // 新增：标记安装是否完成
+    private String installedPackageName = null;  // 新增：已安装的包名
 
     // Shizuku 权限请求监听器
     private final Shizuku.OnRequestPermissionResultListener onRequestPermissionResultListener =
@@ -192,8 +195,24 @@ public class InstallerFragment extends Fragment {
 
         // 设置按钮点击事件
         btnSelectFile.setOnClickListener(v -> checkFilePermissionsAndOpenFilePicker());
-        btnRequestPermission.setOnClickListener(v -> requestShizukuPermission());
-        btnInstall.setOnClickListener(v -> installSelectedApk());
+        btnRequestPermission.setOnClickListener(v -> {
+            if (isInstallationComplete) {
+                // 安装完成状态：点击"完成"按钮
+                resetInstallationState();
+            } else {
+                // 正常状态：点击"取消"按钮
+                requestShizukuPermission();
+            }
+        });
+        btnInstall.setOnClickListener(v -> {
+            if (isInstallationComplete) {
+                // 安装完成状态：点击"打开"按钮
+                openInstalledApp();
+            } else {
+                // 正常状态：点击"安装"按钮
+                installSelectedApk();
+            }
+        });
 
         // 初始 UI 状态
         updateShizukuStatusAndUi();
@@ -498,10 +517,25 @@ public class InstallerFragment extends Fragment {
                             getActivity().runOnUiThread(() -> {
                                 log(message);
                                 log("=== 安装流程结束 ===");
-                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
-                                clearSelection();
-                                btnInstall.setEnabled(true);
+                                
+                                // 设置安装完成状态
+                                isInstallationComplete = true;
+                                
+                                // 获取已安装的包名
+                                if (!isXapkFile) {
+                                    try {
+                                        installedPackageName = ApkAnalyzer.getPackageName(requireContext(), selectedFilePath);
+                                        log("已安装应用包名: " + installedPackageName);
+                                    } catch (Exception e) {
+                                        log("获取包名失败: " + e.getMessage());
+                                    }
+                                }
+                                
+                                // 更新按钮状态（显示"打开"和"完成"按钮）
                                 updateInstallButtonState();
+                                
+                                // 不再显示Toast提示，改为按钮替换
+                                log("安装完成！现在可以点击'打开'按钮启动应用，或点击'完成'按钮返回");
                             });
                         }
                     }
@@ -538,10 +572,18 @@ public class InstallerFragment extends Fragment {
                             getActivity().runOnUiThread(() -> {
                                 log(message);
                                 log("=== 安装流程结束 ===");
-                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
-                                clearSelection();
-                                btnInstall.setEnabled(true);
+                                
+                                // 设置安装完成状态
+                                isInstallationComplete = true;
+                                
+                                // 对于XAPK，包名可能比较复杂，暂时不设置
+                                log("XAPK安装完成！现在可以点击'完成'按钮返回");
+                                
+                                // 更新按钮状态（显示"打开"和"完成"按钮）
                                 updateInstallButtonState();
+                                
+                                // 不再显示Toast提示，改为按钮替换
+                                log("安装完成！现在可以点击'完成'按钮返回");
                             });
                         }
                     }
@@ -572,6 +614,41 @@ public class InstallerFragment extends Fragment {
         selectedFileUri = null;
         selectedFilePath = null;
         isXapkFile = false;
+    }
+
+    /**
+     * 重置安装状态
+     */
+    private void resetInstallationState() {
+        isInstallationComplete = false;
+        installedPackageName = null;
+        clearSelection();
+        updateInstallButtonState();
+        log("安装状态已重置，可以开始新的安装");
+    }
+
+    /**
+     * 打开已安装的应用
+     */
+    private void openInstalledApp() {
+        if (installedPackageName != null) {
+            try {
+                Intent launchIntent = requireContext().getPackageManager().getLaunchIntentForPackage(installedPackageName);
+                if (launchIntent != null) {
+                    startActivity(launchIntent);
+                    log("正在打开应用: " + installedPackageName);
+                } else {
+                    log("无法打开应用，可能没有启动器活动");
+                    Toast.makeText(requireContext(), "无法打开该应用", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                log("打开应用失败: " + e.getMessage());
+                Toast.makeText(requireContext(), "打开应用失败", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            log("未找到已安装的包名");
+            Toast.makeText(requireContext(), "未找到应用信息", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateShizukuStatusAndUi() {
@@ -641,17 +718,36 @@ public class InstallerFragment extends Fragment {
     }
 
     private void updateInstallButtonState() {
-        boolean fileSelected = selectedFilePath != null && !selectedFilePath.isEmpty();
-        boolean shizukuReady = false;
-        try {
-            shizukuReady = Shizuku.pingBinder() &&
-                    Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED &&
-                    !(Shizuku.isPreV11() || Shizuku.getVersion() < 10);
-        } catch (Throwable t) {
-            shizukuReady = false;
-        }
+        if (isInstallationComplete) {
+            // 安装完成状态：显示"打开"和"完成"按钮
+            btnInstall.setText("打开");
+            btnInstall.setEnabled(true);
+            btnInstall.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)));
+            
+            // 将取消按钮改为完成按钮
+            btnRequestPermission.setText("完成");
+            btnRequestPermission.setEnabled(true);
+            btnRequestPermission.setVisibility(View.VISIBLE);
+        } else {
+            // 正常状态：显示"安装"和"取消"按钮
+            boolean fileSelected = selectedFilePath != null && !selectedFilePath.isEmpty();
+            boolean shizukuReady = false;
+            try {
+                shizukuReady = Shizuku.pingBinder() &&
+                        Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED &&
+                        !(Shizuku.isPreV11() || Shizuku.getVersion() < 10);
+            } catch (Throwable t) {
+                shizukuReady = false;
+            }
 
-        btnInstall.setEnabled(shizukuReady && fileSelected);
+            btnInstall.setText("安装");
+            btnInstall.setEnabled(shizukuReady && fileSelected);
+            btnInstall.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), android.R.color.holo_blue_dark)));
+            
+            btnRequestPermission.setText("取消");
+            btnRequestPermission.setEnabled(true);
+            btnRequestPermission.setVisibility(shizukuReady && fileSelected ? View.VISIBLE : View.GONE);
+        }
     }
 
     /**
