@@ -54,7 +54,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
+        </activity>
+        
+        <!-- 独立的安装Activity -->
+        <activity
+            android:name=".InstallActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Installer.Dialog"
+            android:launchMode="singleTask">
             <!-- 注册为安装器，处理APK安装请求 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

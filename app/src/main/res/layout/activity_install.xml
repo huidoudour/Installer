@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="?android:attr/colorBackground">
+
+    <!-- 应用图标和名称 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+        
+        <ImageView
+            android:id="@+id/iv_app_icon"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_launcher_background"
+            android:contentDescription="应用图标"
+            android:layout_marginEnd="16dp" />
+            
+        <TextView
+            android:id="@+id/tv_app_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="应用名称"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            android:maxLines="2"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <!-- 安装信息布局 -->
+    <LinearLayout
+        android:id="@+id/layout_install_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible">
+        
+        <!-- 包名信息 -->
+        <TextView
+            android:id="@+id/tv_package_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="包名: com.example.app"
+            android:textSize="14sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginBottom="8dp" />
+            
+        <!-- 版本信息 -->
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="版本: 1.0.0"
+            android:textSize="14sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginBottom="8dp" />
+            
+        <!-- 文件大小 -->
+        <TextView
+            android:id="@+id/tv_file_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="文件大小: 10.5 MB"
+            android:textSize="14sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginBottom="24dp" />
+            
+        <!-- 安装按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_install"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="安装"
+            android:textSize="16sp"
+            style="@style/Widget.Material3.Button"
+            android:layout_marginBottom="8dp" />
+            
+        <!-- 取消按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="取消"
+            android:textSize="16sp"
+            style="@style/Widget.Material3.Button.OutlinedButton" />
+    </LinearLayout>
+
+    <!-- 进度布局 -->
+    <LinearLayout
+        android:id="@+id/layout_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+        
+        <!-- 进度条 -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_marginBottom="16dp"
+            android:indeterminate="true" />
+            
+        <!-- 安装状态 -->
+        <TextView
+            android:id="@+id/tv_install_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="准备安装..."
+            android:textSize="16sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+            
+        <!-- 取消按钮（安装过程中） -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="取消"
+            android:textSize="14sp"
+            style="@style/Widget.Material3.Button.TextButton" />
+    </LinearLayout>
+
+</LinearLayout>

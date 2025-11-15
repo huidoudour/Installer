@@ -35,6 +35,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -218,35 +219,78 @@ public class InstallerFragment extends Fragment {
         logManager.addLog(message);
     }
     private String getFilePathFromUri(Uri uri) {
-        if (uri == null) return null;
+        if (uri == null) {
+            log("URI为空喵");
+            return null;
+        }
+
+        log("处理URI喵: " + uri.toString());
+        log("URI scheme喵: " + uri.getScheme());
 
         if ("file".equals(uri.getScheme())) {
-            return uri.getPath();
+            String path = uri.getPath();
+            log("文件路径喵: " + path);
+            return path;
         }
 
-        ContentResolver contentResolver = requireContext().getContentResolver();
-        Cursor cursor = null;
-        try {
-            String[] projection = {OpenableColumns.DISPLAY_NAME};
-            cursor = contentResolver.query(uri, projection, null, null, null);
+        // 处理content://类型的URI（来自外部应用的文件分享）
+        if ("content".equals(uri.getScheme())) {
+            ContentResolver contentResolver = requireContext().getContentResolver();
+            Cursor cursor = null;
             String fileName = null;
-            if (cursor != null && cursor.moveToFirst()) {
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                if (nameIndex != -1) {
-                    fileName = cursor.getString(nameIndex);
+            
+            try {
+                // 首先尝试获取文件名
+                String[] projection = {OpenableColumns.DISPLAY_NAME};
+                cursor = contentResolver.query(uri, projection, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex != -1) {
+                        fileName = cursor.getString(nameIndex);
+                        log("获取到文件名喵: " + fileName);
+                    }
                 }
-            }
-            if (fileName == null) fileName = "selected.apk";
+                if (fileName == null) {
+                    // 如果无法获取文件名，使用URI的最后路径段
+                    fileName = uri.getLastPathSegment();
+                    if (fileName == null) fileName = "selected.apk";
+                    log("使用备用文件名喵: " + fileName);
+                }
 
-            File cacheFile = copyUriToCache(uri, fileName);
-            if (cacheFile != null) {
-                return cacheFile.getAbsolutePath();
+                // 复制文件到缓存目录
+                File cacheFile = copyUriToCache(uri, fileName);
+                if (cacheFile != null) {
+                    log("文件复制成功喵: " + cacheFile.getAbsolutePath());
+                    return cacheFile.getAbsolutePath();
+                } else {
+                    log("文件复制失败喵");
+                }
+            } catch (SecurityException e) {
+                log("权限不足喵，无法访问URI: " + e.getMessage());
+                Toast.makeText(requireContext(), "权限不足，无法访问文件", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                log("处理content URI失败喵: " + e.getMessage());
+            } finally {
+                if (cursor != null) cursor.close();
             }
-        } catch (Exception e) {
-            log("getFilePathFromUri 有问题喵: " + e.getMessage());
-        } finally {
-            if (cursor != null) cursor.close();
+            
+            // 如果上面的方法失败，尝试备用方法
+            try {
+                String fallbackFileName = fileName != null ? fileName : "selected.apk";
+                log("尝试备用方法喵，文件名: " + fallbackFileName);
+                String result = copyUriToCacheWithInputStream(uri, fallbackFileName);
+                if (result != null) {
+                    log("备用方法成功喵: " + result);
+                } else {
+                    log("备用方法也失败喵");
+                }
+                return result;
+            } catch (Exception e) {
+                log("备用方法也失败喵: " + e.getMessage());
+            }
         }
+        
+        log("所有方法都失败喵，返回null");
         return null;
     }
 
@@ -271,6 +315,46 @@ public class InstallerFragment extends Fragment {
         } catch (Exception e) {
             log("复制到 cache 失败喵: " + e.getMessage());
             return null;
+        }
+    }
+
+    private String copyUriToCacheWithInputStream(Uri uri, String fileName) {
+        InputStream inputStream = null;
+        FileOutputStream outputStream = null;
+        try {
+            // 使用InputStream直接复制文件
+            inputStream = requireContext().getContentResolver().openInputStream(uri);
+            if (inputStream == null) {
+                log("无法打开输入流喵");
+                return null;
+            }
+            
+            // 确保文件名有效
+            if (fileName == null) {
+                fileName = "selected.apk";
+            }
+            
+            File outputFile = new File(requireContext().getCacheDir(), fileName);
+            outputStream = new FileOutputStream(outputFile);
+            
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            
+            log("使用InputStream成功复制文件到缓存喵: " + outputFile.getAbsolutePath());
+            return outputFile.getAbsolutePath();
+        } catch (Exception e) {
+            log("使用InputStream复制文件失败喵: " + e.getMessage());
+            return null;
+        } finally {
+            try {
+                if (inputStream != null) inputStream.close();
+                if (outputStream != null) outputStream.close();
+            } catch (Exception e) {
+                log("关闭流失败喵: " + e.getMessage());
+            }
         }
     }
 
@@ -300,13 +384,12 @@ public class InstallerFragment extends Fragment {
                 log("请求 MANAGE_EXTERNAL_STORAGE 权限喵.");
                 try {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                    intent.addCategory("android.intent.category.DEFAULT");
-                    intent.setData(Uri.parse(String.format("package:%s", requireContext().getApplicationContext().getPackageName())));
+                    intent.setData(Uri.parse("package:" + requireContext().getPackageName()));
                     manageFilesPermissionLauncher.launch(intent);
                 } catch (Exception e) {
                     log("请求 MANAGE_EXTERNAL_STORAGE 权限出错喵: " + e.getMessage());
-                    Intent intent = new Intent();
-                    intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                    // 备用方案：使用更通用的ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                     manageFilesPermissionLauncher.launch(intent);
                 }
                 return;
