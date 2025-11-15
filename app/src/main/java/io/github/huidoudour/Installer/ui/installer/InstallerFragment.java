@@ -198,6 +198,13 @@ public class InstallerFragment extends Fragment {
         updateShizukuStatusAndUi();
         
         // 只在第一次初始化时输出日志
+        
+        // 处理从其他应用传递过来的安装URI
+        handleInstallUriFromIntent();
+        
+        // 处理从HomeActivity传递过来的安装参数
+        handleInstallArguments();
+        
         if (isFirstInit) {
             log("Installer 已启动，等待操作喵……");
             isFirstInit = false;
@@ -639,5 +646,112 @@ public class InstallerFragment extends Fragment {
             Shizuku.removeRequestPermissionResultListener(onRequestPermissionResultListener);
         } catch (Throwable ignored) {}
         binding = null;
+    }
+
+    /**
+     * 处理从其他应用传递过来的安装URI
+     * 这个方法会在onCreateView中被调用，用于处理外部应用发起的安装请求
+     */
+    private void handleInstallUriFromIntent() {
+        if (getActivity() == null) return;
+        
+        Intent intent = getActivity().getIntent();
+        if (intent == null) return;
+        
+        String action = intent.getAction();
+        Uri dataUri = intent.getData();
+        
+        // 检查是否是安装相关的意图
+        if (Intent.ACTION_VIEW.equals(action) || Intent.ACTION_INSTALL_PACKAGE.equals(action)) {
+            if (dataUri != null) {
+                log("接收到外部安装请求: " + dataUri.toString());
+                
+                // 处理URI并设置文件选择
+                selectedFileUri = dataUri;
+                String fileName = getFileNameFromUri(dataUri);
+                selectedFilePath = getFilePathFromUri(dataUri);
+                
+                if (selectedFilePath != null) {
+                    tvSelectedFile.setText(fileName);
+                    
+                    // 检测文件类型并显示
+                    isXapkFile = XapkInstaller.isXapkFile(selectedFilePath);
+                    String fileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
+                    tvFileType.setText(fileType);
+                    tvFileType.setVisibility(View.VISIBLE);
+                    
+                    // 如果是 XAPK，显示包含的 APK 数量
+                    if (isXapkFile) {
+                        int apkCount = XapkInstaller.getApkCount(selectedFilePath);
+                        log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
+                    }
+                    
+                    log("已处理外部安装请求，文件已复制到 cache: " + selectedFilePath);
+                    
+                    // 使用原生库分析 APK
+                    if (!isXapkFile) {
+                        analyzeApk(selectedFilePath);
+                    }
+                    
+                    updateInstallButtonState();
+                } else {
+                    log("处理外部安装URI失败: " + dataUri.toString());
+                    Toast.makeText(requireContext(), "无法处理该安装文件", Toast.LENGTH_SHORT).show();
+                }
+                
+                // 清除意图数据，避免重复处理
+                getActivity().setIntent(null);
+            }
+        }
+    }
+
+    /**
+     * 处理从HomeActivity传递过来的安装参数
+     * 当用户从其他应用选择本应用作为安装器时，HomeActivity会导航到InstallerFragment并传递参数
+     */
+    private void handleInstallArguments() {
+        Bundle arguments = getArguments();
+        if (arguments == null) return;
+        
+        Uri installUri = arguments.getParcelable("install_uri");
+        if (installUri != null) {
+            log("接收到HomeActivity传递的安装URI: " + installUri.toString());
+            
+            // 处理URI并设置文件选择
+            selectedFileUri = installUri;
+            String fileName = getFileNameFromUri(installUri);
+            selectedFilePath = getFilePathFromUri(installUri);
+            
+            if (selectedFilePath != null) {
+                tvSelectedFile.setText(fileName);
+                
+                // 检测文件类型并显示
+                isXapkFile = XapkInstaller.isXapkFile(selectedFilePath);
+                String fileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
+                tvFileType.setText(fileType);
+                tvFileType.setVisibility(View.VISIBLE);
+                
+                // 如果是 XAPK，显示包含的 APK 数量
+                if (isXapkFile) {
+                    int apkCount = XapkInstaller.getApkCount(selectedFilePath);
+                    log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
+                }
+                
+                log("已处理HomeActivity传递的安装请求，文件已复制到 cache: " + selectedFilePath);
+                
+                // 使用原生库分析 APK
+                if (!isXapkFile) {
+                    analyzeApk(selectedFilePath);
+                }
+                
+                updateInstallButtonState();
+                
+                // 清除参数，避免重复处理
+                arguments.remove("install_uri");
+            } else {
+                log("处理HomeActivity传递的安装URI失败: " + installUri.toString());
+                Toast.makeText(requireContext(), "无法处理该安装文件", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
