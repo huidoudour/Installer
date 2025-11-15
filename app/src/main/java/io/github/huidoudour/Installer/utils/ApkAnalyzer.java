@@ -222,4 +222,23 @@ public class ApkAnalyzer {
             return false;
         }
     }
+
+    /**
+     * 获取 APK 的应用图标
+     */
+    public static android.graphics.drawable.Drawable getAppIcon(Context context, String apkPath) {
+        try {
+            PackageManager pm = context.getPackageManager();
+            PackageInfo info = pm.getPackageArchiveInfo(apkPath, 0);
+            if (info != null) {
+                // 获取应用图标
+                info.applicationInfo.sourceDir = apkPath;
+                info.applicationInfo.publicSourceDir = apkPath;
+                return info.applicationInfo.loadIcon(pm);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

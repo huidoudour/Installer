@@ -11,8 +11,8 @@ import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,14 +38,15 @@ public class InstallActivity extends AppCompatActivity {
     
     private LinearLayout layoutInstallInfo;
     private LinearLayout layoutProgress;
+    private ImageView ivAppIcon;
     private TextView tvAppName;
     private TextView tvPackageName;
     private TextView tvVersion;
     private TextView tvFileSize;
-    private TextView tvInstallStatus;
-    private ProgressBar progressBar;
     private Button btnInstall;
     private Button btnCancel;
+    private Button btnCancelProgress;
+    private Button btnInstallDisabled;
     
     private Uri installUri;
     private String filePath;
@@ -72,17 +73,19 @@ public class InstallActivity extends AppCompatActivity {
     private void initViews() {
         layoutInstallInfo = findViewById(R.id.layout_install_info);
         layoutProgress = findViewById(R.id.layout_progress);
+        ivAppIcon = findViewById(R.id.iv_app_icon);
         tvAppName = findViewById(R.id.tv_app_name);
         tvPackageName = findViewById(R.id.tv_package_name);
         tvVersion = findViewById(R.id.tv_version);
         tvFileSize = findViewById(R.id.tv_file_size);
-        tvInstallStatus = findViewById(R.id.tv_install_status);
-        progressBar = findViewById(R.id.progress_bar);
         btnInstall = findViewById(R.id.btn_install);
         btnCancel = findViewById(R.id.btn_cancel);
+        btnCancelProgress = findViewById(R.id.btn_cancel_progress);
+        btnInstallDisabled = findViewById(R.id.btn_install_disabled);
         
         btnInstall.setOnClickListener(v -> startInstallation());
         btnCancel.setOnClickListener(v -> finish());
+        btnCancelProgress.setOnClickListener(v -> finish());
     }
     
     private void handleInstallIntent(Intent intent) {
@@ -125,24 +128,30 @@ public class InstallActivity extends AppCompatActivity {
         try {
             // 文件基本信息
             String fileSize = ApkAnalyzer.getFileSize(filePath);
-            tvFileSize.setText("文件大小: " + fileSize);
+            tvFileSize.setText(fileSize != null ? fileSize : "未知");
             
             if (!isXapkFile) {
                 // 单个APK文件信息
                 String packageName = ApkAnalyzer.getPackageName(this, filePath);
                 String versionInfo = ApkAnalyzer.getVersionInfo(this, filePath);
                 
-                tvPackageName.setText("包名: " + (packageName != null ? packageName : "未知"));
-                tvVersion.setText("版本: " + (versionInfo != null ? versionInfo : "未知"));
+                tvPackageName.setText(packageName != null ? packageName : "未知");
+                tvVersion.setText(versionInfo != null ? versionInfo : "未知");
                 
                 // 尝试获取应用名称（使用包名作为应用名称）
                 tvAppName.setText(packageName != null ? packageName : "未知应用");
+                
+                // 设置应用图标
+                setAppIcon();
             } else {
                 // XAPK文件信息
                 tvAppName.setText("XAPK安装包");
-                tvPackageName.setText("文件类型: XAPK");
+                tvPackageName.setText("XAPK");
                 int apkCount = XapkInstaller.getApkCount(filePath);
-                tvVersion.setText("包含 " + apkCount + " 个APK文件");
+                tvVersion.setText(apkCount > 0 ? apkCount + " 个APK文件" : "未知");
+                
+                // 设置默认图标
+                ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
             
             // 显示安装信息界面
@@ -155,6 +164,24 @@ public class InstallActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "显示安装信息失败", e);
             showErrorAndExit("无法解析安装文件信息");
+        }
+    }
+    
+    private void setAppIcon() {
+        if (!isXapkFile) {
+            try {
+                // 尝试从APK文件中提取应用图标
+                android.graphics.drawable.Drawable icon = ApkAnalyzer.getAppIcon(this, filePath);
+                if (icon != null) {
+                    ivAppIcon.setImageDrawable(icon);
+                } else {
+                    // 使用默认图标
+                    ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "设置应用图标失败", e);
+                ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+            }
         }
     }
     
@@ -185,12 +212,9 @@ public class InstallActivity extends AppCompatActivity {
     }
     
     private void startInstallation() {
-        // 切换到进度界面
+        // 切换到安装中状态界面
         layoutInstallInfo.setVisibility(View.GONE);
         layoutProgress.setVisibility(View.VISIBLE);
-        
-        tvInstallStatus.setText("准备安装...");
-        progressBar.setIndeterminate(true);
         
         if (isXapkFile) {
             installXapk();
@@ -214,17 +238,14 @@ public class InstallActivity extends AppCompatActivity {
                 @Override
                 public void onProgress(String message) {
                     runOnUiThread(() -> {
-                        tvInstallStatus.setText(message);
+                        // 可以在这里更新按钮文本显示进度
+                        btnInstallDisabled.setText(message);
                     });
                 }
 
                 @Override
                 public void onSuccess(String message) {
                     runOnUiThread(() -> {
-                        tvInstallStatus.setText("安装成功！");
-                        progressBar.setIndeterminate(false);
-                        progressBar.setProgress(100);
-                        
                         new MaterialAlertDialogBuilder(InstallActivity.this)
                             .setTitle("安装完成")
                             .setMessage(message)
@@ -236,9 +257,6 @@ public class InstallActivity extends AppCompatActivity {
                 @Override
                 public void onError(String error) {
                     runOnUiThread(() -> {
-                        tvInstallStatus.setText("安装失败");
-                        progressBar.setIndeterminate(false);
-                        
                         new MaterialAlertDialogBuilder(InstallActivity.this)
                             .setTitle("安装失败")
                             .setMessage(error)
@@ -261,17 +279,14 @@ public class InstallActivity extends AppCompatActivity {
                 @Override
                 public void onProgress(String message) {
                     runOnUiThread(() -> {
-                        tvInstallStatus.setText(message);
+                        // 可以在这里更新按钮文本显示进度
+                        btnInstallDisabled.setText(message);
                     });
                 }
 
                 @Override
                 public void onSuccess(String message) {
                     runOnUiThread(() -> {
-                        tvInstallStatus.setText("安装成功！");
-                        progressBar.setIndeterminate(false);
-                        progressBar.setProgress(100);
-                        
                         new MaterialAlertDialogBuilder(InstallActivity.this)
                             .setTitle("安装完成")
                             .setMessage(message)
@@ -283,9 +298,6 @@ public class InstallActivity extends AppCompatActivity {
                 @Override
                 public void onError(String error) {
                     runOnUiThread(() -> {
-                        tvInstallStatus.setText("安装失败");
-                        progressBar.setIndeterminate(false);
-                        
                         new MaterialAlertDialogBuilder(InstallActivity.this)
                             .setTitle("安装失败")
                             .setMessage(error)
