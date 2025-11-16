@@ -6,6 +6,10 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         
+        <!-- 适配系统栏 -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:fitsSystemWindows">true</item>
+        
         <!-- Material Design 3 组件样式 -->
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
         <item name="materialButtonStyle">@style/Widget.Material3.Button.ElevatedButton</item>
@@ -13,4 +17,24 @@
     </style>
 
     <style name="Theme.Installer" parent="Base.Theme.Installer" />
+    
+    <!-- 安装Activity的Dialog主题 -->
+    <style name="Theme.Installer.Dialog" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <!-- 设置对话框尺寸 -->
+        <item name="android:windowMinWidthMajor">85%</item>
+        <item name="android:windowMinWidthMinor">85%</item>
+        <!-- 设置对话框布局 -->
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:windowSoftInputMode">adjustPan</item>
+        <!-- 添加AppCompat兼容性配置 -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>

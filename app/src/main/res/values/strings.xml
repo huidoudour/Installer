@@ -1,8 +1,23 @@
 <resources>
-    <string name="app_name">慧兜兜\'s Installer</string>
+    <string name="app_name">Installer</string>
     <string name="title_home">安装</string>
     <string name="title_shell">Shell</string>
     <string name="title_dashboard">工具</string>
     <string name="title_notifications">日志</string>
+    <string name="title_settings">设置</string>
+    <string name="settings_title">设置</string>
+    <string name="settings_subtitle">应用配置和个性化设置</string>
+    <string name="app_settings">应用设置</string>
+    <string name="theme_settings">主题设置</string>
+    <string name="language_settings">语言设置</string>
+    <string name="notification_settings">通知设置</string>
+    <string name="about_app">关于应用</string>
+    <string name="about_developer">关于开发者</string>
+    <string name="app_version">版本 1.0.0</string>
+    <string name="follow_system">跟随系统</string>
+    <string name="simplified_chinese">简体中文</string>
     <string name="shell_txt">"@termux"</string>
+    <string name="text1">你保护世界，我保护你</string>
+    <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
+    <string name="find_me">ω寻找我ω</string>
 </resources>

@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.res.ColorStateList;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -35,6 +36,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -72,6 +74,8 @@ public class InstallerFragment extends Fragment {
     private Uri selectedFileUri;
     private String selectedFilePath;
     private boolean isXapkFile = false;  // 新增：标记是否为 XAPK 文件
+    private boolean isInstallationComplete = false;  // 新增：标记安装是否完成
+    private String installedPackageName = null;  // 新增：已安装的包名
 
     // Shizuku 权限请求监听器
     private final Shizuku.OnRequestPermissionResultListener onRequestPermissionResultListener =
@@ -191,13 +195,36 @@ public class InstallerFragment extends Fragment {
 
         // 设置按钮点击事件
         btnSelectFile.setOnClickListener(v -> checkFilePermissionsAndOpenFilePicker());
-        btnRequestPermission.setOnClickListener(v -> requestShizukuPermission());
-        btnInstall.setOnClickListener(v -> installSelectedApk());
+        btnRequestPermission.setOnClickListener(v -> {
+            if (isInstallationComplete) {
+                // 安装完成状态：点击"完成"按钮
+                resetInstallationState();
+            } else {
+                // 正常状态：点击"取消"按钮
+                requestShizukuPermission();
+            }
+        });
+        btnInstall.setOnClickListener(v -> {
+            if (isInstallationComplete) {
+                // 安装完成状态：点击"打开"按钮
+                openInstalledApp();
+            } else {
+                // 正常状态：点击"安装"按钮
+                installSelectedApk();
+            }
+        });
 
         // 初始 UI 状态
         updateShizukuStatusAndUi();
         
         // 只在第一次初始化时输出日志
+        
+        // 处理从其他应用传递过来的安装URI
+        handleInstallUriFromIntent();
+        
+        // 处理从HomeActivity传递过来的安装参数
+        handleInstallArguments();
+        
         if (isFirstInit) {
             log("Installer 已启动，等待操作喵……");
             isFirstInit = false;
@@ -211,35 +238,78 @@ public class InstallerFragment extends Fragment {
         logManager.addLog(message);
     }
     private String getFilePathFromUri(Uri uri) {
-        if (uri == null) return null;
+        if (uri == null) {
+            log("URI为空喵");
+            return null;
+        }
+
+        log("处理URI喵: " + uri.toString());
+        log("URI scheme喵: " + uri.getScheme());
 
         if ("file".equals(uri.getScheme())) {
-            return uri.getPath();
+            String path = uri.getPath();
+            log("文件路径喵: " + path);
+            return path;
         }
 
-        ContentResolver contentResolver = requireContext().getContentResolver();
-        Cursor cursor = null;
-        try {
-            String[] projection = {OpenableColumns.DISPLAY_NAME};
-            cursor = contentResolver.query(uri, projection, null, null, null);
+        // 处理content://类型的URI（来自外部应用的文件分享）
+        if ("content".equals(uri.getScheme())) {
+            ContentResolver contentResolver = requireContext().getContentResolver();
+            Cursor cursor = null;
             String fileName = null;
-            if (cursor != null && cursor.moveToFirst()) {
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                if (nameIndex != -1) {
-                    fileName = cursor.getString(nameIndex);
+            
+            try {
+                // 首先尝试获取文件名
+                String[] projection = {OpenableColumns.DISPLAY_NAME};
+                cursor = contentResolver.query(uri, projection, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex != -1) {
+                        fileName = cursor.getString(nameIndex);
+                        log("获取到文件名喵: " + fileName);
+                    }
                 }
-            }
-            if (fileName == null) fileName = "selected.apk";
+                if (fileName == null) {
+                    // 如果无法获取文件名，使用URI的最后路径段
+                    fileName = uri.getLastPathSegment();
+                    if (fileName == null) fileName = "selected.apk";
+                    log("使用备用文件名喵: " + fileName);
+                }
 
-            File cacheFile = copyUriToCache(uri, fileName);
-            if (cacheFile != null) {
-                return cacheFile.getAbsolutePath();
+                // 复制文件到缓存目录
+                File cacheFile = copyUriToCache(uri, fileName);
+                if (cacheFile != null) {
+                    log("文件复制成功喵: " + cacheFile.getAbsolutePath());
+                    return cacheFile.getAbsolutePath();
+                } else {
+                    log("文件复制失败喵");
+                }
+            } catch (SecurityException e) {
+                log("权限不足喵，无法访问URI: " + e.getMessage());
+                Toast.makeText(requireContext(), "权限不足，无法访问文件", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                log("处理content URI失败喵: " + e.getMessage());
+            } finally {
+                if (cursor != null) cursor.close();
             }
-        } catch (Exception e) {
-            log("getFilePathFromUri 有问题喵: " + e.getMessage());
-        } finally {
-            if (cursor != null) cursor.close();
+            
+            // 如果上面的方法失败，尝试备用方法
+            try {
+                String fallbackFileName = fileName != null ? fileName : "selected.apk";
+                log("尝试备用方法喵，文件名: " + fallbackFileName);
+                String result = copyUriToCacheWithInputStream(uri, fallbackFileName);
+                if (result != null) {
+                    log("备用方法成功喵: " + result);
+                } else {
+                    log("备用方法也失败喵");
+                }
+                return result;
+            } catch (Exception e) {
+                log("备用方法也失败喵: " + e.getMessage());
+            }
         }
+        
+        log("所有方法都失败喵，返回null");
         return null;
     }
 
@@ -264,6 +334,46 @@ public class InstallerFragment extends Fragment {
         } catch (Exception e) {
             log("复制到 cache 失败喵: " + e.getMessage());
             return null;
+        }
+    }
+
+    private String copyUriToCacheWithInputStream(Uri uri, String fileName) {
+        InputStream inputStream = null;
+        FileOutputStream outputStream = null;
+        try {
+            // 使用InputStream直接复制文件
+            inputStream = requireContext().getContentResolver().openInputStream(uri);
+            if (inputStream == null) {
+                log("无法打开输入流喵");
+                return null;
+            }
+            
+            // 确保文件名有效
+            if (fileName == null) {
+                fileName = "selected.apk";
+            }
+            
+            File outputFile = new File(requireContext().getCacheDir(), fileName);
+            outputStream = new FileOutputStream(outputFile);
+            
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            
+            log("使用InputStream成功复制文件到缓存喵: " + outputFile.getAbsolutePath());
+            return outputFile.getAbsolutePath();
+        } catch (Exception e) {
+            log("使用InputStream复制文件失败喵: " + e.getMessage());
+            return null;
+        } finally {
+            try {
+                if (inputStream != null) inputStream.close();
+                if (outputStream != null) outputStream.close();
+            } catch (Exception e) {
+                log("关闭流失败喵: " + e.getMessage());
+            }
         }
     }
 
@@ -293,13 +403,12 @@ public class InstallerFragment extends Fragment {
                 log("请求 MANAGE_EXTERNAL_STORAGE 权限喵.");
                 try {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                    intent.addCategory("android.intent.category.DEFAULT");
-                    intent.setData(Uri.parse(String.format("package:%s", requireContext().getApplicationContext().getPackageName())));
+                    intent.setData(Uri.parse("package:" + requireContext().getPackageName()));
                     manageFilesPermissionLauncher.launch(intent);
                 } catch (Exception e) {
                     log("请求 MANAGE_EXTERNAL_STORAGE 权限出错喵: " + e.getMessage());
-                    Intent intent = new Intent();
-                    intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                    // 备用方案：使用更通用的ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                     manageFilesPermissionLauncher.launch(intent);
                 }
                 return;
@@ -408,10 +517,25 @@ public class InstallerFragment extends Fragment {
                             getActivity().runOnUiThread(() -> {
                                 log(message);
                                 log("=== 安装流程结束 ===");
-                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
-                                clearSelection();
-                                btnInstall.setEnabled(true);
+                                
+                                // 设置安装完成状态
+                                isInstallationComplete = true;
+                                
+                                // 获取已安装的包名
+                                if (!isXapkFile) {
+                                    try {
+                                        installedPackageName = ApkAnalyzer.getPackageName(requireContext(), selectedFilePath);
+                                        log("已安装应用包名: " + installedPackageName);
+                                    } catch (Exception e) {
+                                        log("获取包名失败: " + e.getMessage());
+                                    }
+                                }
+                                
+                                // 更新按钮状态（显示"打开"和"完成"按钮）
                                 updateInstallButtonState();
+                                
+                                // 不再显示Toast提示，改为按钮替换
+                                log("安装完成！现在可以点击'打开'按钮启动应用，或点击'完成'按钮返回");
                             });
                         }
                     }
@@ -448,10 +572,18 @@ public class InstallerFragment extends Fragment {
                             getActivity().runOnUiThread(() -> {
                                 log(message);
                                 log("=== 安装流程结束 ===");
-                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
-                                clearSelection();
-                                btnInstall.setEnabled(true);
+                                
+                                // 设置安装完成状态
+                                isInstallationComplete = true;
+                                
+                                // 对于XAPK，包名可能比较复杂，暂时不设置
+                                log("XAPK安装完成！现在可以点击'完成'按钮返回");
+                                
+                                // 更新按钮状态（显示"打开"和"完成"按钮）
                                 updateInstallButtonState();
+                                
+                                // 不再显示Toast提示，改为按钮替换
+                                log("安装完成！现在可以点击'完成'按钮返回");
                             });
                         }
                     }
@@ -482,6 +614,41 @@ public class InstallerFragment extends Fragment {
         selectedFileUri = null;
         selectedFilePath = null;
         isXapkFile = false;
+    }
+
+    /**
+     * 重置安装状态
+     */
+    private void resetInstallationState() {
+        isInstallationComplete = false;
+        installedPackageName = null;
+        clearSelection();
+        updateInstallButtonState();
+        log("安装状态已重置，可以开始新的安装");
+    }
+
+    /**
+     * 打开已安装的应用
+     */
+    private void openInstalledApp() {
+        if (installedPackageName != null) {
+            try {
+                Intent launchIntent = requireContext().getPackageManager().getLaunchIntentForPackage(installedPackageName);
+                if (launchIntent != null) {
+                    startActivity(launchIntent);
+                    log("正在打开应用: " + installedPackageName);
+                } else {
+                    log("无法打开应用，可能没有启动器活动");
+                    Toast.makeText(requireContext(), "无法打开该应用", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                log("打开应用失败: " + e.getMessage());
+                Toast.makeText(requireContext(), "打开应用失败", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            log("未找到已安装的包名");
+            Toast.makeText(requireContext(), "未找到应用信息", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateShizukuStatusAndUi() {
@@ -551,17 +718,36 @@ public class InstallerFragment extends Fragment {
     }
 
     private void updateInstallButtonState() {
-        boolean fileSelected = selectedFilePath != null && !selectedFilePath.isEmpty();
-        boolean shizukuReady = false;
-        try {
-            shizukuReady = Shizuku.pingBinder() &&
-                    Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED &&
-                    !(Shizuku.isPreV11() || Shizuku.getVersion() < 10);
-        } catch (Throwable t) {
-            shizukuReady = false;
-        }
+        if (isInstallationComplete) {
+            // 安装完成状态：显示"打开"和"完成"按钮
+            btnInstall.setText("打开");
+            btnInstall.setEnabled(true);
+            btnInstall.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)));
+            
+            // 将取消按钮改为完成按钮
+            btnRequestPermission.setText("完成");
+            btnRequestPermission.setEnabled(true);
+            btnRequestPermission.setVisibility(View.VISIBLE);
+        } else {
+            // 正常状态：显示"安装"和"取消"按钮
+            boolean fileSelected = selectedFilePath != null && !selectedFilePath.isEmpty();
+            boolean shizukuReady = false;
+            try {
+                shizukuReady = Shizuku.pingBinder() &&
+                        Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED &&
+                        !(Shizuku.isPreV11() || Shizuku.getVersion() < 10);
+            } catch (Throwable t) {
+                shizukuReady = false;
+            }
 
-        btnInstall.setEnabled(shizukuReady && fileSelected);
+            btnInstall.setText("安装");
+            btnInstall.setEnabled(shizukuReady && fileSelected);
+            btnInstall.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), android.R.color.holo_blue_dark)));
+            
+            btnRequestPermission.setText("取消");
+            btnRequestPermission.setEnabled(true);
+            btnRequestPermission.setVisibility(shizukuReady && fileSelected ? View.VISIBLE : View.GONE);
+        }
     }
 
     /**
@@ -639,5 +825,112 @@ public class InstallerFragment extends Fragment {
             Shizuku.removeRequestPermissionResultListener(onRequestPermissionResultListener);
         } catch (Throwable ignored) {}
         binding = null;
+    }
+
+    /**
+     * 处理从其他应用传递过来的安装URI
+     * 这个方法会在onCreateView中被调用，用于处理外部应用发起的安装请求
+     */
+    private void handleInstallUriFromIntent() {
+        if (getActivity() == null) return;
+        
+        Intent intent = getActivity().getIntent();
+        if (intent == null) return;
+        
+        String action = intent.getAction();
+        Uri dataUri = intent.getData();
+        
+        // 检查是否是安装相关的意图
+        if (Intent.ACTION_VIEW.equals(action) || Intent.ACTION_INSTALL_PACKAGE.equals(action)) {
+            if (dataUri != null) {
+                log("接收到外部安装请求: " + dataUri.toString());
+                
+                // 处理URI并设置文件选择
+                selectedFileUri = dataUri;
+                String fileName = getFileNameFromUri(dataUri);
+                selectedFilePath = getFilePathFromUri(dataUri);
+                
+                if (selectedFilePath != null) {
+                    tvSelectedFile.setText(fileName);
+                    
+                    // 检测文件类型并显示
+                    isXapkFile = XapkInstaller.isXapkFile(selectedFilePath);
+                    String fileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
+                    tvFileType.setText(fileType);
+                    tvFileType.setVisibility(View.VISIBLE);
+                    
+                    // 如果是 XAPK，显示包含的 APK 数量
+                    if (isXapkFile) {
+                        int apkCount = XapkInstaller.getApkCount(selectedFilePath);
+                        log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
+                    }
+                    
+                    log("已处理外部安装请求，文件已复制到 cache: " + selectedFilePath);
+                    
+                    // 使用原生库分析 APK
+                    if (!isXapkFile) {
+                        analyzeApk(selectedFilePath);
+                    }
+                    
+                    updateInstallButtonState();
+                } else {
+                    log("处理外部安装URI失败: " + dataUri.toString());
+                    Toast.makeText(requireContext(), "无法处理该安装文件", Toast.LENGTH_SHORT).show();
+                }
+                
+                // 清除意图数据，避免重复处理
+                getActivity().setIntent(null);
+            }
+        }
+    }
+
+    /**
+     * 处理从HomeActivity传递过来的安装参数
+     * 当用户从其他应用选择本应用作为安装器时，HomeActivity会导航到InstallerFragment并传递参数
+     */
+    private void handleInstallArguments() {
+        Bundle arguments = getArguments();
+        if (arguments == null) return;
+        
+        Uri installUri = arguments.getParcelable("install_uri");
+        if (installUri != null) {
+            log("接收到HomeActivity传递的安装URI: " + installUri.toString());
+            
+            // 处理URI并设置文件选择
+            selectedFileUri = installUri;
+            String fileName = getFileNameFromUri(installUri);
+            selectedFilePath = getFilePathFromUri(installUri);
+            
+            if (selectedFilePath != null) {
+                tvSelectedFile.setText(fileName);
+                
+                // 检测文件类型并显示
+                isXapkFile = XapkInstaller.isXapkFile(selectedFilePath);
+                String fileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
+                tvFileType.setText(fileType);
+                tvFileType.setVisibility(View.VISIBLE);
+                
+                // 如果是 XAPK，显示包含的 APK 数量
+                if (isXapkFile) {
+                    int apkCount = XapkInstaller.getApkCount(selectedFilePath);
+                    log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
+                }
+                
+                log("已处理HomeActivity传递的安装请求，文件已复制到 cache: " + selectedFilePath);
+                
+                // 使用原生库分析 APK
+                if (!isXapkFile) {
+                    analyzeApk(selectedFilePath);
+                }
+                
+                updateInstallButtonState();
+                
+                // 清除参数，避免重复处理
+                arguments.remove("install_uri");
+            } else {
+                log("处理HomeActivity传递的安装URI失败: " + installUri.toString());
+                Toast.makeText(requireContext(), "无法处理该安装文件", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

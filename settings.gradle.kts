@@ -7,5 +7,4 @@ pluginManagement {
 }
 
 rootProject.name = "Installer"
-include(":app-old")
 include(":app")

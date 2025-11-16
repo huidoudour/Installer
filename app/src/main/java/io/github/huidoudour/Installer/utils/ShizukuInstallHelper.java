@@ -114,10 +114,13 @@ public class ShizukuInstallHelper {
             try {
                 callback.onProgress("开始安装 APK...");
                 
-                // 创建安装会话
+                // 创建安装会话 - 添加安装请求者参数
                 StringBuilder createCmd = new StringBuilder("pm install-create");
                 if (replaceExisting) createCmd.append(" -r");
                 if (grantPermissions) createCmd.append(" -g");
+                
+                // 添加安装请求者参数：io.github.huidoudour.zjs
+                createCmd.append(" -i io.github.huidoudour.zjs");
                 
                 callback.onProgress("创建安装会话: " + createCmd);
                 String createOutput = executeCommand(createCmd.toString());
@@ -174,6 +177,9 @@ public class ShizukuInstallHelper {
                 StringBuilder createCmd = new StringBuilder("pm install-create");
                 if (replaceExisting) createCmd.append(" -r");
                 if (grantPermissions) createCmd.append(" -g");
+                
+                // 添加安装请求者参数：io.github.huidoudour.zjs
+                createCmd.append(" -i io.github.huidoudour.zjs");
                 
                 callback.onProgress("创建安装会话...");
                 String createOutput = executeCommand(createCmd.toString());

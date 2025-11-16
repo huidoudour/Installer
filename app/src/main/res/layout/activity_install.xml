@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/transparent">
+
+    <!-- 圆角对话框容器 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="?attr/colorSurface"
+        android:layout_gravity="center">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+    <!-- 应用图标和名称区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="32dp">
+        
+        <!-- 应用图标 -->
+        <ImageView
+            android:id="@+id/iv_app_icon"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@android:drawable/sym_def_app_icon"
+            android:scaleType="centerInside"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="应用图标" />
+            
+        <!-- 应用名称 -->
+        <TextView
+            android:id="@+id/tv_app_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="应用名称"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:maxLines="2"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <!-- 应用信息卡片 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        android:layout_marginBottom="24dp">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+            
+            <!-- 应用信息列表 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                
+                <!-- 包名信息 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="包名"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginEnd="16dp" />
+                        
+                    <TextView
+                        android:id="@+id/tv_package_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="com.example.app"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textAlignment="textEnd" />
+                </LinearLayout>
+                
+                <!-- 版本信息 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="版本"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginEnd="16dp" />
+                        
+                    <TextView
+                        android:id="@+id/tv_version"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="1.0.0"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textAlignment="textEnd" />
+                </LinearLayout>
+                
+                <!-- 文件大小 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="文件大小"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginEnd="16dp" />
+                        
+                    <TextView
+                        android:id="@+id/tv_file_size"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="10.5 MB"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textAlignment="textEnd" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+            <!-- 安装按钮布局 -->
+            <LinearLayout
+                android:id="@+id/layout_install_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                
+                <!-- 安装按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_install"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="安装"
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="?attr/colorPrimary"
+                    android:layout_marginBottom="8dp" />
+                    
+                <!-- 取消按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cancel"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="取消"
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    app:backgroundTint="@android:color/transparent" />
+            </LinearLayout>
+
+            <!-- 安装中状态布局 -->
+            <LinearLayout
+                android:id="@+id/layout_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+                
+                <!-- 灰化的安装按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_install_disabled"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="安装中..."
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="?attr/colorOnSurfaceVariant"
+                    android:enabled="false"
+                    android:layout_marginBottom="8dp" />
+                    
+                <!-- 取消按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cancel_progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="取消"
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    app:backgroundTint="@android:color/transparent" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>
