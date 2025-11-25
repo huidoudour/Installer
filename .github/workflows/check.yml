@@ -1,5 +1,5 @@
-# Android check workflow for branch `create_change`
-# Triggers on push and pull_request for the create_change branch.
+# Android check workflow for branch `create_change` and `ccrh_cmit`
+# Triggers on push and pull_request for the create_change and ccrh_cmit branches.
 # Runs checkout, sets up JDK 21 with Gradle cache and runs `./gradlew check`.
 # Does NOT copy/upload artifacts.
 name: CI Check
