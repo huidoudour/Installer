@@ -62,4 +62,7 @@
     <string name="install">安装</string>
     <string name="cancel">算了</string>
     <string name="installing">安装中...</string>
+    <!-- 后台显示设置 -->
+    <string name="background_display">显示后台</string>
+    <string name="background_display_summary">控制是否在应用中显示后台进程</string>
 </resources>

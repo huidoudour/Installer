@@ -62,4 +62,7 @@
     <string name="installing_progress">Installing...</string>
     <string name="preparing">Preparing...</string>
     <string name="progress_count">0/0</string>
+    <!-- Background display settings -->
+    <string name="background_display">Show Background</string>
+    <string name="background_display_summary">Control whether to show background processes in the app</string>
 </resources>

@@ -62,4 +62,7 @@
     <string name="installing_progress">正在安装...</string>
     <string name="preparing">准备中...</string>
     <string name="progress_count">0/0</string>
+    <!-- 后台显示设置 -->
+    <string name="background_display">显示后台</string>
+    <string name="background_display_summary">控制是否在应用中显示后台进程</string>
 </resources>

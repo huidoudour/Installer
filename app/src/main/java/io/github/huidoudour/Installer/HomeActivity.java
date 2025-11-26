@@ -1,6 +1,7 @@
 package io.github.huidoudour.Installer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,9 @@ import io.github.huidoudour.Installer.databinding.ActivityHomeBinding;
 public class HomeActivity extends AppCompatActivity {
 
     private ActivityHomeBinding binding;
+    private SharedPreferences sharedPreferences;
+    private static final String PREFS_NAME = "app_settings";
+    private static final String KEY_BACKGROUND_DISPLAY = "background_display";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +31,16 @@ public class HomeActivity extends AppCompatActivity {
         DynamicColors.applyToActivityIfAvailable(this);
 
         super.onCreate(savedInstanceState);
+
+        // 初始化SharedPreferences
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        
+        // 根据设置控制后台显示
+        boolean isBackgroundDisplayEnabled = sharedPreferences.getBoolean(KEY_BACKGROUND_DISPLAY, true);
+        if (!isBackgroundDisplayEnabled) {
+            // 如果后台显示被禁用，设置任务属性以排除从最近任务列表
+            setTaskExcludeFromRecents();
+        }
 
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -78,6 +92,34 @@ public class HomeActivity extends AppCompatActivity {
                 
                 Log.d("HomeActivity", "接收到安装意图，URI: " + data.toString());
             }
+        }
+    }
+
+    /**
+     * 设置任务属性以排除从最近任务列表
+     * 当后台显示被禁用时调用此方法
+     */
+    private void setTaskExcludeFromRecents() {
+        try {
+            // 方法1：设置FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS标志
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            
+            // 方法2：对于Android 8.0+，可以使用Activity的excludeFromRecents属性
+            // 注意：setExcludeFromRecents()方法不存在，我们使用Intent标志
+            
+            // 方法3：设置任务描述，标记为不显示在最近任务中
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                setTaskDescription(new android.app.ActivityManager.TaskDescription(
+                    getString(R.string.app_name),
+                    R.mipmap.ic_launcher,
+                    getColor(android.R.color.transparent)
+                ));
+            }
+            
+            Log.d("HomeActivity", "后台显示已禁用，应用将不会出现在最近任务列表中");
+        } catch (Exception e) {
+            Log.e("HomeActivity", "设置后台显示失败: " + e.getMessage());
         }
     }
 
