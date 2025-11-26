@@ -6,7 +6,7 @@ name: CI Check
 
 on:
   push:
-    branches: [ "create_change", "ccrh_cmit" ]
+    branches: [ "create_change", "ccrh_cmit", "ccrh_cache" ]
 
 
 jobs:
