@@ -370,8 +370,8 @@ public class HomeFragment extends Fragment {
                 if (copyExit != 0) {
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
-                            log("复制文件到临时目录失败喵 Exit code: " + copyExit);
-                            Toast.makeText(requireContext(), "复制文件失败喵", Toast.LENGTH_LONG).show();
+                            log(getString(R.string.copy_file_failed_log, copyExit));
+                            Toast.makeText(requireContext(), R.string.copy_file_failed, Toast.LENGTH_LONG).show();
                             btnInstall.setEnabled(true);
                             updateInstallButtonState();
                         });
@@ -379,7 +379,7 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 
-                log("文件复制成功，开始安装...");
+                log(R.string.file_copy_success_start_install);
                 
                 // 步骤 2: 修改文件权限，确保 system_server 可读
                 String chmodCmd = "chmod 644 \"" + tmpFilePath + "\"";
@@ -396,7 +396,7 @@ public class HomeFragment extends Fragment {
                 }
                 installCmd.append(" \"").append(tmpFilePath).append("\"");
                 
-                log("Executing install command: " + installCmd.toString());
+                log(getString(R.string.executing_install_command, installCmd.toString()));
 
                 Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", installCmd.toString()});
 
@@ -411,18 +411,18 @@ public class HomeFragment extends Fragment {
                         out.append(line).append("\n");
                         final String l = line;
                         if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> log("Install (stdout): " + l));
+                            getActivity().runOnUiThread(() -> log(getString(R.string.install_stdout, l)));
                         }
                     }
                     while ((line = errorReader.readLine()) != null) {
                         err.append(line).append("\n");
                         final String l = line;
                         if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> log("Install (stderr): " + l));
+                            getActivity().runOnUiThread(() -> log(getString(R.string.install_stderr, l)));
                         }
                     }
                 } catch (Exception e) {
-                    log("读取安装进程输出出错喵: " + e.getMessage());
+                    log(getString(R.string.read_install_output_error, e.getMessage()));
                 }
 
                 int installExit = process.waitFor();
@@ -433,14 +433,14 @@ public class HomeFragment extends Fragment {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         if (installExit == 0 || finalOut.toLowerCase().contains("success")) {
-                            log("安装成功喵: " + new File(selectedFilePath).getName() + " 输出: " + finalOut);
-                            Toast.makeText(requireContext(), "安装成功喵~", Toast.LENGTH_LONG).show();
-                            tvSelectedFile.setText("未选择文件");
+                            log(getString(R.string.install_success_log, new File(selectedFilePath).getName(), finalOut));
+                            Toast.makeText(requireContext(), R.string.install_success, Toast.LENGTH_LONG).show();
+                            tvSelectedFile.setText(R.string.no_file_selected);
                             selectedFileUri = null;
                             selectedFilePath = null;
                         } else {
-                            log("安装失败喵。Exit code: " + installExit + "\nOutput: " + finalOut + "\nError: " + finalErr);
-                            Toast.makeText(requireContext(), "安装失败，查看日志喵。", Toast.LENGTH_LONG).show();
+                            log(getString(R.string.install_failed_log, installExit, finalOut, finalErr));
+                            Toast.makeText(requireContext(), R.string.install_failed_check_log, Toast.LENGTH_LONG).show();
                         }
                         btnInstall.setEnabled(true);
                         updateInstallButtonState();
@@ -450,9 +450,9 @@ public class HomeFragment extends Fragment {
                             try {
                                 String rmCmd = "rm -f \"" + finalTmpPath + "\"";
                                 Runtime.getRuntime().exec(new String[]{"sh", "-c", rmCmd}).waitFor();
-                                log("已清理临时文件: " + finalTmpPath);
+                                log(getString(R.string.temp_file_cleaned, finalTmpPath));
                             } catch (Exception e) {
-                                log("清理临时文件失败: " + e.getMessage());
+                                log(getString(R.string.clean_temp_file_failed, e.getMessage()));
                             }
                         }).start();
                     });
@@ -463,8 +463,8 @@ public class HomeFragment extends Fragment {
                 final String finalTmpPath = tmpFilePath;
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        log("安装流程异常喵: " + em);
-                        Toast.makeText(requireContext(), "安装异常: " + em, Toast.LENGTH_LONG).show();
+                        log(getString(R.string.install_exception_log, em));
+                        Toast.makeText(requireContext(), getString(R.string.install_exception, em), Toast.LENGTH_LONG).show();
                         btnInstall.setEnabled(true);
                         updateInstallButtonState();
                         
@@ -486,44 +486,44 @@ public class HomeFragment extends Fragment {
     private void updateShizukuStatusAndUi() {
         try {
             if (!Shizuku.pingBinder()) {
-                tvShizukuStatus.setText("未运行/未安装");
+                tvShizukuStatus.setText(R.string.shizuku_not_running);
                 tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 btnRequestPermission.setEnabled(false);
-                log("Shizuku 未连接喵.");
+                log(R.string.shizuku_not_connected);
             } else {
                 try {
                     if (Shizuku.isPreV11() || Shizuku.getVersion() < 10) {
-                        tvShizukuStatus.setText("版本过低喵");
+                        tvShizukuStatus.setText(R.string.version_too_low);
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         btnRequestPermission.setEnabled(false);
-                        log("Shizuku 版本过低喵.");
+                        log(R.string.shizuku_version_too_low);
                     } else if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-                        tvShizukuStatus.setText("已授予喵");
+                        tvShizukuStatus.setText(R.string.permission_granted);
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         btnRequestPermission.setEnabled(false);
-                        log("Shizuku 已连接并授权喵.");
+                        log(R.string.shizuku_connected_and_authorized);
                     } else {
-                        tvShizukuStatus.setText("未授予喵");
+                        tvShizukuStatus.setText(R.string.not_authorized);
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                         btnRequestPermission.setEnabled(true);
-                        log("Shizuku 已连接但未授权喵.");
+                        log(R.string.shizuku_connected_but_not_authorized);
                     }
                 } catch (Throwable t) {
-                    tvShizukuStatus.setText("状态未知喵");
+                    tvShizukuStatus.setText(R.string.status_unknown);
                     tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                     statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                    log("检查 Shizuku 版本/权限失败喵: " + t.getMessage());
+                    log(getString(R.string.check_shizuku_version_permission_failed, t.getMessage()));
                 }
             }
         } catch (Throwable t) {
-            tvShizukuStatus.setText("不可用喵");
+            tvShizukuStatus.setText(R.string.unavailable);
             tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-            log("updateShizukuStatusAndUi 捕获异常喵: " + t.getMessage());
+            log(getString(R.string.update_shizuku_status_ui_exception, t.getMessage()));
         }
         updateInstallButtonState();
     }

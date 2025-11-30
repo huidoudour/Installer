@@ -105,7 +105,7 @@ public class InstallerFragment extends Fragment {
 
                             // 如果是 XAPK，显示包含的 APK 数量
                             if (isXapkFile) {
-                                int apkCount = XapkInstaller.getApkCount(selectedFilePath);
+                                int apkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
                                 log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
                             }
 
@@ -484,7 +484,7 @@ public class InstallerFragment extends Fragment {
      * 清除选择的文件
      */
     private void clearSelection() {
-        tvSelectedFile.setText("未选择文件");
+        tvSelectedFile.setText(R.string.no_file_selected);
         tvFileType.setVisibility(View.GONE);
         selectedFileUri = null;
         selectedFilePath = null;
@@ -495,62 +495,62 @@ public class InstallerFragment extends Fragment {
         String currentStatus = "";
         try {
             if (!Shizuku.pingBinder()) {
-                currentStatus = "未连接";
-                tvShizukuStatus.setText("未运行/未安装");
+                currentStatus = getString(R.string.not_connected);
+                tvShizukuStatus.setText(R.string.shizuku_not_running);
                 tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 btnRequestPermission.setEnabled(false);
                 if (!currentStatus.equals(lastShizukuStatus)) {
-                    log("Shizuku 未连接喵.");
+                    log(R.string.shizuku_not_connected);
                 }
             } else {
                 try {
                     if (Shizuku.isPreV11() || Shizuku.getVersion() < 10) {
-                        currentStatus = "版本过低";
-                        tvShizukuStatus.setText("版本过低喵");
+                        currentStatus = getString(R.string.version_too_low);
+                        tvShizukuStatus.setText(R.string.version_too_low_miao);
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         btnRequestPermission.setEnabled(false);
                         if (!currentStatus.equals(lastShizukuStatus)) {
-                            log("Shizuku 版本过低喵.");
+                            log(R.string.shizuku_version_too_low);
                         }
                     } else if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-                        currentStatus = "已授权";
-                        tvShizukuStatus.setText("已授予喵");
+                        currentStatus = getString(R.string.authorized);
+                        tvShizukuStatus.setText(R.string.permission_granted_miao);
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         btnRequestPermission.setEnabled(false);
                         // 只在状态变化或第一次初始化时输出日志
                         if (!currentStatus.equals(lastShizukuStatus)) {
-                            log("Shizuku 已连接并授权喵.");
+                            log(R.string.shizuku_connected_and_authorized);
                         }
                     } else {
-                        currentStatus = "未授权";
-                        tvShizukuStatus.setText("未授予喵");
+                        currentStatus = getString(R.string.not_authorized);
+                        tvShizukuStatus.setText(R.string.not_granted_miao);
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                         btnRequestPermission.setEnabled(true);
                         if (!currentStatus.equals(lastShizukuStatus)) {
-                            log("Shizuku 已连接但未授权喵.");
+                            log(R.string.shizuku_connected_but_not_authorized);
                         }
                     }
                 } catch (Throwable t) {
-                    currentStatus = "状态未知";
-                    tvShizukuStatus.setText("状态未知喵");
+                    currentStatus = getString(R.string.status_unknown);
+                    tvShizukuStatus.setText(R.string.status_unknown_miao);
                     tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                     statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                     if (!currentStatus.equals(lastShizukuStatus)) {
-                        log("检查 Shizuku 版本/权限失败喵: " + t.getMessage());
+                        log(getString(R.string.check_shizuku_version_permission_failed, t.getMessage()));
                     }
                 }
             }
         } catch (Throwable t) {
-            currentStatus = "不可用";
-            tvShizukuStatus.setText("不可用喵");
+            currentStatus = getString(R.string.unavailable);
+            tvShizukuStatus.setText(R.string.unavailable_miao);
             tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
             if (!currentStatus.equals(lastShizukuStatus)) {
-                log("updateShizukuStatusAndUi 捕获异常喵: " + t.getMessage());
+                log(getString(R.string.update_shizuku_status_ui_exception, t.getMessage()));
             }
         }
         lastShizukuStatus = currentStatus; // 更新状态
@@ -682,7 +682,7 @@ public class InstallerFragment extends Fragment {
                     
                     // 如果是 XAPK，显示包含的 APK 数量
                     if (isXapkFile) {
-                        int apkCount = XapkInstaller.getApkCount(selectedFilePath);
+                        int apkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
                         log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
                     }
                     
@@ -695,8 +695,8 @@ public class InstallerFragment extends Fragment {
                     
                     updateInstallButtonState();
                 } else {
-                    log("处理外部安装URI失败: " + dataUri.toString());
-                    Toast.makeText(requireContext(), "无法处理该安装文件", Toast.LENGTH_SHORT).show();
+                    log(getString(R.string.process_external_install_uri_failed, dataUri.toString()));
+                    Toast.makeText(requireContext(), R.string.cannot_process_install_file, Toast.LENGTH_SHORT).show();
                 }
                 
                 // 清除意图数据，避免重复处理
@@ -715,7 +715,7 @@ public class InstallerFragment extends Fragment {
         
         Uri installUri = arguments.getParcelable("install_uri");
         if (installUri != null) {
-            log("接收到HomeActivity传递的安装URI: " + installUri.toString());
+            log(getString(R.string.received_install_uri_from_home, installUri.toString()));
             
             // 处理URI并设置文件选择
             selectedFileUri = installUri;
@@ -733,11 +733,11 @@ public class InstallerFragment extends Fragment {
                 
                 // 如果是 XAPK，显示包含的 APK 数量
                 if (isXapkFile) {
-                    int apkCount = XapkInstaller.getApkCount(selectedFilePath);
-                    log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
+                    int apkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
+                    log(getString(R.string.detected_file_type_apk_count, fileType, apkCount));
                 }
                 
-                log("已处理HomeActivity传递的安装请求，文件已复制到 cache: " + selectedFilePath);
+                log(getString(R.string.processed_home_install_request, selectedFilePath));
                 
                 // 使用原生库分析 APK
                 if (!isXapkFile) {
@@ -749,8 +749,8 @@ public class InstallerFragment extends Fragment {
                 // 清除参数，避免重复处理
                 arguments.remove("install_uri");
             } else {
-                log("处理HomeActivity传递的安装URI失败: " + installUri.toString());
-                Toast.makeText(requireContext(), "无法处理该安装文件", Toast.LENGTH_SHORT).show();
+                log(getString(R.string.process_home_install_uri_failed, installUri.toString()));
+                Toast.makeText(requireContext(), R.string.cannot_process_install_file, Toast.LENGTH_SHORT).show();
             }
         }
     }

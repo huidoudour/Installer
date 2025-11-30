@@ -103,7 +103,7 @@ public class InstallActivity extends AppCompatActivity {
             processInstallFile();
         } else {
             // 如果没有有效的安装意图，显示错误并退出
-            showErrorAndExit("无效的安装请求");
+            showErrorAndExit(getString(R.string.invalid_install_request));
         }
     }
     
@@ -112,7 +112,7 @@ public class InstallActivity extends AppCompatActivity {
             // 获取文件路径
             filePath = getFilePathFromUri(installUri);
             if (filePath == null) {
-                showErrorAndExit("无法访问安装文件");
+                showErrorAndExit(getString(R.string.cannot_access_install_file));
                 return;
             }
             
@@ -123,8 +123,8 @@ public class InstallActivity extends AppCompatActivity {
             displayInstallInfo();
             
         } catch (Exception e) {
-            Log.e(TAG, "处理安装文件失败", e);
-            showErrorAndExit("处理安装文件时发生错误");
+            Log.e(TAG, getString(R.string.process_install_file_failed), e);
+            showErrorAndExit(getString(R.string.error_processing_install_file));
         }
     }
     
@@ -132,27 +132,27 @@ public class InstallActivity extends AppCompatActivity {
         try {
             // 文件基本信息
             String fileSize = ApkAnalyzer.getFileSize(filePath);
-            tvFileSize.setText(fileSize != null ? fileSize : "未知");
+            tvFileSize.setText(fileSize != null ? fileSize : getString(R.string.unknown));
             
             if (!isXapkFile) {
                 // 单个APK文件信息
                 String packageName = ApkAnalyzer.getPackageName(this, filePath);
                 String versionInfo = ApkAnalyzer.getVersionInfo(this, filePath);
                 
-                tvPackageName.setText(packageName != null ? packageName : "未知");
-                tvVersion.setText(versionInfo != null ? versionInfo : "未知");
+                tvPackageName.setText(packageName != null ? packageName : getString(R.string.unknown));
+                tvVersion.setText(versionInfo != null ? versionInfo : getString(R.string.unknown));
                 
                 // 尝试获取应用名称（使用包名作为应用名称）
-                tvAppName.setText(packageName != null ? packageName : "未知应用");
+                tvAppName.setText(packageName != null ? packageName : getString(R.string.unknown_app));
                 
                 // 设置应用图标
                 setAppIcon();
             } else {
                 // XAPK文件信息
-                tvAppName.setText("XAPK安装包");
-                tvPackageName.setText("XAPK");
-                int apkCount = XapkInstaller.getApkCount(filePath);
-                tvVersion.setText(apkCount > 0 ? apkCount + " 个APK文件" : "未知");
+                tvAppName.setText(R.string.xapk_package);
+                tvPackageName.setText(R.string.xapk);
+                int apkCount = XapkInstaller.getApkCount(this, filePath);
+                tvVersion.setText(apkCount > 0 ? getString(R.string.apk_files_count, apkCount) : getString(R.string.unknown));
                 
                 // 设置默认图标
                 ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
@@ -166,8 +166,8 @@ public class InstallActivity extends AppCompatActivity {
             checkShizukuStatus();
             
         } catch (Exception e) {
-            Log.e(TAG, "显示安装信息失败", e);
-            showErrorAndExit("无法解析安装文件信息");
+            Log.e(TAG, getString(R.string.display_install_info_failed), e);
+            showErrorAndExit(getString(R.string.parse_file_failed));
         }
     }
     
@@ -183,7 +183,7 @@ public class InstallActivity extends AppCompatActivity {
                     ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
                 }
             } catch (Exception e) {
-                Log.e(TAG, "设置应用图标失败", e);
+                Log.e(TAG, getString(R.string.set_app_icon_failed), e);
                 ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
         }
@@ -207,7 +207,7 @@ public class InstallActivity extends AppCompatActivity {
             btnInstallDisabled.setVisibility(View.VISIBLE);
             
             // 显示Shizuku状态说明
-            Toast.makeText(this, "需要Shizuku授权才能安装应用", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.shizuku_required, Toast.LENGTH_LONG).show();
         }
     }
     
@@ -224,7 +224,7 @@ public class InstallActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         runOnUiThread(() -> {
-                            Toast.makeText(InstallActivity.this, "XAPK安装成功", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(InstallActivity.this, R.string.xapk_install_success, Toast.LENGTH_SHORT).show();
                             finish();
                         });
                     }
@@ -232,7 +232,7 @@ public class InstallActivity extends AppCompatActivity {
                     @Override
                     public void onError(String error) {
                         runOnUiThread(() -> {
-                            Toast.makeText(InstallActivity.this, "XAPK安装失败: " + error, Toast.LENGTH_LONG).show();
+                            Toast.makeText(InstallActivity.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
                             layoutProgress.setVisibility(View.GONE);
                             layoutInstallInfo.setVisibility(View.VISIBLE);
                         });
@@ -249,7 +249,7 @@ public class InstallActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String message) {
                         runOnUiThread(() -> {
-                            Toast.makeText(InstallActivity.this, "APK安装成功", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(InstallActivity.this, R.string.apk_install_success, Toast.LENGTH_SHORT).show();
                             finish();
                         });
                     }
@@ -257,7 +257,7 @@ public class InstallActivity extends AppCompatActivity {
                     @Override
                     public void onError(String error) {
                         runOnUiThread(() -> {
-                            Toast.makeText(InstallActivity.this, "APK安装失败: " + error, Toast.LENGTH_LONG).show();
+                            Toast.makeText(InstallActivity.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
                             layoutProgress.setVisibility(View.GONE);
                             layoutInstallInfo.setVisibility(View.VISIBLE);
                         });
@@ -265,8 +265,8 @@ public class InstallActivity extends AppCompatActivity {
                 });
             }
         } catch (Exception e) {
-            Log.e(TAG, "开始安装失败", e);
-            Toast.makeText(this, "安装过程启动失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e(TAG, getString(R.string.start_installation_failed), e);
+            Toast.makeText(this, getString(R.string.install_process_failed, e.getMessage()), Toast.LENGTH_LONG).show();
             layoutProgress.setVisibility(View.GONE);
             layoutInstallInfo.setVisibility(View.VISIBLE);
         }
@@ -298,16 +298,16 @@ public class InstallActivity extends AppCompatActivity {
                 return tempFile.getAbsolutePath();
             }
         } catch (Exception e) {
-            Log.e(TAG, "从URI获取文件路径失败", e);
+            Log.e(TAG, getString(R.string.get_file_path_from_uri_failed), e);
         }
         return null;
     }
     
     private void showErrorAndExit(String message) {
         new MaterialAlertDialogBuilder(this)
-                .setTitle("安装错误")
+                .setTitle(R.string.install_error)
                 .setMessage(message)
-                .setPositiveButton("确定", (dialog, which) -> finish())
+                .setPositiveButton(R.string.ok, (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
     }

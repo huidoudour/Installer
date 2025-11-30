@@ -101,7 +101,7 @@ public class SettingsFragment extends Fragment {
 
     private void showLanguageSelectionDialog() {
         // 创建语言选择对话框
-        String[] languages = {"简体中文", "English"};
+        String[] languages = {getString(R.string.simplified_chinese), getString(R.string.english)};
         String[] languageCodes = {"zh", "en"};
         
         // 获取当前选择的语言
@@ -148,7 +148,7 @@ public class SettingsFragment extends Fragment {
             // 重启应用以使语言设置生效
             restartApp();
         } catch (Exception e) {
-            Log.e("SettingsFragment", "切换语言失败: " + e.getMessage());
+            Log.e("SettingsFragment", getString(R.string.switch_language_failed, e.getMessage()));
             showSnackbar(R.string.language_change_failed);
         }
     }
@@ -174,7 +174,7 @@ public class SettingsFragment extends Fragment {
                 }
             }, 500); // 延迟500毫秒
         } catch (Exception e) {
-            Log.e("SettingsFragment", "重启应用失败: " + e.getMessage());
+            Log.e("SettingsFragment", getString(R.string.restart_app_failed, e.getMessage()));
         }
     }
     
@@ -241,7 +241,7 @@ public class SettingsFragment extends Fragment {
                 });
             }
         } catch (Exception e) {
-            Log.e("SettingsFragment", "应用后台显示设置失败: " + e.getMessage());
+            Log.e("SettingsFragment", getString(R.string.apply_background_display_setting_failed, e.getMessage()));
             showSnackbar(R.string.setting_change_failed);
         }
     }

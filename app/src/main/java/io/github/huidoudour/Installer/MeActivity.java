@@ -52,7 +52,7 @@ public class MeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 添加日志调试
-                android.util.Log.d("MeActivity", "按钮被点击");
+                android.util.Log.d("MeActivity", getString(R.string.button_clicked));
                 
                 // 打开GitHub个人主页
                 openUrl("https://github.com/huidoudour");
@@ -65,7 +65,7 @@ public class MeActivity extends AppCompatActivity {
         intent.setData(Uri.parse(url));
         
         // 添加调试信息
-        android.util.Log.d("MeActivity", "尝试打开链接: " + url);
+        android.util.Log.d("MeActivity", getString(R.string.attempting_to_open_link, url));
         
         try {
             // 添加Android 14兼容性标志
@@ -75,58 +75,53 @@ public class MeActivity extends AppCompatActivity {
             List<android.content.pm.ResolveInfo> activities = getPackageManager().queryIntentActivities(intent, 
                 android.content.pm.PackageManager.MATCH_DEFAULT_ONLY);
             
-            android.util.Log.d("MeActivity", "可用的应用数量: " + activities.size());
+            android.util.Log.d("MeActivity", getString(R.string.available_apps_count, activities.size()));
             
             for (android.content.pm.ResolveInfo info : activities) {
-                android.util.Log.d("MeActivity", "可用应用: " + info.activityInfo.packageName);
+                android.util.Log.d("MeActivity", getString(R.string.available_app, info.activityInfo.packageName));
             }
             
             if (activities.size() > 0) {
-                android.util.Log.d("MeActivity", "找到可以处理链接的应用");
+                android.util.Log.d("MeActivity", getString(R.string.found_apps_to_handle_link));
                 
                 // 尝试启动应用选择器，让用户选择
-                Intent chooserIntent = Intent.createChooser(intent, "选择打开方式");
+                Intent chooserIntent = Intent.createChooser(intent, getString(R.string.choose_open_method));
                 chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 
                 // 添加异常捕获，防止Android 14上的安全限制
                 try {
                     startActivity(chooserIntent);
-                    android.util.Log.d("MeActivity", "成功启动应用选择器");
+                    android.util.Log.d("MeActivity", getString(R.string.chooser_started_successfully));
                 } catch (android.content.ActivityNotFoundException e) {
                     // 如果选择器失败，尝试直接启动
-                    android.util.Log.w("MeActivity", "应用选择器失败，尝试直接启动: " + e.getMessage());
+                    android.util.Log.w("MeActivity", getString(R.string.chooser_failed_try_direct_launch, e.getMessage()));
                     try {
                         startActivity(intent);
-                        android.util.Log.d("MeActivity", "直接启动成功");
+                        android.util.Log.d("MeActivity", getString(R.string.direct_launch_success));
                     } catch (android.content.ActivityNotFoundException e2) {
-                        android.util.Log.e("MeActivity", "直接启动也失败: " + e2.getMessage());
-                        showSnackbar("无法打开链接，请检查浏览器应用");
+                        android.util.Log.e("MeActivity", getString(R.string.direct_launch_failed, e2.getMessage()));
+                        showSnackbar(getString(R.string.open_link_failed));
                     }
                 }
             } else {
-                android.util.Log.d("MeActivity", "未找到可以处理链接的应用");
+                android.util.Log.d("MeActivity", getString(R.string.no_apps_found_to_handle_link));
                 
                 // 在Android 14上，即使查询不到应用，也尝试直接启动
-                android.util.Log.w("MeActivity", "查询不到应用，但尝试直接启动链接");
+                android.util.Log.w("MeActivity", getString(R.string.query_failed_but_try_direct_launch));
                 try {
                     startActivity(intent);
-                    android.util.Log.d("MeActivity", "直接启动成功（绕过包可见性限制）");
+                    android.util.Log.d("MeActivity", getString(R.string.direct_launch_success_bypass));
                 } catch (android.content.ActivityNotFoundException e) {
-                    android.util.Log.e("MeActivity", "直接启动失败: " + e.getMessage());
+                    android.util.Log.e("MeActivity", getString(R.string.direct_launch_failed, e.getMessage()));
                     
                     // 提供更详细的错误信息和解决方案
-                    String errorMessage = "无法打开链接。\n" +
-                        "可能的原因：\n" +
-                        "1. 设备上没有安装浏览器应用\n" +
-                        "2. Android 14包可见性限制\n" +
-                        "3. 系统安全设置阻止了链接打开\n" +
-                        "\n请尝试安装Chrome、Firefox或其他浏览器应用。";
+                    String errorMessage = getString(R.string.link_open_error);
                     showSnackbar(errorMessage);
                 }
             }
         } catch (Exception e) {
-            android.util.Log.e("MeActivity", "打开链接失败: " + e.getMessage(), e);
-            showSnackbar("打开链接失败: " + e.getMessage());
+            android.util.Log.e("MeActivity", getString(R.string.open_link_failed_log, e.getMessage()), e);
+            showSnackbar(getString(R.string.link_open_failed, e.getMessage()));
         }
     }
 

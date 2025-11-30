@@ -300,7 +300,7 @@ public class ShellFragment extends Fragment {
         isExecuting = true;
 
         // 执行命令
-        ShellExecutor.executeCommand(command, new ShellExecutor.ExecuteCallback() {
+        ShellExecutor.executeCommand(requireContext(), command, new ShellExecutor.ExecuteCallback() {
             @Override
             public void onOutput(String line) {
                 if (getActivity() != null) {

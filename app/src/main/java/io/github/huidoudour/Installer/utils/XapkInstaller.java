@@ -95,10 +95,9 @@ public class XapkInstaller {
                         apkFiles.add(destFile);
                         extractedApks++;
                         
-                        Log.d(TAG, "✓ 已解压 APK: " + destFile.getName() + 
-                                " (" + totalRead + " bytes)");
+                        Log.d(TAG, context.getString(R.string.apk_extracted, destFile.getName(), totalRead));
                     } catch (Exception e) {
-                        Log.e(TAG, "解压 APK 失败: " + destFile.getName(), e);
+                        Log.e(TAG, context.getString(R.string.extract_apk_failed, destFile.getName()), e);
                         // 确保流被关闭
                         if (fos != null) {
                             try { fos.close(); } catch (Exception ignored) {}
@@ -111,34 +110,33 @@ public class XapkInstaller {
                 zis.closeEntry();
             }
             
-            Log.d(TAG, "解压完成！共处理 " + totalEntries + " 个条目，" +
-                    "提取 " + extractedApks + " 个 APK 文件");
+            Log.d(TAG, context.getString(R.string.extract_complete_summary, totalEntries, extractedApks));
             
         } catch (Exception e) {
-            Log.e(TAG, "解压 XAPK 过程中发生错误", e);
+            Log.e(TAG, context.getString(R.string.extract_xapk_error), e);
             throw e;
         } finally {
             // 关闭流
             if (zis != null) {
                 try {
                     zis.close();
-                    Log.d(TAG, "ZIP 输入流已关闭");
+                    Log.d(TAG, context.getString(R.string.close_zip_stream));
                 } catch (Exception e) {
-                    Log.e(TAG, "关闭 ZIP 输入流失败", e);
+                    Log.e(TAG, context.getString(R.string.close_zip_stream_failed), e);
                 }
             }
             if (fis != null) {
                 try {
                     fis.close();
-                    Log.d(TAG, "文件输入流已关闭");
+                    Log.d(TAG, context.getString(R.string.close_file_stream));
                 } catch (Exception e) {
-                    Log.e(TAG, "关闭文件输入流失败", e);
+                    Log.e(TAG, context.getString(R.string.close_file_stream_failed), e);
                 }
             }
         }
         
         if (apkFiles.isEmpty()) {
-            throw new Exception("XAPK/APKS 文件中未找到任何 APK 文件");
+            throw new Exception(context.getString(R.string.no_apk_found));
         }
         
         return apkFiles;
@@ -159,19 +157,19 @@ public class XapkInstaller {
      * 获取文件类型描述
      */
     public static String getFileTypeDescription(String filePath) {
-        if (filePath == null) return "未知";
+        if (filePath == null) return context.getString(R.string.unknown);
         
         String lowerPath = filePath.toLowerCase();
         if (lowerPath.endsWith(".apk")) {
-            return "APK (标准安装包)";
+            return context.getString(R.string.apk_standard);
         } else if (lowerPath.endsWith(".xapk")) {
-            return "XAPK (APKPure 格式)";
+            return context.getString(R.string.xapk_format);
         } else if (lowerPath.endsWith(".apks")) {
-            return "APKS (App Bundle)";
+            return context.getString(R.string.apks_format);
         } else if (lowerPath.endsWith(".apkm")) {
-            return "APKM (APKMirror 格式)";
+            return context.getString(R.string.apkm_format);
         }
-        return "未知格式";
+        return context.getString(R.string.unknown_file_format);
     }
     
     /**
@@ -198,7 +196,7 @@ public class XapkInstaller {
     /**
      * 获取 XAPK 中的 APK 数量（不解压，只读取）
      */
-    public static int getApkCount(String xapkPath) {
+    public static int getApkCount(Context context, String xapkPath) {
         int count = 0;
         FileInputStream fis = null;
         ZipInputStream zis = null;
@@ -215,7 +213,7 @@ public class XapkInstaller {
                 zis.closeEntry();
             }
         } catch (Exception e) {
-            Log.e(TAG, "读取 XAPK 失败", e);
+            Log.e(TAG, context.getString(R.string.read_xapk_failed), e);
         } finally {
             if (zis != null) {
                 try { zis.close(); } catch (Exception ignored) {}
@@ -247,7 +245,7 @@ public class XapkInstaller {
             try {
                 // 解压 XAPK
                 extractedApks = extractXapk(context, xapkPath);
-                Log.d(TAG, "解压完成，共 " + extractedApks.size() + " 个 APK");
+                Log.d(TAG, context.getString(R.string.extract_complete, extractedApks.size()));
                 
                 // 安装所有 APK
                 for (File apkFile : extractedApks) {
@@ -255,18 +253,18 @@ public class XapkInstaller {
                     ShizukuInstallHelper.installSingleApk(apkFile, true, true, new ShizukuInstallHelper.InstallCallback() {
                         @Override
                         public void onProgress(String message) {
-                            Log.d(TAG, "安装进度: " + message);
+                            Log.d(TAG, context.getString(R.string.install_progress, message));
                         }
                         
                         @Override
                         public void onSuccess(String message) {
-                            Log.d(TAG, "APK 安装成功: " + message);
+                            Log.d(TAG, context.getString(R.string.apk_install_success_log, message));
                         }
                         
                         @Override
                         public void onError(String error) {
-                            Log.e(TAG, "APK 安装失败: " + error);
-                            callback.onError("安装失败: " + error);
+                            Log.e(TAG, context.getString(R.string.apk_install_failed_log, error));
+                            callback.onError(context.getString(R.string.install_failed_error, error));
                             return;
                         }
                     });
@@ -275,8 +273,8 @@ public class XapkInstaller {
                 // 所有 APK 安装完成
                 callback.onSuccess();
             } catch (Exception e) {
-                Log.e(TAG, "XAPK 安装异常", e);
-                callback.onError("安装异常: " + e.getMessage());
+                Log.e(TAG, context.getString(R.string.xapk_install_exception_log), e);
+                callback.onError(context.getString(R.string.install_exception_error, e.getMessage()));
             } finally {
                 // 清理临时文件
                 if (extractedApks != null) {

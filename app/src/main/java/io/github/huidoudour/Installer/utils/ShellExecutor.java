@@ -1,8 +1,8 @@
 package io.github.huidoudour.Installer.utils;
 
+import android.content.Context;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.pm.PackageManager;
 
 import java.io.BufferedReader;
@@ -256,13 +256,17 @@ public class ShellExecutor {
      * 智能执行命令（使用持久化会话）
      */
     public static void executeCommand(String command, ExecuteCallback callback) {
-        executePersistentCommand(command, callback);
+        executePersistentCommand(null, command, callback);
+    }
+    
+    public static void executeCommand(Context context, String command, ExecuteCallback callback) {
+        executePersistentCommand(context, command, callback);
     }
     
     /**
      * 使用持久化Shell会话执行命令（保持工作目录）
      */
-    private static void executePersistentCommand(String command, ExecuteCallback callback) {
+    private static void executePersistentCommand(Context context, String command, ExecuteCallback callback) {
         new Thread(() -> {
             try {
                 // 检查是否需要创建新会话
@@ -276,7 +280,7 @@ public class ShellExecutor {
                 }
                 
                 if (needNewSession) {
-                    createPersistentSession(shizukuAvailable);
+                    createPersistentSession(context, shizukuAvailable);
                 }
                 
                 // 执行命令
@@ -367,7 +371,7 @@ public class ShellExecutor {
     /**
      * 创建持久化Shell会话
      */
-    private static void createPersistentSession(boolean useShizuku) throws Exception {
+    private static void createPersistentSession(Context context, boolean useShizuku) throws Exception {
         if (useShizuku) {
             // 使用Shizuku创建会话
             try {
@@ -387,7 +391,7 @@ public class ShellExecutor {
                     }
                 }
             } catch (Exception e) {
-                throw new Exception("Shizuku session creation failed: " + e.getMessage());
+                throw new Exception(context.getString(R.string.shizuku_session_creation_failed, e.getMessage()));
             }
         } else {
             // 普通模式 - 使用非交互式shell
@@ -511,18 +515,18 @@ public class ShellExecutor {
         };
         
         public static final String[] COMMAND_NAMES = {
-            "列出文件",
-            "当前目录",
-            "当前用户",
-            "系统信息",
-            "磁盘空间",
-            "内存信息",
-            "进程列表",
-            "已安装应用",
-            "系统属性",
-            "系统日志",
-            "🔧 Native库信息",
-            "🚀 性能测试"
+            context.getString(R.string.list_files),
+            context.getString(R.string.current_directory),
+            context.getString(R.string.current_user),
+            context.getString(R.string.system_info),
+            context.getString(R.string.disk_space),
+            context.getString(R.string.memory_info),
+            context.getString(R.string.process_list),
+            context.getString(R.string.installed_apps),
+            context.getString(R.string.system_properties),
+            context.getString(R.string.system_logs),
+            context.getString(R.string.native_library_info),
+            context.getString(R.string.performance_test)
         };
     }
 
@@ -533,7 +537,7 @@ public class ShellExecutor {
         try {
             ClipboardManager clipboard = (ClipboardManager) 
                 context.getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("Terminal Output", text);
+            ClipData clip = ClipData.newPlainText(context.getString(R.string.terminal_output), text);
             clipboard.setPrimaryClip(clip);
             return true;
         } catch (Exception e) {

@@ -10,7 +10,7 @@ public class LogsViewModel extends ViewModel {
 
     public LogsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("日志页面");
+        mText.setValue("log_page");
     }
 
     public LiveData<String> getText() {

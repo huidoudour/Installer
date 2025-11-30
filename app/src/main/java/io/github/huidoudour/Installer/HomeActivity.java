@@ -97,7 +97,7 @@ public class HomeActivity extends AppCompatActivity {
                 NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_home);
                 navController.navigate(R.id.navigation_home, bundle);
                 
-                Log.d("HomeActivity", "接收到安装意图，URI: " + data.toString());
+                Log.d("HomeActivity", getString(R.string.receive_install_intent, data.toString()));
             }
         }
     }

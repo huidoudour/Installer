@@ -109,10 +109,10 @@ public class ShizukuInstallHelper {
     /**
      * 安装单个 APK
      */
-    public static void installSingleApk(File apkFile, boolean replaceExisting, boolean grantPermissions, InstallCallback callback) {
+    public static void installSingleApk(Context context, File apkFile, boolean replaceExisting, boolean grantPermissions, InstallCallback callback) {
         new Thread(() -> {
             try {
-                callback.onProgress("开始安装 APK...");
+                callback.onProgress(context.getString(R.string.start_apk_install));
                 
                 // 创建安装会话 - 添加安装请求者参数
                 StringBuilder createCmd = new StringBuilder("pm install-create");
@@ -122,40 +122,40 @@ public class ShizukuInstallHelper {
                 // 添加安装请求者参数：io.github.huidoudour.zjs
                 createCmd.append(" -i io.github.huidoudour.zjs");
                 
-                callback.onProgress("创建安装会话: " + createCmd);
-                String createOutput = executeCommand(createCmd.toString());
+                callback.onProgress(context.getString(R.string.create_session, createCmd.toString()));
+                String createOutput = executeCommand(context, createCmd.toString());
                 
                 if (!createOutput.contains("Success")) {
-                    throw new Exception("创建安装会话失败: " + createOutput);
+                    throw new Exception(context.getString(R.string.install_failed_error, createOutput));
                 }
                 
                 String sessionId = createOutput.substring(
                     createOutput.indexOf("[") + 1,
                     createOutput.indexOf("]")
                 );
-                callback.onProgress("会话ID: " + sessionId);
+                callback.onProgress(context.getString(R.string.session_id, sessionId));
                 
                 // 写入 APK
                 String writeCmd = "pm install-write -S " + apkFile.length() + " " + sessionId + " base.apk -";
-                callback.onProgress("写入 APK 数据...");
+                callback.onProgress(context.getString(R.string.write_apk_data));
                 String writeOutput = executeCommandWithInput(writeCmd, apkFile);
                 
                 if (!writeOutput.contains("Success")) {
-                    throw new Exception("写入 APK 失败: " + writeOutput);
+                    throw new Exception(context.getString(R.string.install_failed_error, writeOutput));
                 }
                 
                 // 提交安装
-                callback.onProgress("提交安装...");
-                String commitOutput = executeCommand("pm install-commit " + sessionId);
+                callback.onProgress(context.getString(R.string.submit_install));
+                String commitOutput = executeCommand(context, "pm install-commit " + sessionId);
                 
                 if (commitOutput.toLowerCase().contains("success")) {
-                    callback.onSuccess("✅ 安装成功！");
+                    callback.onSuccess(context.getString(R.string.install_success_simple));
                 } else {
-                    callback.onError("安装失败: " + commitOutput);
+                    callback.onError(context.getString(R.string.install_failed_error, commitOutput));
                 }
                 
             } catch (Exception e) {
-                callback.onError("安装异常: " + e.getMessage());
+                callback.onError(context.getString(R.string.install_exception, e.getMessage()));
             }
         }).start();
     }
@@ -167,11 +167,11 @@ public class ShizukuInstallHelper {
         new Thread(() -> {
             List<File> extractedApks = null;
             try {
-                callback.onProgress("📦 正在解压 XAPK (使用原生压缩库)...");
+                callback.onProgress(context.getString(R.string.extract_xapk));
                 
                 // 解压 XAPK
                 extractedApks = XapkInstaller.extractXapk(context, xapkPath);
-                callback.onProgress("✅ 解压完成，共 " + extractedApks.size() + " 个 APK");
+                callback.onProgress(context.getString(R.string.extract_complete, extractedApks.size()));
                 
                 // 创建安装会话
                 StringBuilder createCmd = new StringBuilder("pm install-create");
@@ -181,24 +181,24 @@ public class ShizukuInstallHelper {
                 // 添加安装请求者参数：io.github.huidoudour.zjs
                 createCmd.append(" -i io.github.huidoudour.zjs");
                 
-                callback.onProgress("创建安装会话...");
-                String createOutput = executeCommand(createCmd.toString());
+                callback.onProgress(context.getString(R.string.create_session, ""));
+                String createOutput = executeCommand(context, createCmd.toString());
                 
                 if (!createOutput.contains("Success")) {
-                    throw new Exception("创建安装会话失败: " + createOutput);
+                    throw new Exception(context.getString(R.string.install_failed_error, createOutput));
                 }
                 
                 String sessionId = createOutput.substring(
                     createOutput.indexOf("[") + 1,
                     createOutput.indexOf("]")
                 );
-                callback.onProgress("会话ID: " + sessionId);
+                callback.onProgress(context.getString(R.string.session_id, sessionId));
                 
                 // 写入所有 APK
                 int current = 0;
                 for (File apkFile : extractedApks) {
                     current++;
-                    callback.onProgress("📦 [" + current + "/" + extractedApks.size() + "] " + apkFile.getName());
+                    callback.onProgress(context.getString(R.string.apk_progress, current, extractedApks.size(), apkFile.getName()));
                     
                     String writeCmd = "pm install-write -S " + apkFile.length() + " " + 
                                     sessionId + " " + apkFile.getName() + " -";
@@ -206,22 +206,23 @@ public class ShizukuInstallHelper {
                     String writeOutput = executeCommandWithInput(writeCmd, apkFile);
                     
                     if (!writeOutput.contains("Success")) {
-                        throw new Exception("写入 " + apkFile.getName() + " 失败: " + writeOutput);
+                        throw new Exception(context.getString(R.string.install_failed_error, 
+                            context.getString(R.string.apk_name_failed, apkFile.getName(), writeOutput)));
                     }
                 }
                 
                 // 提交安装
-                callback.onProgress("🚀 提交安装...");
-                String commitOutput = executeCommand("pm install-commit " + sessionId);
+                callback.onProgress(context.getString(R.string.submitting_install));
+                String commitOutput = executeCommand(context, "pm install-commit " + sessionId);
                 
                 if (commitOutput.toLowerCase().contains("success")) {
-                    callback.onSuccess("✨ XAPK 安装成功！共安装 " + extractedApks.size() + " 个 APK");
+                    callback.onSuccess(context.getString(R.string.xapk_install_success_msg, extractedApks.size()));
                 } else {
-                    callback.onError("安装失败: " + commitOutput);
+                    callback.onError(context.getString(R.string.install_failed_error, commitOutput));
                 }
                 
             } catch (Exception e) {
-                callback.onError("XAPK 安装异常: " + e.getMessage());
+                callback.onError(context.getString(R.string.xapk_install_exception, e.getMessage()));
             } finally {
                 // 清理临时文件
                 if (extractedApks != null) {
@@ -242,14 +243,54 @@ public class ShizukuInstallHelper {
             try {
                 File apkFile = new File(apkPath);
                 if (!apkFile.exists()) {
-                    callback.onError("APK 文件不存在");
+                    callback.onError(context.getString(R.string.apk_not_exist));
                     return;
                 }
                 
-                // 使用 installSingleApk 方法安装
-                installSingleApk(apkFile, true, true, callback);
+                callback.onProgress(context.getString(R.string.start_apk_install));
+                
+                // 创建安装会话 - 添加安装请求者参数
+                StringBuilder createCmd = new StringBuilder("pm install-create");
+                if (replaceExisting) createCmd.append(" -r");
+                if (grantPermissions) createCmd.append(" -g");
+                
+                // 添加安装请求者参数：io.github.huidoudour.zjs
+                createCmd.append(" -i io.github.huidoudour.zjs");
+                
+                callback.onProgress(context.getString(R.string.create_session, createCmd.toString()));
+                String createOutput = executeCommand(context, createCmd.toString());
+                
+                if (!createOutput.contains("Success")) {
+                    throw new Exception(context.getString(R.string.install_failed_error, createOutput));
+                }
+                
+                String sessionId = createOutput.substring(
+                    createOutput.indexOf("[") + 1,
+                    createOutput.indexOf("]")
+                );
+                callback.onProgress(context.getString(R.string.session_id, sessionId));
+                
+                // 写入 APK
+                String writeCmd = "pm install-write -S " + apkFile.length() + " " + sessionId + " base.apk -";
+                callback.onProgress(context.getString(R.string.write_apk_data));
+                String writeOutput = executeCommandWithInput(writeCmd, apkFile);
+                
+                if (!writeOutput.contains("Success")) {
+                    throw new Exception(context.getString(R.string.install_failed_error, writeOutput));
+                }
+                
+                // 提交安装
+                callback.onProgress(context.getString(R.string.submit_install));
+                String commitOutput = executeCommand(context, "pm install-commit " + sessionId);
+                
+                if (commitOutput.toLowerCase().contains("success")) {
+                    callback.onSuccess(context.getString(R.string.install_success_simple));
+                } else {
+                    callback.onError(context.getString(R.string.install_failed_error, commitOutput));
+                }
+                
             } catch (Exception e) {
-                callback.onError("安装异常: " + e.getMessage());
+                callback.onError(context.getString(R.string.install_exception, e.getMessage()));
             }
         }).start();
     }
