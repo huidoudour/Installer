@@ -1,26 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Installer</string>
-    <string name="simplified_chinese">简体中文</string>
-    <string name="shell_txt">\@termux</string>
     <string name="title_home">安装</string>
     <string name="title_shell">Shell</string>
-    <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
-    <string name="find_me">ω寻找我ω</string>
-    <string name="about_developer">关于开发者</string>
-    <string name="app_version">版本 1.0.0</string>
-    <string name="follow_system">跟随系统</string>
-    <string name="title_dashboard">工具</string>
-    <string name="theme_settings">主题设置</string>
-    <string name="language_settings">语言设置</string>
-    <string name="notification_settings">通知设置</string>
-    <string name="about_app">关于应用</string>
-    <string name="text1">你保护世界，我保护你</string>
     <string name="title_notifications">日志</string>
     <string name="title_settings">设置</string>
+    
+    <!-- 安装页面 -->
+    <string name="install_title">安装应用</string>
+    <string name="select_apk">选择 APK</string>
+    <string name="install">安装</string>
+    <string name="cancel">算了</string>
+    <string name="installing">安装中...</string>
+    
+    <!-- 设置页面 -->
     <string name="settings_title">设置</string>
     <string name="settings_subtitle">应用配置和个性化设置</string>
     <string name="app_settings">应用设置</string>
+    <string name="theme_settings">主题设置</string>
+    <string name="language_settings">语言设置</string>
+    <string name="notification_settings">通知设置</string>
+    <string name="background_display">显示后台</string>
+    <string name="background_display_summary">控制是否在应用中显示后台进程</string>
+    <string name="hide_on_pause">暂停时隐藏</string>
+    <string name="hide_on_pause_summary">应用暂停时从最近任务列表中隐藏</string>
+    <string name="hide_on_minimize">最小化时隐藏</string>
+    <string name="hide_on_minimize_summary">应用最小化时从最近任务列表中隐藏</string>
+    <string name="hide_in_target_apps">在特定应用中隐藏</string>
+    <string name="hide_in_target_apps_summary">在指定应用运行时隐藏本应用</string>
+    <string name="accessibility_status">辅助功能状态</string>
+    <string name="accessibility_status_summary">检查辅助功能服务状态</string>
+    <string name="about_app">关于应用</string>
+    <string name="about_developer">关于开发者</string>
+    <string name="app_version">版本 1.0.0</string>
+    <string name="follow_system">跟随系统</string>
+    <string name="simplified_chinese">简体中文</string>
+    <string name="text1">你保护世界，我保护你</string>
+    <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
+    <string name="find_me">ω寻找我ω</string>
+    
+    <!-- 引用的字符串 -->
+    <string name="shell_hint">输入命令...</string>
+    <string name="clear_log">清空日志</string>
+    <string name="export_log">导出日志</string>
+    <string name="shell_txt">\@termux</string>
+    <string name="title_dashboard">工具</string>
     <string name="hello_world">Hello World!</string>
     <string name="dollar_sign">$</string>
     <string name="up_arrow">↑</string>
@@ -35,7 +59,6 @@
     <string name="shizuku_status">Shizuku 状态</string>
     <string name="checking">正在检查...</string>
     <string name="grant_shizuku_permission">授予 Shizuku 权限</string>
-    <string name="select_apk">选择 APK</string>
     <string name="no_file_selected">未选择文件</string>
     <string name="select_apk_file">选择 APK 文件</string>
     <string name="install_options">安装选项</string>
@@ -59,24 +82,4 @@
     <string name="default_version">1.0.0</string>
     <string name="file_size">文件大小</string>
     <string name="default_file_size">10.24 MB</string>
-    <string name="install">安装</string>
-    <string name="cancel">算了</string>
-    <string name="installing">安装中...</string>
-    <!-- 后台显示设置 -->
-    <string name="background_display">显示后台</string>
-    <string name="background_display_summary">控制是否在应用中显示后台进程</string>
-    <!-- 新增的字符串翻译 -->
-    <string name="hide_on_pause">暂停时隐藏</string>
-    <string name="hide_on_pause_summary">应用暂停时从最近任务列表中隐藏</string>
-    <string name="hide_on_minimize">最小化时隐藏</string>
-    <string name="hide_on_minimize_summary">应用最小化时从最近任务列表中隐藏</string>
-    <string name="hide_in_target_apps">在特定应用中隐藏</string>
-    <string name="hide_in_target_apps_summary">在指定应用运行时隐藏本应用</string>
-    <string name="accessibility_status">辅助功能状态</string>
-    <string name="accessibility_status_summary">检查辅助功能服务状态</string>
-    <string name="shell_hint">输入命令...</string>
-    <string name="clear_log">清空日志</string>
-    <string name="export_log">导出日志</string>
-    <!-- 补充缺失的翻译 -->
-    <string name="install_title">安装应用</string>
 </resources>

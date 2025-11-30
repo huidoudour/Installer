@@ -99,11 +99,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
         
-        <!-- 隐藏任务服务 -->
-        <service
-            android:name=".service.HideTaskService"
-            android:enabled="true"
-            android:exported="false" />
     </application>
 
 </manifest>

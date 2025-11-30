@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -19,8 +18,6 @@ import io.github.huidoudour.Installer.HomeActivity;
 import io.github.huidoudour.Installer.MeActivity;
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
-import io.github.huidoudour.Installer.utils.AccessibilityHelper;
-import io.github.huidoudour.Installer.utils.BackgroundManager;
 
 public class SettingsFragment extends Fragment {
 
@@ -28,9 +25,6 @@ public class SettingsFragment extends Fragment {
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "app_settings";
     private static final String KEY_BACKGROUND_DISPLAY = "background_display";
-    private static final String KEY_HIDE_ON_PAUSE = "hide_on_pause"; // 新增：暂停时隐藏
-    private static final String KEY_HIDE_ON_MINIMIZE = "hide_on_minimize"; // 新增：最小化时隐藏
-    private static final String KEY_HIDE_IN_TARGET_APPS = "hide_in_target_apps"; // 新增：在特定应用中隐藏
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -104,81 +98,6 @@ public class SettingsFragment extends Fragment {
                 switchBackgroundDisplay.setChecked(!currentState);
             });
         }
-        
-        // 新增：暂停时隐藏设置
-        View hideOnPauseLayout = binding.getRoot().findViewById(R.id.hide_on_pause_layout);
-        SwitchMaterial switchHideOnPause = binding.getRoot().findViewById(R.id.switchHideOnPause);
-        
-        if (hideOnPauseLayout != null && switchHideOnPause != null) {
-            boolean isHideOnPauseEnabled = sharedPreferences.getBoolean(KEY_HIDE_ON_PAUSE, false);
-            switchHideOnPause.setChecked(isHideOnPauseEnabled);
-            
-            switchHideOnPause.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                sharedPreferences.edit().putBoolean(KEY_HIDE_ON_PAUSE, isChecked).apply();
-                String message = isChecked ? "暂停时隐藏已开启" : "暂停时隐藏已关闭";
-                showSnackbar(message);
-            });
-            
-            hideOnPauseLayout.setOnClickListener(v -> {
-                boolean currentState = switchHideOnPause.isChecked();
-                switchHideOnPause.setChecked(!currentState);
-            });
-        }
-        
-        // 新增：最小化时隐藏设置
-        View hideOnMinimizeLayout = binding.getRoot().findViewById(R.id.hide_on_minimize_layout);
-        SwitchMaterial switchHideOnMinimize = binding.getRoot().findViewById(R.id.switchHideOnMinimize);
-        
-        if (hideOnMinimizeLayout != null && switchHideOnMinimize != null) {
-            boolean isHideOnMinimizeEnabled = sharedPreferences.getBoolean(KEY_HIDE_ON_MINIMIZE, false);
-            switchHideOnMinimize.setChecked(isHideOnMinimizeEnabled);
-            
-            switchHideOnMinimize.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                sharedPreferences.edit().putBoolean(KEY_HIDE_ON_MINIMIZE, isChecked).apply();
-                String message = isChecked ? "最小化时隐藏已开启" : "最小化时隐藏已关闭";
-                showSnackbar(message);
-            });
-            
-            hideOnMinimizeLayout.setOnClickListener(v -> {
-                boolean currentState = switchHideOnMinimize.isChecked();
-                switchHideOnMinimize.setChecked(!currentState);
-            });
-        }
-        
-        // 新增：在特定应用中隐藏设置
-        View hideInTargetAppsLayout = binding.getRoot().findViewById(R.id.hide_in_target_apps_layout);
-        SwitchMaterial switchHideInTargetApps = binding.getRoot().findViewById(R.id.switchHideInTargetApps);
-        
-        if (hideInTargetAppsLayout != null && switchHideInTargetApps != null) {
-            boolean isHideInTargetAppsEnabled = sharedPreferences.getBoolean(KEY_HIDE_IN_TARGET_APPS, false);
-            switchHideInTargetApps.setChecked(isHideInTargetAppsEnabled);
-            
-            switchHideInTargetApps.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                sharedPreferences.edit().putBoolean(KEY_HIDE_IN_TARGET_APPS, isChecked).apply();
-                String message = isChecked ? "在特定应用中隐藏已开启" : "在特定应用中隐藏已关闭";
-                showSnackbar(message);
-            });
-            
-            hideInTargetAppsLayout.setOnClickListener(v -> {
-                boolean currentState = switchHideInTargetApps.isChecked();
-                switchHideInTargetApps.setChecked(!currentState);
-            });
-        }
-        
-        // 辅助功能状态设置
-        View accessibilityStatusLayout = binding.getRoot().findViewById(R.id.accessibility_status_layout);
-        TextView tvAccessibilityStatus = binding.getRoot().findViewById(R.id.tvAccessibilityStatus);
-        
-        if (accessibilityStatusLayout != null && tvAccessibilityStatus != null) {
-            // 更新辅助功能状态显示
-            updateAccessibilityStatus(tvAccessibilityStatus);
-            
-            // 点击刷新状态
-            accessibilityStatusLayout.setOnClickListener(v -> {
-                updateAccessibilityStatus(tvAccessibilityStatus);
-                showSnackbar("辅助功能状态已刷新");
-            });
-        }
     }
 
     private void showSnackbar(String message) {
@@ -230,17 +149,6 @@ public class SettingsFragment extends Fragment {
         } catch (Exception e) {
             Log.e("SettingsFragment", "应用后台显示设置失败: " + e.getMessage());
             showSnackbar("设置更改失败，请手动重启应用");
-        }
-    }
-    
-    /**
-     * 更新辅助功能状态显示
-     * @param statusTextView 状态文本视图
-     */
-    private void updateAccessibilityStatus(TextView statusTextView) {
-        if (statusTextView != null && getActivity() != null) {
-            String status = AccessibilityHelper.getAccessibilityStatusDescription(getActivity());
-            statusTextView.setText(status);
         }
     }
     
