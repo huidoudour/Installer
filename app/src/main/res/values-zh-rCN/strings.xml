@@ -51,18 +51,32 @@
     <string name="clear">清空</string>
     <string name="export">导出</string>
     <string name="real_time_logs">实时显示所有操作日志</string>
-    <string name="waiting_operation">等待操作...</string>
+    <string name="waiting_operation">等待操作……</string>
     <string name="app_name_label">应用名称</string>
     <string name="package_name">包名</string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">版本</string>
     <string name="default_version">1.0.0</string>
     <string name="file_size">文件大小</string>
-    <string name="default_file_size">10.5 MB</string>
+    <string name="default_file_size">10.24 MB</string>
     <string name="install">安装</string>
     <string name="cancel">算了</string>
     <string name="installing">安装中...</string>
     <!-- 后台显示设置 -->
     <string name="background_display">显示后台</string>
     <string name="background_display_summary">控制是否在应用中显示后台进程</string>
+    <!-- 新增的字符串翻译 -->
+    <string name="hide_on_pause">暂停时隐藏</string>
+    <string name="hide_on_pause_summary">应用暂停时从最近任务列表中隐藏</string>
+    <string name="hide_on_minimize">最小化时隐藏</string>
+    <string name="hide_on_minimize_summary">应用最小化时从最近任务列表中隐藏</string>
+    <string name="hide_in_target_apps">在特定应用中隐藏</string>
+    <string name="hide_in_target_apps_summary">在指定应用运行时隐藏本应用</string>
+    <string name="accessibility_status">辅助功能状态</string>
+    <string name="accessibility_status_summary">检查辅助功能服务状态</string>
+    <string name="shell_hint">输入命令...</string>
+    <string name="clear_log">清空日志</string>
+    <string name="export_log">导出日志</string>
+    <!-- 补充缺失的翻译 -->
+    <string name="install_title">安装应用</string>
 </resources>

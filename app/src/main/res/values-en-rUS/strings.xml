@@ -33,7 +33,7 @@
     <string name="version">Version</string>
     <string name="default_version">1.0.0</string>
     <string name="file_size">File size</string>
-    <string name="default_file_size">10.5 MB</string>
+    <string name="default_file_size">10.24 MB</string>
     <string name="install">Install</string>
     <string name="cancel">Cancel</string>
     <string name="installing">Installing...</string>
@@ -65,4 +65,17 @@
     <!-- Background display settings -->
     <string name="background_display">Show Background</string>
     <string name="background_display_summary">Control whether to show background processes in the app</string>
+    <!-- Added missing translations -->
+    <string name="install_title">Install Application</string>
+    <string name="hide_on_pause">Hide on Pause</string>
+    <string name="hide_on_pause_summary">Hide from recent tasks list when app is paused</string>
+    <string name="hide_on_minimize">Hide on Minimize</string>
+    <string name="hide_on_minimize_summary">Hide from recent tasks list when app is minimized</string>
+    <string name="hide_in_target_apps">Hide in Target Apps</string>
+    <string name="hide_in_target_apps_summary">Hide this app when specified apps are running</string>
+    <string name="accessibility_status">Accessibility Status</string>
+    <string name="accessibility_status_summary">Check accessibility service status</string>
+    <string name="shell_hint">Enter command...</string>
+    <string name="clear_log">Clear Log</string>
+    <string name="export_log">Export Log</string>
 </resources>
