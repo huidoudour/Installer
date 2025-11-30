@@ -7,8 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -18,6 +20,7 @@ import io.github.huidoudour.Installer.HomeActivity;
 import io.github.huidoudour.Installer.MeActivity;
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
+import io.github.huidoudour.Installer.utils.LanguageManager;
 
 public class SettingsFragment extends Fragment {
 
@@ -56,19 +59,21 @@ public class SettingsFragment extends Fragment {
         // 主题设置点击事件
         View themeSetting = binding.getRoot().findViewById(R.id.theme_setting_layout);
         if (themeSetting != null) {
-            themeSetting.setOnClickListener(v -> showSnackbar("主题设置功能开发中"));
+            themeSetting.setOnClickListener(v -> showSnackbar(R.string.feature_developing));
         }
 
         // 语言设置点击事件
         View languageSetting = binding.getRoot().findViewById(R.id.language_setting_layout);
         if (languageSetting != null) {
-            languageSetting.setOnClickListener(v -> showSnackbar("语言设置功能开发中"));
+            // 更新当前语言显示
+            updateCurrentLanguageDisplay();
+            languageSetting.setOnClickListener(v -> showLanguageSelectionDialog());
         }
 
         // 通知设置点击事件
         View notificationSetting = binding.getRoot().findViewById(R.id.notification_setting_layout);
         if (notificationSetting != null) {
-            notificationSetting.setOnClickListener(v -> showSnackbar("通知设置已更新"));
+            notificationSetting.setOnClickListener(v -> showSnackbar(R.string.notification_settings_updated));
         }
 
         // 后台显示设置点击事件
@@ -82,12 +87,6 @@ public class SettingsFragment extends Fragment {
             
             // 设置开关状态变化监听器
             switchBackgroundDisplay.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                // 保存设置到SharedPreferences
-                sharedPreferences.edit().putBoolean(KEY_BACKGROUND_DISPLAY, isChecked).apply();
-                
-                String message = isChecked ? "后台显示已开启" : "后台显示已关闭";
-                showSnackbar(message);
-                
                 // 应用后台显示设置更改
                 applyBackgroundDisplaySetting(isChecked);
             });
@@ -97,6 +96,101 @@ public class SettingsFragment extends Fragment {
                 boolean currentState = switchBackgroundDisplay.isChecked();
                 switchBackgroundDisplay.setChecked(!currentState);
             });
+        }
+    }
+
+    private void showLanguageSelectionDialog() {
+        // 创建语言选择对话框
+        String[] languages = {"简体中文", "English"};
+        String[] languageCodes = {"zh", "en"};
+        
+        // 获取当前选择的语言
+        String currentLanguage = LanguageManager.getUserLanguage(requireContext());
+        int selectedIndex = 0;
+        for (int i = 0; i < languageCodes.length; i++) {
+            if (languageCodes[i].equals(currentLanguage)) {
+                selectedIndex = i;
+                break;
+            }
+        }
+        
+        // 显示语言选择对话框
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(R.string.language_settings)
+                .setSingleChoiceItems(languages, selectedIndex, (dialog, which) -> {
+                    // 保存选择的语言
+                    LanguageManager.saveUserLanguage(requireContext(), languageCodes[which]);
+                    
+                    // 应用语言设置
+                    changeLanguage(languageCodes[which]);
+                    
+                    // 显示提示信息
+                    showSnackbar(getString(R.string.language_changed_tip, languages[which]));
+                    
+                    // 关闭对话框
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void changeLanguage(String languageCode) {
+        try {
+            // 保存语言设置
+            LanguageManager.saveUserLanguage(requireContext(), languageCode);
+            
+            // 更新应用语言
+            LanguageManager.applyUserLanguagePreference(requireContext());
+            
+            // 更新界面上显示的语言
+            updateCurrentLanguageDisplay();
+            
+            // 重启应用以使语言设置生效
+            restartApp();
+        } catch (Exception e) {
+            Log.e("SettingsFragment", "切换语言失败: " + e.getMessage());
+            showSnackbar(R.string.language_change_failed);
+        }
+    }
+    
+    /**
+     * 重启应用以使语言设置生效
+     */
+    private void restartApp() {
+        try {
+            // 延迟一小段时间后重启应用
+            requireActivity().getWindow().getDecorView().postDelayed(() -> {
+                Intent intent = requireActivity().getPackageManager()
+                        .getLaunchIntentForPackage(requireActivity().getPackageName());
+                if (intent != null) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    if (requireActivity() != null) {
+                        requireActivity().finish();
+                    }
+                    // 杀死当前进程以确保完全重启
+                    Runtime.getRuntime().exit(0);
+                }
+            }, 500); // 延迟500毫秒
+        } catch (Exception e) {
+            Log.e("SettingsFragment", "重启应用失败: " + e.getMessage());
+        }
+    }
+    
+    private void updateCurrentLanguageDisplay() {
+        // 更新语言设置项中显示的当前语言
+        TextView tvCurrentLanguage = binding.getRoot().findViewById(R.id.tv_current_language);
+        if (tvCurrentLanguage != null) {
+            String currentLanguage = LanguageManager.getUserLanguage(requireContext());
+            String displayName = LanguageManager.getLanguageDisplayName(currentLanguage);
+            tvCurrentLanguage.setText(displayName);
+        }
+    }
+
+    private void showSnackbar(int stringResId) {
+        if (getActivity() != null && binding.getRoot() != null) {
+            Snackbar.make(binding.getRoot(), stringResId, Snackbar.LENGTH_SHORT).show();
         }
     }
 
@@ -114,9 +208,11 @@ public class SettingsFragment extends Fragment {
         try {
             if (getActivity() != null) {
                 // 显示提示信息
-                String message = isEnabled ? "后台显示已启用，应用将出现在最近任务列表中" : 
-                                           "后台显示已禁用，应用将不会出现在最近任务列表中";
-                showSnackbar(message + "（重启应用后生效）");
+                int messageResId = isEnabled ? R.string.background_display_enabled : R.string.background_display_disabled;
+                showSnackbar(messageResId);
+                
+                // 保存设置到SharedPreferences
+                sharedPreferences.edit().putBoolean(KEY_BACKGROUND_DISPLAY, isEnabled).apply();
                 
                 // 完全重启应用以应用设置更改
                 // 通过启动新的Activity实例并关闭当前实例
@@ -127,12 +223,10 @@ public class SettingsFragment extends Fragment {
                 
                 // 根据设置状态添加相应的标志
                 if (!isEnabled) {
-                    // 如果禁用后台显示，添加排除最近任务的标志
-                    // 这个标志必须在Activity启动前设置才有效
+                    // 如果禁用后台显示，设置任务属性以排除从最近任务列表
                     intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                 } else {
                     // 如果启用后台显示，确保不添加排除标志
-                    // 清除任何可能存在的排除标志
                     intent.setFlags(intent.getFlags() & ~Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                 }
                 
@@ -148,7 +242,7 @@ public class SettingsFragment extends Fragment {
             }
         } catch (Exception e) {
             Log.e("SettingsFragment", "应用后台显示设置失败: " + e.getMessage());
-            showSnackbar("设置更改失败，请手动重启应用");
+            showSnackbar(R.string.setting_change_failed);
         }
     }
     

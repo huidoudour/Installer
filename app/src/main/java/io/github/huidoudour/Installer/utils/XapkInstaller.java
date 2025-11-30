@@ -226,4 +226,63 @@ public class XapkInstaller {
         }
         return count;
     }
+    
+    /**
+     * XAPK 安装回调接口
+     */
+    public interface InstallCallback {
+        void onSuccess();
+        void onError(String error);
+    }
+    
+    /**
+     * 安装 XAPK 文件
+     * @param context 上下文
+     * @param xapkPath XAPK 文件路径
+     * @param callback 安装回调
+     */
+    public static void installXapk(Context context, String xapkPath, InstallCallback callback) {
+        new Thread(() -> {
+            List<File> extractedApks = null;
+            try {
+                // 解压 XAPK
+                extractedApks = extractXapk(context, xapkPath);
+                Log.d(TAG, "解压完成，共 " + extractedApks.size() + " 个 APK");
+                
+                // 安装所有 APK
+                for (File apkFile : extractedApks) {
+                    // 使用 ShizukuInstallHelper 安装单个 APK
+                    ShizukuInstallHelper.installSingleApk(apkFile, true, true, new ShizukuInstallHelper.InstallCallback() {
+                        @Override
+                        public void onProgress(String message) {
+                            Log.d(TAG, "安装进度: " + message);
+                        }
+                        
+                        @Override
+                        public void onSuccess(String message) {
+                            Log.d(TAG, "APK 安装成功: " + message);
+                        }
+                        
+                        @Override
+                        public void onError(String error) {
+                            Log.e(TAG, "APK 安装失败: " + error);
+                            callback.onError("安装失败: " + error);
+                            return;
+                        }
+                    });
+                }
+                
+                // 所有 APK 安装完成
+                callback.onSuccess();
+            } catch (Exception e) {
+                Log.e(TAG, "XAPK 安装异常", e);
+                callback.onError("安装异常: " + e.getMessage());
+            } finally {
+                // 清理临时文件
+                if (extractedApks != null) {
+                    cleanupTempFiles(extractedApks);
+                }
+            }
+        }).start();
+    }
 }

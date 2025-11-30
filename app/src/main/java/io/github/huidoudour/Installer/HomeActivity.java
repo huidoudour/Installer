@@ -1,6 +1,5 @@
 package io.github.huidoudour.Installer;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -17,6 +16,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import io.github.huidoudour.Installer.databinding.ActivityHomeBinding;
+import io.github.huidoudour.Installer.utils.LanguageManager;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -27,6 +27,9 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 应用用户选择的语言
+        LanguageManager.applyUserLanguagePreference(this);
+        
         // 启用动态颜色（壁纸取色）- Android 12+
         DynamicColors.applyToActivityIfAvailable(this);
 
@@ -110,6 +113,8 @@ public class HomeActivity extends AppCompatActivity {
         restartIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         startActivity(restartIntent);
         finish();
+        // 添加进程退出以确保完全重启
+        Runtime.getRuntime().exit(0);
     }
     
     @Override

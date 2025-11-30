@@ -230,4 +230,27 @@ public class ShizukuInstallHelper {
             }
         }).start();
     }
+    
+    /**
+     * 安装单个 APK 文件
+     * @param context 上下文
+     * @param apkPath APK 文件路径
+     * @param callback 安装回调
+     */
+    public static void installApk(Context context, String apkPath, InstallCallback callback) {
+        new Thread(() -> {
+            try {
+                File apkFile = new File(apkPath);
+                if (!apkFile.exists()) {
+                    callback.onError("APK 文件不存在");
+                    return;
+                }
+                
+                // 使用 installSingleApk 方法安装
+                installSingleApk(apkFile, true, true, callback);
+            } catch (Exception e) {
+                callback.onError("安装异常: " + e.getMessage());
+            }
+        }).start();
+    }
 }

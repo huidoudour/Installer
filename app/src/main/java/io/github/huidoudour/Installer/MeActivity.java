@@ -11,10 +11,15 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
+import io.github.huidoudour.Installer.utils.LanguageManager;
+
 public class MeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 应用用户选择的语言
+        LanguageManager.applyUserLanguagePreference(this);
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_me);
 
