@@ -12,6 +12,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.List;
 
 import io.github.huidoudour.Installer.utils.LanguageManager;
+import io.github.huidoudour.Installer.R;
 
 public class MeActivity extends AppCompatActivity {
 

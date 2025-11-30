@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentHomeBinding;
 import io.github.huidoudour.Installer.utils.LogManager;
 import rikka.shizuku.Shizuku;
@@ -379,7 +380,7 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 
-                log(R.string.file_copy_success_start_install);
+                log(getString(R.string.file_copy_success_start_install));
                 
                 // 步骤 2: 修改文件权限，确保 system_server 可读
                 String chmodCmd = "chmod 644 \"" + tmpFilePath + "\"";
@@ -490,7 +491,7 @@ public class HomeFragment extends Fragment {
                 tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 btnRequestPermission.setEnabled(false);
-                log(R.string.shizuku_not_connected);
+                log(getString(R.string.shizuku_not_connected));
             } else {
                 try {
                     if (Shizuku.isPreV11() || Shizuku.getVersion() < 10) {
@@ -498,19 +499,19 @@ public class HomeFragment extends Fragment {
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         btnRequestPermission.setEnabled(false);
-                        log(R.string.shizuku_version_too_low);
+                        log(getString(R.string.shizuku_version_too_low));
                     } else if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
                         tvShizukuStatus.setText(R.string.permission_granted);
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                         btnRequestPermission.setEnabled(false);
-                        log(R.string.shizuku_connected_and_authorized);
+                        log(getString(R.string.shizuku_connected_and_authorized));
                     } else {
                         tvShizukuStatus.setText(R.string.not_authorized);
                         tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                         btnRequestPermission.setEnabled(true);
-                        log(R.string.shizuku_connected_but_not_authorized);
+                        log(getString(R.string.shizuku_connected_but_not_authorized));
                     }
                 } catch (Throwable t) {
                     tvShizukuStatus.setText(R.string.status_unknown);

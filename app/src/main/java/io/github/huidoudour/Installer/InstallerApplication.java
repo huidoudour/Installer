@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import io.github.huidoudour.Installer.utils.LanguageManager;
+import io.github.huidoudour.Installer.R;
 
 /**
  * 自定义Application类

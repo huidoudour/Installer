@@ -16,6 +16,8 @@ import java.util.List;
 
 import rikka.shizuku.Shizuku;
 
+import io.github.huidoudour.Installer.R;
+
 /**
  * Shell 终端执行助手
  * 
@@ -515,18 +517,18 @@ public class ShellExecutor {
         };
         
         public static final String[] COMMAND_NAMES = {
-            context.getString(R.string.list_files),
-            context.getString(R.string.current_directory),
-            context.getString(R.string.current_user),
-            context.getString(R.string.system_info),
-            context.getString(R.string.disk_space),
-            context.getString(R.string.memory_info),
-            context.getString(R.string.process_list),
-            context.getString(R.string.installed_apps),
-            context.getString(R.string.system_properties),
-            context.getString(R.string.system_logs),
-            context.getString(R.string.native_library_info),
-            context.getString(R.string.performance_test)
+            "列出文件",
+            "当前目录",
+            "当前用户",
+            "系统信息",
+            "磁盘空间",
+            "内存信息",
+            "进程列表",
+            "已安装应用",
+            "系统属性",
+            "系统日志",
+            "🔧 Native库信息",
+            "🚀 性能测试"
         };
     }
 

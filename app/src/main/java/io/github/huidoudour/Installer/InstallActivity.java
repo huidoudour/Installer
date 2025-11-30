@@ -32,6 +32,7 @@ import io.github.huidoudour.Installer.utils.LanguageManager;
 import io.github.huidoudour.Installer.utils.XapkInstaller;
 import io.github.huidoudour.Installer.utils.ShizukuInstallHelper;
 import rikka.shizuku.Shizuku;
+import io.github.huidoudour.Installer.R;
 
 public class InstallActivity extends AppCompatActivity {
 
@@ -240,7 +241,7 @@ public class InstallActivity extends AppCompatActivity {
                 });
             } else {
                 // APK安装
-                ShizukuInstallHelper.installApk(this, filePath, new ShizukuInstallHelper.InstallCallback() {
+                ShizukuInstallHelper.installApk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                     @Override
                     public void onProgress(String message) {
                         // 在安装过程中不显示进度消息

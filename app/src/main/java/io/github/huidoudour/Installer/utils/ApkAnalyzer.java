@@ -196,7 +196,7 @@ public class ApkAnalyzer {
      */
     public static String getFileSize(String filePath) {
         File file = new File(filePath);
-        if (!file.exists()) return context.getString(R.string.unknown);
+        if (!file.exists()) return "Unknown";
         
         long size = file.length();
         if (size < 1024) {

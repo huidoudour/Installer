@@ -2,6 +2,8 @@ package io.github.huidoudour.Installer.utils;
 
 import android.content.Context;
 
+import io.github.huidoudour.Installer.R;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -104,6 +106,13 @@ public class ShizukuInstallHelper {
         } catch (Exception e) {
             throw new Exception("执行命令失败: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * 执行 Shizuku 命令（带上下文）
+     */
+    public static String executeCommand(Context context, String command) throws Exception {
+        return executeCommand(command);
     }
 
     /**
@@ -236,9 +245,11 @@ public class ShizukuInstallHelper {
      * 安装单个 APK 文件
      * @param context 上下文
      * @param apkPath APK 文件路径
+     * @param replaceExisting 是否替换现有应用
+     * @param grantPermissions 是否自动授予权限
      * @param callback 安装回调
      */
-    public static void installApk(Context context, String apkPath, InstallCallback callback) {
+    public static void installApk(Context context, String apkPath, boolean replaceExisting, boolean grantPermissions, InstallCallback callback) {
         new Thread(() -> {
             try {
                 File apkFile = new File(apkPath);

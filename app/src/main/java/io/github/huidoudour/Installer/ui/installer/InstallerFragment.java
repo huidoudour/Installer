@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentInstallerBinding;
 import io.github.huidoudour.Installer.utils.LogManager;
 import io.github.huidoudour.Installer.utils.ApkAnalyzer;
@@ -440,6 +441,7 @@ public class InstallerFragment extends Fragment {
         } else {
             // 单个 APK 安装
             ShizukuInstallHelper.installSingleApk(
+                requireContext(),
                 new File(selectedFilePath),
                 switchReplaceExisting.isChecked(),
                 switchGrantPermissions.isChecked(),
@@ -501,7 +503,7 @@ public class InstallerFragment extends Fragment {
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 btnRequestPermission.setEnabled(false);
                 if (!currentStatus.equals(lastShizukuStatus)) {
-                    log(R.string.shizuku_not_connected);
+                    log(getString(R.string.shizuku_not_connected));
                 }
             } else {
                 try {
@@ -512,7 +514,7 @@ public class InstallerFragment extends Fragment {
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                         btnRequestPermission.setEnabled(false);
                         if (!currentStatus.equals(lastShizukuStatus)) {
-                            log(R.string.shizuku_version_too_low);
+                            log(getString(R.string.shizuku_version_too_low));
                         }
                     } else if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
                         currentStatus = getString(R.string.authorized);
@@ -522,7 +524,7 @@ public class InstallerFragment extends Fragment {
                         btnRequestPermission.setEnabled(false);
                         // 只在状态变化或第一次初始化时输出日志
                         if (!currentStatus.equals(lastShizukuStatus)) {
-                            log(R.string.shizuku_connected_and_authorized);
+                            log(getString(R.string.shizuku_connected_and_authorized));
                         }
                     } else {
                         currentStatus = getString(R.string.not_authorized);
@@ -531,7 +533,7 @@ public class InstallerFragment extends Fragment {
                         statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                         btnRequestPermission.setEnabled(true);
                         if (!currentStatus.equals(lastShizukuStatus)) {
-                            log(R.string.shizuku_connected_but_not_authorized);
+                            log(getString(R.string.shizuku_connected_but_not_authorized));
                         }
                     }
                 } catch (Throwable t) {

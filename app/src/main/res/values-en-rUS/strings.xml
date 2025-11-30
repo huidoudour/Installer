@@ -66,7 +66,7 @@
     <string name="shizuku_status">Shizuku Status</string>
     <string name="checking">Checking...</string>
     <string name="grant_shizuku_permission">Grant Shizuku permission</string>
-    <string name="no_file_selected">None File</string>
+    <string name="no_file_selected">No file selected</string>
     <string name="select_apk_file">Select APK file</string>
     <string name="install_options">Installation option</string>
     <string name="replace_existing_app">Replace existing application</string>
@@ -81,7 +81,7 @@
     <string name="clear">Clear</string>
     <string name="export">Export</string>
     <string name="real_time_logs">Real-time log display</string>
-    <string name="waiting_operation">Watting...</string>
+    <string name="waiting_operation">Waiting...</string>
     <string name="app_name_label">App name</string>
     <string name="package_name">Package name</string>
     <string name="default_package_name">com.example.app</string>
@@ -91,16 +91,23 @@
     <string name="default_file_size">10.24 MB</string>
     <string name="unknown">Unknown</string>
     <string name="xapk_package">XAPK Installation Package</string>
-    <string name="xapk">XAPK</string>
-    <string name="apk_files_count">%d APK files</string>
+    <string name="invalid_install_request">Invalid installation request</string>
+    <string name="cannot_access_install_file">Cannot access installation file</string>
+    <string name="process_install_file_failed">Failed to process installation file</string>
+    <string name="error_processing_install_file">Error occurred while processing installation file</string>
+    <string name="unknown_app">Unknown app</string>
+    <string name="display_install_info_failed">Failed to display installation information</string>
+    <string name="parse_file_failed">Failed to parse installation file information</string>
+    <string name="set_app_icon_failed">Failed to set application icon</string>
     <string name="shizuku_required">Shizuku authorization is required to install the app</string>
     <string name="xapk_install_success">XAPK installation successful</string>
     <string name="xapk_install_failed">XAPK installation failed: %s</string>
     <string name="apk_install_success">APK installation successful</string>
     <string name="apk_install_failed">APK installation failed: %s</string>
+    <string name="start_installation_failed">Failed to start installation</string>
     <string name="install_process_failed">Installation process startup failed: %s</string>
-    <string name="parse_file_failed">Failed to parse installation file information</string>
-    <string name="unknown_app">Unknown app</string>
+    <string name="xapk">XAPK</string>
+    <string name="apk_files_count">%d APK files</string>
     <string name="install_error">Installation error</string>
     <string name="ok">OK</string>
     <string name="open_link_failed">Unable to open link, please check browser app</string>
@@ -208,10 +215,6 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="disable_job_control_avoid_tty_error">Disable job control to avoid TTY errors</string>
     <string name="unknown_file_format_chinese">Unknown format</string>
     <string name="apk_name_failed" formatted="false">%s failed: %s</string>
-    <string name="invalid_install_request">Invalid installation request</string>
-    <string name="cannot_access_install_file">Cannot access installation file</string>
-    <string name="process_install_file_failed">Failed to process installation file</string>
-    <string name="error_processing_install_file">Error occurred while processing installation file</string>
     <string name="copy_file_failed_log">Failed to copy file to temporary directory. Exit code: %d</string>
     <string name="copy_file_failed">Failed to copy file</string>
     <string name="file_copy_success_start_install">File copied successfully, starting installation...</string>
@@ -220,7 +223,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="install_stderr">Install (stderr): %s</string>
     <string name="read_install_output_error">Error reading installation process output: %s</string>
     <string name="install_success_log">Installation successful: %s Output: %s</string>
-    <string name="install_success">Installation successful~</string>
+    <string name="install_success">✅ Installation successful!</string>
     <string name="install_failed_log">Installation failed. Exit code: %d\nOutput: %s\nError: %s</string>
     <string name="install_failed_check_log">Installation failed, check logs.</string>
     <string name="temp_file_cleaned">Temporary file cleaned: %s</string>
@@ -246,8 +249,6 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="authorized">Authorized</string>
     <string name="not_authorized">Not authorized</string>
     <string name="status_unknown">Status unknown</string>
-    <string name="display_install_info_failed">Failed to display installation information</string>
-    <string name="set_app_icon_failed">Failed to set application icon</string>
     <string name="button_clicked">Button clicked</string>
     <string name="attempting_to_open_link">Attempting to open link: %s</string>
     <string name="available_apps_count">Available apps count: %d</string>
@@ -261,6 +262,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="query_failed_but_try_direct_launch">Query failed but trying direct launch</string>
     <string name="direct_launch_success_bypass">Direct launch success (bypassing package visibility restrictions)</string>
     <string name="open_link_failed_log">Failed to open link: %s</string>
+    <string name="direct_launch_failed">Direct launch failed: %s</string>
     <string name="process_external_install_uri_failed">Failed to process external installation URI: %s</string>
     <string name="cannot_process_install_file">Cannot process this installation file</string>
     <string name="received_install_uri_from_home">Received installation URI from HomeActivity: %s</string>
@@ -283,6 +285,14 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="apply_background_display_setting_failed">Failed to apply background display setting: %s</string>
     <string name="installer_page">Installer Page</string>
     <string name="log_page">Log Page</string>
-    <string name="start_installation_failed">Failed to start installation</string>
     <string name="get_file_path_from_uri_failed">Failed to get file path from URI</string>
+    <string name="apply_language_preference_failed">Application language setting failed: %s</string>
+    <string name="apply_language_preference_failed_simple">Application language preference failed: %s</string>
+    <string name="save_language_setting_failed">Failed to save language settings: %s</string>
+    <string name="get_language_setting_failed">Failed to rerieve language setting: %s</string>
+    <string name="start_extract_xapk_log">Start extracting XAPK: %s</string>
+    <string name="extract_target_dir_log">Extract to the target diretory: %s</string>
+    <string name="opening_zip_file_log">Opening ZIP file...</string>
+    <string name="zip_file_opened_log">ZIP file ioened successfully</string>
+    <string name="extracting_apk_log">Unzipping APK: %s</string>
 </resources>

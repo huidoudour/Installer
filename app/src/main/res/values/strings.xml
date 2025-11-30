@@ -90,16 +90,23 @@
     <string name="default_file_size">10.24 MB</string>
     <string name="unknown">未知</string>
     <string name="xapk_package">XAPK安装包</string>
-    <string name="xapk">XAPK</string>
-    <string name="apk_files_count">%d 个APK文件</string>
+    <string name="invalid_install_request">无效的安装请求</string>
+    <string name="cannot_access_install_file">无法访问安装文件</string>
+    <string name="process_install_file_failed">处理安装文件失败</string>
+    <string name="error_processing_install_file">处理安装文件时发生错误</string>
+    <string name="unknown_app">未知应用</string>
+    <string name="display_install_info_failed">显示安装信息失败</string>
+    <string name="parse_file_failed">无法解析安装文件信息</string>
+    <string name="set_app_icon_failed">设置应用图标失败</string>
     <string name="shizuku_required">需要Shizuku授权才能安装应用</string>
     <string name="xapk_install_success">XAPK安装成功</string>
     <string name="xapk_install_failed">XAPK安装失败: %s</string>
     <string name="apk_install_success">APK安装成功</string>
     <string name="apk_install_failed">APK安装失败: %s</string>
+    <string name="start_installation_failed">开始安装失败</string>
     <string name="install_process_failed">安装过程启动失败: %s</string>
-    <string name="parse_file_failed">无法解析安装文件信息</string>
-    <string name="unknown_app">未知应用</string>
+    <string name="xapk">XAPK</string>
+    <string name="apk_files_count">%d 个APK文件</string>
     <string name="install_error">安装错误</string>
     <string name="ok">确定</string>
     <string name="open_link_failed">无法打开链接，请检查浏览器应用</string>
@@ -120,6 +127,18 @@
     <string name="install_failed">安装失败: %s</string>
     <string name="install_exception">安装异常: %s</string>
     <string name="extract_xapk">📦 正在解压 XAPK (使用原生压缩库)...</string>
+    <string name="shizuku_not_running">未运行/未安装</string>
+    <string name="shizuku_not_connected">Shizuku 未连接喵.</string>
+    <string name="version_too_low">版本过低喵</string>
+    <string name="shizuku_version_too_low">Shizuku 版本过低喵.</string>
+    <string name="permission_granted">已授予喵</string>
+    <string name="shizuku_connected_and_authorized">Shizuku 已连接并授权喵.</string>
+    <string name="not_authorized">未授予喵</string>
+    <string name="shizuku_connected_but_not_authorized">Shizuku 已连接但未授权喵.</string>
+    <string name="status_unknown">状态未知</string>
+    <string name="check_shizuku_version_permission_failed">检查 Shizuku 版本/权限失败喵: %s</string>
+    <string name="unavailable">不可用喵</string>
+    <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi 捕获异常喵: %s</string>
     <string name="extract_complete">✅ 解压完成，共 %d 个 APK</string>
     <string name="apk_progress" formatted="false">📦 [%d/%d] %s</string>
     <string name="submitting_install">🚀 提交安装...</string>
@@ -208,10 +227,6 @@
     <string name="disable_job_control_avoid_tty_error">禁用作业控制，避免TTY错误</string>
     <string name="unknown_file_format_chinese">未知格式</string>
     <string name="apk_name_failed" formatted="false">%s 失败: %s</string>
-    <string name="invalid_install_request">无效的安装请求</string>
-    <string name="cannot_access_install_file">无法访问安装文件</string>
-    <string name="process_install_file_failed">处理安装文件失败</string>
-    <string name="error_processing_install_file">处理安装文件时发生错误</string>
     <string name="copy_file_failed_log">复制文件到临时目录失败喵 Exit code: %d</string>
     <string name="copy_file_failed">复制文件失败喵</string>
     <string name="file_copy_success_start_install">文件复制成功，开始安装...</string>
@@ -220,24 +235,12 @@
     <string name="install_stderr">Install (stderr): %s</string>
     <string name="read_install_output_error">读取安装进程输出出错喵: %s</string>
     <string name="install_success_log">安装成功喵: %s 输出: %s</string>
-    <string name="install_success">安装成功喵~</string>
+    <string name="install_success">✅ 安装成功！</string>
     <string name="install_failed_log">安装失败喵。Exit code: %d\nOutput: %s\nError: %s</string>
     <string name="install_failed_check_log">安装失败，查看日志喵。</string>
     <string name="temp_file_cleaned">已清理临时文件: %s</string>
     <string name="clean_temp_file_failed">清理临时文件失败: %s</string>
     <string name="install_exception_log">安装流程异常喵: %s</string>
-    <string name="shizuku_not_running">未运行/未安装</string>
-    <string name="shizuku_not_connected">Shizuku 未连接喵.</string>
-    <string name="version_too_low">版本过低喵</string>
-    <string name="shizuku_version_too_low">Shizuku 版本过低喵.</string>
-    <string name="permission_granted">已授予喵</string>
-    <string name="shizuku_connected_and_authorized">Shizuku 已连接并授权喵.</string>
-    <string name="not_authorized">未授予喵</string>
-    <string name="shizuku_connected_but_not_authorized">Shizuku 已连接但未授权喵.</string>
-    <string name="status_unknown">状态未知喵</string>
-    <string name="check_shizuku_version_permission_failed">检查 Shizuku 版本/权限失败喵: %s</string>
-    <string name="unavailable">不可用喵</string>
-    <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi 捕获异常喵: %s</string>
     <string name="not_connected">未连接</string>
     <string name="version_too_low_miao">版本过低喵</string>
     <string name="permission_granted_miao">已授予喵</string>
@@ -245,8 +248,6 @@
     <string name="status_unknown_miao">状态未知喵</string>
     <string name="unavailable_miao">不可用喵</string>
     <string name="authorized">已授权</string>
-    <string name="display_install_info_failed">显示安装信息失败</string>
-    <string name="set_app_icon_failed">设置应用图标失败</string>
     <string name="button_clicked">按钮被点击</string>
     <string name="attempting_to_open_link">尝试打开链接: %s</string>
     <string name="available_apps_count">可用的应用数量: %d</string>
@@ -260,6 +261,7 @@
     <string name="query_failed_but_try_direct_launch">查询不到应用，但尝试直接启动链接</string>
     <string name="direct_launch_success_bypass">直接启动成功（绕过包可见性限制）</string>
     <string name="open_link_failed_log">打开链接失败: %s</string>
+    <string name="direct_launch_failed">直接启动失败: %s</string>
     <string name="process_external_install_uri_failed">处理外部安装URI失败: %s</string>
     <string name="cannot_process_install_file">无法处理该安装文件</string>
     <string name="received_install_uri_from_home">接收到HomeActivity传递的安装URI: %s</string>
@@ -269,7 +271,7 @@
     <string name="log_cleared">日志已清空</string>
     <string name="log_export_header">=== Installer Log Export ===</string>
     <string name="export_time">Export Time: %s</string>
-    <string name="total_logs">Total Logs: %</string>
+    <string name="total_logs">Total Logs: %d</string>
     <string name="log_content_header">=== Log Content ===</string>
     <string name="log_file_subject">Installer Log</string>
     <string name="log_file_generated">日志文件已生成: %s</string>
@@ -283,7 +285,6 @@
     <string name="apply_background_display_setting_failed">应用后台显示设置失败: %s</string>
     <string name="installer_page">安装器页面</string>
     <string name="log_page">日志页面</string>
-    <string name="start_installation_failed">开始安装失败</string>
     <string name="get_file_path_from_uri_failed">从URI获取文件路径失败</string>
     <!-- 新增的字符串资源 -->
     <string name="apply_language_preference_failed">应用语言设置失败: %s</string>

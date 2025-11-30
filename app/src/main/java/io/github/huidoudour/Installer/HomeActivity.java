@@ -17,6 +17,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import io.github.huidoudour.Installer.databinding.ActivityHomeBinding;
 import io.github.huidoudour.Installer.utils.LanguageManager;
+import io.github.huidoudour.Installer.R;
 
 public class HomeActivity extends AppCompatActivity {
 

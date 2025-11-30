@@ -50,6 +50,7 @@
     <string name="query_failed_but_try_direct_launch">查询不到应用，但尝试直接启动链接</string>
     <string name="direct_launch_success_bypass">直接启动成功（绕过包可见性限制）</string>
     <string name="open_link_failed_log">打开链接失败: %s</string>
+    <string name="direct_launch_failed">直接启动失败: %s</string>
     <string name="process_external_install_uri_failed">处理外部安装URI失败: %s</string>
     <string name="cannot_process_install_file">无法处理该安装文件</string>
     <string name="received_install_uri_from_home">接收到HomeActivity传递的安装URI: %s</string>
@@ -111,16 +112,22 @@
     <string name="background_display_disabled">后台显示已禁用，应用将不会出现在最近任务列表中（重启应用后生效）</string>
     <string name="unknown">未知</string>
     <string name="xapk_package">XAPK安装包</string>
-    <string name="xapk">XAPK</string>
-    <string name="apk_files_count">%d 个APK文件</string>
+    <string name="invalid_install_request">无效的安装请求</string>
+    <string name="cannot_access_install_file">无法访问安装文件</string>
+    <string name="process_install_file_failed">处理安装文件失败</string>
+    <string name="error_processing_install_file">处理安装文件时发生错误</string>
+    <string name="unknown_app">未知应用</string>
+    <string name="display_install_info_failed">显示安装信息失败</string>
+    <string name="parse_file_failed">无法解析安装文件信息</string>
+    <string name="set_app_icon_failed">设置应用图标失败</string>
     <string name="shizuku_required">需要Shizuku授权才能安装应用</string>
     <string name="xapk_install_success">XAPK安装成功</string>
     <string name="xapk_install_failed">XAPK安装失败: %s</string>
     <string name="apk_install_success">APK安装成功</string>
     <string name="apk_install_failed">APK安装失败: %s</string>
     <string name="install_process_failed">安装过程启动失败: %s</string>
-    <string name="parse_file_failed">无法解析安装文件信息</string>
-    <string name="unknown_app">未知应用</string>
+    <string name="xapk">XAPK</string>
+    <string name="apk_files_count">%d 个APK文件</string>
     <string name="install_error">安装错误</string>
     <string name="ok">确定</string>
     <string name="open_link_failed">无法打开链接，请检查浏览器应用</string>
@@ -132,7 +139,6 @@
     <string name="session_id">会话ID: %s</string>
     <string name="write_apk_data">写入 APK 数据...</string>
     <string name="submit_install">提交安装...</string>
-    <string name="error_processing_install_file">处理安装文件时发生错误</string>
     <string name="copy_file_failed_log">复制文件到临时目录失败喵 Exit code: %d</string>
     <string name="copy_file_failed">复制文件失败喵</string>
     <string name="file_copy_success_start_install">文件复制成功，开始安装...</string>
@@ -198,8 +204,6 @@
     <string name="shizuku_connected_and_authorized">Shizuku 已连接并授权喵.</string>
     <string name="not_authorized">未授权</string>
     <string name="status_unknown">状态未知</string>
-    <string name="display_install_info_failed">显示安装信息失败</string>
-    <string name="set_app_icon_failed">设置应用图标失败</string>
     <string name="button_clicked">按钮被点击</string>
     <string name="attempting_to_open_link">尝试打开链接: %s</string>
     <string name="available_apps_count">可用的应用数量: %d</string>
@@ -233,9 +237,6 @@
     <string name="disable_job_control_avoid_tty_error">禁用作业控制，避免TTY错误</string>
     <string name="unknown_file_format_chinese">未知格式</string>
     <string name="apk_name_failed">%s 失败: %s</string>
-    <string name="invalid_install_request">无效的安装请求</string>
-    <string name="cannot_access_install_file">无法访问安装文件</string>
-    <string name="process_install_file_failed">处理安装文件失败</string>
     <string name="memory_info">内存信息</string>
     <string name="process_list">进程列表</string>
     <string name="installed_apps">已安装应用</string>
@@ -279,4 +280,13 @@
     <string name="clear_initial_output">清空初始输出</string>
     <string name="destroy_persistent_session">销毁持久化会话</string>
     <string name="ignore">忽略</string>
+    <string name="apply_language_preference_failed">应用语言设置失败: %s</string>
+    <string name="apply_language_preference_failed_simple">应用语言偏好失败: %s</string>
+    <string name="save_language_setting_failed">保存语言设置失败: %s</string>
+    <string name="get_language_setting_failed">获取语言设置失败: %s</string>
+    <string name="start_extract_xapk_log">开始解压 XAPK: %s</string>
+    <string name="extract_target_dir_log">解压目标目录: %s</string>
+    <string name="opening_zip_file_log">正在打开 ZIP 文件...</string>
+    <string name="zip_file_opened_log">ZIP 文件打开成功</string>
+    <string name="extracting_apk_log">正在解压 APK: %s</string>
 </resources>

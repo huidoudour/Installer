@@ -6,6 +6,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.util.Log;
 
+import io.github.huidoudour.Installer.R;
+
 import java.util.Locale;
 
 /**

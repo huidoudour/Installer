@@ -3,6 +3,8 @@ package io.github.huidoudour.Installer.utils;
 import android.content.Context;
 import android.util.Log;
 
+import io.github.huidoudour.Installer.R;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -157,19 +159,19 @@ public class XapkInstaller {
      * 获取文件类型描述
      */
     public static String getFileTypeDescription(String filePath) {
-        if (filePath == null) return context.getString(R.string.unknown);
+        if (filePath == null) return "Unknown";
         
         String lowerPath = filePath.toLowerCase();
         if (lowerPath.endsWith(".apk")) {
-            return context.getString(R.string.apk_standard);
+            return "APK (Standard Installation Package)";
         } else if (lowerPath.endsWith(".xapk")) {
-            return context.getString(R.string.xapk_format);
+            return "XAPK (APKPure Format)";
         } else if (lowerPath.endsWith(".apks")) {
-            return context.getString(R.string.apks_format);
+            return "APKS (App Bundle)";
         } else if (lowerPath.endsWith(".apkm")) {
-            return context.getString(R.string.apkm_format);
+            return "APKM (APKMirror Format)";
         }
-        return context.getString(R.string.unknown_file_format);
+        return "Unknown Format";
     }
     
     /**
@@ -250,7 +252,7 @@ public class XapkInstaller {
                 // 安装所有 APK
                 for (File apkFile : extractedApks) {
                     // 使用 ShizukuInstallHelper 安装单个 APK
-                    ShizukuInstallHelper.installSingleApk(apkFile, true, true, new ShizukuInstallHelper.InstallCallback() {
+                    ShizukuInstallHelper.installSingleApk(context, apkFile, true, true, new ShizukuInstallHelper.InstallCallback() {
                         @Override
                         public void onProgress(String message) {
                             Log.d(TAG, context.getString(R.string.install_progress, message));
