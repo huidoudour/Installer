@@ -183,7 +183,7 @@ public class SettingsFragment extends Fragment {
         TextView tvCurrentLanguage = binding.getRoot().findViewById(R.id.tv_current_language);
         if (tvCurrentLanguage != null) {
             String currentLanguage = LanguageManager.getUserLanguage(requireContext());
-            String displayName = LanguageManager.getLanguageDisplayName(currentLanguage);
+            String displayName = LanguageManager.getLanguageDisplayName(requireContext(), currentLanguage);
             tvCurrentLanguage.setText(displayName);
         }
     }

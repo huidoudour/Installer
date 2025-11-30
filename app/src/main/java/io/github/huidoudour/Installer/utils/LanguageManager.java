@@ -40,7 +40,7 @@ public class LanguageManager {
             config.setLocale(locale);
             resources.updateConfiguration(config, resources.getDisplayMetrics());
         } catch (Exception e) {
-            Log.e(TAG, "应用语言偏好失败: " + e.getMessage());
+            Log.e(TAG, context.getString(R.string.apply_language_preference_failed_simple, e.getMessage()));
         }
     }
     
@@ -54,7 +54,7 @@ public class LanguageManager {
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             prefs.edit().putString(KEY_APP_LANGUAGE, languageCode).apply();
         } catch (Exception e) {
-            Log.e(TAG, "保存语言设置失败: " + e.getMessage());
+            Log.e(TAG, context.getString(R.string.save_language_setting_failed, e.getMessage()));
         }
     }
     
@@ -68,21 +68,22 @@ public class LanguageManager {
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             return prefs.getString(KEY_APP_LANGUAGE, Locale.getDefault().getLanguage());
         } catch (Exception e) {
-            Log.e(TAG, "获取语言设置失败: " + e.getMessage());
+            Log.e(TAG, context.getString(R.string.get_language_setting_failed, e.getMessage()));
             return Locale.getDefault().getLanguage();
         }
     }
     
     /**
      * 获取语言显示名称
+     * @param context 上下文
      * @param languageCode 语言代码
      * @return 语言显示名称
      */
-    public static String getLanguageDisplayName(String languageCode) {
+    public static String getLanguageDisplayName(Context context, String languageCode) {
         if ("en".equals(languageCode)) {
             return "English";
         } else {
-            return "简体中文";
+            return context.getString(R.string.simplified_chinese);
         }
     }
 }

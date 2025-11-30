@@ -42,17 +42,17 @@ public class XapkInstaller {
             extractDir.mkdirs();
         }
         
-        Log.d(TAG, "开始解压 XAPK: " + xapkPath);
-        Log.d(TAG, "解压目标目录: " + extractDir.getAbsolutePath());
+        Log.d(TAG, context.getString(R.string.start_extract_xapk_log, xapkPath));
+        Log.d(TAG, context.getString(R.string.extract_target_dir_log, extractDir.getAbsolutePath()));
         
         FileInputStream fis = null;
         ZipInputStream zis = null;
         
         try {
-            Log.d(TAG, "正在打开 ZIP 文件...");
+            Log.d(TAG, context.getString(R.string.opening_zip_file_log));
             fis = new FileInputStream(xapkPath);
             zis = new ZipInputStream(fis);
-            Log.d(TAG, "ZIP 文件打开成功");
+            Log.d(TAG, context.getString(R.string.zip_file_opened_log));
             
             int totalEntries = 0;
             int extractedApks = 0;
@@ -62,7 +62,7 @@ public class XapkInstaller {
                 totalEntries++;
                 String entryName = entry.getName();
                 
-                Log.d(TAG, "处理条目 #" + totalEntries + ": " + entryName + " (大小: " + entry.getSize() + " bytes)");
+                Log.d(TAG, context.getString(R.string.processing_entry, totalEntries, entryName, entry.getSize()));
                 
                 // 只解压 APK 文件，忽略其他文件（如 icon.png, manifest.json）
                 if (entryName.toLowerCase().endsWith(".apk")) {
@@ -74,7 +74,7 @@ public class XapkInstaller {
                         parent.mkdirs();
                     }
                     
-                    Log.d(TAG, "正在解压 APK: " + destFile.getName());
+                    Log.d(TAG, context.getString(R.string.extracting_apk_log, destFile.getName()));
                     
                     // 解压文件
                     FileOutputStream fos = null;

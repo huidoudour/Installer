@@ -20,7 +20,7 @@ public class InstallerApplication extends Application {
         try {
             LanguageManager.applyUserLanguagePreference(this);
         } catch (Exception e) {
-            Log.e(TAG, "应用语言设置失败: " + e.getMessage());
+            Log.e(TAG, getString(R.string.apply_language_preference_failed, e.getMessage()));
         }
     }
 }

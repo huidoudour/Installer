@@ -285,4 +285,14 @@
     <string name="log_page">日志页面</string>
     <string name="start_installation_failed">开始安装失败</string>
     <string name="get_file_path_from_uri_failed">从URI获取文件路径失败</string>
+    <!-- 新增的字符串资源 -->
+    <string name="apply_language_preference_failed">应用语言设置失败: %s</string>
+    <string name="apply_language_preference_failed_simple">应用语言偏好失败: %s</string>
+    <string name="save_language_setting_failed">保存语言设置失败: %s</string>
+    <string name="get_language_setting_failed">获取语言设置失败: %s</string>
+    <string name="start_extract_xapk_log">开始解压 XAPK: %s</string>
+    <string name="extract_target_dir_log">解压目标目录: %s</string>
+    <string name="opening_zip_file_log">正在打开 ZIP 文件...</string>
+    <string name="zip_file_opened_log">ZIP 文件打开成功</string>
+    <string name="extracting_apk_log">正在解压 APK: %s</string>
 </resources>
