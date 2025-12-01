@@ -12,6 +12,7 @@
     <string name="install">安装</string>
     <string name="cancel">取消</string>
     <string name="installing">正在安装...</string>
+    <string name="app_icon_description">应用图标</string>
     
     <!-- 设置页面 -->
     <string name="settings_title">设置</string>
@@ -296,4 +297,34 @@
     <string name="opening_zip_file_log">正在打开 ZIP 文件...</string>
     <string name="zip_file_opened_log">ZIP 文件打开成功</string>
     <string name="extracting_apk_log">正在解压 APK: %s</string>
+    <string name="shizuku_permission_granted">已授予 Shizuku 权限.</string>
+    <string name="shizuku_permission_denied">Shizuku 权限被拒绝.</string>
+    <string name="file_selected_and_cached">已选择文件并复制到 cache: %s</string>
+    <string name="file_selected_uri_fail">已选择文件 (URI)，但复制到 cache 失败，URI: %s</string>
+    <string name="file_selection_failed">文件选择失败或被取消.</string>
+    <string name="manage_storage_permission_granted">MANAGE_EXTERNAL_STORAGE 权限已授予.</string>
+    <string name="manage_storage_permission_denied">MANAGE_EXTERNAL_STORAGE 权限被拒绝.</string>
+    <string name="read_storage_permission_granted">READ_EXTERNAL_STORAGE 权限已授予.</string>
+    <string name="read_storage_permission_denied">READ_EXTERNAL_STORAGE 权限被拒绝.</string>
+    <string name="shizuku_unavailable">Shizuku 不可用喵: %s</string>
+    <string name="shizuku_binder_listener_error">不能添加 Shizuku binder listener 喵: %s</string>
+    <string name="installer_started">Installer 已启动，等待操作喵……</string>
+    <string name="get_file_path_uri_error">getFilePathFromUri 有问题喵: %s</string>
+    <string name="copy_to_cache_error">复制到 cache 失败喵: %s</string>
+    <string name="request_manage_storage">请求 MANAGE_EXTERNAL_STORAGE 权限喵.</string>
+    <string name="request_manage_storage_error">请求 MANAGE_EXTERNAL_STORAGE 权限出错喵: %s</string>
+    <string name="request_read_storage">请求 READ_EXTERNAL_STORAGE 权限喵.</string>
+    <string name="open_file_picker">打开文件选择器喵~...</string>
+    <string name="file_picker_not_found">文件选择器未找到喵.</string>
+    <string name="request_shizuku_permission">尝试请求 Shizuku 权限喵~...</string>
+    <string name="shizuku_not_started">Shizuku没启动喵~。</string>
+    <string name="shizuku_version_low">Shizuku 版本过低或不兼容喵。</string>
+    <string name="shizuku_authorized">Shizuku 已授权喵.</string>
+    <string name="log_manager_waiting">等待操作...</string>
+    <string name="shizuku_check_failed">Shizuku 不可用喵: %s</string>
+    <string name="apk_not_selected">未选择 APK 或路径无效喵.</string>
+    <string name="shizuku_not_connected_install">Shizuku 未连接或未授权，无法通过 Shizuku 安装喵.</string>
+    <string name="check_shizuku_status_failed">检查 Shizuku 状态失败喵: %s</string>
+    <string name="copying_file_to_temp">正在复制文件到系统临时目录: %s</string>
+    <string name="detected_file_type_apk_count">检测到 %s，包含 %d 个 APK 文件</string>
 </resources>

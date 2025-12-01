@@ -38,7 +38,7 @@
             android:src="@android:drawable/sym_def_app_icon"
             android:scaleType="centerInside"
             android:layout_marginEnd="16dp"
-            android:contentDescription="应用图标" />
+            android:contentDescription="@string/app_icon_description" />
             
         <!-- 应用名称 -->
         <TextView
@@ -46,7 +46,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="应用名称"
+            android:text="@string/app_name_label"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
@@ -85,7 +85,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="包名"
+                        android:text="@string/package_name"
                         android:textSize="14sp"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:layout_marginEnd="16dp" />
@@ -111,7 +111,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="版本"
+                        android:text="@string/version"
                         android:textSize="14sp"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:layout_marginEnd="16dp" />
@@ -136,7 +136,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="文件大小"
+                        android:text="@string/file_size"
                         android:textSize="14sp"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:layout_marginEnd="16dp" />
@@ -168,7 +168,7 @@
                     android:id="@+id/btn_install"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:text="安装"
+                    android:text="@string/install"
                     android:textSize="16sp"
                     app:cornerRadius="12dp"
                     app:backgroundTint="?attr/colorPrimary"
@@ -179,7 +179,7 @@
                     android:id="@+id/btn_cancel"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:text="取消"
+                    android:text="@string/cancel"
                     android:textSize="16sp"
                     app:cornerRadius="12dp"
                     style="@style/Widget.Material3.Button.OutlinedButton"
@@ -200,7 +200,7 @@
                     android:id="@+id/btn_install_disabled"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:text="安装中..."
+                    android:text="@string/installing"
                     android:textSize="16sp"
                     app:cornerRadius="12dp"
                     app:backgroundTint="?attr/colorOnSurfaceVariant"
@@ -212,7 +212,7 @@
                     android:id="@+id/btn_cancel_progress"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:text="取消"
+                    android:text="@string/cancel"
                     android:textSize="16sp"
                     app:cornerRadius="12dp"
                     style="@style/Widget.Material3.Button.OutlinedButton"

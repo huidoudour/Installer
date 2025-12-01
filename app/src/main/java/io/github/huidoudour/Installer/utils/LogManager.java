@@ -1,10 +1,14 @@
 package io.github.huidoudour.Installer.utils;
 
+import android.content.Context;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import io.github.huidoudour.Installer.R;
 
 /**
  * 全局日志管理器
@@ -16,6 +20,7 @@ public class LogManager {
     private final List<String> logs;
     private final List<LogListener> listeners;
     private final SimpleDateFormat dateFormat;
+    private Context context;
     
     public interface LogListener {
         void onLogAdded(String log);
@@ -33,6 +38,10 @@ public class LogManager {
             instance = new LogManager();
         }
         return instance;
+    }
+    
+    public void setContext(Context context) {
+        this.context = context;
     }
     
     public void addLog(String message) {
@@ -59,6 +68,9 @@ public class LogManager {
     
     public String getAllLogs() {
         if (logs.isEmpty()) {
+            if (context != null) {
+                return context.getString(R.string.log_manager_waiting);
+            }
             return "等待操作...";
         }
         StringBuilder sb = new StringBuilder();

@@ -79,9 +79,9 @@ public class InstallerFragment extends Fragment {
             (requestCode, grantResult) -> {
                 if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
                     if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                        log("已授予 Shizuku 权限.");
+                        log(getString(R.string.shizuku_permission_granted));
                     } else {
-                        log("Shizuku 权限被拒绝.");
+                        log(getString(R.string.shizuku_permission_denied));
                     }
                     updateShizukuStatusAndUi();
                 }
@@ -107,10 +107,10 @@ public class InstallerFragment extends Fragment {
                             // 如果是 XAPK，显示包含的 APK 数量
                             if (isXapkFile) {
                                 int apkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
-                                log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
+                            log(getString(R.string.detected_file_type_apk_count, fileType, apkCount));
                             }
 
-                            log("已选择文件并复制到 cache: " + selectedFilePath);
+                            log(getString(R.string.file_selected_and_cached, selectedFilePath));
 
                             // === 使用原生库分析 APK ===
                             if (!isXapkFile) {
@@ -118,12 +118,12 @@ public class InstallerFragment extends Fragment {
                             }
                         } else {
                             tvSelectedFile.setText(fileName != null ? fileName : selectedFileUri.getPath());
-                            log("已选择文件 (URI)，但复制到 cache 失败，URI: " + selectedFileUri.toString());
+                            log(getString(R.string.file_selected_uri_fail, selectedFileUri.toString()));
                         }
                         updateInstallButtonState();
                     }
                 } else {
-                    log("文件选择失败或被取消.");
+                    log(getString(R.string.file_selection_failed));
                 }
             });
 
@@ -132,10 +132,10 @@ public class InstallerFragment extends Fragment {
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     if (Environment.isExternalStorageManager()) {
-                        log("MANAGE_EXTERNAL_STORAGE 权限已授予.");
+                        log(getString(R.string.manage_storage_permission_granted));
                         openFilePicker();
                     } else {
-                        log("MANAGE_EXTERNAL_STORAGE 权限被拒绝.");
+                        log(getString(R.string.manage_storage_permission_denied));
                         Toast.makeText(requireContext(), "需要文件访问权限以选择 APK。", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -145,10 +145,10 @@ public class InstallerFragment extends Fragment {
     private final ActivityResultLauncher<String> externalStoragePermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    log("READ_EXTERNAL_STORAGE 权限已授予.");
+                    log(getString(R.string.read_storage_permission_granted));
                     openFilePicker();
                 } else {
-                    log("READ_EXTERNAL_STORAGE 权限被拒绝.");
+                    log(getString(R.string.read_storage_permission_denied));
                     Toast.makeText(requireContext(), "需要读取存储权限以选择 APK。", Toast.LENGTH_LONG).show();
                 }
             });
@@ -171,12 +171,13 @@ public class InstallerFragment extends Fragment {
 
         // 初始化日志管理器
         logManager = LogManager.getInstance();
+        logManager.setContext(requireContext());
 
         // 注册 Shizuku 权限结果监听
         try {
             Shizuku.addRequestPermissionResultListener(onRequestPermissionResultListener);
         } catch (Throwable e) {
-            log("Shizuku 不可用喵: " + e.getMessage());
+            log(getString(R.string.shizuku_unavailable, e.getMessage()));
         }
 
         // 添加 binder received listener
@@ -187,7 +188,7 @@ public class InstallerFragment extends Fragment {
                 }
             });
         } catch (Throwable t) {
-            log("不能添加 Shizuku binder listener 喵: " + t.getMessage());
+            log(getString(R.string.shizuku_binder_listener_error, t.getMessage()));
         }
 
         // 设置按钮点击事件
@@ -207,7 +208,7 @@ public class InstallerFragment extends Fragment {
         handleInstallArguments();
 
         if (isFirstInit) {
-            log("Installer 已启动，等待操作喵……");
+            log(getString(R.string.installer_started));
             isFirstInit = false;
         }
 
@@ -244,7 +245,7 @@ public class InstallerFragment extends Fragment {
                 return cacheFile.getAbsolutePath();
             }
         } catch (Exception e) {
-            log("getFilePathFromUri 有问题喵: " + e.getMessage());
+            log(getString(R.string.get_file_path_uri_error, e.getMessage()));
         } finally {
             if (cursor != null) cursor.close();
         }
@@ -270,7 +271,7 @@ public class InstallerFragment extends Fragment {
             pfd.close();
             return outputFile;
         } catch (Exception e) {
-            log("复制到 cache 失败喵: " + e.getMessage());
+            log(getString(R.string.copy_to_cache_error, e.getMessage()));
             return null;
         }
     }
@@ -298,14 +299,14 @@ public class InstallerFragment extends Fragment {
     private void checkFilePermissionsAndOpenFilePicker() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
-                log("请求 MANAGE_EXTERNAL_STORAGE 权限喵.");
+                log(getString(R.string.request_manage_storage));
                 try {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
                     intent.addCategory("android.intent.category.DEFAULT");
                     intent.setData(Uri.parse(String.format("package:%s", requireContext().getApplicationContext().getPackageName())));
                     manageFilesPermissionLauncher.launch(intent);
                 } catch (Exception e) {
-                    log("请求 MANAGE_EXTERNAL_STORAGE 权限出错喵: " + e.getMessage());
+                    log(getString(R.string.request_manage_storage_error, e.getMessage()));
                     Intent intent = new Intent();
                     intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                     manageFilesPermissionLauncher.launch(intent);
@@ -314,7 +315,7 @@ public class InstallerFragment extends Fragment {
             }
         } else {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                log("请求 READ_EXTERNAL_STORAGE 权限喵.");
+                log(getString(R.string.request_read_storage));
                 externalStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
                 return;
             }

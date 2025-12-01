@@ -35,7 +35,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="完整日志"
+                    android:text="@string/full_log"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface" />
@@ -44,7 +44,7 @@
                     android:id="@+id/btnClearLog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="清空"
+                    android:text="@string/clear"
                     android:textSize="14sp"
                     android:layout_marginEnd="8dp"
                     app:icon="@android:drawable/ic_menu_delete"
@@ -54,7 +54,7 @@
                     android:id="@+id/btnExportLog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="导出"
+                    android:text="@string/export"
                     android:textSize="14sp"
                     app:icon="@android:drawable/ic_menu_save"
                     style="@style/Widget.Material3.Button.TextButton" />
@@ -63,7 +63,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="实时显示所有操作日志"
+                android:text="@string/real_time_logs"
                 android:textSize="14sp"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:layout_marginBottom="12dp" />
@@ -81,7 +81,7 @@
                     android:id="@+id/tvFullLog"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="等待操作..."
+                    android:text="@string/waiting_operation"
                     android:textSize="13sp"
                     android:fontFamily="monospace"
                     android:textColor="?attr/colorOnSurface" />

@@ -12,6 +12,7 @@
     <string name="install">Install</string>
     <string name="cancel">Cancel</string>
     <string name="installing">Installing...</string>
+    <string name="app_icon_description">App Icon</string>
     
     <!-- 设置页面 -->
     <string name="settings_title">Settings</string>
@@ -295,4 +296,34 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="opening_zip_file_log">Opening ZIP file...</string>
     <string name="zip_file_opened_log">ZIP file ioened successfully</string>
     <string name="extracting_apk_log">Unzipping APK: %s</string>
+    <string name="shizuku_permission_granted">Shizuku permission granted.</string>
+    <string name="shizuku_permission_denied">Shizuku permission denied.</string>
+    <string name="file_selected_and_cached">File selected and copied to cache: %s</string>
+    <string name="file_selected_uri_fail">File selected (URI), but failed to copy to cache, URI: %s</string>
+    <string name="file_selection_failed">File selection failed or cancelled.</string>
+    <string name="manage_storage_permission_granted">MANAGE_EXTERNAL_STORAGE permission granted.</string>
+    <string name="manage_storage_permission_denied">MANAGE_EXTERNAL_STORAGE permission denied.</string>
+    <string name="read_storage_permission_granted">READ_EXTERNAL_STORAGE permission granted.</string>
+    <string name="read_storage_permission_denied">READ_EXTERNAL_STORAGE permission denied.</string>
+    <string name="shizuku_unavailable">Shizuku unavailable: %s</string>
+    <string name="shizuku_binder_listener_error">Cannot add Shizuku binder listener: %s</string>
+    <string name="installer_started">Installer started, waiting for operation...</string>
+    <string name="get_file_path_uri_error">getFilePathFromUri has an issue: %s</string>
+    <string name="copy_to_cache_error">Failed to copy to cache: %s</string>
+    <string name="request_manage_storage">Requesting MANAGE_EXTERNAL_STORAGE permission.</string>
+    <string name="request_manage_storage_error">Error requesting MANAGE_EXTERNAL_STORAGE permission: %s</string>
+    <string name="request_read_storage">Requesting READ_EXTERNAL_STORAGE permission.</string>
+    <string name="open_file_picker">Opening file picker...</string>
+    <string name="file_picker_not_found">File picker not found.</string>
+    <string name="request_shizuku_permission">Attempting to request Shizuku permission...</string>
+    <string name="shizuku_not_started">Shizuku not started.</string>
+    <string name="shizuku_version_low">Shizuku version too low or incompatible.</string>
+    <string name="shizuku_authorized">Shizuku authorized.</string>
+    <string name="log_manager_waiting">Waiting for operation...</string>
+    <string name="shizuku_check_failed">Shizuku unavailable: %s</string>
+    <string name="apk_not_selected">No APK selected or path invalid.</string>
+    <string name="shizuku_not_connected_install">Shizuku not connected or not authorized, cannot install via Shizuku.</string>
+    <string name="check_shizuku_status_failed">Failed to check Shizuku status: %s</string>
+    <string name="copying_file_to_temp">Copying file to system temporary directory: %s</string>
+    <string name="detected_file_type_apk_count">Detected %s, containing %d APK files</string>
 </resources>

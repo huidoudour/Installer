@@ -68,9 +68,9 @@ public class HomeFragment extends Fragment {
             (requestCode, grantResult) -> {
                 if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
                     if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                        log("已授予 Shizuku 权限.");
+                        log(getString(R.string.shizuku_permission_granted));
                     } else {
-                        log("Shizuku 权限被拒绝.");
+                        log(getString(R.string.shizuku_permission_denied));
                     }
                     updateShizukuStatusAndUi();
                 }
@@ -86,15 +86,15 @@ public class HomeFragment extends Fragment {
                         selectedFilePath = getFilePathFromUri(selectedFileUri);
                         if (selectedFilePath != null) {
                             tvSelectedFile.setText(fileName);
-                            log("已选择文件并复制到 cache: " + selectedFilePath);
+                            log(getString(R.string.file_selected_and_cached, selectedFilePath));
                         } else {
                             tvSelectedFile.setText(fileName != null ? fileName : selectedFileUri.getPath());
-                            log("已选择文件 (URI)，但复制到 cache 失败，URI: " + selectedFileUri.toString());
+                            log(getString(R.string.file_selected_uri_fail, selectedFileUri.toString()));
                         }
                         updateInstallButtonState();
                     }
                 } else {
-                    log("文件选择失败或被取消.");
+                    log(getString(R.string.file_selection_failed));
                 }
             });
 
@@ -103,10 +103,10 @@ public class HomeFragment extends Fragment {
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     if (Environment.isExternalStorageManager()) {
-                        log("MANAGE_EXTERNAL_STORAGE 权限已授予.");
+                        log(getString(R.string.manage_storage_permission_granted));
                         openFilePicker();
                     } else {
-                        log("MANAGE_EXTERNAL_STORAGE 权限被拒绝.");
+                        log(getString(R.string.manage_storage_permission_denied));
                         Toast.makeText(requireContext(), "需要文件访问权限以选择 APK。", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -116,10 +116,10 @@ public class HomeFragment extends Fragment {
     private final ActivityResultLauncher<String> externalStoragePermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    log("READ_EXTERNAL_STORAGE 权限已授予.");
+                    log(getString(R.string.read_storage_permission_granted));
                     openFilePicker();
                 } else {
-                    log("READ_EXTERNAL_STORAGE 权限被拒绝.");
+                    log(getString(R.string.read_storage_permission_denied));
                     Toast.makeText(requireContext(), "需要读取存储权限以选择 APK。", Toast.LENGTH_LONG).show();
                 }
             });
@@ -141,12 +141,13 @@ public class HomeFragment extends Fragment {
 
         // 初始化日志管理器
         logManager = LogManager.getInstance();
+        logManager.setContext(requireContext());
 
         // 注册 Shizuku 权限结果监听
         try {
             Shizuku.addRequestPermissionResultListener(onRequestPermissionResultListener);
         } catch (Throwable e) {
-            log("Shizuku 不可用喵: " + e.getMessage());
+            log(getString(R.string.shizuku_unavailable, e.getMessage()));
         }
 
         // 添加 binder received listener
@@ -157,7 +158,7 @@ public class HomeFragment extends Fragment {
                 }
             });
         } catch (Throwable t) {
-            log("不能添加 Shizuku binder listener 喵: " + t.getMessage());
+            log(getString(R.string.shizuku_binder_listener_error, t.getMessage()));
         }
 
         // 设置按钮点击事件
@@ -167,7 +168,7 @@ public class HomeFragment extends Fragment {
 
         // 初始 UI 状态
         updateShizukuStatusAndUi();
-        log("Installer 已启动，等待操作喵……");
+        log(getString(R.string.installer_started));
 
         return root;
     }
@@ -202,7 +203,7 @@ public class HomeFragment extends Fragment {
                 return cacheFile.getAbsolutePath();
             }
         } catch (Exception e) {
-            log("getFilePathFromUri 有问题喵: " + e.getMessage());
+            log(getString(R.string.get_file_path_uri_error, e.getMessage()));
         } finally {
             if (cursor != null) cursor.close();
         }
@@ -228,7 +229,7 @@ public class HomeFragment extends Fragment {
             pfd.close();
             return outputFile;
         } catch (Exception e) {
-            log("复制到 cache 失败喵: " + e.getMessage());
+            log(getString(R.string.copy_to_cache_error, e.getMessage()));
             return null;
         }
     }
@@ -256,14 +257,14 @@ public class HomeFragment extends Fragment {
     private void checkFilePermissionsAndOpenFilePicker() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
-                log("请求 MANAGE_EXTERNAL_STORAGE 权限喵.");
+                log(getString(R.string.request_manage_storage));
                 try {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
                     intent.addCategory("android.intent.category.DEFAULT");
                     intent.setData(Uri.parse(String.format("package:%s", requireContext().getApplicationContext().getPackageName())));
                     manageFilesPermissionLauncher.launch(intent);
                 } catch (Exception e) {
-                    log("请求 MANAGE_EXTERNAL_STORAGE 权限出错喵: " + e.getMessage());
+                    log(getString(R.string.request_manage_storage_error, e.getMessage()));
                     Intent intent = new Intent();
                     intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                     manageFilesPermissionLauncher.launch(intent);
@@ -272,7 +273,7 @@ public class HomeFragment extends Fragment {
             }
         } else {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                log("请求 READ_EXTERNAL_STORAGE 权限喵.");
+                log(getString(R.string.request_read_storage));
                 externalStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
                 return;
             }
@@ -295,24 +296,24 @@ public class HomeFragment extends Fragment {
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         try {
             filePickerLauncher.launch(Intent.createChooser(intent, "选择安装包文件 (APK/XAPK/APKS)"));
-            log("打开文件选择器喵~...");
+            log(getString(R.string.open_file_picker));
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(requireContext(), "请安装文件管理器以选择安装包文件喵。", Toast.LENGTH_SHORT).show();
-            log("文件选择器未找到喵.");
+            log(getString(R.string.file_picker_not_found));
         }
     }
 
     private void requestShizukuPermission() {
-        log("尝试请求 Shizuku 权限喵~...");
+        log(getString(R.string.request_shizuku_permission));
         try {
             if (!Shizuku.pingBinder()) {
-                log("Shizuku没启动喵~。");
+                log(getString(R.string.shizuku_not_started));
                 Toast.makeText(requireContext(), "Shizuku 未运行或未安装喵", Toast.LENGTH_LONG).show();
                 updateShizukuStatusAndUi();
                 return;
             }
             if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) {
-                log("Shizuku 版本过低或不兼容喵。");
+                log(getString(R.string.shizuku_version_low));
                 Toast.makeText(requireContext(), "请升级Shizuku喵", Toast.LENGTH_LONG).show();
                 updateShizukuStatusAndUi();
                 return;
@@ -320,31 +321,31 @@ public class HomeFragment extends Fragment {
             if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
                 Shizuku.requestPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
             } else {
-                log("Shizuku 已授权喵.");
+                log(getString(R.string.shizuku_authorized));
                 updateShizukuStatusAndUi();
             }
         } catch (Throwable t) {
-            log("Shizuku 不可用喵: " + t.getMessage());
+            log(getString(R.string.shizuku_check_failed, t.getMessage()));
             updateShizukuStatusAndUi();
         }
     }
 
     private void installSelectedApk() {
         if (selectedFilePath == null || selectedFilePath.isEmpty()) {
-            log("未选择 APK 或路径无效喵.");
+            log(getString(R.string.apk_not_selected));
             Toast.makeText(requireContext(), "请先选择 APK 文件喵.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
             if (!Shizuku.pingBinder() || Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-                log("Shizuku 未连接或未授权，无法通过 Shizuku 安装喵.");
+                log(getString(R.string.shizuku_not_connected_install));
                 Toast.makeText(requireContext(), "Shizuku 未连接或未授权，无法安装喵。", Toast.LENGTH_LONG).show();
                 updateShizukuStatusAndUi();
                 return;
             }
         } catch (Throwable t) {
-            log("检查 Shizuku 状态失败喵: " + t.getMessage());
+            log(getString(R.string.check_shizuku_status_failed, t.getMessage()));
             Toast.makeText(requireContext(), "Shizuku 不可用喵", Toast.LENGTH_LONG).show();
             updateShizukuStatusAndUi();
             return;
@@ -361,7 +362,7 @@ public class HomeFragment extends Fragment {
                 String tmpFileName = "installer_" + System.currentTimeMillis() + "_" + sourceFile.getName();
                 tmpFilePath = "/data/local/tmp/" + tmpFileName;
                 
-                log("正在复制文件到系统临时目录: " + tmpFilePath);
+                log(getString(R.string.copying_file_to_temp, tmpFilePath));
                 
                 // 使用 cat 命令复制文件（比 cp 更可靠）
                 String copyCmd = "cat \"" + selectedFilePath + "\" > \"" + tmpFilePath + "\"";
