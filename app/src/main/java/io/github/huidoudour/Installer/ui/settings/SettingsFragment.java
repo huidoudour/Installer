@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -67,20 +68,12 @@ public class SettingsFragment extends Fragment {
             themeSetting.setOnClickListener(v -> showSnackbar(R.string.feature_developing));
         }
 
-        // 语言设置点击事件
-        View languageChineseOption = binding.getRoot().findViewById(R.id.language_option_chinese);
-        View languageEnglishOption = binding.getRoot().findViewById(R.id.language_option_english);
-        
-        if (languageChineseOption != null) {
-            languageChineseOption.setOnClickListener(v -> selectLanguage("zh"));
+        // 语言设置点击事件 - 弹出选择框
+        View languageSetting = binding.getRoot().findViewById(R.id.language_setting_layout);
+        if (languageSetting != null) {
+            updateCurrentLanguageDisplay();
+            languageSetting.setOnClickListener(v -> showLanguageSelectionDialog());
         }
-        
-        if (languageEnglishOption != null) {
-            languageEnglishOption.setOnClickListener(v -> selectLanguage("en"));
-        }
-        
-        // 初始化语言选择状态显示
-        updateLanguageSelectionDisplay();
 
         // 通知设置点击事件
         View notificationSetting = binding.getRoot().findViewById(R.id.notification_setting_layout);
@@ -112,117 +105,59 @@ public class SettingsFragment extends Fragment {
     }
     
     /**
-     * 选择语言
-     * @param languageCode 语言代码（"zh" 或 "en"）
+     * 更新当前语言显示
      */
-    private void selectLanguage(String languageCode) {
-        try {
+    private void updateCurrentLanguageDisplay() {
+        TextView tvCurrentLanguage = binding.getRoot().findViewById(R.id.tv_current_language);
+        if (tvCurrentLanguage != null) {
             String currentLanguage = LanguageManager.getUserLanguage(requireContext());
-            if (currentLanguage.equals(languageCode)) {
-                // 已经是当前语言，无需切换
-                return;
-            }
-            
-            // 保存语言设置
-            LanguageManager.saveUserLanguage(requireContext(), languageCode);
-            
-            // 更新应用语言
-            LanguageManager.applyUserLanguagePreference(requireContext());
-            
-            // 更新UI显示
-            updateLanguageSelectionDisplay();
-            
-            // 显示提示信息
-            String languageName = languageCode.equals("zh") ? 
+            String displayName = currentLanguage.equals("zh") ? 
                 getString(R.string.simplified_chinese) : getString(R.string.english);
-            showSnackbar(getString(R.string.language_changed_tip, languageName));
-            
-            // 重启应用以使语言设置生效
-            restartApp();
-        } catch (Exception e) {
-            Log.e("SettingsFragment", "Language selection failed: " + e.getMessage());
-            showSnackbar(R.string.language_change_failed);
-        }
-    }
-    
-    /**
-     * 更新语言选择状态显示
-     */
-    private void updateLanguageSelectionDisplay() {
-        String currentLanguage = LanguageManager.getUserLanguage(requireContext());
-        
-        // 获取checkmark图标的引用
-        com.google.android.material.imageview.ShapeableImageView checkChinese = 
-            binding.getRoot().findViewById(R.id.check_chinese);
-        com.google.android.material.imageview.ShapeableImageView checkEnglish = 
-            binding.getRoot().findViewById(R.id.check_english);
-        
-        // 根据当前语言更新checkmark的显示状态
-        if (checkChinese != null) {
-            checkChinese.setVisibility(currentLanguage.equals("zh") ? View.VISIBLE : View.GONE);
-        }
-        
-        if (checkEnglish != null) {
-            checkEnglish.setVisibility(currentLanguage.equals("en") ? View.VISIBLE : View.GONE);
+            tvCurrentLanguage.setText(displayName);
         }
     }
 
     private void showLanguageSelectionDialog() {
-        // 创建BottomSheetDialog进行MD3设计
-        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        // 创建MD3风格的AlertDialog
+        MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.language_settings)
+                .setSingleChoiceItems(new String[]{getString(R.string.simplified_chinese), getString(R.string.english)},
+                        LanguageManager.getUserLanguage(requireContext()).equals("zh") ? 0 : 1,
+                        (dialog, which) -> {
+                            String[] languageCodes = {"zh", "en"};
+                            String selectedLanguageCode = languageCodes[which];
+                            String[] languages = {getString(R.string.simplified_chinese), getString(R.string.english)};
+                            
+                            try {
+                                String currentLang = LanguageManager.getUserLanguage(requireContext());
+                                if (currentLang.equals(selectedLanguageCode)) {
+                                    dialog.dismiss();
+                                    return;
+                                }
+                                
+                                // 保存语言设置
+                                LanguageManager.saveUserLanguage(requireContext(), selectedLanguageCode);
+                                
+                                // 更新应用语言
+                                LanguageManager.applyUserLanguagePreference(requireContext());
+                                
+                                // 更新UI显示
+                                updateCurrentLanguageDisplay();
+                                
+                                // 显示提示信息
+                                showSnackbar(getString(R.string.language_changed_tip, languages[which]));
+                                
+                                // 重启应用以使语言设置生效
+                                dialog.dismiss();
+                                restartApp();
+                            } catch (Exception e) {
+                                Log.e("SettingsFragment", "Language selection failed: " + e.getMessage());
+                                showSnackbar(R.string.language_change_failed);
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, null);
         
-        // 创建自定义布局
-        LinearLayout container = new LinearLayout(requireContext());
-        container.setOrientation(LinearLayout.VERTICAL);
-        container.setPadding(24, 32, 24, 24);
-        
-        // 标题
-        TextView titleView = new TextView(requireContext());
-        titleView.setText(R.string.language_settings);
-        titleView.setTextSize(20);
-        titleView.setTypeface(null, android.graphics.Typeface.BOLD);
-        titleView.setTextColor(requireContext().getColor(android.R.color.black));
-        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        titleParams.bottomMargin = 24;
-        container.addView(titleView, titleParams);
-        
-        // RadioGroup for language selection
-        RadioGroup radioGroup = new RadioGroup(requireContext());
-        radioGroup.setOrientation(LinearLayout.VERTICAL);
-        
-        // 获取当前选择的语言
-        String currentLanguage = LanguageManager.getUserLanguage(requireContext());
-        String[] languages = {getString(R.string.simplified_chinese), getString(R.string.english)};
-        String[] languageCodes = {"zh", "en"};
-        
-        for (int i = 0; i < languages.length; i++) {
-            MaterialRadioButton radioButton = new MaterialRadioButton(requireContext());
-            radioButton.setText(languages[i]);
-            radioButton.setId(i);
-            radioButton.setChecked(languageCodes[i].equals(currentLanguage));
-            radioButton.setTextSize(16);
-            
-            LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            buttonParams.bottomMargin = 12;
-            radioGroup.addView(radioButton, buttonParams);
-        }
-        
-        container.addView(radioGroup);
-        
-        dialog.setContentView(container);
-        
-        // 处理选择变化
-        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            String selectedLanguageCode = languageCodes[checkedId];
-            selectLanguage(selectedLanguageCode);
-            dialog.dismiss();
-        });
-        
-        dialog.show();
+        alertBuilder.show();
     }
 
     private void changeLanguage(String languageCode) {
@@ -234,7 +169,7 @@ public class SettingsFragment extends Fragment {
             LanguageManager.applyUserLanguagePreference(requireContext());
             
             // 更新界面上显示的语言
-            updateLanguageSelectionDisplay();
+            updateCurrentLanguageDisplay();
             
             // 重启应用以使语言设置生效
             restartApp();
@@ -269,11 +204,6 @@ public class SettingsFragment extends Fragment {
         }
     }
     
-    private void updateCurrentLanguageDisplay() {
-        // 已在updateLanguageSelectionDisplay()中实现
-        updateLanguageSelectionDisplay();
-    }
-
     private void showSnackbar(int stringResId) {
         if (getActivity() != null && binding.getRoot() != null) {
             Snackbar.make(binding.getRoot(), stringResId, Snackbar.LENGTH_SHORT).show();

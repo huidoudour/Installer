@@ -43,9 +43,9 @@
     <string name="background_display_enabled">Background display enabled, the app will appear in the recent tasks list (takes effect after restarting the app)</string>
     <string name="background_display_disabled">Background display disabled, the app will not appear in the recent tasks list (takes effect after restarting the app)</string>
     <string name="setting_change_failed">Setting change failed, please restart the app manually</string>
-    <string name="text1">You protect the world, I protect you.</string>
+    <string name="text1">你保护世界，我保护你</string>
     <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
-    <string name="find_me">ωmeω</string>
+    <string name="find_me">ω寻找我ω</string>
     
     <!-- 引用的字符串 -->
     <string name="shell_hint">Enter command...</string>
