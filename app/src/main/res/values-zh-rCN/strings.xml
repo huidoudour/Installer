@@ -55,7 +55,6 @@
     <string name="process_external_install_uri_failed">处理外部安装URI失败: %s</string>
     <string name="cannot_process_install_file">无法处理该安装文件</string>
     <string name="received_install_uri_from_home">接收到HomeActivity传递的安装URI: %s</string>
-    <string name="detected_file_type_apk_count">检测到 %s，包含 %d 个 APK 文件</string>
     <string name="processed_home_install_request">已处理HomeActivity传递的安装请求，文件已复制到 cache: %s</string>
     <string name="process_home_install_uri_failed">处理HomeActivity传递的安装URI失败: %s</string>
     <string name="log_cleared">日志已清空</string>

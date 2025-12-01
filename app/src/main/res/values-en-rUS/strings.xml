@@ -267,7 +267,6 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="process_external_install_uri_failed">Failed to process external installation URI: %s</string>
     <string name="cannot_process_install_file">Cannot process this installation file</string>
     <string name="received_install_uri_from_home">Received installation URI from HomeActivity: %s</string>
-    <string name="detected_file_type_apk_count">Detected %s, containing %d APK files</string>
     <string name="processed_home_install_request">Processed installation request from HomeActivity, file copied to cache: %s</string>
     <string name="process_home_install_uri_failed">Failed to process installation URI from HomeActivity: %s</string>
     <string name="log_cleared">Log cleared</string>
