@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MD3 警告状态指示器 - 橙色圆形 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/md3_warning" />
+    <size
+        android:width="12dp"
+        android:height="12dp" />
+</shape>

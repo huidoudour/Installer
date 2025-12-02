@@ -1,5 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ============ MD3 亮色调色板 - 符合Material Design 3规范 ============ -->
+    
+    <!-- 主色系 (Purple) -->
+    <color name="md3_primary">#FF6750A4</color>
+    <color name="md3_on_primary">#FFFFFFFF</color>
+    <color name="md3_primary_container">#FFEADDFF</color>
+    <color name="md3_on_primary_container">#FF21005E</color>
+    
+    <!-- 次要色系 (Purple) -->
+    <color name="md3_secondary">#FF625B71</color>
+    <color name="md3_on_secondary">#FFFFFFFF</color>
+    <color name="md3_secondary_container">#FFE8DEF8</color>
+    <color name="md3_on_secondary_container">#FF1D192B</color>
+    
+    <!-- 第三色系 (Pink) -->
+    <color name="md3_tertiary">#FF7D5260</color>
+    <color name="md3_on_tertiary">#FFFFFFFF</color>
+    <color name="md3_tertiary_container">#FFFFD8E4</color>
+    <color name="md3_on_tertiary_container">#FF31111D</color>
+    
+    <!-- 表面色系 -->
+    <color name="md3_background">#FFFBF8F7</color>
+    <color name="md3_on_background">#FF1C1B1F</color>
+    <color name="md3_surface">#FFFBF8F7</color>
+    <color name="md3_on_surface">#FF1C1B1F</color>
+    <color name="md3_surface_variant">#FFEDE7F6</color>
+    <color name="md3_on_surface_variant">#FF49454E</color>
+    
+    <!-- 表面容器 (分层) -->
+    <color name="md3_surface_container_lowest">#FFFFFFFF</color>
+    <color name="md3_surface_container_low">#FFF7F2FC</color>
+    <color name="md3_surface_container">#FFF3EDF7</color>
+    <color name="md3_surface_container_high">#FFECE6F0</color>
+    <color name="md3_surface_container_highest">#FFE6E0E9</color>
+    
+    <!-- 轮廓 -->
+    <color name="md3_outline">#FF79747E</color>
+    <color name="md3_outline_variant">#FFCAC4D0</color>
+    
+    <!-- 错误色系 -->
+    <color name="md3_error">#FFB3261E</color>
+    <color name="md3_on_error">#FFFFFFFF</color>
+    <color name="md3_error_container">#FFF9DEDC</color>
+    <color name="md3_on_error_container">#FF410E0B</color>
+    
+    <!-- 亮度变体 (固定颜色) -->
+    <color name="md3_primary_fixed">#FFEADDFF</color>
+    <color name="md3_primary_fixed_dim">#FFD0BCFF</color>
+    <color name="md3_on_primary_fixed">#FF381E72</color>
+    <color name="md3_on_primary_fixed_variant">#FF6750A4</color>
+    
+    <color name="md3_secondary_fixed">#FFE8DEF8</color>
+    <color name="md3_secondary_fixed_dim">#FFCCC7DB</color>
+    <color name="md3_on_secondary_fixed">#FF332D41</color>
+    <color name="md3_on_secondary_fixed_variant">#FF625B71</color>
+    
+    <color name="md3_tertiary_fixed">#FFFFD8E4</color>
+    <color name="md3_tertiary_fixed_dim">#FFEFB8E1</color>
+    <color name="md3_on_tertiary_fixed">#FF492532</color>
+    <color name="md3_on_tertiary_fixed_variant">#FF7D5260</color>
+    
+    <!-- 逆向色系 -->
+    <color name="md3_primary_inverse">#FFD0BCFF</color>
+    <color name="md3_inverse_surface">#FF1C1B1F</color>
+    <color name="md3_inverse_on_surface">#FFF5EEF7</color>
+    
+    <!-- 功能色 -->
+    <color name="md3_success">#FF4CAF50</color>
+    <color name="md3_on_success">#FFFFFFFF</color>
+    <color name="md3_success_container">#FFC8E6C9</color>
+    <color name="md3_on_success_container">#FF1B5E20</color>
+    
+    <color name="md3_warning">#FFFF9800</color>
+    <color name="md3_on_warning">#FFFFFFFF</color>
+    <color name="md3_warning_container">#FFFFE0B2</color>
+    <color name="md3_on_warning_container">#FFE65100</color>
+    
+    <!-- 传统颜色 (保留兼容性) -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -7,13 +85,35 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="light_pink">#FFFFB6C1</color> <!-- 淡粉色 -->
-    <color name="light_pink_dark">#FF9A8A8D</color> <!-- 淡粉色深色变体 -->
-    <!-- 或者使用其他淡粉色 -->
-    <color name="light_pink2">#FFE4E1</color> <!-- 更淡的粉色 -->
-    <color name="light_pink3">#FFDAB9</color> <!-- 桃粉色 -->
     
-    <!-- 自定义按钮颜色 -->
+    <!-- 自定义功能色 -->
+    <color name="success_green">#FF4CAF50</color>
+    <color name="success_green_light">#FF81C784</color>
+    <color name="success_green_dark">#FF388E3C</color>
+    
+    <color name="warning_orange">#FFFF9800</color>
+    <color name="warning_orange_light">#FFFFB74D</color>
+    <color name="warning_orange_dark">#FFF57C00</color>
+    
+    <color name="danger_red">#FFF44336</color>
+    <color name="danger_red_light">#FFEF9A9A</color>
+    <color name="danger_red_dark">#FFD32F2F</color>
+    
+    <color name="primary_blue">#FF2196F3</color>
+    <color name="primary_blue_light">#FF64B5F6</color>
+    <color name="primary_blue_dark">#FF1976D2</color>
+    
+    <!-- 灰度 -->
+    <color name="grey_400">#FFBDBDBD</color>
+    <color name="grey_600">#FF757575</color>
+    
+    <!-- 粉色 (保持 activity_me 的粉色风格，不允许更改) -->
+    <color name="light_pink">#FFFFB6C1</color>
+    <color name="light_pink_dark">#FF9A8A8D</color>
+    <color name="light_pink2">#FFE4E1</color>
+    <color name="light_pink3">#FFDAB9</color>
+    
+    <!-- 按钮颜色 -->
     <color name="button_primary">#FF2196F3</color>
     <color name="button_primary_dark">#FF1976D2</color>
     <color name="button_secondary">#FF4CAF50</color>
@@ -22,29 +122,4 @@
     <color name="button_accent_dark">#FFF57C00</color>
     <color name="button_install">#FF009688</color>
     <color name="button_install_dark">#FF00796B</color>
-    
-    <!-- 按钮样式设计指南颜色方案 -->
-    <!-- 成功/确认按钮 -->
-    <color name="success_green">#FF4CAF50</color> <!-- Material Green 500 -->
-    <color name="success_green_light">#FF81C784</color> <!-- Material Green 300 -->
-    <color name="success_green_dark">#FF388E3C</color> <!-- Material Green 700 -->
-    
-    <!-- 警告/注意按钮 -->
-    <color name="warning_orange">#FFFF9800</color> <!-- Material Orange 500 -->
-    <color name="warning_orange_light">#FFFFB74D</color> <!-- Material Orange 300 -->
-    <color name="warning_orange_dark">#FFF57C00</color> <!-- Material Orange 700 -->
-    
-    <!-- 危险/取消按钮 -->
-    <color name="danger_red">#FFF44336</color> <!-- Material Red 500 -->
-    <color name="danger_red_light">#FFEF9A9A</color> <!-- Material Red 200 -->
-    <color name="danger_red_dark">#FFD32F2F</color> <!-- Material Red 700 -->
-    
-    <!-- 主要/主要操作按钮 -->
-    <color name="primary_blue">#FF2196F3</color> <!-- Material Blue 500 -->
-    <color name="primary_blue_light">#FF64B5F6</color> <!-- Material Blue 300 -->
-    <color name="primary_blue_dark">#FF1976D2</color> <!-- Material Blue 700 -->
-    
-    <!-- 中性色 -->
-    <color name="grey_400">#FFBDBDBD</color> <!-- Material Grey 400 -->
-    <color name="grey_600">#FF757575</color> <!-- Material Grey 600 -->
 </resources>

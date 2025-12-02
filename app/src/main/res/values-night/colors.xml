@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- MD3 深色调色板 - 符合Material Design 3规范 -->
+    
+    <!-- 主色系 (Purple) -->
+    <color name="md3_primary">#FFD0BCFF</color>
+    <color name="md3_on_primary">#FF381E72</color>
+    <color name="md3_primary_container">#FF4F378B</color>
+    <color name="md3_on_primary_container">#FFEADDFF</color>
+    
+    <!-- 次要色系 (Purple) -->
+    <color name="md3_secondary">#FFCCC7DB</color>
+    <color name="md3_on_secondary">#FF332D41</color>
+    <color name="md3_secondary_container">#FF4A4458</color>
+    <color name="md3_on_secondary_container">#FFE8DEF8</color>
+    
+    <!-- 第三色系 (Pink) -->
+    <color name="md3_tertiary">#FFEFB8E1</color>
+    <color name="md3_on_tertiary">#FF492532</color>
+    <color name="md3_tertiary_container">#FF633B48</color>
+    <color name="md3_on_tertiary_container">#FFFFD8E4</color>
+    
+    <!-- 表面色系 -->
+    <color name="md3_background">#FF1C1B1F</color>
+    <color name="md3_on_background">#FFE6E1E6</color>
+    <color name="md3_surface">#FF1C1B1F</color>
+    <color name="md3_on_surface">#FFE6E1E6</color>
+    <color name="md3_surface_variant">#FF49454E</color>
+    <color name="md3_on_surface_variant">#FFCAC4D0</color>
+    
+    <!-- 表面容器 (分层) -->
+    <color name="md3_surface_container_lowest">#FF0F0E12</color>
+    <color name="md3_surface_container_low">#FF1D1B20</color>
+    <color name="md3_surface_container">#FF221F26</color>
+    <color name="md3_surface_container_high">#FF2D2A31</color>
+    <color name="md3_surface_container_highest">#FF38353C</color>
+    
+    <!-- 轮廓 -->
+    <color name="md3_outline">#FF938F99</color>
+    <color name="md3_outline_variant">#FF49454E</color>
+    
+    <!-- 错误色系 -->
+    <color name="md3_error">#FFFF7961</color>
+    <color name="md3_on_error">#FF601410</color>
+    <color name="md3_error_container">#FF8C1D18</color>
+    <color name="md3_on_error_container">#FFF9DEDC</color>
+    
+    <!-- 亮度变体 (固定颜色) -->
+    <color name="md3_primary_fixed">#FFEADDFF</color>
+    <color name="md3_primary_fixed_dim">#FFD0BCFF</color>
+    <color name="md3_on_primary_fixed">#FF381E72</color>
+    <color name="md3_on_primary_fixed_variant">#FF6750A4</color>
+    
+    <color name="md3_secondary_fixed">#FFE8DEF8</color>
+    <color name="md3_secondary_fixed_dim">#FFCCC7DB</color>
+    <color name="md3_on_secondary_fixed">#FF332D41</color>
+    <color name="md3_on_secondary_fixed_variant">#FF625B71</color>
+    
+    <color name="md3_tertiary_fixed">#FFFFD8E4</color>
+    <color name="md3_tertiary_fixed_dim">#FFEFB8E1</color>
+    <color name="md3_on_tertiary_fixed">#FF492532</color>
+    <color name="md3_on_tertiary_fixed_variant">#FF7D5260</color>
+    
+    <!-- 逆向色系 -->
+    <color name="md3_primary_inverse">#FF6750A4</color>
+    <color name="md3_inverse_surface">#FFE6E1E6</color>
+    <color name="md3_inverse_on_surface">#FF1C1B1F</color>
+    
+    <!-- 功能色 -->
+    <color name="md3_success">#FF81C784</color>
+    <color name="md3_on_success">#FF1B5E20</color>
+    <color name="md3_success_container">#FF2E7D32</color>
+    <color name="md3_on_success_container">#FFC8E6C9</color>
+    
+    <color name="md3_warning">#FFFFB74D</color>
+    <color name="md3_on_warning">#FFE65100</color>
+    <color name="md3_warning_container">#FFFF6F00</color>
+    <color name="md3_on_warning_container">#FFFFD54F</color>
+    
+    <!-- 传统颜色 (保留兼容性) -->
+    <color name="purple_200">#FFB39DDB</color>
+    <color name="purple_500">#FF7C4DFF</color>
+    <color name="purple_700">#FF512DA8</color>
+    <color name="teal_200">#FF80DEEA</color>
+    <color name="teal_700">#FF00838F</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- 自定义功能色 (深色模式调整) -->
+    <color name="success_green">#FF81C784</color>
+    <color name="success_green_light">#FFA5D6A7</color>
+    <color name="success_green_dark">#FF2E7D32</color>
+    
+    <color name="warning_orange">#FFFFB74D</color>
+    <color name="warning_orange_light">#FFFFE0B2</color>
+    <color name="warning_orange_dark">#FFFF6F00</color>
+    
+    <color name="danger_red">#FFFF7961</color>
+    <color name="danger_red_light">#FFEF9A9A</color>
+    <color name="danger_red_dark">#FFC62828</color>
+    
+    <color name="primary_blue">#FF64B5F6</color>
+    <color name="primary_blue_light">#FF90CAF9</color>
+    <color name="primary_blue_dark">#FF1976D2</color>
+    
+    <!-- 灰度 -->
+    <color name="grey_400">#FFBDBDBD</color>
+    <color name="grey_600">#FF757575</color>
+    
+    <!-- 粉色 (保持 activity_me 的粉色) -->
+    <color name="light_pink">#FFE91E63</color>
+    <color name="light_pink_dark">#FFC2185B</color>
+    <color name="light_pink2">#FFF48FB1</color>
+    <color name="light_pink3">#FFE1BEE7</color>
+    
+    <!-- 按钮颜色 -->
+    <color name="button_primary">#FF64B5F6</color>
+    <color name="button_primary_dark">#FF1976D2</color>
+    <color name="button_secondary">#FF81C784</color>
+    <color name="button_secondary_dark">#FF2E7D32</color>
+    <color name="button_accent">#FFFFB74D</color>
+    <color name="button_accent_dark">#FFFF6F00</color>
+    <color name="button_install">#FF4DB6AC</color>
+    <color name="button_install_dark">#FF00796B</color>
+</resources>

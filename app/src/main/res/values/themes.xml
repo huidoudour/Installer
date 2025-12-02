@@ -1,5 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- ============ 基础应用主题 ============ -->
+    
+    <!-- 基础主题 - 继承自 Material Design 3 -->
     <style name="Base.Theme.Installer" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- 启用动态颜色（壁纸取色） -->
         <item name="android:navigationBarColor">@android:color/transparent</item>
@@ -10,15 +12,28 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fitsSystemWindows">true</item>
         
+        <!-- 启用边到边设计 -->
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="p">shortEdges</item>
+        
         <!-- Material Design 3 组件样式 -->
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
         <item name="materialButtonStyle">@style/Widget.Material3.Button.ElevatedButton</item>
-        <item name="switchStyle">@style/Widget.Material3.CompoundButton.MaterialSwitch</item>
+        <item name="switchStyle">@style/MD3.Switch</item>
+        <item name="materialSwitchStyle">@style/MD3.Switch</item>
+        
+        <!-- 对话框主题 (依赖AndroidX默认应用) -->
+        <item name="android:alertDialogTheme">@style/Theme.Material3.DayNight</item>
+        
+        <!-- 文本输入框风格 -->
+        <item name="textInputStyle">@style/Widget.Material3.TextInputLayout.FilledBox</item>
     </style>
 
+    <!-- 应用主题 -->
     <style name="Theme.Installer" parent="Base.Theme.Installer" />
     
-    <!-- 安装Activity的Dialog主题 -->
+    <!-- ============ 特殊场景主题 ============ -->
+    
+    <!-- 安装Activity的对话框主题 -->
     <style name="Theme.Installer.Dialog" parent="Theme.Material3.DayNight.Dialog">
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -33,8 +48,27 @@
         <!-- 设置对话框布局 -->
         <item name="android:windowCloseOnTouchOutside">false</item>
         <item name="android:windowSoftInputMode">adjustPan</item>
-        <!-- 添加AppCompat兼容性配置 -->
+        <!-- AppCompat兼容性配置 -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    
+    <!-- ============ MD3 组件覆盖主题 ============ -->
+    
+    <!-- 亮色主题覆盖 -->
+    <style name="ThemeOverlay.Installer.Light" parent="ThemeOverlay.Material3.Light">
+        <item name="colorPrimary">@color/md3_primary</item>
+        <item name="colorOnPrimary">@color/md3_on_primary</item>
+        <item name="colorPrimaryContainer">@color/md3_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/md3_on_primary_container</item>
+    </style>
+    
+    <!-- 深色主题覆盖 -->
+    <style name="ThemeOverlay.Installer.Dark" parent="ThemeOverlay.Material3.Dark">
+        <item name="colorPrimary">@color/md3_primary</item>
+        <item name="colorOnPrimary">@color/md3_on_primary</item>
+        <item name="colorPrimaryContainer">@color/md3_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/md3_on_primary_container</item>
+    </style>
+    
 </resources>
