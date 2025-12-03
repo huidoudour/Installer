@@ -17,6 +17,19 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
         // 启用NDK - 配置C++共享库编译
+        externalNativeBuild {
+            cmake {
+                // 指定支持的架构
+                abiFilters("arm64-v8a", "x86_64")
+                // C++ 编译参数
+                cppFlags += listOf("-std=c++17")
+                // 添加 16KB 页面对齐支持
+                arguments += listOf(
+                    "-DANDROID_STL=c++_shared",
+                    "-DCMAKE_VERBOSE_MAKEFILE=ON"
+                )
+            }
+        }
         
         
         // === 完整的 16KB 页面大小支持配置 ===
@@ -58,6 +71,14 @@ android {
     // 限定 APK 仅包含 arm64-v8a 与 x86_64 架构
     buildFeatures {
         viewBinding = true
+    }
+    
+    // 配置 CMake
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
     
     splits {

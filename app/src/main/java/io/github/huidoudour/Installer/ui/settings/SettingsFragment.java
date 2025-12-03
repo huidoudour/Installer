@@ -24,6 +24,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import io.github.huidoudour.Installer.ui.activity.HomeActivity;
 import io.github.huidoudour.Installer.ui.activity.MeActivity;
+import io.github.huidoudour.Installer.NativeTestActivity;
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
 import io.github.huidoudour.Installer.utils.LanguageManager;
@@ -44,6 +45,7 @@ public class SettingsFragment extends Fragment {
         sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE);
 
         setupAboutButton();
+        setupNativeTestButton();
         setupSettingsItems();
 
         return root;
@@ -58,6 +60,21 @@ public class SettingsFragment extends Fragment {
             if (getActivity() != null) {
                 getActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
+        });
+    }
+    
+    /**
+     * 设置原生库测试按钮
+     */
+    private void setupNativeTestButton() {
+        // 查找开发者选项或调试区域
+        // 你可以在设置界面的XML布局中添加一个隐藏按钮,或者直接在这里创建
+        // 临时方案: 长按"关于"按钮进入测试页面
+        binding.btnAbout.setOnLongClickListener(v -> {
+            Intent intent = new Intent(getActivity(), NativeTestActivity.class);
+            startActivity(intent);
+            showSnackbar("已打开原生库测试界面");
+            return true; // 消费长按事件
         });
     }
 

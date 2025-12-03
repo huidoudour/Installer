@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import com.github.luben.zstd.ZstdInputStream;
 
 /**
  * XAPK/APKS 安装工具类
@@ -53,7 +54,11 @@ public class XapkInstaller {
         try {
             Log.d(TAG, context.getString(R.string.opening_zip_file_log));
             fis = new FileInputStream(xapkPath);
-            zis = new ZipInputStream(fis);
+            InputStream zipSource = fis;
+            if (xapkPath.toLowerCase().endsWith(".zst") || xapkPath.toLowerCase().endsWith(".xapk.zst") || xapkPath.toLowerCase().endsWith(".apks.zst")) {
+                zipSource = new ZstdInputStream(fis);
+            }
+            zis = new ZipInputStream(zipSource);
             Log.d(TAG, context.getString(R.string.zip_file_opened_log));
             
             int totalEntries = 0;
@@ -162,7 +167,10 @@ public class XapkInstaller {
         String lowerPath = filePath.toLowerCase();
         return lowerPath.endsWith(".xapk") || 
                lowerPath.endsWith(".apks") || 
-               lowerPath.endsWith(".apkm");
+               lowerPath.endsWith(".apkm") ||
+               lowerPath.endsWith(".xapk.zst") ||
+               lowerPath.endsWith(".apks.zst") ||
+               lowerPath.endsWith(".zst");
     }
     
     /**
@@ -215,7 +223,11 @@ public class XapkInstaller {
         
         try {
             fis = new FileInputStream(xapkPath);
-            zis = new ZipInputStream(fis);
+            InputStream zipSource = fis;
+            if (xapkPath.toLowerCase().endsWith(".zst") || xapkPath.toLowerCase().endsWith(".xapk.zst") || xapkPath.toLowerCase().endsWith(".apks.zst")) {
+                zipSource = new ZstdInputStream(fis);
+            }
+            zis = new ZipInputStream(zipSource);
             
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {

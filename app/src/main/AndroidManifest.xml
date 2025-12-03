@@ -80,6 +80,13 @@
             android:exported="true"
             android:theme="@style/Theme.Installer" />
         
+        <!-- 原生库测试 Activity -->
+        <activity
+            android:name=".NativeTestActivity"
+            android:exported="false"
+            android:label="C++ 原生库测试"
+            android:theme="@style/Theme.Installer" />
+        
         <!-- Shizuku provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
