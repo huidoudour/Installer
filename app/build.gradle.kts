@@ -17,31 +17,13 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
         // 启用NDK - 配置C++共享库编译
-        ndk {
-            // 支持的CPU架构
-            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
-        }
         
-        // CMake配置
-        externalNativeBuild {
-            cmake {
-                cppFlags += "-std=c++17"
-                arguments += listOf(
-                    "-DANDROID_STL=c++_shared",
-                    // 启用 16KB 页面对齐支持 (Android 15+兼容性)
-                    "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
-                )
-            }
-        }
         
         // === 完整的 16KB 页面大小支持配置 ===
         // 确保整个 APK 在 16KB 页面大小的设备上正常运行 (Android 15+)
         packaging {
             jniLibs {
-                // 保持原生库的调试符号
-                keepDebugSymbols += "**/*.so"
-                // 启用原生库解压优化 (对齐支持)
-                useLegacyPackaging = false
+                // 删除未使用的原生库调试符号配置
             }
             // 配置资源压缩选项
             resources {
@@ -73,11 +55,19 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    // 限定 APK 仅包含 arm64-v8a 与 x86_64 架构
     buildFeatures {
         viewBinding = true
     }
     
-    // Lint 配置 - 避免非关键警告阻塞 CI
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "x86_64")
+            isUniversalApk = true
+        }
+    }
     lint {
         // 将警告视为警告,不要作为错误
         warningsAsErrors = false
@@ -108,13 +98,6 @@ android {
         )
     }
     
-    // 配置外部原生构建（C++ CMake）
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
 }
 
 dependencies {
@@ -130,25 +113,6 @@ dependencies {
     // Shizuku dependencies
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
-    
-    // === 原生库功能依赖 (.so 文件) - 已更新到支持 16KB 的版本 ===
-    
-    // 1. 高性能加密库 (包含原生 .so 库，用于文件哈希计算)
-    // 注意: conscrypt 2.5.2 可能不支持 16KB，但 2.5.3+ 已支持
-    implementation("org.conscrypt:conscrypt-android:2.5.3")
-    
-    // 2. Apache Commons Compress (包含原生压缩库，支持 ZIP/XAPK 解压)
-    // 注意: commons-compress 是纯 Java库，不包含 .so 文件
-    implementation("org.apache.commons:commons-compress:1.28.0")
-    
-    // 3. APK 签名验证库 (包含原生库)
-    // 注意: apksig 是纯 Java库，不包含 .so 文件
-    implementation("com.android.tools.build:apksig:8.7.3")
-    
-    // 4. RecyclerView (用于显示 APK 分析结果列表)
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    
-    // 注意: Shell 终端功能使用 Shizuku 的原生能力，不需要额外的终端库
     
     // Kotlin support
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")

@@ -238,7 +238,7 @@
     <string name="install_stdout">Install (stdout): %s</string>
     <string name="install_stderr">Install (stderr): %s</string>
     <string name="read_install_output_error">读取安装进程输出出错喵: %s</string>
-    <string name="install_success_log">安装成功喵: %s 输出: %s</string>
+    <string name="install_success_log" formatted="false">安装成功喵: %s 输出: %s</string>
     <string name="install_success">✅ 安装成功！</string>
     <string name="install_failed_log">安装失败喵。Exit code: %d\nOutput: %s\nError: %s</string>
     <string name="install_failed_check_log">安装失败，查看日志喵。</string>
@@ -327,5 +327,31 @@
     <string name="shizuku_not_connected_install">Shizuku 未连接或未授权，无法通过 Shizuku 安装喵.</string>
     <string name="check_shizuku_status_failed">检查 Shizuku 状态失败喵: %s</string>
     <string name="copying_file_to_temp">正在复制文件到系统临时目录: %s</string>
-    <string name="detected_file_type_apk_count">检测到 %s，包含 %d 个 APK 文件</string>
+    <string name="detected_file_type_apk_count" formatted="false">检测到 %s，包含 %d 个 APK 文件</string>
+    <string name="need_file_access_permission_select_apk">需要文件访问权限以选择 APK。</string>
+    <string name="please_select_install_file_miao">请先选择安装包文件喵.</string>
+    <string name="install_process_end">=== 安装流程结束 ===</string>
+    <string name="quick_path_title">📁 Quick Path</string>
+    <string name="quick_path_root">Root (/)</string>
+    <string name="quick_path_sdcard">SD卡 (/sdcard/)</string>
+    <string name="quick_path_download">Download (/sdcard/Download/)</string>
+    <string name="quick_path_tmp">Tmp (/data/local/tmp/)</string>
+    <string name="quick_path_app_data">App Data (/data/data/)</string>
+    <string name="quick_path_system">System (/system/)</string>
+    <string name="quick_path_system_bin">System Bin (/system/bin/)</string>
+    <string name="quick_path_home">Home (~/)</string>
+    <string name="welcome_shell_title">Welcome to aShell You - Style Terminal</string>
+    <string name="welcome_shell_subtitle">Android Shell Environment v2.0</string>
+    <string name="root_mode_enabled_via_shizuku">[*] Root mode enabled via Shizuku</string>
+    <string name="working_directory_tmp">[*] Working directory: /data/local/tmp</string>
+    <string name="user_mode_tip">[!] User mode (grant Shizuku for root)</string>
+    <string name="working_directory_sdcard">[*] Working directory: /sdcard</string>
+    <string name="type_help_for_command_list">输入 help 获取命令列表</string>
+    <string name="command_running">Command running...</string>
+    <string name="root_prompt">root@ashell:~#</string>
+    <string name="user_prompt">user@ashell:~$</string>
+    <string name="command_cancelled_session_reset">[Command cancelled, session reset]</string>
+    <string name="process_completed_with_exit_code">[Process completed with exit code %d]</string>
+    <string name="hash_sign">#</string>
+    <string name="user">user</string>
 </resources>

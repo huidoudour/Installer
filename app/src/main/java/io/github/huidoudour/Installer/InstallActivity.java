@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import io.github.huidoudour.Installer.utils.ApkAnalyzer;
+
 import io.github.huidoudour.Installer.utils.LanguageManager;
 import io.github.huidoudour.Installer.utils.XapkInstaller;
 import io.github.huidoudour.Installer.utils.ShizukuInstallHelper;
@@ -131,64 +131,36 @@ public class InstallActivity extends AppCompatActivity {
     
     private void displayInstallInfo() {
         try {
-            // 文件基本信息
-            String fileSize = ApkAnalyzer.getFileSize(filePath);
-            tvFileSize.setText(fileSize != null ? fileSize : getString(R.string.unknown));
-            
+            // 不进行APK分析，直接显示基础信息
+            tvFileSize.setText(getString(R.string.unknown));
             if (!isXapkFile) {
-                // 单个APK文件信息
-                String packageName = ApkAnalyzer.getPackageName(this, filePath);
-                String versionInfo = ApkAnalyzer.getVersionInfo(this, filePath);
-                
-                tvPackageName.setText(packageName != null ? packageName : getString(R.string.unknown));
-                tvVersion.setText(versionInfo != null ? versionInfo : getString(R.string.unknown));
-                
-                // 尝试获取应用名称（使用包名作为应用名称）
-                tvAppName.setText(packageName != null ? packageName : getString(R.string.unknown_app));
-                
-                // 设置应用图标
-                setAppIcon();
+                // 单个APK：显示未知信息与默认图标
+                tvPackageName.setText(getString(R.string.unknown));
+                tvVersion.setText(getString(R.string.unknown));
+                tvAppName.setText(getString(R.string.unknown_app));
+                ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             } else {
-                // XAPK文件信息
+                // XAPK文件：保留数量统计与默认图标
                 tvAppName.setText(R.string.xapk_package);
                 tvPackageName.setText(R.string.xapk);
                 int apkCount = XapkInstaller.getApkCount(this, filePath);
                 tvVersion.setText(apkCount > 0 ? getString(R.string.apk_files_count, apkCount) : getString(R.string.unknown));
-                
-                // 设置默认图标
                 ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
-            
+
             // 显示安装信息界面
             layoutInstallInfo.setVisibility(View.VISIBLE);
             layoutProgress.setVisibility(View.GONE);
-            
+
             // 检查Shizuku状态
             checkShizukuStatus();
-            
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.display_install_info_failed), e);
             showErrorAndExit(getString(R.string.parse_file_failed));
         }
     }
     
-    private void setAppIcon() {
-        if (!isXapkFile) {
-            try {
-                // 尝试从APK文件中提取应用图标
-                android.graphics.drawable.Drawable icon = ApkAnalyzer.getAppIcon(this, filePath);
-                if (icon != null) {
-                    ivAppIcon.setImageDrawable(icon);
-                } else {
-                    // 使用默认图标
-                    ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, getString(R.string.set_app_icon_failed), e);
-                ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
-            }
-        }
-    }
+
     
     private void checkShizukuStatus() {
         boolean shizukuReady = false;

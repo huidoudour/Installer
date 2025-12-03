@@ -44,7 +44,7 @@ import java.util.Locale;
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentInstallerBinding;
 import io.github.huidoudour.Installer.utils.LogManager;
-import io.github.huidoudour.Installer.utils.ApkAnalyzer;
+
 import io.github.huidoudour.Installer.utils.XapkInstaller;
 import io.github.huidoudour.Installer.utils.ShizukuInstallHelper;
 import rikka.shizuku.Shizuku;
@@ -112,10 +112,7 @@ public class InstallerFragment extends Fragment {
 
                             log(getString(R.string.file_selected_and_cached, selectedFilePath));
 
-                            // === 使用原生库分析 APK ===
-                            if (!isXapkFile) {
-                                analyzeApk(selectedFilePath);
-                            }
+
                         } else {
                             tvSelectedFile.setText(fileName != null ? fileName : selectedFileUri.getPath());
                             log(getString(R.string.file_selected_uri_fail, selectedFileUri.toString()));
@@ -136,7 +133,7 @@ public class InstallerFragment extends Fragment {
                         openFilePicker();
                     } else {
                         log(getString(R.string.manage_storage_permission_denied));
-                        Toast.makeText(requireContext(), "需要文件访问权限以选择 APK。", Toast.LENGTH_LONG).show();
+                        Toast.makeText(requireContext(), getString(R.string.need_file_access_permission_select_apk), Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -338,32 +335,32 @@ public class InstallerFragment extends Fragment {
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         try {
             filePickerLauncher.launch(Intent.createChooser(intent, "选择安装包文件 (APK/XAPK/APKS)"));
-            log("打开文件选择器喵~...");
+            log(getString(R.string.open_file_picker));
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(requireContext(), "请安装文件管理器以选择安装包文件喵。", Toast.LENGTH_SHORT).show();
-            log("文件选择器未找到喵.");
+            Toast.makeText(requireContext(), getString(R.string.file_picker_not_found), Toast.LENGTH_SHORT).show();
+            log(getString(R.string.file_picker_not_found));
         }
     }
 
     private void requestShizukuPermission() {
-        log("尝试请求 Shizuku 权限喵~...");
+        log(getString(R.string.request_shizuku_permission));
         try {
             if (!Shizuku.pingBinder()) {
-                log("Shizuku没启动喵~。");
-                Toast.makeText(requireContext(), "Shizuku 未运行或未安装喵", Toast.LENGTH_LONG).show();
+                log(getString(R.string.shizuku_not_started));
+                Toast.makeText(requireContext(), getString(R.string.shizuku_not_running), Toast.LENGTH_LONG).show();
                 updateShizukuStatusAndUi();
                 return;
             }
             if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) {
-                log("Shizuku 版本过低或不兼容喵。");
-                Toast.makeText(requireContext(), "请升级Shizuku喵", Toast.LENGTH_LONG).show();
+                log(getString(R.string.shizuku_version_low));
+                Toast.makeText(requireContext(), getString(R.string.shizuku_version_too_low), Toast.LENGTH_LONG).show();
                 updateShizukuStatusAndUi();
                 return;
             }
             if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
                 Shizuku.requestPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
             } else {
-                log("Shizuku 已授权喵.");
+                log(getString(R.string.shizuku_authorized));
                 updateShizukuStatusAndUi();
             }
         } catch (Throwable t) {
@@ -374,8 +371,8 @@ public class InstallerFragment extends Fragment {
 
     private void installSelectedApk() {
         if (selectedFilePath == null || selectedFilePath.isEmpty()) {
-            log("未选择 APK 或路径无效喵.");
-            Toast.makeText(requireContext(), "请先选择安装包文件喵.", Toast.LENGTH_SHORT).show();
+            log(getString(R.string.apk_not_selected));
+            Toast.makeText(requireContext(), getString(R.string.please_select_install_file_miao), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -395,7 +392,7 @@ public class InstallerFragment extends Fragment {
 
         btnInstall.setEnabled(false);
         log("");
-        log("=== 开始安装流程 ===");
+        log(getString(R.string.start_apk_install));
 
         // === 根据文件类型选择安装方式 ===
         if (isXapkFile) {
@@ -416,7 +413,7 @@ public class InstallerFragment extends Fragment {
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 log(message);
-                                log("=== 安装流程结束 ===");
+                                log(getString(R.string.install_process_end));
                                 Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
                                 clearSelection();
                                 btnInstall.setEnabled(true);
@@ -430,7 +427,7 @@ public class InstallerFragment extends Fragment {
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 log("❌ " + error);
-                                log("=== 安装流程结束 ===");
+                                log(getString(R.string.install_process_end));
                                 Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
                                 btnInstall.setEnabled(true);
                                 updateInstallButtonState();
@@ -457,7 +454,7 @@ public class InstallerFragment extends Fragment {
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 log(message);
-                                log("=== 安装流程结束 ===");
+                                log(getString(R.string.install_process_end));
                                 Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
                                 clearSelection();
                                 btnInstall.setEnabled(true);
@@ -471,7 +468,7 @@ public class InstallerFragment extends Fragment {
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
                                 log("❌ " + error);
-                                log("=== 安裈流程结束 ===");
+                                log(getString(R.string.install_process_end));
                                 Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
                                 btnInstall.setEnabled(true);
                                 updateInstallButtonState();
@@ -574,67 +571,7 @@ public class InstallerFragment extends Fragment {
         btnInstall.setEnabled(shizukuReady && fileSelected);
     }
 
-    /**
-     * 使用原生库分析 APK 文件
-     * 这里使用了多个包含 .so 文件的库：
-     * - java.security (MessageDigest - 原生加密库)
-     * - conscrypt (高性能加密)
-     * - apksig (签名验证)
-     */
-    private void analyzeApk(String apkPath) {
-        log("");
-        log("=== 开始分析 APK （使用原生库）===");
-        
-        new Thread(() -> {
-            try {
-                // 1. 文件基本信息
-                String fileSize = ApkAnalyzer.getFileSize(apkPath);
-                log("📁 文件大小: " + fileSize);
-                
-                // 2. APK 包名和版本
-                String packageName = ApkAnalyzer.getPackageName(requireContext(), apkPath);
-                if (packageName != null) {
-                    log("📦 包名: " + packageName);
-                }
-                
-                String versionInfo = ApkAnalyzer.getVersionInfo(requireContext(), apkPath);
-                if (versionInfo != null) {
-                    log("🔢 版本: " + versionInfo);
-                }
-                
-                // 3. 文件哈希值（使用 MessageDigest 原生库）
-                log("");
-                log("🔐 正在计算哈希值（使用原生加密库）...");
-                
-                String md5 = ApkAnalyzer.calculateMD5(apkPath);
-                if (md5 != null) {
-                    log("   MD5: " + md5);
-                }
-                
-                String sha256 = ApkAnalyzer.calculateSHA256(apkPath);
-                if (sha256 != null) {
-                    log("   SHA-256: " + sha256);
-                }
-                
-                // 4. 签名信息（使用 CertificateFactory 原生库）
-                log("");
-                log("✒️ 签名信息：");
-                java.util.List<String> sigInfo = ApkAnalyzer.getSignatureInfo(requireContext(), apkPath);
-                for (String info : sigInfo) {
-                    log("   " + info);
-                }
-                
-                log("");
-                log("✅ APK 分析完成！");
-                log("=== 分析结束 ===");
-                log("");
-                
-            } catch (Exception e) {
-                log("❌ APK 分析失败: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }).start();
-    }
+
 
     @Override
     public void onResume() {
@@ -691,10 +628,7 @@ public class InstallerFragment extends Fragment {
                     
                     log("已处理外部安装请求，文件已复制到 cache: " + selectedFilePath);
                     
-                    // 使用原生库分析 APK
-                    if (!isXapkFile) {
-                        analyzeApk(selectedFilePath);
-                    }
+
                     
                     updateInstallButtonState();
                 } else {
@@ -742,10 +676,7 @@ public class InstallerFragment extends Fragment {
                 
                 log(getString(R.string.processed_home_install_request, selectedFilePath));
                 
-                // 使用原生库分析 APK
-                if (!isXapkFile) {
-                    analyzeApk(selectedFilePath);
-                }
+
                 
                 updateInstallButtonState();
                 
