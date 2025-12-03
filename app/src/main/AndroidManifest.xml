@@ -47,7 +47,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Installer">
         <activity
-            android:name=".HomeActivity"
+            android:name=".ui.activity.HomeActivity"
             android:exported="true"
             android:debuggable="true"
             tools:ignore="HardcodedDebugMode">
@@ -60,7 +60,7 @@
         
         <!-- 独立的安装Activity -->
         <activity
-            android:name=".InstallActivity"
+            android:name=".ui.activity.InstallerActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer.Dialog"
             android:launchMode="singleTask">
@@ -76,7 +76,7 @@
         </activity>
         
         <activity
-            android:name=".MeActivity"
+            android:name=".ui.activity.MeActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer" />
         

@@ -1,12 +1,8 @@
 package io.github.huidoudour.Installer;
 
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,12 +17,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
 
 import io.github.huidoudour.Installer.utils.LanguageManager;
 import io.github.huidoudour.Installer.utils.XapkInstaller;
@@ -34,9 +27,9 @@ import io.github.huidoudour.Installer.utils.ShizukuInstallHelper;
 import rikka.shizuku.Shizuku;
 import io.github.huidoudour.Installer.R;
 
-public class InstallActivity extends AppCompatActivity {
+public class InstallerActivity extends AppCompatActivity {
 
-    private static final String TAG = "InstallActivity";
+    private static final String TAG = "InstallerActivity";
     
     private LinearLayout layoutInstallInfo;
     private LinearLayout layoutProgress;
@@ -60,7 +53,7 @@ public class InstallActivity extends AppCompatActivity {
         LanguageManager.applyUserLanguagePreference(this);
         
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_install);
+        setContentView(R.layout.activity_installer);
         
         // 初始化视图
         initViews();
@@ -160,8 +153,6 @@ public class InstallActivity extends AppCompatActivity {
         }
     }
     
-
-    
     private void checkShizukuStatus() {
         boolean shizukuReady = false;
         try {
@@ -197,7 +188,7 @@ public class InstallActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         runOnUiThread(() -> {
-                            Toast.makeText(InstallActivity.this, R.string.xapk_install_success, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(InstallerActivity.this, R.string.xapk_install_success, Toast.LENGTH_SHORT).show();
                             finish();
                         });
                     }
@@ -205,7 +196,7 @@ public class InstallActivity extends AppCompatActivity {
                     @Override
                     public void onError(String error) {
                         runOnUiThread(() -> {
-                            Toast.makeText(InstallActivity.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
+                            Toast.makeText(InstallerActivity.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
                             layoutProgress.setVisibility(View.GONE);
                             layoutInstallInfo.setVisibility(View.VISIBLE);
                         });
@@ -222,7 +213,7 @@ public class InstallActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String message) {
                         runOnUiThread(() -> {
-                            Toast.makeText(InstallActivity.this, R.string.apk_install_success, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(InstallerActivity.this, R.string.apk_install_success, Toast.LENGTH_SHORT).show();
                             finish();
                         });
                     }
@@ -230,7 +221,7 @@ public class InstallActivity extends AppCompatActivity {
                     @Override
                     public void onError(String error) {
                         runOnUiThread(() -> {
-                            Toast.makeText(InstallActivity.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
+                            Toast.makeText(InstallerActivity.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
                             layoutProgress.setVisibility(View.GONE);
                             layoutInstallInfo.setVisibility(View.VISIBLE);
                         });
@@ -251,8 +242,7 @@ public class InstallActivity extends AppCompatActivity {
                 return uri.getPath();
             } else if ("content".equals(uri.getScheme())) {
                 // 复制内容到临时文件
-                ContentResolver contentResolver = getContentResolver();
-                InputStream inputStream = contentResolver.openInputStream(uri);
+                InputStream inputStream = getContentResolver().openInputStream(uri);
                 if (inputStream == null) return null;
                 
                 // 创建临时文件
