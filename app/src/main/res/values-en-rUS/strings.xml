@@ -354,4 +354,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="process_completed_with_exit_code">[Process completed with exit code %d]</string>
     <string name="hash_sign">#</string>
     <string name="user">user</string>
+    <string name="notification_permission_required">Need notifiation permission</string>
+    <string name="notification_enabled">Notification_enabled</string>
+    <string name="notification_disabled">Notification_disabled</string>
 </resources>

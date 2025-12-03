@@ -1,6 +1,10 @@
 package io.github.huidoudour.Installer.ui.activity;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -124,20 +128,26 @@ public class InstallerActivity extends AppCompatActivity {
     
     private void displayInstallInfo() {
         try {
-            // 不进行APK分析，直接显示基础信息
-            tvFileSize.setText(getString(R.string.unknown));
             if (!isXapkFile) {
-                // 单个APK：显示未知信息与默认图标
-                tvPackageName.setText(getString(R.string.unknown));
-                tvVersion.setText(getString(R.string.unknown));
-                tvAppName.setText(getString(R.string.unknown_app));
-                ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+                // 单个APK：解析APK信息
+                parseApkInfo(filePath);
             } else {
                 // XAPK文件：保留数量统计与默认图标
                 tvAppName.setText(R.string.xapk_package);
                 tvPackageName.setText(R.string.xapk);
                 int apkCount = XapkInstaller.getApkCount(this, filePath);
                 tvVersion.setText(apkCount > 0 ? getString(R.string.apk_files_count, apkCount) : getString(R.string.unknown));
+                
+                // 获取文件大小
+                File file = new File(filePath);
+                if (file.exists()) {
+                    long fileSizeInBytes = file.length();
+                    String fileSize = formatFileSize(fileSizeInBytes);
+                    tvFileSize.setText(fileSize);
+                } else {
+                    tvFileSize.setText(getString(R.string.unknown));
+                }
+                
                 ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
 
@@ -150,6 +160,91 @@ public class InstallerActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.display_install_info_failed), e);
             showErrorAndExit(getString(R.string.parse_file_failed));
+        }
+    }
+    
+    /**
+     * 解析APK信息
+     */
+    private void parseApkInfo(String apkPath) {
+        try {
+            PackageManager pm = getPackageManager();
+            PackageInfo packageInfo = pm.getPackageArchiveInfo(apkPath, 
+                PackageManager.GET_ACTIVITIES | PackageManager.GET_PERMISSIONS);
+            
+            if (packageInfo != null) {
+                // 设置应用源路径，以便能够加载图标和标签
+                ApplicationInfo appInfo = packageInfo.applicationInfo;
+                appInfo.sourceDir = apkPath;
+                appInfo.publicSourceDir = apkPath;
+                
+                // 获取应用名称
+                CharSequence appName = appInfo.loadLabel(pm);
+                tvAppName.setText(appName != null ? appName.toString() : getString(R.string.unknown_app));
+                
+                // 获取包名
+                tvPackageName.setText(packageInfo.packageName);
+                
+                // 获取版本信息
+                String versionName = packageInfo.versionName != null ? packageInfo.versionName : "";
+                long versionCode = packageInfo.getLongVersionCode();
+                tvVersion.setText(String.format("%s (%d)", versionName, versionCode));
+                
+                // 获取文件大小
+                File file = new File(apkPath);
+                if (file.exists()) {
+                    long fileSizeInBytes = file.length();
+                    String fileSize = formatFileSize(fileSizeInBytes);
+                    tvFileSize.setText(fileSize);
+                } else {
+                    tvFileSize.setText(getString(R.string.unknown));
+                }
+                
+                // 获取应用图标
+                try {
+                    Drawable icon = appInfo.loadIcon(pm);
+                    if (icon != null) {
+                        ivAppIcon.setImageDrawable(icon);
+                    } else {
+                        ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "加载应用图标失败", e);
+                    ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+                }
+            } else {
+                // 解析失败，显示默认信息
+                setDefaultInfo();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "解析APK信息失败", e);
+            setDefaultInfo();
+        }
+    }
+    
+    /**
+     * 设置默认信息
+     */
+    private void setDefaultInfo() {
+        tvAppName.setText(getString(R.string.unknown_app));
+        tvPackageName.setText(getString(R.string.unknown));
+        tvVersion.setText(getString(R.string.unknown));
+        tvFileSize.setText(getString(R.string.unknown));
+        ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+    }
+    
+    /**
+     * 格式化文件大小
+     */
+    private String formatFileSize(long sizeInBytes) {
+        if (sizeInBytes < 1024) {
+            return sizeInBytes + " B";
+        } else if (sizeInBytes < 1024 * 1024) {
+            return String.format("%.2f KB", sizeInBytes / 1024.0);
+        } else if (sizeInBytes < 1024 * 1024 * 1024) {
+            return String.format("%.2f MB", sizeInBytes / (1024.0 * 1024.0));
+        } else {
+            return String.format("%.2f GB", sizeInBytes / (1024.0 * 1024.0 * 1024.0));
         }
     }
     

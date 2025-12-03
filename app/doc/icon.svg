@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+    <!-- 背景圆角矩形 -->
+    <path fill="#D8F5C5" d="M8,0 h92 a8,8 0 0 1 8,8 v92 a8,8 0 0 1 -8,8 h-92 a8,8 0 0 1 -8,-8 v-92 a8,8 0 0 1 8,-8z"/>
+    
+    <!-- 六边形阴影 -->
+    <path fill="#2A4020" fill-opacity="0.3" d="M56,28 l24,14 v28 l-24,14 l-24,-14 v-28z"/>
+    
+    <!-- 六边形本体 -->
+    <path fill="#577539" d="M54,24 l24,14 v28 l-24,14 l-24,-14 v-28z"/>
+    
+    <!-- 蝴蝶 -->
+    <g transform="translate(34, 20) scale(0.4)">
+        <!-- 蝴蝶身体 -->
+        <path d="M51.5,45 A3,12 0 0,1 51.5,69 A3,12 0 0,1 51.5,45 Z" 
+              stroke="#F8F4E6" stroke-width="2" fill="none"/>
+        
+        <!-- 左侧上翅膀 -->
+        <path d="M51.5,45 C40,40 25,35 18,45 C15,55 20,65 30,68 C38,70 45,65 51.5,60"
+              stroke="#F8F4E6" stroke-width="2" fill="none"/>
+        
+        <!-- 左侧下翅膀 -->
+        <path d="M51.5,60 C45,65 38,75 35,82 C32,88 38,92 45,88 C50,85 51.5,75 51.5,60"
+              stroke="#F8F4E6" stroke-width="2" fill="none"/>
+        
+        <!-- 右侧上翅膀 -->
+        <path d="M51.5,45 C63,40 78,35 85,45 C88,55 83,65 73,68 C65,70 58,65 51.5,60"
+              stroke="#F8F4E6" stroke-width="2" fill="none"/>
+        
+        <!-- 右侧下翅膀 -->
+        <path d="M51.5,60 C58,65 65,75 68,82 C71,88 65,92 58,88 C53,85 51.5,75 51.5,60"
+              stroke="#F8F4E6" stroke-width="2" fill="none"/>
+        
+        <!-- 翅膀中心斑点 -->
+        <path d="M51.5,45 A2,2 0 0,1 51.5,45 A2,2 0 0,1 51.5,45 Z"
+              stroke="#F8F4E6" stroke-width="2" fill="none"/>
+    </g>
+    
+    <!-- 下箭头 + 横杠 -->
+    <g transform="translate(54, 60) scale(0.8)">
+        <!-- 箭头 -->
+        <path fill="#F4B5B0" d="M-8,0 l16,0 l-8,10z"/>
+        
+        <!-- 横杠 -->
+        <path fill="#F4B5B0" d="M-12,12 h24 v3 h-24z"/>
+    </g>
+</svg>

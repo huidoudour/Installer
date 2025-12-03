@@ -7,11 +7,10 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import java.util.List;
 
 import io.github.huidoudour.Installer.utils.LanguageManager;
+import io.github.huidoudour.Installer.utils.NotificationHelper;
 import io.github.huidoudour.Installer.R;
 
 public class MeActivity extends AppCompatActivity {
@@ -101,7 +100,7 @@ public class MeActivity extends AppCompatActivity {
                         android.util.Log.d("MeActivity", getString(R.string.direct_launch_success));
                     } catch (android.content.ActivityNotFoundException e2) {
                         android.util.Log.e("MeActivity", getString(R.string.direct_launch_failed, e2.getMessage()));
-                        showSnackbar(getString(R.string.open_link_failed));
+                        showNotification(getString(R.string.open_link_failed));
                     }
                 }
             } else {
@@ -117,20 +116,17 @@ public class MeActivity extends AppCompatActivity {
                     
                     // 提供更详细的错误信息和解决方案
                     String errorMessage = getString(R.string.link_open_error);
-                    showSnackbar(errorMessage);
+                    showNotification(errorMessage);
                 }
             }
         } catch (Exception e) {
             android.util.Log.e("MeActivity", getString(R.string.open_link_failed_log, e.getMessage()), e);
-            showSnackbar(getString(R.string.link_open_failed, e.getMessage()));
+            showNotification(getString(R.string.link_open_failed, e.getMessage()));
         }
     }
 
-    private void showSnackbar(String message) {
-        View rootView = findViewById(android.R.id.content);
-        if (rootView != null) {
-            Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT).show();
-        }
+    private void showNotification(String message) {
+        NotificationHelper.showNotification(this, message);
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import io.github.huidoudour.Installer.utils.LanguageManager;
+import io.github.huidoudour.Installer.utils.NotificationHelper;
 import io.github.huidoudour.Installer.R;
 
 /**
@@ -22,6 +23,13 @@ public class InstallerApplication extends Application {
             LanguageManager.applyUserLanguagePreference(this);
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.apply_language_preference_failed, e.getMessage()));
+        }
+        
+        // 初始化通知渠道
+        try {
+            NotificationHelper.createNotificationChannels(this);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to create notification channels: " + e.getMessage());
         }
     }
 }
