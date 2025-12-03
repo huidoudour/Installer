@@ -22,8 +22,8 @@ import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
-import io.github.huidoudour.Installer.HomeActivity;
-import io.github.huidoudour.Installer.MeActivity;
+import io.github.huidoudour.Installer.ui.activity.HomeActivity;
+import io.github.huidoudour.Installer.ui.activity.MeActivity;
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
 import io.github.huidoudour.Installer.utils.LanguageManager;

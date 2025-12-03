@@ -121,6 +121,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    // Compression/Decompression native library
+    implementation("com.github.luben:zstd-jni:1.5.6-5")
 }
 
 // === 16KB 页面对齐验证任务 ===

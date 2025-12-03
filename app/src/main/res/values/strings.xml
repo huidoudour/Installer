@@ -240,7 +240,7 @@
     <string name="read_install_output_error">读取安装进程输出出错喵: %s</string>
     <string name="install_success_log" formatted="false">安装成功喵: %s 输出: %s</string>
     <string name="install_success">✅ 安装成功！</string>
-    <string name="install_failed_log">安装失败喵。Exit code: %d\nOutput: %s\nError: %s</string>
+    <string name="install_failed_log" formatted="false">安装失败喵。Exit code: %d\nOutput: %s\nError: %s</string>
     <string name="install_failed_check_log">安装失败，查看日志喵。</string>
     <string name="temp_file_cleaned">已清理临时文件: %s</string>
     <string name="clean_temp_file_failed">清理临时文件失败: %s</string>

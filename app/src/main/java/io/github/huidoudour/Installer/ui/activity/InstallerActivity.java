@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.ui.activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -183,16 +183,19 @@ public class InstallerActivity extends AppCompatActivity {
             
             // 开始安装过程
             if (isXapkFile) {
-                // XAPK安装
-                XapkInstaller.installXapk(this, filePath, new XapkInstaller.InstallCallback() {
+                // XAPK/APKS 安装（单会话写入所有 APK）
+                ShizukuInstallHelper.installXapk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                     @Override
-                    public void onSuccess() {
+                    public void onProgress(String message) {
+                        // 保持静默或可选展示
+                    }
+                    @Override
+                    public void onSuccess(String message) {
                         runOnUiThread(() -> {
                             Toast.makeText(InstallerActivity.this, R.string.xapk_install_success, Toast.LENGTH_SHORT).show();
                             finish();
                         });
                     }
-                    
                     @Override
                     public void onError(String error) {
                         runOnUiThread(() -> {

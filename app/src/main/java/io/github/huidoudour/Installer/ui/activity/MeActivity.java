@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.ui.activity;
 
 import android.content.Intent;
 import android.net.Uri;

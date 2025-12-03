@@ -141,6 +141,16 @@ public class XapkInstaller {
             throw new Exception(context.getString(R.string.no_apk_found));
         }
         
+        
+        // 在返回前对 APK 文件进行排序，确保 base.apk 优先写入
+        apkFiles.sort((a, b) -> {
+            String an = a.getName().toLowerCase();
+            String bn = b.getName().toLowerCase();
+            if (an.equals("base.apk")) return -1;
+            if (bn.equals("base.apk")) return 1;
+            return an.compareTo(bn);
+        });
+        
         return apkFiles;
     }
     

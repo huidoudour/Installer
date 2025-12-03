@@ -104,6 +104,7 @@
     <string name="default_version">1.0.0</string>
     <string name="file_size">文件大小</string>
     <string name="default_file_size">10.24 MB</string>
+    <string name="confirm">确认</string>
     <string name="language_changed_tip">语言已切换为%s，应用将自动重启</string>
     <string name="language_change_failed">语言切换失败</string>
     <string name="feature_developing">功能开发中</string>
@@ -146,7 +147,7 @@
     <string name="install_stdout">Install (stdout): %s</string>
     <string name="install_stderr">Install (stderr): %s</string>
     <string name="read_install_output_error">读取安装进程输出出错喵: %s</string>
-    <string name="install_success_log">安装成功喵: %s 输出: %s</string>
+    <string name="install_success_log" formatted="false">安装成功喵: %s 输出: %s</string>
     <string name="install_success">✅ 安装成功！</string>
     <string name="install_failed">安装失败: %s</string>
     <string name="install_exception_log">安装流程异常喵: %s</string>
@@ -183,6 +184,7 @@
     <string name="read_xapk_failed">读取 XAPK 失败</string>
     <string name="export_failed">导出失败: %s</string>
     <string name="log_saved_to_cache">日志已保存到缓存目录</string>
+    <string name="traditional_chinese">繁体中文</string>
     <string name="english">English</string>
     <string name="switch_language_failed">切换语言失败: %s</string>
     <string name="restart_app_failed">重启应用失败: %s</string>
@@ -217,7 +219,7 @@
     <string name="status_unknown_miao">状态未知喵</string>
     <string name="unavailable_miao">不可用喵</string>
     <string name="authorized">已授权</string>
-    <string name="install_failed_log">安装失败喵。Exit code: %d Output: %s Error: %s</string>
+    <string name="install_failed_log" formatted="false">安装失败喵。Exit code: %d Output: %s Error: %s</string>
     <string name="install_failed_check_log">安装失败，查看日志喵。</string>
     <string name="temp_file_cleaned">已清理临时文件: %s</string>
     <string name="clean_temp_file_failed">清理临时文件失败: %s</string>
@@ -236,7 +238,7 @@
     <string name="non_interactive_mode">非交互式模式</string>
     <string name="disable_job_control_avoid_tty_error">禁用作业控制，避免TTY错误</string>
     <string name="unknown_file_format_chinese">未知格式</string>
-    <string name="apk_name_failed">%s 失败: %s</string>
+    <string name="apk_name_failed" formatted="false">%s 失败: %s</string>
     <string name="memory_info">内存信息</string>
     <string name="process_list">进程列表</string>
     <string name="installed_apps">已安装应用</string>
@@ -318,5 +320,32 @@
     <string name="shizuku_not_connected_install">Shizuku 未连接或未授权，无法通过 Shizuku 安装喵.</string>
     <string name="check_shizuku_status_failed">检查 Shizuku 状态失败喵: %s</string>
     <string name="copying_file_to_temp">正在复制文件到系统临时目录: %s</string>
-    <string name="detected_file_type_apk_count">检测到 %s，包含 %d 个 APK 文件</string>
+    <string name="detected_file_type_apk_count" formatted="false">检测到 %s，包含 %d 个 APK 文件</string>
+    <!-- 新增键的中文翻译补全 -->
+    <string name="need_file_access_permission_select_apk">需要文件访问权限以选择 APK。</string>
+    <string name="please_select_install_file_miao">请先选择安装包文件喵.</string>
+    <string name="install_process_end">=== 安装流程结束 ===</string>
+    <string name="quick_path_title">📁 快捷路径</string>
+    <string name="quick_path_root">Root (/)</string>
+    <string name="quick_path_sdcard">SD卡 (/sdcard/)</string>
+    <string name="quick_path_download">下载 (/sdcard/Download/)</string>
+    <string name="quick_path_tmp">临时 (/data/local/tmp/)</string>
+    <string name="quick_path_app_data">应用数据 (/data/data/)</string>
+    <string name="quick_path_system">系统 (/system/)</string>
+    <string name="quick_path_system_bin">系统二进制 (/system/bin/)</string>
+    <string name="quick_path_home">主目录 (~/)</string>
+    <string name="welcome_shell_title">欢迎来到 aShell You - 风格终端</string>
+    <string name="welcome_shell_subtitle">Android Shell 环境 v2.0</string>
+    <string name="root_mode_enabled_via_shizuku">[*] 通过 Shizuku 启用 Root 模式</string>
+    <string name="working_directory_tmp">[*] 工作目录: /data/local/tmp</string>
+    <string name="user_mode_tip">[!] 用户模式（授予 Shizuku 获取 Root）</string>
+    <string name="working_directory_sdcard">[*] 工作目录: /sdcard</string>
+    <string name="type_help_for_command_list">输入 help 获取命令列表</string>
+    <string name="command_running">命令执行中...</string>
+    <string name="root_prompt">root@ashell:~#</string>
+    <string name="user_prompt">user@ashell:~$</string>
+    <string name="command_cancelled_session_reset">[命令已取消，会话已重置]</string>
+    <string name="process_completed_with_exit_code">[进程完成，退出码 %d]</string>
+    <string name="hash_sign">#</string>
+    <string name="user">用户</string>
 </resources>

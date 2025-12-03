@@ -36,6 +36,7 @@
     <string name="app_version">Version 1.0.0</string>
     <string name="follow_system">Follow System</string>
     <string name="simplified_chinese">Simplified Chinese</string>
+    <string name="confirm">Confirm</string>
     <string name="language_changed_tip">Language switched to %s, the app will restart automatically</string>
     <string name="language_change_failed">Language switch failed</string>
     <string name="feature_developing">Feature under development</string>
@@ -223,9 +224,9 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="install_stdout">Install (stdout): %s</string>
     <string name="install_stderr">Install (stderr): %s</string>
     <string name="read_install_output_error">Error reading installation process output: %s</string>
-    <string name="install_success_log">Installation successful: %s Output: %s</string>
+    <string name="install_success_log" formatted="false">Installation successful: %s Output: %s</string>
     <string name="install_success">✅ Installation successful!</string>
-    <string name="install_failed_log">Installation failed. Exit code: %d\nOutput: %s\nError: %s</string>
+    <string name="install_failed_log" formatted="false">Installation failed. Exit code: %d\nOutput: %s\nError: %s</string>
     <string name="install_failed_check_log">Installation failed, check logs.</string>
     <string name="temp_file_cleaned">Temporary file cleaned: %s</string>
     <string name="clean_temp_file_failed">Failed to clean temporary file: %s</string>
@@ -279,6 +280,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="log_exported">Log exported: %s</string>
     <string name="export_failed">Export failed: %s</string>
     <string name="log_saved_to_cache">Log saved to cache directory</string>
+    <string name="traditional_chinese">Chinese</string>
     <string name="english">English</string>
     <string name="switch_language_failed">Failed to switch language: %s</string>
     <string name="restart_app_failed">Failed to restart application: %s</string>
@@ -324,5 +326,32 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="shizuku_not_connected_install">Shizuku not connected or not authorized, cannot install via Shizuku.</string>
     <string name="check_shizuku_status_failed">Failed to check Shizuku status: %s</string>
     <string name="copying_file_to_temp">Copying file to system temporary directory: %s</string>
-    <string name="detected_file_type_apk_count">Detected %s, containing %d APK files</string>
+    <string name="detected_file_type_apk_count" formatted="false">Detected %s, containing %d APK files</string>
+    <!-- Added translations for new keys -->
+    <string name="need_file_access_permission_select_apk">File access permission required to select APK.</string>
+    <string name="please_select_install_file_miao">Please select the install package first.</string>
+    <string name="install_process_end">=== Installation process end ===</string>
+    <string name="quick_path_title">📁 Quick Path</string>
+    <string name="quick_path_root">Root (/)</string>
+    <string name="quick_path_sdcard">SD Card (/sdcard/)</string>
+    <string name="quick_path_download">Download (/sdcard/Download/)</string>
+    <string name="quick_path_tmp">Tmp (/data/local/tmp/)</string>
+    <string name="quick_path_app_data">App Data (/data/data/)</string>
+    <string name="quick_path_system">System (/system/)</string>
+    <string name="quick_path_system_bin">System Bin (/system/bin/)</string>
+    <string name="quick_path_home">Home (~/)</string>
+    <string name="welcome_shell_title">Welcome to aShell You - Style Terminal</string>
+    <string name="welcome_shell_subtitle">Android Shell Environment v2.0</string>
+    <string name="root_mode_enabled_via_shizuku">[*] Root mode enabled via Shizuku</string>
+    <string name="working_directory_tmp">[*] Working directory: /data/local/tmp</string>
+    <string name="user_mode_tip">[!] User mode (grant Shizuku for root)</string>
+    <string name="working_directory_sdcard">[*] Working directory: /sdcard</string>
+    <string name="type_help_for_command_list">Type help for command list</string>
+    <string name="command_running">Command running...</string>
+    <string name="root_prompt">root@ashell:~#</string>
+    <string name="user_prompt">user@ashell:~$</string>
+    <string name="command_cancelled_session_reset">[Command cancelled, session reset]</string>
+    <string name="process_completed_with_exit_code">[Process completed with exit code %d]</string>
+    <string name="hash_sign">#</string>
+    <string name="user">user</string>
 </resources>
