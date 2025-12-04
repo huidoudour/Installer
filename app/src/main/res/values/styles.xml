@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    
+    <!-- ============ MD3 基础样式 ============ -->
+    <!-- 空基础样式，不直接使用 -->
+    <style name="MD3" />
+    
+    <!-- ============ MD3 卡片样式 ============ -->
+    
+    <!-- MD3 凸起卡片 -->
+    <style name="MD3.CardView.Elevated" parent="Widget.Material3.CardView.Elevated">
+        <item name="cornerRadius">12dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+    
+    <!-- MD3 描边卡片 -->
+    <style name="MD3.CardView.Outlined" parent="Widget.Material3.CardView.Outlined">
+        <item name="cornerRadius">12dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+    
+    <!-- MD3 填充卡片 -->
+    <style name="MD3.CardView.Filled" parent="Widget.Material3.CardView.Filled">
+        <item name="cornerRadius">12dp</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+    
+    <!-- ============ MD3 按钮样式 ============ -->
+    
+    <!-- MD3 默认按钮 -->
+    <style name="MD3.Button.Default" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="cornerRadius">12dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+    
+    <!-- MD3 确认/成功按钮 -->
+    <style name="MD3.Button.Positive" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="cornerRadius">12dp</item>
+        <item name="backgroundTint">@color/success_green</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    
+    <!-- MD3 否定/危险按钮 -->
+    <style name="MD3.Button.Negative" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="cornerRadius">12dp</item>
+        <item name="backgroundTint">@color/danger_red</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    
+    <!-- MD3 文字按钮 -->
+    <style name="MD3.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="cornerRadius">8dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+    </style>
+    
+    <!-- MD3 填充按钮 -->
+    <style name="MD3.Button.Filled" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="cornerRadius">12dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+    
+    <!-- MD3 填充按钮 - 对比色 -->
+    <style name="MD3.Button.FilledTonal" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="cornerRadius">12dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+    
+    <!-- ============ MD3 文本样式 ============ -->
+    
+    <!-- MD3 标题文本 - 大 -->
+    <style name="MD3.Text.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- MD3 标题文本 - 中 -->
+    <style name="MD3.Text.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- MD3 标题文本 - 小 -->
+    <style name="MD3.Text.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- MD3 正文文本 - 大 -->
+    <style name="MD3.Text.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">16sp</item>
+    </style>
+    
+    <!-- MD3 正文文本 - 中 -->
+    <style name="MD3.Text.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+    </style>
+    
+    <!-- MD3 正文文本 - 小 -->
+    <style name="MD3.Text.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">12sp</item>
+    </style>
+    
+    <!-- MD3 标签文本 - 大 -->
+    <style name="MD3.Text.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- MD3 标签文本 - 小 -->
+    <style name="MD3.Text.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- ============ MD3 开关样式 ============ -->
+    
+    <!-- MD3 开关 - 精美版本 -->
+    <style name="MD3.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <!-- 滑块尺寸 -->
+        <item name="thumbRadius">10dp</item>
+        <!-- 轨道高度 -->
+        <item name="trackHeight">32dp</item>
+        <!-- 轨道圆角 -->
+        <item name="trackCornerRadius">16dp</item>
+        <!-- 滑块图标大小 -->
+        <item name="thumbIconSize">16dp</item>
+        <!-- 滑块颜色（开关/关闭状态） -->
+        <item name="thumbTint">@color/switch_thumb_color</item>
+        <!-- 轨道颜色（开关/关闭状态） -->
+        <item name="trackTint">@color/switch_track_color</item>
+        <!-- 轨道装饰颜色 -->
+        <item name="trackDecorationTint">@android:color/transparent</item>
+        <!-- 最小触摸区域 -->
+        <item name="android:minWidth">52dp</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+    
+    <!-- MD3 开关 - 紧凑版本（用于列表项） -->
+    <style name="MD3.Switch.Compact" parent="MD3.Switch">
+        <item name="thumbRadius">9dp</item>
+        <item name="trackHeight">28dp</item>
+        <item name="trackCornerRadius">14dp</item>
+    </style>
+    
+    <!-- ============ MD3 进度指示器样式 ============ -->
+    
+    <!-- MD3 线性进度条 -->
+    <style name="MD3.ProgressIndicator.Linear" parent="Widget.Material3.LinearProgressIndicator">
+        <item name="trackThickness">8dp</item>
+    </style>
+    
+    <!-- MD3 圆形进度条 -->
+    <style name="MD3.ProgressIndicator.Circular" parent="Widget.Material3.CircularProgressIndicator">
+        <item name="trackThickness">8dp</item>
+    </style>
+    
+    <!-- ============ MD3 底部导航样式 ============ -->
+    
+    <!-- MD3 底部导航视图 -->
+    <style name="MD3.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="backgroundColor">?attr/colorSurface</item>
+        <item name="elevation">8dp</item>
+    </style>
+    
+    <!-- ============ MD3 状态指示器 ============ -->
+    
+    <!-- MD3 状态指示器基础 -->
+    <style name="MD3.StateIndicator">
+        <item name="android:layout_width">12dp</item>
+        <item name="android:layout_height">12dp</item>
+    </style>
+    
+    <!-- MD3 状态指示器 - 成功 -->
+    <style name="MD3.StateIndicator.Success" parent="MD3.StateIndicator">
+        <item name="android:background">@drawable/shape_indicator_success</item>
+    </style>
+    
+    <!-- MD3 状态指示器 - 警告 -->
+    <style name="MD3.StateIndicator.Warning" parent="MD3.StateIndicator">
+        <item name="android:background">@drawable/shape_indicator_warning</item>
+    </style>
+    
+    <!-- MD3 状态指示器 - 错误 -->
+    <style name="MD3.StateIndicator.Error" parent="MD3.StateIndicator">
+        <item name="android:background">@drawable/shape_indicator_error</item>
+    </style>
+    
+    <!-- MD3 状态指示器 - 中立 -->
+    <style name="MD3.StateIndicator.Neutral" parent="MD3.StateIndicator">
+        <item name="android:background">@drawable/shape_indicator_neutral</item>
+    </style>
+
+</resources>

@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentLogsBinding;
 import io.github.huidoudour.Installer.utils.LogManager;
 
@@ -54,7 +55,7 @@ public class LogsFragment extends Fragment implements LogManager.LogListener {
         // 设置按钮点击事件
         btnClearLog.setOnClickListener(v -> {
             logManager.clearLogs();
-            Toast.makeText(requireContext(), "日志已清空", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.log_cleared, Toast.LENGTH_SHORT).show();
         });
 
         btnExportLog.setOnClickListener(v -> exportLogs());
@@ -90,18 +91,18 @@ public class LogsFragment extends Fragment implements LogManager.LogListener {
             File logFile = new File(requireContext().getExternalCacheDir(), fileName);
 
             FileWriter writer = new FileWriter(logFile);
-            writer.write("=== Installer Log Export ===\n");
-            writer.write("Export Time: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()) + "\n");
-            writer.write("Total Logs: " + logManager.getLogCount() + "\n");
-            writer.write("\n=== Log Content ===\n");
+            writer.write(getString(R.string.log_export_header) + "\n");
+            writer.write(getString(R.string.export_time, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date())) + "\n");
+            writer.write(getString(R.string.total_logs, logManager.getLogCount()) + "\n");
+            writer.write("\n" + getString(R.string.log_content_header) + "\n");
             writer.write(logManager.getAllLogs());
             writer.close();
 
             // 分享文件
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Installer Log");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "日志文件已生成: " + fileName);
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.log_file_subject));
+            shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.log_file_generated, fileName));
             
             // 如果支持FileProvider，可以共享文件
             shareIntent.putExtra(Intent.EXTRA_STREAM, 
@@ -109,14 +110,14 @@ public class LogsFragment extends Fragment implements LogManager.LogListener {
                     requireContext().getPackageName() + ".provider", logFile));
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             
-            startActivity(Intent.createChooser(shareIntent, "导出日志"));
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.export_log)));
             
-            Toast.makeText(requireContext(), "日志已导出: " + fileName, Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), getString(R.string.log_exported, fileName), Toast.LENGTH_LONG).show();
         } catch (IOException e) {
-            Toast.makeText(requireContext(), "导出失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), getString(R.string.export_failed, e.getMessage()), Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             // FileProvider 可能不可用，简单提示
-            Toast.makeText(requireContext(), "日志已保存到缓存目录", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.log_saved_to_cache, Toast.LENGTH_SHORT).show();
         }
     }
 

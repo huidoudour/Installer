@@ -10,7 +10,7 @@ public class InstallerViewModel extends ViewModel {
 
     public InstallerViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("安装器页面");
+        mText.setValue("installer_page");
     }
 
     public LiveData<String> getText() {

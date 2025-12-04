@@ -1,8 +1,8 @@
 package io.github.huidoudour.Installer.utils;
 
+import android.content.Context;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.pm.PackageManager;
 
 import java.io.BufferedReader;
@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rikka.shizuku.Shizuku;
+
+import io.github.huidoudour.Installer.R;
 
 /**
  * Shell 终端执行助手
@@ -256,13 +258,17 @@ public class ShellExecutor {
      * 智能执行命令（使用持久化会话）
      */
     public static void executeCommand(String command, ExecuteCallback callback) {
-        executePersistentCommand(command, callback);
+        executePersistentCommand(null, command, callback);
+    }
+    
+    public static void executeCommand(Context context, String command, ExecuteCallback callback) {
+        executePersistentCommand(context, command, callback);
     }
     
     /**
      * 使用持久化Shell会话执行命令（保持工作目录）
      */
-    private static void executePersistentCommand(String command, ExecuteCallback callback) {
+    private static void executePersistentCommand(Context context, String command, ExecuteCallback callback) {
         new Thread(() -> {
             try {
                 // 检查是否需要创建新会话
@@ -276,7 +282,7 @@ public class ShellExecutor {
                 }
                 
                 if (needNewSession) {
-                    createPersistentSession(shizukuAvailable);
+                    createPersistentSession(context, shizukuAvailable);
                 }
                 
                 // 执行命令
@@ -367,7 +373,7 @@ public class ShellExecutor {
     /**
      * 创建持久化Shell会话
      */
-    private static void createPersistentSession(boolean useShizuku) throws Exception {
+    private static void createPersistentSession(Context context, boolean useShizuku) throws Exception {
         if (useShizuku) {
             // 使用Shizuku创建会话
             try {
@@ -387,7 +393,7 @@ public class ShellExecutor {
                     }
                 }
             } catch (Exception e) {
-                throw new Exception("Shizuku session creation failed: " + e.getMessage());
+                throw new Exception(context.getString(R.string.shizuku_session_creation_failed, e.getMessage()));
             }
         } else {
             // 普通模式 - 使用非交互式shell
@@ -533,7 +539,7 @@ public class ShellExecutor {
         try {
             ClipboardManager clipboard = (ClipboardManager) 
                 context.getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("Terminal Output", text);
+            ClipData clip = ClipData.newPlainText(context.getString(R.string.terminal_output), text);
             clipboard.setPrimaryClip(clip);
             return true;
         } catch (Exception e) {

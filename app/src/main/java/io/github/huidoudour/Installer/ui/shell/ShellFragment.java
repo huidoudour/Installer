@@ -28,7 +28,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentShellBinding;
 import io.github.huidoudour.Installer.utils.ShellExecutor;
-import io.github.huidoudour.Installer.utils.NativeHelper;
 import rikka.shizuku.Shizuku;
 
 import java.text.SimpleDateFormat;
@@ -150,20 +149,20 @@ public class ShellFragment extends Fragment {
      * 显示欢迎信息
      */
     private void showWelcomeMessage() {
-        appendOutput("Welcome to aShell You - Style Terminal", colorPrimary, true);
-        appendOutput("Android Shell Environment v2.0", colorOnSurfaceVariant, false);
+        appendOutput(getString(R.string.welcome_shell_title), colorPrimary, true);
+        appendOutput(getString(R.string.welcome_shell_subtitle), colorOnSurfaceVariant, false);
         appendOutput("", colorOnSurface, false);
         
         if (ShellExecutor.isShizukuAvailable()) {
-            appendOutput("[*] Root mode enabled via Shizuku", colorPrimary, false);
-            appendOutput("[*] Working directory: /data/local/tmp", colorOnSurfaceVariant, false);
+            appendOutput(getString(R.string.root_mode_enabled_via_shizuku), colorPrimary, false);
+            appendOutput(getString(R.string.working_directory_tmp), colorOnSurfaceVariant, false);
         } else {
-            appendOutput("[!] User mode (grant Shizuku for root)", colorTertiary, false);
-            appendOutput("[*] Working directory: /sdcard", colorOnSurfaceVariant, false);
+            appendOutput(getString(R.string.user_mode_tip), colorTertiary, false);
+            appendOutput(getString(R.string.working_directory_sdcard), colorOnSurfaceVariant, false);
         }
         
         appendOutput("", colorOnSurface, false);
-        appendOutput("Type 'help' for command list", colorOnSurfaceVariant, false);
+        appendOutput(getString(R.string.type_help_for_command_list), colorOnSurfaceVariant, false);
         appendOutput("", colorOnSurface, false);
     }
 
@@ -219,18 +218,18 @@ public class ShellFragment extends Fragment {
         };
         
         String[] pathNames = {
-            "Root (/)",
-            "SD卡 (/sdcard/)",
-            "Download (/sdcard/Download/)",
-            "Tmp (/data/local/tmp/)",
-            "App Data (/data/data/)",
-            "System (/system/)",
-            "System Bin (/system/bin/)",
-            "Home (~/) "
+            getString(R.string.quick_path_root),
+            getString(R.string.quick_path_sdcard),
+            getString(R.string.quick_path_download),
+            getString(R.string.quick_path_tmp),
+            getString(R.string.quick_path_app_data),
+            getString(R.string.quick_path_system),
+            getString(R.string.quick_path_system_bin),
+            getString(R.string.quick_path_home)
         };
         
         new MaterialAlertDialogBuilder(requireContext())
-            .setTitle("📁 Quick Path")
+            .setTitle(getString(R.string.quick_path_title))
             .setItems(pathNames, (dialog, which) -> {
                 String currentText = etCommandInput.getText().toString();
                 String path = commonPaths[which];
@@ -243,7 +242,7 @@ public class ShellFragment extends Fragment {
                 }
                 etCommandInput.setSelection(etCommandInput.getText().length());
             })
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show();
     }
     
@@ -254,8 +253,8 @@ public class ShellFragment extends Fragment {
         if (isExecuting) {
             // 重置Shell会话
             ShellExecutor.resetSession();
-            appendOutput("^C", colorError, true);
-            appendOutput("[Command cancelled, session reset]", colorTertiary, false);
+            appendOutput(getString(R.string.ctrl_c), colorError, true);
+            appendOutput(getString(R.string.command_cancelled_session_reset), colorTertiary, false);
             appendOutput("", colorOnSurface, false);
             
             etCommandInput.setEnabled(true);
@@ -275,7 +274,7 @@ public class ShellFragment extends Fragment {
         if (command.isEmpty()) return;
 
         if (isExecuting) {
-            Toast.makeText(requireContext(), "Command running...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.command_running), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -285,7 +284,7 @@ public class ShellFragment extends Fragment {
         commandCount++;
 
         // 显示命令提示符和命令
-        String prompt = ShellExecutor.isShizukuAvailable() ? "root@ashell:~#" : "user@ashell:~$";
+        String prompt = ShellExecutor.isShizukuAvailable() ? getString(R.string.root_prompt) : getString(R.string.user_prompt);
         appendOutput(prompt + " " + command, colorPrimary, true);
 
         // 内置命令
@@ -300,7 +299,7 @@ public class ShellFragment extends Fragment {
         isExecuting = true;
 
         // 执行命令
-        ShellExecutor.executeCommand(command, new ShellExecutor.ExecuteCallback() {
+        ShellExecutor.executeCommand(requireContext(), command, new ShellExecutor.ExecuteCallback() {
             @Override
             public void onOutput(String line) {
                 if (getActivity() != null) {
@@ -324,7 +323,7 @@ public class ShellFragment extends Fragment {
                 if (getActivity() != null) {
                     requireActivity().runOnUiThread(() -> {
                         if (exitCode != 0) {
-                            appendOutput("[Process completed with exit code " + exitCode + "]", colorTertiary, false);
+                            appendOutput(getString(R.string.process_completed_with_exit_code, exitCode), colorTertiary, false);
                         }
                         appendOutput("", colorOnSurface, false);
                         
@@ -343,11 +342,6 @@ public class ShellFragment extends Fragment {
      * 处理内置命令
      */
     private boolean handleBuiltinCommand(String command) {
-        // Native库命令
-        if (command.startsWith("native:")) {
-            handleNativeCommand(command.substring(7));
-            return true;
-        }
         
         switch (command.toLowerCase()) {
             case "help":
@@ -369,103 +363,9 @@ public class ShellFragment extends Fragment {
         }
     }
     
-    /**
-     * 处理Native库命令
-     */
-    private void handleNativeCommand(String subCommand) {
-        NativeHelper helper = new NativeHelper();
-        
-        if (!NativeHelper.isNativeLibraryAvailable()) {
-            appendOutput("", colorOnSurface, false);
-            appendOutput("❌ Native library not available", colorError, true);
-            appendOutput("The C++ shared library (.so) is not loaded.", colorOnSurfaceVariant, false);
-            appendOutput("", colorOnSurface, false);
-            return;
-        }
-        
-        switch (subCommand.toLowerCase()) {
-            case "info":
-                showNativeLibraryInfo(helper);
-                break;
-            case "test":
-                runNativePerformanceTest(helper);
-                break;
-            case "hash":
-                showNativeHashExample(helper);
-                break;
-            default:
-                appendOutput("", colorOnSurface, false);
-                appendOutput("Native Commands:", colorPrimary, true);
-                appendOutput("  native:info  - Show library info", colorOnSurface, false);
-                appendOutput("  native:test  - Run performance test", colorOnSurface, false);
-                appendOutput("  native:hash  - SHA-256 example", colorOnSurface, false);
-                appendOutput("", colorOnSurface, false);
-                break;
-        }
-    }
     
-    /**
-     * 显示Native库信息
-     */
-    private void showNativeLibraryInfo(NativeHelper helper) {
-        appendOutput("", colorOnSurface, false);
-        appendOutput("=== C++ Native Library Info ===", colorPrimary, true);
-        appendOutput("", colorOnSurface, false);
-        appendOutput("Version: " + helper.getNativeVersion(), colorOnSurface, false);
-        appendOutput("CPU Architecture: " + helper.getCPUArchitecture(), colorOnSurface, false);
-        appendOutput("Status: ✅ Loaded and Ready", colorPrimary, false);
-        appendOutput("", colorOnSurface, false);
-        appendOutput("Features:", colorPrimary, true);
-        appendOutput("  • High-performance SHA-256 calculation", colorOnSurface, false);
-        appendOutput("  • Native system information", colorOnSurface, false);
-        appendOutput("  • Performance benchmarking", colorOnSurface, false);
-        appendOutput("", colorOnSurface, false);
-    }
     
-    /**
-     * 运行Native性能测试
-     */
-    private void runNativePerformanceTest(NativeHelper helper) {
-        appendOutput("", colorOnSurface, false);
-        appendOutput("=== Performance Test ===", colorPrimary, true);
-        appendOutput("Running SHA-256 benchmark...", colorOnSurfaceVariant, false);
-        appendOutput("", colorOnSurface, false);
-        
-        new Thread(() -> {
-            String result = helper.runPerformanceComparison();
-            if (getActivity() != null) {
-                requireActivity().runOnUiThread(() -> {
-                    String[] lines = result.split("\n");
-                    for (String line : lines) {
-                        if (line.contains("Native C++")) {
-                            appendOutput(line, colorPrimary, false);
-                        } else if (line.contains("Speedup")) {
-                            appendOutput(line, colorTertiary, true);
-                        } else {
-                            appendOutput(line, colorOnSurface, false);
-                        }
-                    }
-                    appendOutput("", colorOnSurface, false);
-                });
-            }
-        }).start();
-    }
     
-    /**
-     * 显示Native哈希示例
-     */
-    private void showNativeHashExample(NativeHelper helper) {
-        appendOutput("", colorOnSurface, false);
-        appendOutput("=== SHA-256 Hash Example ===", colorPrimary, true);
-        appendOutput("", colorOnSurface, false);
-        
-        String testString = "Hello from C++ Native Library!";
-        appendOutput("Input: " + testString, colorOnSurfaceVariant, false);
-        
-        String hash = helper.calculateSHA256(testString);
-        appendOutput("SHA-256: " + hash, colorPrimary, false);
-        appendOutput("", colorOnSurface, false);
-    }
 
     /**
      * 显示帮助信息
@@ -476,7 +376,6 @@ public class ShellFragment extends Fragment {
         appendOutput("  help     - Show this help", colorOnSurface, false);
         appendOutput("  clear    - Clear screen", colorOnSurface, false);
         appendOutput("  history  - Show command history", colorOnSurface, false);
-        appendOutput("  native   - C++ library commands", colorOnSurface, false);
         appendOutput("  exit     - Exit tip", colorOnSurface, false);
         appendOutput("", colorOnSurface, false);
         appendOutput("Shortcuts:", colorPrimary, true);
@@ -525,7 +424,7 @@ public class ShellFragment extends Fragment {
                     executeCommand();
                 }
             })
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show();
     }
 
@@ -618,15 +517,15 @@ public class ShellFragment extends Fragment {
     private void updateShizukuStatus() {
         if (ShellExecutor.isShizukuAvailable()) {
             shizukuIndicator.setBackgroundColor(colorPrimary);
-            tvShizukuStatus.setText("root");
+            tvShizukuStatus.setText(getString(R.string.root));
             tvShizukuStatus.setTextColor(colorPrimary);
-            tvPrompt.setText("#");
+            tvPrompt.setText(getString(R.string.hash_sign));
             tvPrompt.setTextColor(colorPrimary);
         } else {
             shizukuIndicator.setBackgroundColor(colorTertiary);
-            tvShizukuStatus.setText("user");
+            tvShizukuStatus.setText(getString(R.string.user));
             tvShizukuStatus.setTextColor(colorTertiary);
-            tvPrompt.setText("$");
+            tvPrompt.setText(getString(R.string.dollar_sign));
             tvPrompt.setTextColor(colorTertiary);
         }
     }
