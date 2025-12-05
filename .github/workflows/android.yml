@@ -28,14 +28,18 @@ jobs:
     - name: Copy APK to output
       run: |
         mkdir -p output
-        # Copy app module APKs
-        cp app/build/outputs/apk/debug/*.apk output/app-debug.apk 2>/dev/null || true
-        cp app/build/outputs/apk/release/*.apk output/app-release.apk 2>/dev/null || true
-        # Copy app-debug module APKs
-        cp app-debug/build/outputs/apk/debug/*.apk output/app-debug-module-debug.apk 2>/dev/null || true
-        cp app-debug/build/outputs/apk/release/*.apk output/app-debug-module-release.apk 2>/dev/null || true
+        # Copy app module APKs (three architecture variants)
+        cp app/build/outputs/apk/debug/app-arm64-v8a-debug.apk output/ 2>/dev/null || true
+        cp app/build/outputs/apk/debug/app-x86_64-debug.apk output/ 2>/dev/null || true
+        cp app/build/outputs/apk/debug/app-universal-debug.apk output/ 2>/dev/null || true
+        cp app/build/outputs/apk/release/app-arm64-v8a-release.apk output/ 2>/dev/null || true
+        cp app/build/outputs/apk/release/app-x86_64-release.apk output/ 2>/dev/null || true
+        cp app/build/outputs/apk/release/app-universal-release.apk output/ 2>/dev/null || true
         # List generated files
         ls -lh output/
+        # Show build output structure for debugging
+        echo "=== APK files in build output ==="
+        find app/build/outputs/apk -name "*.apk" -type f 2>/dev/null || true
 
     - name: Upload APKs as artifact
       uses: actions/upload-artifact@v4
