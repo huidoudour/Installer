@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="huidoudour's Installer - 基于 Shizuku 的现代化 Android APK 安装器">
+    <meta name="keywords" content="Android, APK Installer, Shizuku, C++, Native Library">
+    <meta name="author" content="huidoudour">
+    <title>Installer - 现代化 Android APK 安装器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #3DDC84;
+            --secondary-color: #2196F3;
+            --dark-bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-color: #ff6b6b;
+            --success-color: #51cf66;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(61, 220, 132, 0.3);
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .badges img {
+            height: 20px;
+            transition: transform 0.2s;
+        }
+
+        .badges img:hover {
+            transform: scale(1.1);
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #3a3a3a, #2d2d2d);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-left-color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        .feature-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .feature-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feature-card li {
+            padding: 5px 0;
+            color: var(--text-secondary);
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .feature-card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tech-tag {
+            background: linear-gradient(135deg, var(--secondary-color), #1976D2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(33, 150, 243, 0.3);
+            transition: all 0.3s;
+        }
+
+        .tech-tag:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.5);
+        }
+
+        .download-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--accent-color), #e74c3c);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: white;
+            color: var(--accent-color);
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .reference-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .reference-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .reference-list a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .reference-list a:hover {
+            color: var(--primary-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 40px;
+            background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+            border-radius: 15px;
+            border-top: 2px solid var(--primary-color);
+            box-shadow: 0 -5px 20px rgba(61, 220, 132, 0.1);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .footer-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+
+        .footer-link:hover {
+            background: rgba(61, 220, 132, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .footer-author {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        .footer-copyright {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .version-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .version-card {
+            background: #3a3a3a;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .version-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .version-card p {
+            color: var(--text-secondary);
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            header p {
+                font-size: 1em;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 20px;
+            }
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .code-block code {
+            color: var(--primary-color);
+            font-family: 'Courier New', monospace;
+        }
+
+        .highlight {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 huidoudour's Installer</h1>
+            <p>基于 Shizuku 的现代化 Android APK 安装器</p>
+            <div class="badges">
+                <img src="https://img.shields.io/badge/Android-9--16-3DDC84.svg?logo=android&logoColor=white" alt="Android">
+                <img src="https://img.shields.io/badge/Min%20SDK-28-important.svg" alt="Min SDK">
+                <img src="https://img.shields.io/badge/Target%20SDK-36-blue.svg" alt="Target SDK">
+                <img src="https://img.shields.io/github/license/huidoudour/Installer.svg" alt="License">
+                <img src="https://github.com/huidoudour/Installer/workflows/Android%20CI/badge.svg" alt="Android Build">
+                <img src="https://img.shields.io/badge/AI-Assisted-blue.svg" alt="AI Assisted">
+            </div>
+        </header>
+
+        <div class="section">
+            <h2>✨ 核心特性</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🔧 现代化 APK 安装</h3>
+                    <ul>
+                        <li>基于 Shizuku 服务</li>
+                        <li>无需 Root 权限</li>
+                        <li>支持替换现有应用</li>
+                        <li>自动授予运行时权限</li>
+                        <li>实时安装日志显示</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>⚡ C++ 原生库支持</h3>
+                    <ul>
+                        <li>集成 libinstaller-native.so</li>
+                        <li>支持 arm64-v8a, x86_64</li>
+                        <li>16KB 页面对齐 (Android 15+)</li>
+                        <li>性能优化的原生方法</li>
+                        <li>CMake 构建系统</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🎨 Material Design 3</h3>
+                    <ul>
+                        <li>底部导航栏设计</li>
+                        <li>卡片式布局</li>
+                        <li>响应式设计</li>
+                        <li>状态指示清晰直观</li>
+                        <li>ViewBinding 架构</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🛡️ 兼容性保证</h3>
+                    <ul>
+                        <li>Android 9 - 16 支持</li>
+                        <li>16KB 页面大小适配</li>
+                        <li>现代化权限处理</li>
+                        <li>完整的 Lint 检查</li>
+                        <li>多架构支持</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🛠️ 技术栈</h2>
+            <div class="tech-stack">
+                <span class="tech-tag">Kotlin</span>
+                <span class="tech-tag">Java</span>
+                <span class="tech-tag">C++ (NDK)</span>
+                <span class="tech-tag">CMake 3.22.1</span>
+                <span class="tech-tag">Shizuku API 13.1.5</span>
+                <span class="tech-tag">Material Design 3</span>
+                <span class="tech-tag">AndroidX Navigation</span>
+                <span class="tech-tag">ViewBinding</span>
+                <span class="tech-tag">Gradle KTS</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 版本信息</h2>
+            <div class="version-info">
+                <div class="version-card">
+                    <h4>版本号</h4>
+                    <p>1.0</p>
+                </div>
+                <div class="version-card">
+                    <h4>最低 SDK</h4>
+                    <p>28 (Android 9)</p>
+                </div>
+                <div class="version-card">
+                    <h4>目标 SDK</h4>
+                    <p>36 (Android 16)</p>
+                </div>
+                <div class="version-card">
+                    <h4>编译 SDK</h4>
+                    <p>36</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📱 主要功能</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Shizuku 集成</h3>
+                    <ul>
+                        <li>实时状态监控</li>
+                        <li>自动权限请求</li>
+                        <li>可视化状态指示</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>文件管理</h3>
+                    <ul>
+                        <li>智能文件选择器</li>
+                        <li>自动权限处理</li>
+                        <li>显示选中文件信息</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>安装选项</h3>
+                    <ul>
+                        <li>替换现有应用 (-r)</li>
+                        <li>自动授予权限 (-g)</li>
+                        <li>智能按钮状态控制</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3>日志系统</h3>
+                    <ul>
+                        <li>实时日志显示</li>
+                        <li>时间戳记录</li>
+                        <li>一键清空功能</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 构建配置</h2>
+            <div class="code-block">
+                <code>
+// Gradle 配置<br>
+compileSdk = 36<br>
+minSdk = 28<br>
+targetSdk = 36<br>
+<br>
+// NDK 配置<br>
+abiFilters("arm64-v8a", "x86_64")<br>
+cppFlags += listOf("-std=c++17")<br>
+<br>
+// 16KB 页面对齐支持<br>
+arguments += listOf(<br>
+&nbsp;&nbsp;"-DANDROID_STL=c++_shared",<br>
+&nbsp;&nbsp;"-DCMAKE_VERBOSE_MAKEFILE=ON"<br>
+)
+                </code>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📚 项目参考与依赖</h2>
+            <ul class="reference-list">
+                <li>
+                    <a href="https://github.com/wxxsfxyzm/InstallerX-Revived" target="_blank">
+                        📦 wxxsfxyzm/InstallerX-Revived
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/iamr0s/InstallerX" target="_blank">
+                        📦 iamr0s/InstallerX
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/RikkaApps/Shizuku" target="_blank">
+                        🔧 RikkaApps/Shizuku
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/DP-Hridayan/aShellYou" target="_blank">
+                        💻 DP-Hridayan/aShellYou
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="download-section">
+            <h2 style="margin-bottom: 20px; color: white;">📥 获取应用</h2>
+            <a href="https://github.com/huidoudour/Installer" class="download-btn" target="_blank">
+                访问 GitHub 仓库
+            </a>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-author">
+                    Made with ❤️ by <span class="highlight"><a href="https://github.com/huidoudour" target="_blank" style="color: var(--primary-color); text-decoration: none;">huidoudour</a></span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/huidoudour" class="footer-link" target="_blank">👤 GitHub</a>
+                    <a href="https://github.com/huidoudour/Installer" class="footer-link" target="_blank">📦 项目仓库</a>
+                    <a href="https://github.com/huidoudour/Installer/issues" class="footer-link" target="_blank">💬 反馈建议</a>
+                </div>
+                <div class="footer-copyright">
+                    © 2024 Installer Project · All Rights Reserved · Powered by GitHub Pages
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

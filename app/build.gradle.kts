@@ -13,8 +13,6 @@ android {
         targetSdk = 36 //Android 16
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
         // 启用NDK - 配置C++共享库编译
         externalNativeBuild {
@@ -139,9 +137,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
     implementation("androidx.core:core-ktx:1.15.0")
     
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
     // Compression/Decompression native library
     implementation("com.github.luben:zstd-jni:1.5.6-5")
 }

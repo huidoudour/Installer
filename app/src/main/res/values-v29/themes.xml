@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- ============ 基础应用主题 ============ -->
+    <!-- ============ Android 10 (API 29) 特定主题 ============ -->
     
-    <!-- 基础主题 - 继承自 Material Design 3 -->
+    <!-- 基础主题 - Android 10 优化版本 -->
     <style name="Base.Theme.Installer" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- 启用动态颜色(壁纸取色) -->
         <item name="android:navigationBarColor">@android:color/transparent</item>
@@ -11,9 +12,6 @@
         <!-- 适配系统栏 -->
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fitsSystemWindows">true</item>
-        
-        <!-- 启用边到边设计 -->
-        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="p">shortEdges</item>
         
         <!-- Material Design 3 组件样式 -->
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
@@ -67,45 +65,5 @@
 
     <!-- 应用主题 -->
     <style name="Theme.Installer" parent="Base.Theme.Installer" />
-    
-    <!-- ============ 特殊场景主题 ============ -->
-    
-    <!-- 安装Activity的对话框主题 -->
-    <style name="Theme.Installer.Dialog" parent="Theme.Material3.DayNight.Dialog">
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:windowIsTranslucent">false</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
-        <!-- 设置对话框尺寸 -->
-        <item name="android:windowMinWidthMajor">85%</item>
-        <item name="android:windowMinWidthMinor">85%</item>
-        <!-- 设置对话框布局 -->
-        <item name="android:windowCloseOnTouchOutside">false</item>
-        <item name="android:windowSoftInputMode">adjustPan</item>
-        <!-- AppCompat兼容性配置 -->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-    
-    <!-- ============ MD3 组件覆盖主题 ============ -->
-    
-    <!-- 亮色主题覆盖 -->
-    <style name="ThemeOverlay.Installer.Light" parent="ThemeOverlay.Material3.Light">
-        <item name="colorPrimary">@color/md3_primary</item>
-        <item name="colorOnPrimary">@color/md3_on_primary</item>
-        <item name="colorPrimaryContainer">@color/md3_primary_container</item>
-        <item name="colorOnPrimaryContainer">@color/md3_on_primary_container</item>
-    </style>
-    
-    <!-- 深色主题覆盖 -->
-    <style name="ThemeOverlay.Installer.Dark" parent="ThemeOverlay.Material3.Dark">
-        <item name="colorPrimary">@color/md3_primary</item>
-        <item name="colorOnPrimary">@color/md3_on_primary</item>
-        <item name="colorPrimaryContainer">@color/md3_primary_container</item>
-        <item name="colorOnPrimaryContainer">@color/md3_on_primary_container</item>
-    </style>
     
 </resources>
