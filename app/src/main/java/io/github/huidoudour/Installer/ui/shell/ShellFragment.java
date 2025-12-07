@@ -15,12 +15,12 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -40,7 +40,7 @@ public class ShellFragment extends Fragment {
     private TextView tvTerminalOutput;
     private EditText etCommandInput;
     private TextView tvPrompt;
-    private ScrollView scrollViewOutput;
+    private NestedScrollView scrollViewOutput;
     private View shizukuIndicator;
     private TextView tvShizukuStatus;
     

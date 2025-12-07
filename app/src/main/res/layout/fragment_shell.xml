@@ -288,23 +288,23 @@
     </com.google.android.material.card.MaterialCardView>
 
     <!-- 终端输出区域 - Material You 风格 -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/outputCard"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollViewOutput"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/toolbarCard"
         android:layout_margin="8dp"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:fillViewport="true">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/outputCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
         app:cardBackgroundColor="?attr/colorSurfaceVariant">
-
-    <ScrollView
-        android:id="@+id/scrollViewOutput"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        android:fadeScrollbars="false"
-        android:background="?attr/colorSurfaceVariant">
 
         <TextView
             android:id="@+id/tvTerminalOutput"
@@ -315,8 +315,9 @@
             android:textColor="?attr/colorOnSurface"
             android:fontFamily="monospace"
             android:lineSpacingExtra="4dp"
-            android:textIsSelectable="true" />
-    </ScrollView>
+            android:textIsSelectable="true"
+            android:background="?attr/colorSurfaceVariant" />
     </androidx.cardview.widget.CardView>
+    </androidx.core.widget.NestedScrollView>
 
 </RelativeLayout>

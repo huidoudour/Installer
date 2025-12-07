@@ -7,7 +7,7 @@
 - ✅ 支持架构: arm64-v8a, x86_64
 - ✅ 16KB 页面对齐 (Android 15+ 兼容)
 - ✅ 提供性能优化的原生方法
-- 📖 详细文档: [app\doc\原生库集成完成说明.md](app/doc/原生库集成完成说明.md)
+- 📖 详细文档: [原生库文档](app/doc/原生库集成完成说明.md)
 
 ## Supported Versions
 [![Android](https://img.shields.io/badge/Android-9--16-3DDC84.svg?logo=android&logoColor=white)]()[![Min SDK](https://img.shields.io/badge/Min%20SDK-28-important.svg)]()[![Target SDK](https://img.shields.io/badge/Target%20SDK-36-blue.svg)]()
@@ -16,3 +16,10 @@
 [![主要语言](https://img.shields.io/github/languages/top/huidoudour/Installer)]()
 <br>
 [![AI Assisted](https://img.shields.io/badge/AI-Assisted-blue.svg)](https://github.com/huidoudour/Installer)
+
+
+## 部分设计参考和依赖
+- [wxxsfxyzm/InstallerX-Revived](https://github.com/wxxsfxyzm/InstallerX-Revived)<br>
+- [iamr0s/InstallerX](https://github.com/iamr0s/InstallerX)<br>
+- [RikkaApps/Shizuku](https://github.com/RikkaApps/Shizuku)<br>
+- [DP-Hridayan/aShellYou](https://github.com/DP-Hridayan/aShellYou)<br>

@@ -1,6 +1,7 @@
 package io.github.huidoudour.Installer;
 
 import android.os.Bundle;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import io.github.huidoudour.Installer.utils.NativeHelper;
@@ -18,11 +19,17 @@ public class NativeTestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // 创建简单的布局
+        // 创建可滚动的布局
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.setFillViewport(true);
+        
         textViewResult = new TextView(this);
         textViewResult.setPadding(40, 40, 40, 40);
         textViewResult.setTextSize(14);
-        setContentView(textViewResult);
+        textViewResult.setTextIsSelectable(true); // 允许选中文字
+        
+        scrollView.addView(textViewResult);
+        setContentView(scrollView);
         
         // 运行测试
         runNativeLibraryTests();
