@@ -133,6 +133,9 @@ dependencies {
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
     
+    // Dhizuku dependencies (使用 Maven Central)
+    implementation("io.github.iamr0s:Dhizuku-API:2.2")
+    
     // Kotlin support
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
     implementation("androidx.core:core-ktx:1.15.0")

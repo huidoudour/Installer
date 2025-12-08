@@ -35,6 +35,10 @@ import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
 import io.github.huidoudour.Installer.utils.LanguageManager;
 import io.github.huidoudour.Installer.utils.NotificationHelper;
+import io.github.huidoudour.Installer.utils.PrivilegeHelper;
+import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeMode;
+import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeStatus;
+import rikka.shizuku.Shizuku;
 
 public class SettingsFragment extends Fragment {
 
@@ -42,6 +46,17 @@ public class SettingsFragment extends Fragment {
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "app_settings";
     private static final String KEY_NOTIFICATION_ENABLED = "notification_enabled";
+    private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 1001;
+    
+    // Shizuku 权限监听器
+    private final Shizuku.OnRequestPermissionResultListener shizukuPermissionListener = 
+        (requestCode, grantResult) -> {
+            if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
+                showNotification("Shizuku 授权" + (grantResult == PackageManager.PERMISSION_GRANTED ? "成功" : "失败"));
+                // 更新权限状态显示
+                updatePrivilegeStatus();
+            }
+        };
     
     // 通知权限请求启动器
     private ActivityResultLauncher<String> notificationPermissionLauncher;
@@ -128,8 +143,18 @@ public class SettingsFragment extends Fragment {
             languageSetting.setOnClickListener(v -> showLanguageSelectionDialog());
         }
 
-        // 通知设置点击事件
+        // 通知设置按钮
         setupNotificationSettings();
+        
+        // 权限授权设置
+        setupPrivilegeSettings();
+        
+        // 注册 Shizuku 权限监听器
+        try {
+            Shizuku.addRequestPermissionResultListener(shizukuPermissionListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -236,30 +261,104 @@ public class SettingsFragment extends Fragment {
      * 设置通知功能
      */
     private void setupNotificationSettings() {
-        View notificationLayout = binding.getRoot().findViewById(R.id.notification_setting_layout);
-        SwitchMaterial notificationSwitch = notificationLayout != null ? 
-            (SwitchMaterial) ((ViewGroup)notificationLayout).getChildAt(2) : null;
+        TextView tvNotificationStatus = binding.getRoot().findViewById(R.id.tv_notification_status);
+        MaterialButton btnRequestNotification = binding.getRoot().findViewById(R.id.btn_request_notification);
         
-        if (notificationLayout != null && notificationSwitch != null) {
-            // 加载保存的状态
-            boolean isEnabled = sharedPreferences.getBoolean(KEY_NOTIFICATION_ENABLED, true);
-            notificationSwitch.setChecked(isEnabled && NotificationHelper.isNotificationPermissionGranted(requireContext()));
+        if (tvNotificationStatus != null && btnRequestNotification != null) {
+            // 更新通知状态显示
+            updateNotificationStatus();
             
-            // 设置开关状态变化监听器
-            notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-                    requestNotificationPermission();
+            // 设置按钮点击事件
+            btnRequestNotification.setOnClickListener(v -> {
+                if (NotificationHelper.isNotificationPermissionGranted(requireContext())) {
+                    showNotification(getString(R.string.notification_enabled));
                 } else {
-                    sharedPreferences.edit().putBoolean(KEY_NOTIFICATION_ENABLED, false).apply();
-                    showNotification("通知已关闭");
+                    requestNotificationPermission();
                 }
             });
+        }
+    }
+    
+    /**
+     * 更新通知状态显示
+     */
+    private void updateNotificationStatus() {
+        TextView tvNotificationStatus = binding.getRoot().findViewById(R.id.tv_notification_status);
+        MaterialButton btnRequestNotification = binding.getRoot().findViewById(R.id.btn_request_notification);
+        
+        if (tvNotificationStatus != null && btnRequestNotification != null) {
+            boolean isGranted = NotificationHelper.isNotificationPermissionGranted(requireContext());
+            if (isGranted) {
+                tvNotificationStatus.setText(R.string.notification_enabled);
+                btnRequestNotification.setText("已授权");
+                btnRequestNotification.setEnabled(false);
+            } else {
+                tvNotificationStatus.setText(R.string.notification_disabled);
+                btnRequestNotification.setText(R.string.grant_permission);
+                btnRequestNotification.setEnabled(true);
+            }
+        }
+    }
+    
+    /**
+     * 设置权限授权功能
+     */
+    private void setupPrivilegeSettings() {
+        View privilegeSetting = binding.getRoot().findViewById(R.id.privilege_setting_layout);
+        MaterialButton btnRequestPrivilege = binding.getRoot().findViewById(R.id.btn_request_privilege);
+        
+        if (privilegeSetting != null) {
+            // 更新权限状态显示
+            updatePrivilegeStatus();
             
-            // 整个布局的点击事件
-            notificationLayout.setOnClickListener(v -> {
-                boolean currentState = notificationSwitch.isChecked();
-                notificationSwitch.setChecked(!currentState);
+            // 点击卡片打开选择对话框
+            privilegeSetting.setOnClickListener(v -> showPrivilegeSettingsDialog());
+        }
+        
+        if (btnRequestPrivilege != null) {
+            // 点击按钮请求当前授权器权限
+            btnRequestPrivilege.setOnClickListener(v -> {
+                PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
+                handlePrivilegeAction(currentMode);
             });
+        }
+    }
+    
+    /**
+     * 更新权限状态显示
+     */
+    private void updatePrivilegeStatus() {
+        TextView tvPrivilegeStatus = binding.getRoot().findViewById(R.id.tv_privilege_status);
+        MaterialButton btnRequestPrivilege = binding.getRoot().findViewById(R.id.btn_request_privilege);
+        
+        if (tvPrivilegeStatus != null && btnRequestPrivilege != null) {
+            PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
+            PrivilegeStatus status = PrivilegeHelper.getStatus(requireContext(), currentMode);
+            String modeName = PrivilegeHelper.getModeName(currentMode);
+            
+            // 更新状态文本
+            tvPrivilegeStatus.setText(modeName + ": " + getStatusText(status));
+            
+            // 更新按钮文本和状态
+            switch (status) {
+                case NOT_INSTALLED:
+                    btnRequestPrivilege.setText("下载 " + modeName);
+                    btnRequestPrivilege.setEnabled(true);
+                    break;
+                case NOT_RUNNING:
+                    btnRequestPrivilege.setText("打开 " + modeName);
+                    btnRequestPrivilege.setEnabled(true);
+                    break;
+                case NOT_AUTHORIZED:
+                case VERSION_TOO_LOW:
+                    btnRequestPrivilege.setText(R.string.grant_permission);
+                    btnRequestPrivilege.setEnabled(true);
+                    break;
+                case AUTHORIZED:
+                    btnRequestPrivilege.setText("已授权");
+                    btnRequestPrivilege.setEnabled(false);
+                    break;
+            }
         }
     }
     
@@ -273,10 +372,12 @@ public class SettingsFragment extends Fragment {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             } else {
                 sharedPreferences.edit().putBoolean(KEY_NOTIFICATION_ENABLED, true).apply();
+                updateNotificationStatus();
                 showNotification("通知已开启");
             }
         } else {
             sharedPreferences.edit().putBoolean(KEY_NOTIFICATION_ENABLED, true).apply();
+            updateNotificationStatus();
             showNotification("通知已开启");
         }
     }
@@ -285,12 +386,8 @@ public class SettingsFragment extends Fragment {
      * 更新通知开关状态
      */
     private void updateNotificationSwitch(boolean enabled) {
-        View notificationLayout = binding.getRoot().findViewById(R.id.notification_setting_layout);
-        if (notificationLayout != null) {
-            SwitchMaterial notificationSwitch = (SwitchMaterial) ((ViewGroup)notificationLayout).getChildAt(2);
-            notificationSwitch.setChecked(enabled);
-        }
         sharedPreferences.edit().putBoolean(KEY_NOTIFICATION_ENABLED, enabled).apply();
+        updateNotificationStatus();
     }
     
     /**
@@ -330,11 +427,118 @@ public class SettingsFragment extends Fragment {
         }
     }
 
-
+    /**
+     * 显示权限授权设置对话框
+     */
+    private void showPrivilegeSettingsDialog() {
+        // 获取当前授权器
+        PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
+        int currentIndex = currentMode == PrivilegeMode.SHIZUKU ? 0 : 1;
+        
+        // 获取两个授权器的状态
+        PrivilegeStatus shizukuStatus = PrivilegeHelper.getStatus(requireContext(), PrivilegeMode.SHIZUKU);
+        PrivilegeStatus dhizukuStatus = PrivilegeHelper.getStatus(requireContext(), PrivilegeMode.DHIZUKU);
+        
+        String shizukuDesc = "Shizuku (" + getStatusText(shizukuStatus) + ")";
+        String dhizukuDesc = "Dhizuku (" + getStatusText(dhizukuStatus) + ")";
+        
+        String[] options = {shizukuDesc, dhizukuDesc};
+        
+        // 创建MD3风格的AlertDialog - 使用单选列表
+        MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.privilege_settings)
+                .setSingleChoiceItems(options, currentIndex, (dialog, which) -> {
+                    // 切换授权器
+                    PrivilegeMode newMode = which == 0 ? PrivilegeMode.SHIZUKU : PrivilegeMode.DHIZUKU;
+                    if (newMode != currentMode) {
+                        PrivilegeHelper.saveCurrentMode(requireContext(), newMode);
+                        showNotification("已切换到 " + PrivilegeHelper.getModeName(newMode));
+                        // 更新权限状态显示
+                        updatePrivilegeStatus();
+                    }
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.cancel, null);
+        
+        alertBuilder.show();
+    }
+    
+    /**
+     * 获取状态文本
+     */
+    private String getStatusText(PrivilegeStatus status) {
+        switch (status) {
+            case NOT_INSTALLED:
+                return getString(R.string.privilege_not_installed);
+            case NOT_RUNNING:
+                return getString(R.string.privilege_not_running);
+            case NOT_AUTHORIZED:
+                return getString(R.string.privilege_not_authorized);
+            case AUTHORIZED:
+                return getString(R.string.privilege_authorized);
+            case VERSION_TOO_LOW:
+                return getString(R.string.privilege_version_too_low);
+            default:
+                return getString(R.string.status_unknown);
+        }
+    }
+    
+    /**
+     * 处理权限授权操作
+     */
+    private void handlePrivilegeAction(PrivilegeMode mode) {
+        PrivilegeStatus status = PrivilegeHelper.getStatus(requireContext(), mode);
+        String modeName = PrivilegeHelper.getModeName(mode);
+        
+        switch (status) {
+            case NOT_INSTALLED:
+                // 未安装，跳转到 GitHub 下载页面
+                PrivilegeHelper.openGithubPage(requireContext(), mode);
+                showNotification(modeName + " 未安装，正在打开 GitHub 下载页面...");
+                break;
+            case NOT_RUNNING:
+                // 未运行，打开应用
+                PrivilegeHelper.openPrivilegeApp(requireContext(), mode);
+                showNotification("正在打开 " + modeName + " 应用...");
+                break;
+            case NOT_AUTHORIZED:
+            case VERSION_TOO_LOW:
+                // 未授权或版本过低，请求授权
+                if (mode == PrivilegeMode.SHIZUKU) {
+                    PrivilegeHelper.requestShizukuPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
+                    showNotification("正在请求 Shizuku 授权...");
+                } else {
+                    PrivilegeHelper.requestDhizukuPermission();
+                    showNotification("正在请求 Dhizuku 授权...");
+                }
+                // 延迟更新状态
+                if (getView() != null) {
+                    getView().postDelayed(this::updatePrivilegeStatus, 1000);
+                }
+                break;
+            case AUTHORIZED:
+                showNotification(modeName + " 已授权");
+                break;
+        }
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 页面恢复时更新状态
+        updateNotificationStatus();
+        updatePrivilegeStatus();
+    }
     
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // 移除 Shizuku 权限监听器
+        try {
+            Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         binding = null;
     }
 }

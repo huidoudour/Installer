@@ -15,7 +15,7 @@
         android:paddingEnd="16dp"
         android:paddingBottom="16dp">
 
-        <!-- Shizuku 状态卡片 -->
+        <!-- 授权器状态卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,14 +30,33 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
+                <!-- 标题和切换按钮 -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/shizuku_status"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface"
-                    android:layout_marginBottom="16dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/tvPrivilegeTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Shizuku 状态"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSwitchPrivilege"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="切换"
+                        android:textSize="13sp"
+                        app:cornerRadius="8dp"
+                        style="@style/Widget.Material3.Button.TonalButton" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -56,7 +75,7 @@
                         android:background="@drawable/ic_launcher_background" />
 
                     <TextView
-                        android:id="@+id/tvShizukuStatus"
+                        android:id="@+id/tvPrivilegeStatus"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -69,7 +88,7 @@
                     android:id="@+id/btnRequestPermission"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:text="@string/grant_shizuku_permission"
+                    android:text="@string/grant_permission"
                     android:textSize="15sp"
                     android:backgroundTint="@color/button_secondary"
                     app:cornerRadius="12dp"
