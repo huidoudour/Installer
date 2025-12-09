@@ -11,8 +11,9 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 /**
- * XAPK 安装辅助类
- * 封装 Shizuku 命令执行和 XAPK 多 APK 安装逻辑
+ * Shizuku APK 安装辅助类
+ * 封装 Shizuku 命令执行和 APK 安装逻辑
+ * 使用 pm install 命令，支持 -i 参数指定安装请求者
  */
 public class ShizukuInstallHelper {
 
@@ -250,59 +251,16 @@ public class ShizukuInstallHelper {
      * @param callback 安装回调
      */
     public static void installApk(Context context, String apkPath, boolean replaceExisting, boolean grantPermissions, InstallCallback callback) {
-        new Thread(() -> {
-            try {
-                File apkFile = new File(apkPath);
-                if (!apkFile.exists()) {
-                    callback.onError(context.getString(R.string.apk_not_exist));
-                    return;
-                }
-                
-                callback.onProgress(context.getString(R.string.start_apk_install));
-                
-                // 创建安装会话 - 添加安装请求者参数
-                StringBuilder createCmd = new StringBuilder("pm install-create");
-                if (replaceExisting) createCmd.append(" -r");
-                if (grantPermissions) createCmd.append(" -g");
-                
-                // 添加安装请求者参数：io.github.huidoudour.zjs
-                createCmd.append(" -i io.github.huidoudour.zjs");
-                
-                callback.onProgress(context.getString(R.string.create_session, createCmd.toString()));
-                String createOutput = executeCommand(context, createCmd.toString());
-                
-                if (!createOutput.contains("Success")) {
-                    throw new Exception(context.getString(R.string.install_failed_error, createOutput));
-                }
-                
-                String sessionId = createOutput.substring(
-                    createOutput.indexOf("[") + 1,
-                    createOutput.indexOf("]")
-                );
-                callback.onProgress(context.getString(R.string.session_id, sessionId));
-                
-                // 写入 APK
-                String writeCmd = "pm install-write -S " + apkFile.length() + " " + sessionId + " base.apk -";
-                callback.onProgress(context.getString(R.string.write_apk_data));
-                String writeOutput = executeCommandWithInput(writeCmd, apkFile);
-                
-                if (!writeOutput.contains("Success")) {
-                    throw new Exception(context.getString(R.string.install_failed_error, writeOutput));
-                }
-                
-                // 提交安装
-                callback.onProgress(context.getString(R.string.submit_install));
-                String commitOutput = executeCommand(context, "pm install-commit " + sessionId);
-                
-                if (commitOutput.toLowerCase().contains("success")) {
-                    callback.onSuccess(context.getString(R.string.install_success_simple));
-                } else {
-                    callback.onError(context.getString(R.string.install_failed_error, commitOutput));
-                }
-                
-            } catch (Exception e) {
-                callback.onError(context.getString(R.string.install_exception, e.getMessage()));
+        try {
+            File apkFile = new File(apkPath);
+            if (!apkFile.exists()) {
+                callback.onError(context.getString(R.string.apk_not_exist));
+                return;
             }
-        }).start();
+            
+            installSingleApk(context, apkFile, replaceExisting, grantPermissions, callback);
+        } catch (Exception e) {
+            callback.onError(context.getString(R.string.install_exception, e.getMessage()));
+        }
     }
 }

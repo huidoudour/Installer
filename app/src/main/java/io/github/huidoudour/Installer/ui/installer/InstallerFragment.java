@@ -47,6 +47,7 @@ import io.github.huidoudour.Installer.utils.LogManager;
 
 import io.github.huidoudour.Installer.utils.XapkInstaller;
 import io.github.huidoudour.Installer.utils.ShizukuInstallHelper;
+import io.github.huidoudour.Installer.utils.DhizukuInstallHelper;
 import io.github.huidoudour.Installer.utils.PrivilegeHelper;
 import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeMode;
 import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeStatus;
@@ -438,90 +439,85 @@ public class InstallerFragment extends Fragment {
         log("");
         log(getString(R.string.start_apk_install));
 
-        // === 根据文件类型选择安装方式 ===
+        // === 根据文件类型和授权器选择安装方式 ===
         if (isXapkFile) {
-            // XAPK/APKS 安装（使用原生压缩库）
-            ShizukuInstallHelper.installXapk(
-                requireContext(),
-                selectedFilePath,
-                switchReplaceExisting.isChecked(),
-                switchGrantPermissions.isChecked(),
-                new ShizukuInstallHelper.InstallCallback() {
-                    @Override
-                    public void onProgress(String message) {
-                        log(message);
-                    }
-
-                    @Override
-                    public void onSuccess(String message) {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                log(message);
-                                log(getString(R.string.install_process_end));
-                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
-                                clearSelection();
-                                btnInstall.setEnabled(true);
-                                updateInstallButtonState();
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onError(String error) {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                log("❌ " + error);
-                                log(getString(R.string.install_process_end));
-                                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
-                                btnInstall.setEnabled(true);
-                                updateInstallButtonState();
-                            });
-                        }
-                    }
-                }
-            );
+            // XAPK/APKS 安装
+            if (currentMode == PrivilegeMode.SHIZUKU) {
+                ShizukuInstallHelper.installXapk(
+                    requireContext(),
+                    selectedFilePath,
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            } else {
+                DhizukuInstallHelper.installXapk(
+                    requireContext(),
+                    selectedFilePath,
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            }
         } else {
             // 单个 APK 安装
-            ShizukuInstallHelper.installSingleApk(
-                requireContext(),
-                new File(selectedFilePath),
-                switchReplaceExisting.isChecked(),
-                switchGrantPermissions.isChecked(),
-                new ShizukuInstallHelper.InstallCallback() {
-                    @Override
-                    public void onProgress(String message) {
-                        log(message);
-                    }
-
-                    @Override
-                    public void onSuccess(String message) {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                log(message);
-                                log(getString(R.string.install_process_end));
-                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
-                                clearSelection();
-                                btnInstall.setEnabled(true);
-                                updateInstallButtonState();
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onError(String error) {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                log("❌ " + error);
-                                log(getString(R.string.install_process_end));
-                                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
-                                btnInstall.setEnabled(true);
-                                updateInstallButtonState();
-                            });
-                        }
-                    }
-                }
-            );
+            if (currentMode == PrivilegeMode.SHIZUKU) {
+                ShizukuInstallHelper.installSingleApk(
+                    requireContext(),
+                    new File(selectedFilePath),
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            } else {
+                DhizukuInstallHelper.installSingleApk(
+                    requireContext(),
+                    new File(selectedFilePath),
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            }
         }
+    }
+    
+    /**
+     * 创建安装回调接口
+     */
+    private ShizukuInstallHelper.InstallCallback createInstallCallback() {
+        return new ShizukuInstallHelper.InstallCallback() {
+            @Override
+            public void onProgress(String message) {
+                log(message);
+            }
+
+            @Override
+            public void onSuccess(String message) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        log(message);
+                        log(getString(R.string.install_process_end));
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+                        clearSelection();
+                        btnInstall.setEnabled(true);
+                        updateInstallButtonState();
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        log("❌ " + error);
+                        log(getString(R.string.install_process_end));
+                        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                        btnInstall.setEnabled(true);
+                        updateInstallButtonState();
+                    });
+                }
+            }
+        };
     }
 
     /**
