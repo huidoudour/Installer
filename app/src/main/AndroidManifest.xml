@@ -14,6 +14,12 @@
     
     <!-- Android 11+ 包可见性声明 -->
     <queries>
+        <!-- Shizuku 应用 -->
+        <package android:name="moe.shizuku.privileged.api" />
+        
+        <!-- Dhizuku 应用 -->
+        <package android:name="com.rosan.dhizuku" />
+        
         <!-- 允许查询所有浏览器应用 -->
         <intent>
             <action android:name="android.intent.action.VIEW" />

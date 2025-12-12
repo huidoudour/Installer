@@ -28,6 +28,9 @@ import java.util.List;
 import io.github.huidoudour.Installer.utils.LanguageManager;
 import io.github.huidoudour.Installer.utils.XapkInstaller;
 import io.github.huidoudour.Installer.utils.ShizukuInstallHelper;
+import io.github.huidoudour.Installer.utils.DhizukuInstallHelper;
+import io.github.huidoudour.Installer.utils.PrivilegeHelper;
+import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeMode;
 import rikka.shizuku.Shizuku;
 import io.github.huidoudour.Installer.R;
 
@@ -276,10 +279,14 @@ public class InstallerActivity extends AppCompatActivity {
             layoutInstallInfo.setVisibility(View.GONE);
             layoutProgress.setVisibility(View.VISIBLE);
             
+            // 获取当前授权器
+            PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(this);
+            
             // 开始安装过程
             if (isXapkFile) {
-                // XAPK/APKS 安装（单会话写入所有 APK）
-                ShizukuInstallHelper.installXapk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
+                // XAPK/APKS 安装
+                if (currentMode == PrivilegeMode.SHIZUKU) {
+                    ShizukuInstallHelper.installXapk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                     @Override
                     public void onProgress(String message) {
                         // 保持静默或可选展示
@@ -301,7 +308,31 @@ public class InstallerActivity extends AppCompatActivity {
                     }
                 });
             } else {
-                // APK安装
+                DhizukuInstallHelper.installXapk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
+                    @Override
+                    public void onProgress(String message) {
+                        // 保持静默或可选展示
+                    }
+                    @Override
+                    public void onSuccess(String message) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(InstallerActivity.this, R.string.xapk_install_success, Toast.LENGTH_SHORT).show();
+                            finish();
+                        });
+                    }
+                    @Override
+                    public void onError(String error) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(InstallerActivity.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
+                            layoutProgress.setVisibility(View.GONE);
+                            layoutInstallInfo.setVisibility(View.VISIBLE);
+                        });
+                    }
+                });
+            }
+        } else {
+            // APK安装
+            if (currentMode == PrivilegeMode.SHIZUKU) {
                 ShizukuInstallHelper.installApk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                     @Override
                     public void onProgress(String message) {
@@ -325,7 +356,32 @@ public class InstallerActivity extends AppCompatActivity {
                         });
                     }
                 });
+            } else {
+                DhizukuInstallHelper.installApk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
+                    @Override
+                    public void onProgress(String message) {
+                        // 在安装过程中不显示进度消息
+                    }
+                                    
+                    @Override
+                    public void onSuccess(String message) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(InstallerActivity.this, R.string.apk_install_success, Toast.LENGTH_SHORT).show();
+                            finish();
+                        });
+                    }
+                                    
+                    @Override
+                    public void onError(String error) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(InstallerActivity.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
+                            layoutProgress.setVisibility(View.GONE);
+                            layoutInstallInfo.setVisibility(View.VISIBLE);
+                        });
+                    }
+                });
             }
+        }
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.start_installation_failed), e);
             Toast.makeText(this, getString(R.string.install_process_failed, e.getMessage()), Toast.LENGTH_LONG).show();

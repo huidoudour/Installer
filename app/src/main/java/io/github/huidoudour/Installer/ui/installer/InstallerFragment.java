@@ -47,6 +47,10 @@ import io.github.huidoudour.Installer.utils.LogManager;
 
 import io.github.huidoudour.Installer.utils.XapkInstaller;
 import io.github.huidoudour.Installer.utils.ShizukuInstallHelper;
+import io.github.huidoudour.Installer.utils.DhizukuInstallHelper;
+import io.github.huidoudour.Installer.utils.PrivilegeHelper;
+import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeMode;
+import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeStatus;
 import rikka.shizuku.Shizuku;
 
 public class InstallerFragment extends Fragment {
@@ -58,13 +62,15 @@ public class InstallerFragment extends Fragment {
 
     // 添加标志位，避免重复输出初始化日志
     private static boolean isFirstInit = true;
-    private String lastShizukuStatus = ""; // 记录上次状态，避免重复日志
+    private String lastPrivilegeStatus = ""; // 记录上次状态，避免重复日志
 
-    private TextView tvShizukuStatus;
+    private TextView tvPrivilegeTitle;  // 授权器标题
+    private TextView tvPrivilegeStatus; // 授权器状态
     private TextView tvSelectedFile;
     private TextView tvFileType;  // 新增：文件类型显示
     private Button btnSelectFile;
     private Button btnRequestPermission;
+    private Button btnSwitchPrivilege;  // 切换授权器按钮
     private Button btnInstall;
     private SwitchMaterial switchReplaceExisting;
     private SwitchMaterial switchGrantPermissions;
@@ -83,7 +89,7 @@ public class InstallerFragment extends Fragment {
                     } else {
                         log(getString(R.string.shizuku_permission_denied));
                     }
-                    updateShizukuStatusAndUi();
+                    updatePrivilegeStatusAndUi();
                 }
             };
 
@@ -156,11 +162,13 @@ public class InstallerFragment extends Fragment {
         View root = binding.getRoot();
 
         // 初始化视图
-        tvShizukuStatus = binding.tvShizukuStatus;
+        tvPrivilegeTitle = binding.tvPrivilegeTitle;
+        tvPrivilegeStatus = binding.tvPrivilegeStatus;
         tvSelectedFile = binding.tvSelectedFile;
         tvFileType = binding.tvFileType;  // 新增
         btnSelectFile = binding.btnSelectFile;
         btnRequestPermission = binding.btnRequestPermission;
+        btnSwitchPrivilege = binding.btnSwitchPrivilege;
         btnInstall = binding.btnInstall;
         switchReplaceExisting = binding.switchReplaceExisting;
         switchGrantPermissions = binding.switchGrantPermissions;
@@ -181,7 +189,7 @@ public class InstallerFragment extends Fragment {
         try {
             Shizuku.addBinderReceivedListener(() -> {
                 if (getActivity() != null) {
-                    getActivity().runOnUiThread(this::updateShizukuStatusAndUi);
+                    getActivity().runOnUiThread(this::updatePrivilegeStatusAndUi);
                 }
             });
         } catch (Throwable t) {
@@ -190,11 +198,12 @@ public class InstallerFragment extends Fragment {
 
         // 设置按钮点击事件
         btnSelectFile.setOnClickListener(v -> checkFilePermissionsAndOpenFilePicker());
-        btnRequestPermission.setOnClickListener(v -> requestShizukuPermission());
+        btnRequestPermission.setOnClickListener(v -> requestPrivilegePermission());
+        btnSwitchPrivilege.setOnClickListener(v -> switchPrivilegeMode());
         btnInstall.setOnClickListener(v -> installSelectedApk());
 
         // 初始 UI 状态
-        updateShizukuStatusAndUi();
+        updatePrivilegeStatusAndUi();
 
         // 只在第一次初始化时输出日志
 
@@ -342,30 +351,68 @@ public class InstallerFragment extends Fragment {
         }
     }
 
-    private void requestShizukuPermission() {
-        log(getString(R.string.request_shizuku_permission));
-        try {
-            if (!Shizuku.pingBinder()) {
-                log(getString(R.string.shizuku_not_started));
-                Toast.makeText(requireContext(), getString(R.string.shizuku_not_running), Toast.LENGTH_LONG).show();
-                updateShizukuStatusAndUi();
-                return;
-            }
-            if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) {
-                log(getString(R.string.shizuku_version_low));
-                Toast.makeText(requireContext(), getString(R.string.shizuku_version_too_low), Toast.LENGTH_LONG).show();
-                updateShizukuStatusAndUi();
-                return;
-            }
-            if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-                Shizuku.requestPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
-            } else {
-                log(getString(R.string.shizuku_authorized));
-                updateShizukuStatusAndUi();
-            }
-        } catch (Throwable t) {
-            log("Shizuku 不可用喵: " + t.getMessage());
-            updateShizukuStatusAndUi();
+    /**
+     * 切换授权器模式
+     */
+    private void switchPrivilegeMode() {
+        PrivilegeMode newMode = PrivilegeHelper.switchMode(requireContext());
+        String modeName = PrivilegeHelper.getModeName(newMode);
+        log("已切换到 " + modeName);
+        updatePrivilegeStatusAndUi();
+    }
+
+    /**
+     * 请求当前授权器权限
+     */
+    private void requestPrivilegePermission() {
+        PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
+        PrivilegeStatus status = PrivilegeHelper.getStatus(requireContext(), currentMode);
+        String modeName = PrivilegeHelper.getModeName(currentMode);
+        
+        switch (status) {
+            case NOT_INSTALLED:
+                PrivilegeHelper.openGithubPage(requireContext(), currentMode);
+                log(modeName + " 未安装，正在打开 GitHub 下载页面...");
+                break;
+            case NOT_RUNNING:
+                PrivilegeHelper.openPrivilegeApp(requireContext(), currentMode);
+                log("正在打开 " + modeName + " 应用...");
+                break;
+            case NOT_AUTHORIZED:
+            case VERSION_TOO_LOW:
+                if (currentMode == PrivilegeMode.SHIZUKU) {
+                    log(getString(R.string.request_shizuku_permission));
+                    try {
+                        if (!Shizuku.pingBinder()) {
+                            log(getString(R.string.shizuku_not_started));
+                            Toast.makeText(requireContext(), getString(R.string.shizuku_not_running), Toast.LENGTH_LONG).show();
+                            updatePrivilegeStatusAndUi();
+                            return;
+                        }
+                        if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) {
+                            log(getString(R.string.shizuku_version_low));
+                            Toast.makeText(requireContext(), getString(R.string.shizuku_version_too_low), Toast.LENGTH_LONG).show();
+                            updatePrivilegeStatusAndUi();
+                            return;
+                        }
+                        if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
+                            Shizuku.requestPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
+                        } else {
+                            log(getString(R.string.shizuku_authorized));
+                            updatePrivilegeStatusAndUi();
+                        }
+                    } catch (Throwable t) {
+                        log("Shizuku 不可用喵: " + t.getMessage());
+                        updatePrivilegeStatusAndUi();
+                    }
+                } else {
+                    PrivilegeHelper.requestDhizukuPermission();
+                    log("正在请求 Dhizuku 授权...");
+                }
+                break;
+            case AUTHORIZED:
+                log(modeName + " 已授权");
+                break;
         }
     }
 
@@ -376,17 +423,15 @@ public class InstallerFragment extends Fragment {
             return;
         }
 
-        try {
-            if (!Shizuku.pingBinder() || Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-                log("Shizuku 未连接或未授权，无法通过 Shizuku 安装喵.");
-                Toast.makeText(requireContext(), "Shizuku 未连接或未授权，无法安装喵。", Toast.LENGTH_LONG).show();
-                updateShizukuStatusAndUi();
-                return;
-            }
-        } catch (Throwable t) {
-            log("检查 Shizuku 状态失败喵: " + t.getMessage());
-            Toast.makeText(requireContext(), "Shizuku 不可用喵", Toast.LENGTH_LONG).show();
-            updateShizukuStatusAndUi();
+        // 检查当前授权器状态
+        PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
+        PrivilegeStatus status = PrivilegeHelper.getStatus(requireContext(), currentMode);
+        String modeName = PrivilegeHelper.getModeName(currentMode);
+        
+        if (status != PrivilegeStatus.AUTHORIZED) {
+            log(modeName + " 未连接或未授权，无法安装喵.");
+            Toast.makeText(requireContext(), modeName + " 未连接或未授权，无法安装喵。", Toast.LENGTH_LONG).show();
+            updatePrivilegeStatusAndUi();
             return;
         }
 
@@ -394,90 +439,85 @@ public class InstallerFragment extends Fragment {
         log("");
         log(getString(R.string.start_apk_install));
 
-        // === 根据文件类型选择安装方式 ===
+        // === 根据文件类型和授权器选择安装方式 ===
         if (isXapkFile) {
-            // XAPK/APKS 安装（使用原生压缩库）
-            ShizukuInstallHelper.installXapk(
-                requireContext(),
-                selectedFilePath,
-                switchReplaceExisting.isChecked(),
-                switchGrantPermissions.isChecked(),
-                new ShizukuInstallHelper.InstallCallback() {
-                    @Override
-                    public void onProgress(String message) {
-                        log(message);
-                    }
-
-                    @Override
-                    public void onSuccess(String message) {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                log(message);
-                                log(getString(R.string.install_process_end));
-                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
-                                clearSelection();
-                                btnInstall.setEnabled(true);
-                                updateInstallButtonState();
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onError(String error) {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                log("❌ " + error);
-                                log(getString(R.string.install_process_end));
-                                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
-                                btnInstall.setEnabled(true);
-                                updateInstallButtonState();
-                            });
-                        }
-                    }
-                }
-            );
+            // XAPK/APKS 安装
+            if (currentMode == PrivilegeMode.SHIZUKU) {
+                ShizukuInstallHelper.installXapk(
+                    requireContext(),
+                    selectedFilePath,
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            } else {
+                DhizukuInstallHelper.installXapk(
+                    requireContext(),
+                    selectedFilePath,
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            }
         } else {
             // 单个 APK 安装
-            ShizukuInstallHelper.installSingleApk(
-                requireContext(),
-                new File(selectedFilePath),
-                switchReplaceExisting.isChecked(),
-                switchGrantPermissions.isChecked(),
-                new ShizukuInstallHelper.InstallCallback() {
-                    @Override
-                    public void onProgress(String message) {
-                        log(message);
-                    }
-
-                    @Override
-                    public void onSuccess(String message) {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                log(message);
-                                log(getString(R.string.install_process_end));
-                                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
-                                clearSelection();
-                                btnInstall.setEnabled(true);
-                                updateInstallButtonState();
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onError(String error) {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                log("❌ " + error);
-                                log(getString(R.string.install_process_end));
-                                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
-                                btnInstall.setEnabled(true);
-                                updateInstallButtonState();
-                            });
-                        }
-                    }
-                }
-            );
+            if (currentMode == PrivilegeMode.SHIZUKU) {
+                ShizukuInstallHelper.installSingleApk(
+                    requireContext(),
+                    new File(selectedFilePath),
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            } else {
+                DhizukuInstallHelper.installSingleApk(
+                    requireContext(),
+                    new File(selectedFilePath),
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            }
         }
+    }
+    
+    /**
+     * 创建安装回调接口
+     */
+    private ShizukuInstallHelper.InstallCallback createInstallCallback() {
+        return new ShizukuInstallHelper.InstallCallback() {
+            @Override
+            public void onProgress(String message) {
+                log(message);
+            }
+
+            @Override
+            public void onSuccess(String message) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        log(message);
+                        log(getString(R.string.install_process_end));
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+                        clearSelection();
+                        btnInstall.setEnabled(true);
+                        updateInstallButtonState();
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        log("❌ " + error);
+                        log(getString(R.string.install_process_end));
+                        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                        btnInstall.setEnabled(true);
+                        updateInstallButtonState();
+                    });
+                }
+            }
+        };
     }
 
     /**
@@ -491,84 +531,94 @@ public class InstallerFragment extends Fragment {
         isXapkFile = false;
     }
 
-    private void updateShizukuStatusAndUi() {
+    /**
+     * 更新授权器状态和UI
+     */
+    private void updatePrivilegeStatusAndUi() {
+        PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
+        PrivilegeStatus status = PrivilegeHelper.getStatus(requireContext(), currentMode);
+        String modeName = PrivilegeHelper.getModeName(currentMode);
+        
+        // 更新标题
+        tvPrivilegeTitle.setText(modeName + " 状态");
+        
+        // 根据状态更新UI
         String currentStatus = "";
-        try {
-            if (!Shizuku.pingBinder()) {
-                currentStatus = getString(R.string.not_connected);
-                tvShizukuStatus.setText(R.string.shizuku_not_running);
-                tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+        switch (status) {
+            case NOT_INSTALLED:
+                currentStatus = "未安装";
+                tvPrivilegeStatus.setText(modeName + " 未安装喵");
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                btnRequestPermission.setText("下载 " + modeName);
+                btnRequestPermission.setEnabled(true);
+                if (!currentStatus.equals(lastPrivilegeStatus)) {
+                    log(modeName + " 未安装");
+                }
+                break;
+                
+            case NOT_RUNNING:
+                currentStatus = getString(R.string.not_connected);
+                tvPrivilegeStatus.setText(modeName + " 未运行喵");
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                btnRequestPermission.setText("打开 " + modeName);
+                btnRequestPermission.setEnabled(true);
+                if (!currentStatus.equals(lastPrivilegeStatus)) {
+                    log(modeName + " 未连接");
+                }
+                break;
+                
+            case VERSION_TOO_LOW:
+                currentStatus = getString(R.string.version_too_low);
+                tvPrivilegeStatus.setText("版本过低喵");
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                btnRequestPermission.setText("更新 " + modeName);
+                btnRequestPermission.setEnabled(true);
+                if (!currentStatus.equals(lastPrivilegeStatus)) {
+                    log(modeName + " 版本过低");
+                }
+                break;
+                
+            case NOT_AUTHORIZED:
+                currentStatus = getString(R.string.not_authorized);
+                tvPrivilegeStatus.setText("未授权喵");
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
+                statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
+                btnRequestPermission.setText("请求授权");
+                btnRequestPermission.setEnabled(true);
+                if (!currentStatus.equals(lastPrivilegeStatus)) {
+                    log(modeName + " 已连接但未授权");
+                }
+                break;
+                
+            case AUTHORIZED:
+                currentStatus = getString(R.string.authorized);
+                tvPrivilegeStatus.setText("权限已授予喵");
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                btnRequestPermission.setText("已授权");
                 btnRequestPermission.setEnabled(false);
-                if (!currentStatus.equals(lastShizukuStatus)) {
-                    log(getString(R.string.shizuku_not_connected));
+                if (!currentStatus.equals(lastPrivilegeStatus)) {
+                    log(modeName + " 已连接并已授权");
                 }
-            } else {
-                try {
-                    if (Shizuku.isPreV11() || Shizuku.getVersion() < 10) {
-                        currentStatus = getString(R.string.version_too_low);
-                        tvShizukuStatus.setText(R.string.version_too_low_miao);
-                        tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                        statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                        btnRequestPermission.setEnabled(false);
-                        if (!currentStatus.equals(lastShizukuStatus)) {
-                            log(getString(R.string.shizuku_version_too_low));
-                        }
-                    } else if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-                        currentStatus = getString(R.string.authorized);
-                        tvShizukuStatus.setText(R.string.permission_granted_miao);
-                        tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-                        statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-                        btnRequestPermission.setEnabled(false);
-                        // 只在状态变化或第一次初始化时输出日志
-                        if (!currentStatus.equals(lastShizukuStatus)) {
-                            log(getString(R.string.shizuku_connected_and_authorized));
-                        }
-                    } else {
-                        currentStatus = getString(R.string.not_authorized);
-                        tvShizukuStatus.setText(R.string.not_granted_miao);
-                        tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
-                        statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
-                        btnRequestPermission.setEnabled(true);
-                        if (!currentStatus.equals(lastShizukuStatus)) {
-                            log(getString(R.string.shizuku_connected_but_not_authorized));
-                        }
-                    }
-                } catch (Throwable t) {
-                    currentStatus = getString(R.string.status_unknown);
-                    tvShizukuStatus.setText(R.string.status_unknown_miao);
-                    tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                    statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                    if (!currentStatus.equals(lastShizukuStatus)) {
-                        log(getString(R.string.check_shizuku_version_permission_failed, t.getMessage()));
-                    }
-                }
-            }
-        } catch (Throwable t) {
-            currentStatus = getString(R.string.unavailable);
-            tvShizukuStatus.setText(R.string.unavailable_miao);
-            tvShizukuStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-            statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-            if (!currentStatus.equals(lastShizukuStatus)) {
-                log(getString(R.string.update_shizuku_status_ui_exception, t.getMessage()));
-            }
+                break;
         }
-        lastShizukuStatus = currentStatus; // 更新状态
+        
+        lastPrivilegeStatus = currentStatus;
         updateInstallButtonState();
     }
 
     private void updateInstallButtonState() {
         boolean fileSelected = selectedFilePath != null && !selectedFilePath.isEmpty();
-        boolean shizukuReady = false;
-        try {
-            shizukuReady = Shizuku.pingBinder() &&
-                    Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED &&
-                    !(Shizuku.isPreV11() || Shizuku.getVersion() < 10);
-        } catch (Throwable t) {
-            shizukuReady = false;
-        }
+        
+        // 检查当前授权器是否就绪
+        PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
+        PrivilegeStatus status = PrivilegeHelper.getStatus(requireContext(), currentMode);
+        boolean privilegeReady = (status == PrivilegeStatus.AUTHORIZED);
 
-        btnInstall.setEnabled(shizukuReady && fileSelected);
+        btnInstall.setEnabled(privilegeReady && fileSelected);
     }
 
 
@@ -576,7 +626,7 @@ public class InstallerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        updateShizukuStatusAndUi();
+        updatePrivilegeStatusAndUi();
     }
 
     @Override

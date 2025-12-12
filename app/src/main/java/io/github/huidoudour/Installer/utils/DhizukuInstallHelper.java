@@ -11,25 +11,20 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 /**
- * Shizuku APK 安装辅助类
- * 封装 Shizuku 命令执行和 APK 安装逻辑
- * 使用 pm install 命令，支持 -i 参数指定安装请求者
+ * Dhizuku APK 安装辅助类
+ * 使用 Dhizuku API 执行命令和安装 APK
+ * 支持设备所有者模式下的安装（不使用 -i 参数）
  */
-public class ShizukuInstallHelper {
-
-    public interface InstallCallback {
-        void onProgress(String message);
-        void onSuccess(String message);
-        void onError(String error);
-    }
+public class DhizukuInstallHelper {
 
     /**
-     * 执行 Shizuku 命令
+     * 执行 Dhizuku 命令
      */
     public static String executeCommand(String command) throws Exception {
         try {
-            Class<?> shizukuClass = Class.forName("rikka.shizuku.Shizuku");
-            java.lang.reflect.Method newProcessMethod = shizukuClass.getDeclaredMethod(
+            // 使用反射调用 Dhizuku API
+            Class<?> dhizukuClass = Class.forName("com.rosan.dhizuku.api.Dhizuku");
+            java.lang.reflect.Method newProcessMethod = dhizukuClass.getDeclaredMethod(
                 "newProcess", 
                 String[].class, 
                 String[].class, 
@@ -55,17 +50,17 @@ public class ShizukuInstallHelper {
             process.waitFor();
             return output.toString().trim();
         } catch (Exception e) {
-            throw new Exception("执行命令失败: " + e.getMessage(), e);
+            throw new Exception("执行 Dhizuku 命令失败: " + e.getMessage(), e);
         }
     }
 
     /**
-     * 执行 Shizuku 命令并传入文件数据
+     * 执行带输入的 Dhizuku 命令
      */
     public static String executeCommandWithInput(String command, File inputFile) throws Exception {
         try {
-            Class<?> shizukuClass = Class.forName("rikka.shizuku.Shizuku");
-            java.lang.reflect.Method newProcessMethod = shizukuClass.getDeclaredMethod(
+            Class<?> dhizukuClass = Class.forName("com.rosan.dhizuku.api.Dhizuku");
+            java.lang.reflect.Method newProcessMethod = dhizukuClass.getDeclaredMethod(
                 "newProcess", 
                 String[].class, 
                 String[].class, 
@@ -110,7 +105,7 @@ public class ShizukuInstallHelper {
     }
 
     /**
-     * 执行 Shizuku 命令（带上下文）
+     * 执行 Dhizuku 命令（带上下文）
      */
     public static String executeCommand(Context context, String command) throws Exception {
         return executeCommand(command);
@@ -118,19 +113,17 @@ public class ShizukuInstallHelper {
 
     /**
      * 安装单个 APK
+     * 使用 pm 命令但不添加 -i 参数（设备所有者模式）
      */
-    public static void installSingleApk(Context context, File apkFile, boolean replaceExisting, boolean grantPermissions, InstallCallback callback) {
+    public static void installSingleApk(Context context, File apkFile, boolean replaceExisting, boolean grantPermissions, ShizukuInstallHelper.InstallCallback callback) {
         new Thread(() -> {
             try {
                 callback.onProgress(context.getString(R.string.start_apk_install));
                 
-                // 创建安装会话 - 添加安装请求者参数
+                // 创建安装会话（不添加 -i 参数）
                 StringBuilder createCmd = new StringBuilder("pm install-create");
                 if (replaceExisting) createCmd.append(" -r");
                 if (grantPermissions) createCmd.append(" -g");
-                
-                // 添加安装请求者参数：io.github.huidoudour.zjs
-                createCmd.append(" -i io.github.huidoudour.zjs");
                 
                 callback.onProgress(context.getString(R.string.create_session, createCmd.toString()));
                 String createOutput = executeCommand(context, createCmd.toString());
@@ -172,8 +165,9 @@ public class ShizukuInstallHelper {
 
     /**
      * 安装 XAPK (多个 APK)
+     * 使用 pm 命令但不添加 -i 参数（设备所有者模式）
      */
-    public static void installXapk(Context context, String xapkPath, boolean replaceExisting, boolean grantPermissions, InstallCallback callback) {
+    public static void installXapk(Context context, String xapkPath, boolean replaceExisting, boolean grantPermissions, ShizukuInstallHelper.InstallCallback callback) {
         new Thread(() -> {
             List<File> extractedApks = null;
             try {
@@ -183,13 +177,10 @@ public class ShizukuInstallHelper {
                 extractedApks = XapkInstaller.extractXapk(context, xapkPath);
                 callback.onProgress(context.getString(R.string.extract_complete, extractedApks.size()));
                 
-                // 创建安装会话
+                // 创建安装会话（不添加 -i 参数）
                 StringBuilder createCmd = new StringBuilder("pm install-create");
                 if (replaceExisting) createCmd.append(" -r");
                 if (grantPermissions) createCmd.append(" -g");
-                
-                // 添加安装请求者参数：io.github.huidoudour.zjs
-                createCmd.append(" -i io.github.huidoudour.zjs");
                 
                 callback.onProgress(context.getString(R.string.create_session, ""));
                 String createOutput = executeCommand(context, createCmd.toString());
@@ -250,7 +241,7 @@ public class ShizukuInstallHelper {
      * @param grantPermissions 是否自动授予权限
      * @param callback 安装回调
      */
-    public static void installApk(Context context, String apkPath, boolean replaceExisting, boolean grantPermissions, InstallCallback callback) {
+    public static void installApk(Context context, String apkPath, boolean replaceExisting, boolean grantPermissions, ShizukuInstallHelper.InstallCallback callback) {
         try {
             File apkFile = new File(apkPath);
             if (!apkFile.exists()) {
