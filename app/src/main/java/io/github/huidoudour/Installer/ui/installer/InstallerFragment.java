@@ -152,7 +152,7 @@ public class InstallerFragment extends Fragment {
                     openFilePicker();
                 } else {
                     log(getString(R.string.read_storage_permission_denied));
-                    Toast.makeText(requireContext(), "需要读取存储权限以选择 APK。", Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), getString(R.string.need_file_access_permission_select_apk), Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -343,7 +343,7 @@ public class InstallerFragment extends Fragment {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         try {
-            filePickerLauncher.launch(Intent.createChooser(intent, "选择安装包文件 (APK/XAPK/APKS)"));
+            filePickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_package_file)));
             log(getString(R.string.open_file_picker));
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(requireContext(), getString(R.string.file_picker_not_found), Toast.LENGTH_SHORT).show();
@@ -357,7 +357,7 @@ public class InstallerFragment extends Fragment {
     private void switchPrivilegeMode() {
         PrivilegeMode newMode = PrivilegeHelper.switchMode(requireContext());
         String modeName = PrivilegeHelper.getModeName(newMode);
-        log("已切换到 " + modeName);
+        log(getString(R.string.switched_to_privilege, modeName));
         updatePrivilegeStatusAndUi();
     }
 
@@ -372,11 +372,11 @@ public class InstallerFragment extends Fragment {
         switch (status) {
             case NOT_INSTALLED:
                 PrivilegeHelper.openGithubPage(requireContext(), currentMode);
-                log(modeName + " 未安装，正在打开 GitHub 下载页面...");
+                log(getString(R.string.privilege_not_installed_log, modeName));
                 break;
             case NOT_RUNNING:
                 PrivilegeHelper.openPrivilegeApp(requireContext(), currentMode);
-                log("正在打开 " + modeName + " 应用...");
+                log(getString(R.string.opening_privilege_app, modeName));
                 break;
             case NOT_AUTHORIZED:
             case VERSION_TOO_LOW:
@@ -402,16 +402,16 @@ public class InstallerFragment extends Fragment {
                             updatePrivilegeStatusAndUi();
                         }
                     } catch (Throwable t) {
-                        log("Shizuku 不可用喵: " + t.getMessage());
+                        log(getString(R.string.shizuku_unavailable_meow, t.getMessage()));
                         updatePrivilegeStatusAndUi();
                     }
                 } else {
-                    PrivilegeHelper.requestDhizukuPermission();
-                    log("正在请求 Dhizuku 授权...");
+                    PrivilegeHelper.requestDhizukuPermission(requireContext());
+                    log(getString(R.string.requesting_dhizuku_auth));
                 }
                 break;
             case AUTHORIZED:
-                log(modeName + " 已授权");
+                log(getString(R.string.privilege_already_authorized, modeName));
                 break;
         }
     }
@@ -429,8 +429,8 @@ public class InstallerFragment extends Fragment {
         String modeName = PrivilegeHelper.getModeName(currentMode);
         
         if (status != PrivilegeStatus.AUTHORIZED) {
-            log(modeName + " 未连接或未授权，无法安装喵.");
-            Toast.makeText(requireContext(), modeName + " 未连接或未授权，无法安装喵。", Toast.LENGTH_LONG).show();
+            log(getString(R.string.privilege_not_connected_install_log, modeName));
+            Toast.makeText(requireContext(), getString(R.string.privilege_not_connected_install_log, modeName), Toast.LENGTH_LONG).show();
             updatePrivilegeStatusAndUi();
             return;
         }
@@ -509,7 +509,7 @@ public class InstallerFragment extends Fragment {
             public void onError(String error) {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        log("❌ " + error);
+                        log(getString(R.string.error_prefix, error));
                         log(getString(R.string.install_process_end));
                         Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
                         btnInstall.setEnabled(true);
@@ -540,68 +540,68 @@ public class InstallerFragment extends Fragment {
         String modeName = PrivilegeHelper.getModeName(currentMode);
         
         // 更新标题
-        tvPrivilegeTitle.setText(modeName + " 状态");
+        tvPrivilegeTitle.setText(getString(R.string.privilege_status_title, modeName));
         
         // 根据状态更新UI
         String currentStatus = "";
         switch (status) {
             case NOT_INSTALLED:
-                currentStatus = "未安装";
-                tvPrivilegeStatus.setText(modeName + " 未安装喵");
+                currentStatus = "Not installed";
+                tvPrivilegeStatus.setText(getString(R.string.privilege_not_installed_status, modeName));
                 tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                btnRequestPermission.setText("下载 " + modeName);
+                btnRequestPermission.setText(getString(R.string.privilege_download_button, modeName));
                 btnRequestPermission.setEnabled(true);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
-                    log(modeName + " 未安装");
+                    log(getString(R.string.privilege_not_installed_log, modeName));
                 }
                 break;
                 
             case NOT_RUNNING:
-                currentStatus = getString(R.string.not_connected);
-                tvPrivilegeStatus.setText(modeName + " 未运行喵");
+                currentStatus = "Not running";
+                tvPrivilegeStatus.setText(getString(R.string.privilege_not_running_status, modeName));
                 tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                btnRequestPermission.setText("打开 " + modeName);
+                btnRequestPermission.setText(getString(R.string.privilege_open_button, modeName));
                 btnRequestPermission.setEnabled(true);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
-                    log(modeName + " 未连接");
+                    log(getString(R.string.opening_privilege_app, modeName));
                 }
                 break;
                 
             case VERSION_TOO_LOW:
                 currentStatus = getString(R.string.version_too_low);
-                tvPrivilegeStatus.setText("版本过低喵");
+                tvPrivilegeStatus.setText(getString(R.string.privilege_version_low_status));
                 tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                btnRequestPermission.setText("更新 " + modeName);
+                btnRequestPermission.setText(getString(R.string.privilege_update_button, modeName));
                 btnRequestPermission.setEnabled(true);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
-                    log(modeName + " 版本过低");
+                    log(getString(R.string.privilege_version_low_status) + ": " + modeName);
                 }
                 break;
                 
             case NOT_AUTHORIZED:
                 currentStatus = getString(R.string.not_authorized);
-                tvPrivilegeStatus.setText("未授权喵");
+                tvPrivilegeStatus.setText(getString(R.string.privilege_not_authorized_status));
                 tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
-                btnRequestPermission.setText("请求授权");
+                btnRequestPermission.setText(getString(R.string.privilege_request_auth_button));
                 btnRequestPermission.setEnabled(true);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
-                    log(modeName + " 已连接但未授权");
+                    log(getString(R.string.privilege_not_authorized_status) + ": " + modeName);
                 }
                 break;
                 
             case AUTHORIZED:
                 currentStatus = getString(R.string.authorized);
-                tvPrivilegeStatus.setText("权限已授予喵");
+                tvPrivilegeStatus.setText(getString(R.string.privilege_authorized_status));
                 tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
                 statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-                btnRequestPermission.setText("已授权");
+                btnRequestPermission.setText(getString(R.string.privilege_authorized_button));
                 btnRequestPermission.setEnabled(false);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
-                    log(modeName + " 已连接并已授权");
+                    log(getString(R.string.privilege_authorized_status) + ": " + modeName);
                 }
                 break;
         }
@@ -654,7 +654,7 @@ public class InstallerFragment extends Fragment {
         // 检查是否是安装相关的意图
         if (Intent.ACTION_VIEW.equals(action) || Intent.ACTION_INSTALL_PACKAGE.equals(action)) {
             if (dataUri != null) {
-                log("接收到外部安装请求: " + dataUri.toString());
+                log(getString(R.string.log_external_install_request, dataUri.toString()));
                 
                 // 处理URI并设置文件选择
                 selectedFileUri = dataUri;
@@ -673,10 +673,10 @@ public class InstallerFragment extends Fragment {
                     // 如果是 XAPK，显示包含的 APK 数量
                     if (isXapkFile) {
                         int apkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
-                        log("检测到 " + fileType + "，包含 " + apkCount + " 个 APK 文件");
+                        log(getString(R.string.log_detected_file, fileType, apkCount));
                     }
                     
-                    log("已处理外部安装请求，文件已复制到 cache: " + selectedFilePath);
+                    log(getString(R.string.log_processed_external_request, selectedFilePath));
                     
 
                     

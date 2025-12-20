@@ -1,6 +1,8 @@
 package io.github.huidoudour.Installer.utils;
 
 import android.content.Context;
+
+import io.github.huidoudour.Installer.R;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -18,9 +20,13 @@ public class PrivilegeHelper {
     private static final String DHIZUKU_PACKAGE = "com.rosan.dhizuku";
     private static final String SHIZUKU_GITHUB_URL = "https://github.com/RikkaApps/Shizuku";
     private static final String DHIZUKU_GITHUB_URL = "https://github.com/iamr0s/Dhizuku";
+    private static final int DHIZUKU_MIN_VERSION = 8;
     
     private static final String PREFS_NAME = "privilege_settings";
     private static final String KEY_CURRENT_MODE = "current_mode";
+    
+    // Dhizuku 权限请求回调
+    private static DhizukuPermissionCallback dhizukuPermissionCallback = null;
     
     public enum PrivilegeMode {
         SHIZUKU,
@@ -33,6 +39,15 @@ public class PrivilegeHelper {
         NOT_AUTHORIZED,     // 未授权
         AUTHORIZED,         // 已授权
         VERSION_TOO_LOW     // 版本过低
+    }
+    
+    /**
+     * Dhizuku 权限请求回调接口
+     */
+    public interface DhizukuPermissionCallback {
+        void onPermissionGranted();
+        void onPermissionDenied();
+        void onError(String error);
     }
     
     /**
@@ -79,6 +94,17 @@ public class PrivilegeHelper {
             // 使用 Dhizuku API 检查状态
             Class<?> dhizukuClass = Class.forName("com.rosan.dhizuku.api.Dhizuku");
             
+            // 检查版本
+            try {
+                java.lang.reflect.Method versionMethod = dhizukuClass.getDeclaredMethod("getVersion");
+                int version = (int) versionMethod.invoke(null);
+                if (version < DHIZUKU_MIN_VERSION) {
+                    return PrivilegeStatus.VERSION_TOO_LOW;
+                }
+            } catch (NoSuchMethodException e) {
+                // 版本方法不存在，尝试其他方式检查
+            }
+            
             // 检查是否运行
             java.lang.reflect.Method pingMethod = dhizukuClass.getDeclaredMethod("isRunning");
             boolean isRunning = (boolean) pingMethod.invoke(null);
@@ -91,6 +117,8 @@ public class PrivilegeHelper {
             boolean isGranted = (boolean) permissionMethod.invoke(null);
             
             return isGranted ? PrivilegeStatus.AUTHORIZED : PrivilegeStatus.NOT_AUTHORIZED;
+        } catch (ClassNotFoundException e) {
+            return PrivilegeStatus.NOT_RUNNING;
         } catch (Exception e) {
             return PrivilegeStatus.NOT_RUNNING;
         }
@@ -127,15 +155,48 @@ public class PrivilegeHelper {
     }
     
     /**
-     * 请求 Dhizuku 授权
+     * 请求 Dhizuku 授权（带回调）
      */
-    public static void requestDhizukuPermission() {
+    public static void requestDhizukuPermission(Context context, DhizukuPermissionCallback callback) {
         try {
             Class<?> dhizukuClass = Class.forName("com.rosan.dhizuku.api.Dhizuku");
-            java.lang.reflect.Method requestMethod = dhizukuClass.getDeclaredMethod("requestPermission");
-            requestMethod.invoke(null);
+            java.lang.reflect.Method requestPermissionMethod = dhizukuClass.getDeclaredMethod("requestPermission", android.os.Bundle.class);
+            
+            dhizukuPermissionCallback = callback;
+            requestPermissionMethod.invoke(null, (android.os.Bundle) null);
+        } catch (NoSuchMethodException e) {
+            if (callback != null) {
+                callback.onError(context.getString(R.string.dhizuku_request_permission_method_not_found));
+            }
+        } catch (ClassNotFoundException e) {
+            if (callback != null) {
+                callback.onError(context.getString(R.string.dhizuku_api_class_not_found));
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            if (callback != null) {
+                callback.onError(context.getString(R.string.dhizuku_request_permission_failed, e.getMessage()));
+            }
+        }
+    }
+    
+    /**
+     * 请求 Dhizuku 授权（无回调）
+     */
+    public static void requestDhizukuPermission(Context context) {
+        requestDhizukuPermission(context, null);
+    }
+
+    /**
+     * 处理 Dhizuku 权限请求结果（从后台回调调用）
+     */
+    public static void onDhizukuPermissionResult(boolean granted) {
+        if (dhizukuPermissionCallback != null) {
+            if (granted) {
+                dhizukuPermissionCallback.onPermissionGranted();
+            } else {
+                dhizukuPermissionCallback.onPermissionDenied();
+            }
+            dhizukuPermissionCallback = null;
         }
     }
     
@@ -164,20 +225,38 @@ public class PrivilegeHelper {
     /**
      * 获取状态描述文本
      */
+    public static String getStatusDescription(PrivilegeStatus status, Context context) {
+        switch (status) {
+            case NOT_INSTALLED:
+                return context.getString(R.string.privilege_status_not_installed);
+            case NOT_RUNNING:
+                return context.getString(R.string.privilege_status_not_running);
+            case NOT_AUTHORIZED:
+                return context.getString(R.string.privilege_status_not_authorized);
+            case AUTHORIZED:
+                return context.getString(R.string.privilege_status_authorized);
+            case VERSION_TOO_LOW:
+                return context.getString(R.string.privilege_status_version_too_low);
+            default:
+                return context.getString(R.string.privilege_status_unknown);
+        }
+    }
+
+    // 为了保持向后兼容性，保留原来的方法（如果没有上下文的话使用默认值）
     public static String getStatusDescription(PrivilegeStatus status) {
         switch (status) {
             case NOT_INSTALLED:
-                return "未安装";
+                return "Not Installed";
             case NOT_RUNNING:
-                return "未运行";
+                return "Not Running";
             case NOT_AUTHORIZED:
-                return "未授权";
+                return "Not Authorized";
             case AUTHORIZED:
-                return "已授权";
+                return "Authorized";
             case VERSION_TOO_LOW:
-                return "版本过低";
+                return "Version Too Low";
             default:
-                return "未知状态";
+                return "Unknown Status";
         }
     }
     
@@ -218,5 +297,45 @@ public class PrivilegeHelper {
      */
     public static String getModeName(PrivilegeMode mode) {
         return mode == PrivilegeMode.SHIZUKU ? "Shizuku" : "Dhizuku";
+    }
+    
+    /**
+     * 获取 Dhizuku 版本
+     */
+    public static int getDhizukuVersion() {
+        try {
+            Class<?> dhizukuClass = Class.forName("com.rosan.dhizuku.api.Dhizuku");
+            java.lang.reflect.Method versionMethod = dhizukuClass.getDeclaredMethod("getVersion");
+            return (int) versionMethod.invoke(null);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+    
+    /**
+     * 检查 Dhizuku 是否安装并支持权限回调
+     */
+    public static boolean isDhizukuSupportsCallback() {
+        try {
+            Class<?> dhizukuClass = Class.forName("com.rosan.dhizuku.api.Dhizuku");
+            // 检查是否有权限回调相关方法
+            for (java.lang.reflect.Method method : dhizukuClass.getDeclaredMethods()) {
+                if (method.getName().contains("Listener") || method.getName().contains("Callback")) {
+                    return true;
+                }
+            }
+            return true;  // 大多数版本都支持
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * 初始化权限系统（建议在应用启动时调用）
+     */
+    public static void initialize(Context context) {
+        // 检查并缓存权限器状态
+        getStatus(context, PrivilegeMode.SHIZUKU);
+        getStatus(context, PrivilegeMode.DHIZUKU);
     }
 }

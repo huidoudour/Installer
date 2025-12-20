@@ -517,18 +517,18 @@ public class ShellExecutor {
         };
         
         public static final String[] COMMAND_NAMES = {
-            "列出文件",
-            "当前目录",
-            "当前用户",
-            "系统信息",
-            "磁盘空间",
-            "内存信息",
-            "进程列表",
-            "已安装应用",
-            "系统属性",
-            "系统日志",
-            "🔧 Native库信息",
-            "🚀 性能测试"
+            "List files",           // R.string.list_files
+            "Current directory",    // R.string.current_directory
+            "Current user",         // R.string.current_user
+            "System information",   // R.string.system_info
+            "Disk space",           // R.string.disk_space
+            "Memory information",   // R.string.memory_info
+            "Process list",         // R.string.process_list
+            "Installed apps",       // R.string.installed_apps
+            "System properties",    // R.string.system_properties
+            "System logs",          // R.string.system_logs
+            "🔧 Native library info", // R.string.native_library_info
+            "🚀 Performance test"     // R.string.performance_test
         };
     }
 

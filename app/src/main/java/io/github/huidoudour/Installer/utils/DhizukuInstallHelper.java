@@ -24,12 +24,30 @@ public class DhizukuInstallHelper {
         try {
             // 使用反射调用 Dhizuku API
             Class<?> dhizukuClass = Class.forName("com.rosan.dhizuku.api.Dhizuku");
-            java.lang.reflect.Method newProcessMethod = dhizukuClass.getDeclaredMethod(
-                "newProcess", 
-                String[].class, 
-                String[].class, 
-                String.class
-            );
+            java.lang.reflect.Method newProcessMethod = null;
+            
+            // 尝试找到合适的 newProcess 方法
+            try {
+                newProcessMethod = dhizukuClass.getDeclaredMethod(
+                    "newProcess", 
+                    String[].class, 
+                    String[].class, 
+                    String.class
+                );
+            } catch (NoSuchMethodException e) {
+                // 如果没有找到，遍历所有方法
+                for (java.lang.reflect.Method method : dhizukuClass.getDeclaredMethods()) {
+                    if (method.getName().equals("newProcess")) {
+                        newProcessMethod = method;
+                        break;
+                    }
+                }
+            }
+            
+            if (newProcessMethod == null) {
+                throw new Exception("无法找到 Dhizuku newProcess 方法");
+            }
+            
             newProcessMethod.setAccessible(true);
             
             Process process = (Process) newProcessMethod.invoke(
@@ -38,6 +56,10 @@ public class DhizukuInstallHelper {
                 null,
                 null
             );
+            
+            if (process == null) {
+                throw new Exception("创建 Dhizuku 进程失败");
+            }
             
             StringBuilder output = new StringBuilder();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -47,25 +69,54 @@ public class DhizukuInstallHelper {
             }
             reader.close();
             
+            // 也读取错误流
+            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            StringBuilder errors = new StringBuilder();
+            while ((line = errorReader.readLine()) != null) {
+                errors.append(line).append("\n");
+            }
+            errorReader.close();
+            
             process.waitFor();
-            return output.toString().trim();
+            
+            String result = output.toString().trim();
+            if (result.isEmpty() && errors.length() > 0) {
+                result = errors.toString().trim();
+            }
+            return result;
         } catch (Exception e) {
             throw new Exception("执行 Dhizuku 命令失败: " + e.getMessage(), e);
         }
     }
-
+    
     /**
      * 执行带输入的 Dhizuku 命令
      */
     public static String executeCommandWithInput(String command, File inputFile) throws Exception {
         try {
             Class<?> dhizukuClass = Class.forName("com.rosan.dhizuku.api.Dhizuku");
-            java.lang.reflect.Method newProcessMethod = dhizukuClass.getDeclaredMethod(
-                "newProcess", 
-                String[].class, 
-                String[].class, 
-                String.class
-            );
+            java.lang.reflect.Method newProcessMethod = null;
+            
+            try {
+                newProcessMethod = dhizukuClass.getDeclaredMethod(
+                    "newProcess", 
+                    String[].class, 
+                    String[].class, 
+                    String.class
+                );
+            } catch (NoSuchMethodException e) {
+                for (java.lang.reflect.Method method : dhizukuClass.getDeclaredMethods()) {
+                    if (method.getName().equals("newProcess")) {
+                        newProcessMethod = method;
+                        break;
+                    }
+                }
+            }
+            
+            if (newProcessMethod == null) {
+                throw new Exception("无法找到 Dhizuku newProcess 方法");
+            }
+            
             newProcessMethod.setAccessible(true);
             
             Process process = (Process) newProcessMethod.invoke(
@@ -74,6 +125,10 @@ public class DhizukuInstallHelper {
                 null,
                 null
             );
+            
+            if (process == null) {
+                throw new Exception("创建 Dhizuku 进程失败");
+            }
             
             // 写入文件数据
             FileInputStream fis = new FileInputStream(inputFile);
@@ -97,25 +152,58 @@ public class DhizukuInstallHelper {
             }
             reader.close();
             
+            // 也读取错误流
+            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            StringBuilder errors = new StringBuilder();
+            while ((line = errorReader.readLine()) != null) {
+                errors.append(line).append("\n");
+            }
+            errorReader.close();
+            
             process.waitFor();
-            return output.toString().trim();
+            
+            String result = output.toString().trim();
+            if (result.isEmpty() && errors.length() > 0) {
+                result = errors.toString().trim();
+            }
+            return result;
         } catch (Exception e) {
             throw new Exception("执行命令失败: " + e.getMessage(), e);
         }
     }
-
+    
     /**
      * 执行 Dhizuku 命令（带上下文）
      */
     public static String executeCommand(Context context, String command) throws Exception {
         return executeCommand(command);
     }
+    
+    /**
+     * 安全的 Dhizuku 权限检查
+     */
+    public static boolean isDhizukuAvailable(Context context) {
+        try {
+            return PrivilegeHelper.getStatus(context, PrivilegeHelper.PrivilegeMode.DHIZUKU) != PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 
     /**
      * 安装单个 APK
      * 使用 pm 命令但不添加 -i 参数（设备所有者模式）
      */
     public static void installSingleApk(Context context, File apkFile, boolean replaceExisting, boolean grantPermissions, ShizukuInstallHelper.InstallCallback callback) {
+        // 检查权限
+        if (!isDhizukuAvailable(context)) {
+            if (callback != null) {
+                callback.onError(context.getString(R.string.dhizuku_not_available));
+            }
+            return;
+        }
+        
         new Thread(() -> {
             try {
                 callback.onProgress(context.getString(R.string.start_apk_install));
@@ -168,6 +256,14 @@ public class DhizukuInstallHelper {
      * 使用 pm 命令但不添加 -i 参数（设备所有者模式）
      */
     public static void installXapk(Context context, String xapkPath, boolean replaceExisting, boolean grantPermissions, ShizukuInstallHelper.InstallCallback callback) {
+        // 检查权限
+        if (!isDhizukuAvailable(context)) {
+            if (callback != null) {
+                callback.onError(context.getString(R.string.dhizuku_not_available));
+            }
+            return;
+        }
+        
         new Thread(() -> {
             List<File> extractedApks = null;
             try {
