@@ -47,7 +47,7 @@
     <string name="background_display_enabled">后台显示已启用，应用将出现在最近任务列表中（重启应用后生效）</string>
     <string name="background_display_disabled">后台显示已禁用，应用将不会出现在最近任务列表中（重启应用后生效）</string>
     <string name="setting_change_failed">设置更改失败，请手动重启应用</string>
-    <string name="text1">huidoudour\'s Installer</string>
+    <string name="text1">你保护世界，我保护你</string>
     <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
     <string name="find_me">ω寻找我ω</string>
     
@@ -398,6 +398,7 @@
     <string name="privilege_mode_dhizuku">Dhizuku</string>
     
     <!-- 原生库测试相关字符串 -->
+    <string name="execute_command_failed">执行命令失败</string>
     <string name="native_test_title">=== 原生库测试 ===</string>
     <string name="native_lib_loaded_success">原生库加载成功!</string>
     <string name="native_lib_test_1">【测试 1】库信息:</string>
@@ -470,4 +471,5 @@
     <string name="notification_permission_denied">通知权限被拒绝，请在设置中手动开启</string>
     <string name="notification_opened">通知已开启</string>
     <string name="error_prefix">错误: %s</string>
+    <string name="dhizuku_not_available">Dhizuku 不可用</string>
 </resources>

@@ -46,7 +46,7 @@
     <string name="background_display_enabled">Background display enabled, app will appear in recent tasks (effective after restart)</string>
     <string name="background_display_disabled">Background display disabled, app will not appear in recent tasks (effective after restart)</string>
     <string name="setting_change_failed">Setting change failed, please restart app manually</string>
-    <string name="text1">huidoudour\'s Installer</string>
+    <string name="text1">你保护世界，我保护你</string>
     <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
     <string name="find_me">ω寻找我ω</string>
     

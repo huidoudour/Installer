@@ -359,6 +359,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="notification_disabled">Notification_disabled</string>
     
     <!-- 授权器相关硬编码字符串 -->
+    <string name="log_detected_file">Detected %s, contains %d APK files</string>
     <string name="switched_to_privilege">Switched to %s</string>
     <string name="privilege_not_installed_log">%s not installed, opening GitHub download page...</string>
     <string name="opening_privilege_app">Opening %s app...</string>
@@ -396,4 +397,53 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="notification_permission_denied">Notification permission denied, please enable it manually in settings</string>
     <string name="notification_opened">Notification enabled</string>
     <string name="error_prefix">Error: %s</string>
+    <string name="privilege_settings">Permission Settings</string>
+    <string name="shizuku_settings">Shizuku Authorization</string>
+    <string name="dhizuku_settings">Dhizuku Authorization</string>
+    <string name="privilege_status">Status: %s</string>
+    <string name="privilege_not_installed">Not Installed</string>
+    <string name="privilege_not_running">Not Running</string>
+    <string name="privilege_not_authorized">Not Authorized</string>
+    <string name="privilege_authorized">Authorized</string>
+    <string name="privilege_version_too_low">Version Too Low</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="open_app">Open App</string>
+    <string name="download_from_github">Download from GitHub</string>
+    <string name="dhizuku_status">Dhizuku Status</string>
+    <string name="switch_privilege">Switch</string>
+    <string name="current_privilege">Current Authorization</string>
+    <string name="privilege_mode_shizuku">Shizuku</string>
+    <string name="privilege_mode_dhizuku">Dhizuku</string>
+    <string name="execute_command_failed">Command execution failed: %s</string>
+    <string name="native_test_title">=== Native Library Tests ===</string>
+    <string name="native_lib_loaded_success">Native library loaded successfully!</string>
+    <string name="native_lib_test_1">【Test 1】Library Info:</string>
+    <string name="native_lib_test_2">【Test 2】Performance Comparison:</string>
+    <string name="native_lib_test_3">【Test 3】Hash Performance:</string>
+    <string name="native_lib_test_4">【Test 4】Hash Calculation Example:</string>
+    <string name="native_lib_test_input">Input: %s</string>
+    <string name="native_lib_test_hash">Hash: %s</string>
+    <string name="native_lib_test_completed">All tests completed!</string>
+    <string name="native_lib_load_failed">Native library failed to load!</string>
+    <string name="native_lib_error_message">Error message:</string>
+    <string name="native_lib_check_list">Please check:</string>
+    <string name="native_lib_check_ndk">1. NDK installed correctly</string>
+    <string name="native_lib_check_cmake">2. CMake configuration correct</string>
+    <string name="native_lib_check_arch">3. Architecture matches (arm64-v8a or x86_64)</string>
+    <string name="privilege_status_title">%s Status</string>
+    <string name="privilege_not_installed_status">%s not installed</string>
+    <string name="privilege_download_button">Download %s</string>
+    <string name="privilege_not_running_status">%s not running</string>
+    <string name="privilege_open_button">Open %s</string>
+    <string name="privilege_version_low_status">Version too low</string>
+    <string name="privilege_update_button">Update %s</string>
+    <string name="privilege_not_authorized_status">Not authorized</string>
+    <string name="privilege_request_auth_button">Request Authorization</string>
+    <string name="privilege_authorized_status">Permission granted</string>
+    <string name="privilege_authorized_button">Authorized</string>
+    <string name="log_external_install_request">Received external install request: %s</string>
+    <string name="log_processed_external_request">Processed external install request, file copied to cache: %s</string>
+    <string name="log_received_home_install">Received install URI from HomeActivity: %s</string>
+    <string name="log_processed_home_request">Processed install request from HomeActivity, file copied to cache: %s</string>
+    <string name="dhizuku_not_available">Dhizuku not installed or unavailable</string>
 </resources>
