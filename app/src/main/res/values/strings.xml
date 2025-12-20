@@ -64,8 +64,8 @@
     <string name="esc">ESC</string>
     <string name="root">root</string>
     <string name="letter_c">C</string>
-    <string name="clipboard">📋</string>
-    <string name="lightning">⚡</string>
+    <string name="clipboard">P</string>
+    <string name="lightning">Q</string>
     <string name="shizuku_status">Shizuku Status</string>
     <string name="checking">Checking...</string>
     <string name="grant_shizuku_permission">Grant Shizuku Permission</string>
@@ -130,7 +130,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="submit_install">Submitting install...</string>
     <string name="install_failed">Installation failed: %s</string>
     <string name="install_exception">Installation exception: %s</string>
-    <string name="extract_xapk">📦 Extracting XAPK (using native compression library)...</string>
+    <string name="extract_xapk">Extracting XAPK (using native compression library)...</string>
     <string name="shizuku_not_running">Not Running/Not Installed</string>
     <string name="shizuku_not_connected">Shizuku not connected.</string>
     <string name="version_too_low">Version too low</string>
@@ -143,10 +143,10 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="check_shizuku_version_permission_failed">Failed to check Shizuku version/permission: %s</string>
     <string name="unavailable">Unavailable</string>
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi caught exception: %s</string>
-    <string name="extract_complete">✅ Extraction complete, total %d APK files</string>
-    <string name="apk_progress" formatted="false">📦 [%d/%d] %s</string>
-    <string name="submitting_install">🚀 Submitting install...</string>
-    <string name="xapk_install_success_msg">✨ XAPK installed successfully! Total %d APK files installed</string>
+    <string name="extract_complete">Extraction complete, total %d APK files</string>
+    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
+    <string name="submitting_install">Submitting install...</string>
+    <string name="xapk_install_success_msg">XAPK installed successfully! Total %d APK files installed</string>
     <string name="xapk_install_exception">XAPK installation exception: %s</string>
     <string name="apk_not_exist">APK file does not exist</string>
     <string name="start_extract_xapk">Starting XAPK extraction: %s</string>
@@ -161,7 +161,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="close_zip_stream_failed">Failed to close ZIP input stream</string>
     <string name="close_file_stream">File input stream closed</string>
     <string name="close_file_stream_failed">Failed to close file input stream</string>
-    <string name="install_success_simple">✅ Installation successful!</string>
+    <string name="install_success_simple">Installation successful!</string>
     <string name="extract_complete_summary" formatted="false">Extraction complete! Processed %d entries, extracted %d APK files</string>
     <string name="extract_xapk_error">Error occurred during XAPK extraction</string>
     <string name="no_apk_found">No APK files found in XAPK/APKS file</string>
@@ -217,8 +217,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="installed_apps">Installed Apps</string>
     <string name="system_properties">System Properties</string>
     <string name="system_logs">System Logs</string>
-    <string name="native_library_info">🔧 Native Library Info</string>
-    <string name="performance_test">🚀 Performance Test</string>
+    <string name="native_library_info">Native Library Info</string>
+    <string name="performance_test">Performance Test</string>
     <string name="copy_text_to_clipboard">Copy text to clipboard</string>
     <string name="terminal_output">Terminal Output</string>
     <string name="command_history_management">Command history management</string>
@@ -239,7 +239,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="install_stderr">Install (stderr): %s</string>
     <string name="read_install_output_error">Error reading install process output: %s</string>
     <string name="install_success_log" formatted="false">Installation successful: %s Output: %s</string>
-    <string name="install_success">✅ Installation successful!</string>
+    <string name="install_success">Installation successful!</string>
     <string name="install_failed_log" formatted="false">Installation failed. Exit code: %d&#10;Output: %s&#10;Error: %s</string>
     <string name="install_failed_check_log">Installation failed, check logs.</string>
     <string name="temp_file_cleaned">Temporary file cleaned: %s</string>
@@ -331,7 +331,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="need_file_access_permission_select_apk">Need file access permission to select APK.</string>
     <string name="please_select_install_file_miao">Please select install package file first.</string>
     <string name="install_process_end">=== Install process ended ===</string>
-    <string name="quick_path_title">📁 Quick Path</string>
+    <string name="quick_path_title">Quick Path</string>
     <string name="quick_path_root">Root (/)</string>
     <string name="quick_path_sdcard">SD Card (/sdcard/)</string>
     <string name="quick_path_download">Download (/sdcard/Download/)</string>
@@ -381,15 +381,15 @@ Please try installing Chrome, Firefox or other browser.</string>
     
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== Native Library Tests ===</string>
-    <string name="native_lib_loaded_success">✅ Native library loaded successfully!</string>
+    <string name="native_lib_loaded_success">Native library loaded successfully!</string>
     <string name="native_lib_test_1">【Test 1】Library Info:</string>
     <string name="native_lib_test_2">【Test 2】Performance Comparison:</string>
     <string name="native_lib_test_3">【Test 3】Hash Performance:</string>
     <string name="native_lib_test_4">【Test 4】Hash Calculation Example:</string>
     <string name="native_lib_test_input">Input: "%s"</string>
     <string name="native_lib_test_hash">Hash: %s</string>
-    <string name="native_lib_test_completed">✅ All tests completed!</string>
-    <string name="native_lib_load_failed">❌ Native library failed to load!</string>
+    <string name="native_lib_test_completed">All tests completed!</string>
+    <string name="native_lib_load_failed">Native library failed to load!</string>
     <string name="native_lib_error_message">Error message:</string>
     <string name="native_lib_check_list">Please check:</string>
     <string name="native_lib_check_ndk">1. NDK installed correctly</string>
@@ -451,5 +451,5 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="notification_permission_granted">Notification permission granted</string>
     <string name="notification_permission_denied">Notification permission denied, please enable it manually in settings</string>
     <string name="notification_opened">Notification enabled</string>
-    <string name="error_prefix">❌ Error: %s</string>
+    <string name="error_prefix">Error: %s</string>
 </resources>

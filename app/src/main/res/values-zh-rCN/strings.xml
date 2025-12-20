@@ -65,8 +65,8 @@
     <string name="esc">ESC</string>
     <string name="root">root</string>
     <string name="letter_c">C</string>
-    <string name="clipboard">📋</string>
-    <string name="lightning">⚡</string>
+    <string name="clipboard">P</string>
+    <string name="lightning">Q</string>
     
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku 状态</string>
@@ -133,7 +133,7 @@
     <string name="submit_install">提交安装...</string>
     <string name="install_failed">安装失败: %s</string>
     <string name="install_exception">安装异常: %s</string>
-    <string name="extract_xapk">📦 正在解压 XAPK (使用原生压缩库)...</string>
+    <string name="extract_xapk">正在解压 XAPK (使用原生压缩库)...</string>
     <string name="shizuku_not_running">未运行/未安装</string>
     <string name="shizuku_not_connected">Shizuku 未连接喵.</string>
     <string name="version_too_low">版本过低喵</string>
@@ -148,10 +148,10 @@
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi 捕获异常喵: %s</string>
     
     <!-- XAPK extraction -->
-    <string name="extract_complete">✅ 解压完成，共 %d 个 APK</string>
-    <string name="apk_progress" formatted="false">📦 [%d/%d] %s</string>
-    <string name="submitting_install">🚀 提交安装...</string>
-    <string name="xapk_install_success_msg">✨ XAPK 安装成功！共安装 %d 个 APK</string>
+    <string name="extract_complete">解压完成，共 %d 个 APK</string>
+    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
+    <string name="submitting_install">提交安装...</string>
+    <string name="xapk_install_success_msg">XAPK 安装成功！共安装 %d 个 APK</string>
     <string name="xapk_install_exception">XAPK 安装异常: %s</string>
     <string name="apk_not_exist">APK 文件不存在</string>
     <string name="start_extract_xapk">开始解压 XAPK: %s</string>
@@ -166,7 +166,7 @@
     <string name="close_zip_stream_failed">关闭 ZIP 输入流失败</string>
     <string name="close_file_stream">文件输入流已关闭</string>
     <string name="close_file_stream_failed">关闭文件输入流失败</string>
-    <string name="install_success_simple">✅ 安装成功！</string>
+    <string name="install_success_simple">安装成功！</string>
     <string name="extract_complete_summary" formatted="false">解压完成！共处理 %d 个条目，提取 %d 个 APK 文件</string>
     <string name="extract_xapk_error">解压 XAPK 过程中发生错误</string>
     <string name="no_apk_found">XAPK/APKS 文件中未找到任何 APK 文件</string>
@@ -226,8 +226,8 @@
     <string name="installed_apps">已安装应用</string>
     <string name="system_properties">系统属性</string>
     <string name="system_logs">系统日志</string>
-    <string name="native_library_info">🔧 Native库信息</string>
-    <string name="performance_test">🚀 性能测试</string>
+    <string name="native_library_info">Native库信息</string>
+    <string name="performance_test">性能测试</string>
     <string name="copy_text_to_clipboard">复制文本到剪贴板</string>
     <string name="terminal_output">Terminal Output</string>
     <string name="command_history_management">命令历史记录管理</string>
@@ -252,7 +252,7 @@
     <string name="install_stderr">Install (stderr): %s</string>
     <string name="read_install_output_error">读取安装进程输出出错喵: %s</string>
     <string name="install_success_log" formatted="false">安装成功喵: %s 输出: %s</string>
-    <string name="install_success">✅ 安装成功！</string>
+    <string name="install_success">安装成功！</string>
     <string name="install_failed_log" formatted="false">安装失败喵。Exit code: %d&#10;Output: %s&#10;Error: %s</string>
     <string name="install_failed_check_log">安装失败，查看日志喵。</string>
     <string name="temp_file_cleaned">已清理临时文件: %s</string>
@@ -347,7 +347,7 @@
     <string name="install_process_end">=== 安装流程结束 ===</string>
     
     <!-- Quick paths -->
-    <string name="quick_path_title">📁 快捷路径</string>
+    <string name="quick_path_title">快捷路径</string>
     <string name="quick_path_root">Root (/)</string>
     <string name="quick_path_sdcard">SD卡 (/sdcard/)</string>
     <string name="quick_path_download">下载 (/sdcard/Download/)</string>
@@ -399,15 +399,15 @@
     
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== 原生库测试 ===</string>
-    <string name="native_lib_loaded_success">✅ 原生库加载成功!</string>
+    <string name="native_lib_loaded_success">原生库加载成功!</string>
     <string name="native_lib_test_1">【测试 1】库信息:</string>
     <string name="native_lib_test_2">【测试 2】性能对比:</string>
     <string name="native_lib_test_3">【测试 3】哈希性能:</string>
     <string name="native_lib_test_4">【测试 4】哈希计算示例:</string>
     <string name="native_lib_test_input">输入: "%s"</string>
     <string name="native_lib_test_hash">哈希: %s</string>
-    <string name="native_lib_test_completed">✅ 所有测试完成!</string>
-    <string name="native_lib_load_failed">❌ 原生库加载失败!</string>
+    <string name="native_lib_test_completed">所有测试完成!</string>
+    <string name="native_lib_load_failed">原生库加载失败!</string>
     <string name="native_lib_error_message">错误信息:</string>
     <string name="native_lib_check_list">请检查:</string>
     <string name="native_lib_check_ndk">1. NDK 是否正确安装</string>
@@ -469,5 +469,5 @@
     <string name="notification_permission_granted">通知权限已授予</string>
     <string name="notification_permission_denied">通知权限被拒绝，请在设置中手动开启</string>
     <string name="notification_opened">通知已开启</string>
-    <string name="error_prefix">❌ 错误: %s</string>
+    <string name="error_prefix">错误: %s</string>
 </resources>

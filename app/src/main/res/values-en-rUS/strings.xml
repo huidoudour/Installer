@@ -63,8 +63,8 @@
     <string name="esc">ESC</string>
     <string name="root">root</string>
     <string name="letter_c">C</string>
-    <string name="clipboard">📋</string>
-    <string name="lightning">⚡</string>
+    <string name="clipboard">P</string>
+    <string name="lightning">Q</string>
     <string name="shizuku_status">Shizuku Status</string>
     <string name="checking">Checking...</string>
     <string name="grant_shizuku_permission">Grant Shizuku permission</string>
@@ -128,11 +128,11 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="write_apk_data">Writing APK data...</string>
     <string name="submit_install">Submit installation...</string>
     <string name="install_failed">Installation failed: %s</string>
-    <string name="extract_xapk">📦 Extracting XAPK (using native compression library)...</string>
-    <string name="extract_complete">✅ Extraction complete, %d APKs in total</string>
-    <string name="apk_progress" formatted="false">📦 [%d/%d] %s</string>
-    <string name="submitting_install">🚀 Submitting installation...</string>
-    <string name="xapk_install_success_msg">✨ XAPK installation successful! %d APKs installed in total</string>
+    <string name="extract_xapk">Extracting XAPK (using native compression library)...</string>
+    <string name="extract_complete">Extraction complete, %d APKs in total</string>
+    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
+    <string name="submitting_install">Submitting installation...</string>
+    <string name="xapk_install_success_msg">XAPK installation successful! %d APKs installed in total</string>
     <string name="xapk_install_exception">XAPK installation exception: %s</string>
     <string name="apk_not_exist">APK file does not exist</string>
     <string name="start_extract_xapk">Start extracting XAPK: %s</string>
@@ -147,7 +147,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="close_zip_stream_failed">Failed to close ZIP input stream</string>
     <string name="close_file_stream">File input stream closed</string>
     <string name="close_file_stream_failed">Failed to close file input stream</string>
-    <string name="install_success_simple">✅ Installation successful!</string>
+    <string name="install_success_simple">Installation successful!</string>
     <string name="extract_complete_summary" formatted="false">Extraction complete! Processed %d entries, extracted %d APK files</string>
     <string name="extract_xapk_error">Error occurred during XAPK extraction</string>
     <string name="no_apk_found">No APK files found in XAPK/APKS file</string>
@@ -203,8 +203,8 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="installed_apps">Installed apps</string>
     <string name="system_properties">System properties</string>
     <string name="system_logs">System logs</string>
-    <string name="native_library_info">🔧 Native library info</string>
-    <string name="performance_test">🚀 Performance test</string>
+    <string name="native_library_info">Native library info</string>
+    <string name="performance_test">Performance test</string>
     <string name="copy_text_to_clipboard">Copy text to clipboard</string>
     <string name="terminal_output">Terminal Output</string>
     <string name="command_history_management">Command history management</string>
@@ -225,7 +225,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="install_stderr">Install (stderr): %s</string>
     <string name="read_install_output_error">Error reading installation process output: %s</string>
     <string name="install_success_log" formatted="false">Installation successful: %s Output: %s</string>
-    <string name="install_success">✅ Installation successful!</string>
+    <string name="install_success">Installation successful!</string>
     <string name="install_failed_log" formatted="false">Installation failed. Exit code: %d\nOutput: %s\nError: %s</string>
     <string name="install_failed_check_log">Installation failed, check logs.</string>
     <string name="temp_file_cleaned">Temporary file cleaned: %s</string>
@@ -331,7 +331,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="need_file_access_permission_select_apk">File access permission required to select APK.</string>
     <string name="please_select_install_file_miao">Please select the install package first.</string>
     <string name="install_process_end">=== Installation process end ===</string>
-    <string name="quick_path_title">📁 Quick Path</string>
+    <string name="quick_path_title">Quick Path</string>
     <string name="quick_path_root">Root (/)</string>
     <string name="quick_path_sdcard">SD Card (/sdcard/)</string>
     <string name="quick_path_download">Download (/sdcard/Download/)</string>
@@ -395,5 +395,5 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="notification_permission_granted">Notification permission granted</string>
     <string name="notification_permission_denied">Notification permission denied, please enable it manually in settings</string>
     <string name="notification_opened">Notification enabled</string>
-    <string name="error_prefix">❌ Error: %s</string>
+    <string name="error_prefix">Error: %s</string>
 </resources>
