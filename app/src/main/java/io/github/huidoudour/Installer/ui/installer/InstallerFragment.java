@@ -406,7 +406,39 @@ public class InstallerFragment extends Fragment {
                         updatePrivilegeStatusAndUi();
                     }
                 } else {
-                    PrivilegeHelper.requestDhizukuPermission(requireContext());
+                    // Dhizuku 使用 requestPermission API 弹出授权对话框
+                    PrivilegeHelper.requestDhizukuPermission(requireContext(), new PrivilegeHelper.DhizukuPermissionCallback() {
+                        @Override
+                        public void onPermissionGranted() {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    log(getString(R.string.dhizuku_auth_success));
+                                    Toast.makeText(requireContext(), getString(R.string.dhizuku_auth_success), Toast.LENGTH_SHORT).show();
+                                    updatePrivilegeStatusAndUi();
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onPermissionDenied() {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    log(getString(R.string.dhizuku_auth_denied));
+                                    Toast.makeText(requireContext(), getString(R.string.dhizuku_auth_denied), Toast.LENGTH_SHORT).show();
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    log(getString(R.string.dhizuku_auth_error, error));
+                                    Toast.makeText(requireContext(), getString(R.string.dhizuku_auth_error, error), Toast.LENGTH_LONG).show();
+                                });
+                            }
+                        }
+                    });
                     log(getString(R.string.requesting_dhizuku_auth));
                 }
                 break;

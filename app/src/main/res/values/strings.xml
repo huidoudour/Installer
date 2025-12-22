@@ -418,7 +418,6 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="switched_to_privilege">Switched to %s</string>
     <string name="privilege_not_installed_log">%s not installed, opening GitHub download page...</string>
     <string name="opening_privilege_app">Opening %s app...</string>
-    <string name="requesting_dhizuku_auth">Requesting Dhizuku authorization...</string>
     <string name="shizuku_unavailable_meow">Shizuku unavailable meow: %s</string>
     <string name="privilege_not_connected_install_log">%s not connected or not authorized, cannot install meow.</string>
     <string name="requesting_shizuku_auth">Requesting Shizuku authorization...</string>
@@ -435,8 +434,6 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="privilege_status_authorized">Authorized</string>
     <string name="privilege_status_version_too_low">Version Too Low</string>
     <string name="privilege_status_unknown">Unknown Status</string>
-    <string name="dhizuku_auth_success">✓ Dhizuku authorized successfully</string>
-    <string name="dhizuku_auth_denied">✗ Dhizuku authorization denied</string>
     <string name="notification_channel_general">General Notifications</string>
     <string name="notification_channel_general_desc">Application general message notifications</string>
     <string name="notification_channel_install">Installation Notifications</string>
@@ -444,6 +441,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="dhizuku_request_permission_method_not_found">Unable to find Dhizuku requestPermission method</string>
     <string name="dhizuku_api_class_not_found">Dhizuku API class not found</string>
     <string name="dhizuku_request_permission_failed">Failed to request Dhizuku authorization: %s</string>
+    <string name="dhizuku_auth_success">✓ Dhizuku authorization granted</string>
+    <string name="dhizuku_auth_denied">✗ Dhizuku authorization denied</string>
     <string name="dhizuku_auth_error">✗ Dhizuku error: %s</string>
     <string name="success">Success</string>
     <string name="failed">Failed</string>
@@ -452,4 +451,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="notification_permission_denied">Notification permission denied, please enable it manually in settings</string>
     <string name="notification_opened">Notification enabled</string>
     <string name="error_prefix">Error: %s</string>
+    <string name="requesting_dhizuku_auth">Requesting Dhizuku authorization...</string>
+    <string name="please_grant_permission_in_dhizuku">Please grant permission in Dhizuku...</string>
+    <string name="please_grant_permission_in_dhizuku_toast">Please manually grant permission to this app in Dhizuku app, then return</string>
 </resources>

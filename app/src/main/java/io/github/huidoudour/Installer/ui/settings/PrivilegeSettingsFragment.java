@@ -176,8 +176,8 @@ public class PrivilegeSettingsFragment extends Fragment implements DhizukuPermis
                     PrivilegeHelper.requestShizukuPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
                     showNotification(getString(R.string.requesting_shizuku_auth));
                 } else {
-                    // Dhizuku 权限请求带回调
-                    PrivilegeHelper.requestDhizukuPermission(requireContext());
+                    // Dhizuku 权限请求带回调，传入 this 作为回调接收者
+                    PrivilegeHelper.requestDhizukuPermission(requireContext(), this);
                     showNotification(getString(R.string.requesting_dhizuku_auth_notification));
                 }
                 // 延迟更新状态

@@ -472,4 +472,6 @@
     <string name="notification_opened">通知已开启</string>
     <string name="error_prefix">错误: %s</string>
     <string name="dhizuku_not_available">Dhizuku 不可用</string>
+    <string name="please_grant_permission_in_dhizuku">请在Dhizuku授权</string>
+    <string name="please_grant_permission_in_dhizuku_toast">请在Dhizuku授权后返回</string>
 </resources>

@@ -446,4 +446,6 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="log_received_home_install">Received install URI from HomeActivity: %s</string>
     <string name="log_processed_home_request">Processed install request from HomeActivity, file copied to cache: %s</string>
     <string name="dhizuku_not_available">Dhizuku not installed or unavailable</string>
+    <string name="please_grant_permission_in_dhizuku">Please grant permission in Dhizuku...</string>
+    <string name="please_grant_permission_in_dhizuku_toast">Please manually grant permission to this app in Dhizuku app, then return</string>
 </resources>
