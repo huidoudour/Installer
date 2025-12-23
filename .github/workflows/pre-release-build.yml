@@ -1,0 +1,72 @@
+name: Pre CI Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag (e.g., v1.0-pre)'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Create keystore file
+        run: |
+          echo "${{ secrets.SIGN_KEY_STORE_B64 }}" | base64 -d > app/sign_key
+      
+      - name: Build Release APK
+        run: |
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=app/sign_key \
+            -Pandroid.injected.signing.store.password="${{ secrets.SIGN_KEY_STORE_PASSWD }}" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.SIGN_KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ secrets.SIGN_KEY_ALIAS_PASSWD }}" \
+            --stacktrace
+
+      - name: Verify APK signature
+        run: |
+          echo "APK build completed. Files in output directory:"
+          find app/build/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
+
+      - name: Clean up keystore
+        if: always()
+        run: rm -f app/sign_key
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          tag_name: ${{ github.event.inputs.release_tag }}
+          release_name: Pre-Release ${{ github.event.inputs.release_tag }}
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APKs to Release
+        run: |
+          assets_dir="app/build/outputs/apk/release"
+          
+          for apk in "$assets_dir"/*.apk; do
+            if [ -f "$apk" ]; then
+              echo "Uploading $(basename "$apk")..."
+              gh release upload "${{ github.event.inputs.release_tag }}" "$apk"
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
