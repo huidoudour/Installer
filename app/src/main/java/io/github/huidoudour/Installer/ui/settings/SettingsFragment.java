@@ -26,7 +26,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.radiobutton.MaterialRadioButton;
-import com.google.android.material.switchmaterial.SwitchMaterial;
+import android.widget.Toast;
 
 import io.github.huidoudour.Installer.ui.activity.HomeActivity;
 import io.github.huidoudour.Installer.ui.activity.MeActivity;
@@ -52,7 +52,7 @@ public class SettingsFragment extends Fragment {
     private final Shizuku.OnRequestPermissionResultListener shizukuPermissionListener = 
         (requestCode, grantResult) -> {
             if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
-                showNotification("Shizuku 授权" + (grantResult == PackageManager.PERMISSION_GRANTED ? "成功" : "失败"));
+                showNotification("Shizuku " + getString(R.string.permission_granted_miao) + (grantResult == PackageManager.PERMISSION_GRANTED ? getString(R.string.success) : getString(R.string.failed)));
                 // 更新权限状态显示
                 updatePrivilegeStatus();
             }
@@ -103,10 +103,10 @@ public class SettingsFragment extends Fragment {
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
                     if (isGranted) {
-                        showNotification("通知权限已授予");
+                        showNotification(getString(R.string.notification_permission_granted));
                         updateNotificationSwitch(true);
                     } else {
-                        showNotification("通知权限被拒绝，请在设置中手动开启");
+                        showNotification(getString(R.string.notification_permission_denied));
                         updateNotificationSwitch(false);
                     }
                 }
@@ -124,7 +124,8 @@ public class SettingsFragment extends Fragment {
         binding.btnAbout.setOnLongClickListener(v -> {
             Intent intent = new Intent(getActivity(), NativeTestActivity.class);
             startActivity(intent);
-            showNotification("已打开原生库测试界面");
+            // 使用 Toast 显示通知
+            showNotification(getString(R.string.native_test_opened));
             return true; // 消费长按事件
         });
     }
@@ -290,7 +291,7 @@ public class SettingsFragment extends Fragment {
             boolean isGranted = NotificationHelper.isNotificationPermissionGranted(requireContext());
             if (isGranted) {
                 tvNotificationStatus.setText(R.string.notification_enabled);
-                btnRequestNotification.setText("已授权");
+                btnRequestNotification.setText(R.string.privilege_authorized_button);
                 btnRequestNotification.setEnabled(false);
             } else {
                 tvNotificationStatus.setText(R.string.notification_disabled);
@@ -342,11 +343,11 @@ public class SettingsFragment extends Fragment {
             // 更新按钮文本和状态
             switch (status) {
                 case NOT_INSTALLED:
-                    btnRequestPrivilege.setText("下载 " + modeName);
+                    btnRequestPrivilege.setText(getString(R.string.privilege_download_button, modeName));
                     btnRequestPrivilege.setEnabled(true);
                     break;
                 case NOT_RUNNING:
-                    btnRequestPrivilege.setText("打开 " + modeName);
+                    btnRequestPrivilege.setText(getString(R.string.privilege_open_button, modeName));
                     btnRequestPrivilege.setEnabled(true);
                     break;
                 case NOT_AUTHORIZED:
@@ -355,7 +356,7 @@ public class SettingsFragment extends Fragment {
                     btnRequestPrivilege.setEnabled(true);
                     break;
                 case AUTHORIZED:
-                    btnRequestPrivilege.setText("已授权");
+                    btnRequestPrivilege.setText(R.string.privilege_authorized_button);
                     btnRequestPrivilege.setEnabled(false);
                     break;
             }
@@ -373,12 +374,12 @@ public class SettingsFragment extends Fragment {
             } else {
                 sharedPreferences.edit().putBoolean(KEY_NOTIFICATION_ENABLED, true).apply();
                 updateNotificationStatus();
-                showNotification("通知已开启");
+                showNotification(getString(R.string.notification_opened));
             }
         } else {
             sharedPreferences.edit().putBoolean(KEY_NOTIFICATION_ENABLED, true).apply();
             updateNotificationStatus();
-            showNotification("通知已开启");
+            showNotification(getString(R.string.notification_opened));
         }
     }
     
@@ -398,13 +399,13 @@ public class SettingsFragment extends Fragment {
         MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.theme_settings)
                 .setSingleChoiceItems(new String[]{
-                        "跟随系统", 
-                        "浅色主题", 
-                        "深色主题"
+                        "Follow System",  // getString(R.string.follow_system)
+                        "Light Theme",  // getString(R.string.light_theme)
+                        "Dark Theme"    // getString(R.string.dark_theme)
                     },
                     0, // 默认选中第一个
                     (dialog, which) -> {
-                        showNotification("主题设置功能开发中");
+                        showNotification(getString(R.string.theme_settings_developing));
                         dialog.dismiss();
                     })
                 .setNegativeButton(R.string.cancel, null);
@@ -413,17 +414,17 @@ public class SettingsFragment extends Fragment {
     }
     
     /**
-     * 显示通知 - 使用系统通知替代Snackbar
+     * 显示通知 - 使用 Toast 替代系统通知
      */
     private void showNotification(int stringResId) {
         if (getActivity() != null) {
-            NotificationHelper.showNotification(requireContext(), stringResId);
+            Toast.makeText(getActivity(), stringResId, Toast.LENGTH_SHORT).show();
         }
     }
 
     private void showNotification(String message) {
         if (getActivity() != null) {
-            NotificationHelper.showNotification(requireContext(), message);
+            Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -452,7 +453,7 @@ public class SettingsFragment extends Fragment {
                     PrivilegeMode newMode = which == 0 ? PrivilegeMode.SHIZUKU : PrivilegeMode.DHIZUKU;
                     if (newMode != currentMode) {
                         PrivilegeHelper.saveCurrentMode(requireContext(), newMode);
-                        showNotification("已切换到 " + PrivilegeHelper.getModeName(newMode));
+                        showNotification(getString(R.string.switched_to_privilege, PrivilegeHelper.getModeName(newMode)));
                         // 更新权限状态显示
                         updatePrivilegeStatus();
                     }
@@ -494,22 +495,22 @@ public class SettingsFragment extends Fragment {
             case NOT_INSTALLED:
                 // 未安装，跳转到 GitHub 下载页面
                 PrivilegeHelper.openGithubPage(requireContext(), mode);
-                showNotification(modeName + " 未安装，正在打开 GitHub 下载页面...");
+                showNotification(getString(R.string.privilege_not_installed_notification, modeName));
                 break;
             case NOT_RUNNING:
                 // 未运行，打开应用
                 PrivilegeHelper.openPrivilegeApp(requireContext(), mode);
-                showNotification("正在打开 " + modeName + " 应用...");
+                showNotification(getString(R.string.privilege_app_opening_notification, modeName));
                 break;
             case NOT_AUTHORIZED:
             case VERSION_TOO_LOW:
                 // 未授权或版本过低，请求授权
                 if (mode == PrivilegeMode.SHIZUKU) {
                     PrivilegeHelper.requestShizukuPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
-                    showNotification("正在请求 Shizuku 授权...");
+                    showNotification(getString(R.string.requesting_shizuku_auth));
                 } else {
-                    PrivilegeHelper.requestDhizukuPermission();
-                    showNotification("正在请求 Dhizuku 授权...");
+                    PrivilegeHelper.requestDhizukuPermission(requireContext());
+                    showNotification(getString(R.string.requesting_dhizuku_auth_notification));
                 }
                 // 延迟更新状态
                 if (getView() != null) {
@@ -517,7 +518,7 @@ public class SettingsFragment extends Fragment {
                 }
                 break;
             case AUTHORIZED:
-                showNotification(modeName + " 已授权");
+                showNotification(getString(R.string.privilege_already_authorized, modeName));
                 break;
         }
     }

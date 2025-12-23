@@ -83,9 +83,16 @@
                 <data android:mimeType="application/vnd.android.package-archive" />
             </intent-filter>
         </activity>
-        
+
+        <!-- 关于我的页面 Activity-->
         <activity
             android:name=".ui.activity.MeActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Installer" />
+        
+        <!-- 设置页面 Activity -->
+        <activity
+            android:name=".ui.activity.SettingsActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer" />
         

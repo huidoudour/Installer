@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Main navigation titles -->
     <string name="app_name">Installer</string>
     <string name="title_home">安装</string>
     <string name="title_shell">Shell</string>
     <string name="title_notifications">日志</string>
     <string name="title_settings">设置</string>
     
-    <!-- 安装页面 -->
+    <!-- Install page -->
     <string name="install_title">安装应用</string>
     <string name="select_apk">选择 APK</string>
     <string name="install">安装</string>
@@ -14,7 +15,7 @@
     <string name="installing">安装中...</string>
     <string name="app_icon_description">应用图标</string>
     
-    <!-- 设置页面 -->
+    <!-- Settings page -->
     <string name="settings_title">设置</string>
     <string name="settings_subtitle">应用配置和个性化设置</string>
     <string name="app_settings">应用设置</string>
@@ -36,36 +37,24 @@
     <string name="app_version">版本 1.0.0</string>
     <string name="follow_system">跟随系统</string>
     <string name="simplified_chinese">简体中文</string>
+    <string name="traditional_chinese">繁体中文</string>
+    <string name="english">English</string>
+    <string name="confirm">确认</string>
+    <string name="language_changed_tip">语言已切换为%s，应用将自动重启</string>
+    <string name="language_change_failed">语言切换失败</string>
+    <string name="feature_developing">功能开发中</string>
+    <string name="notification_settings_updated">通知设置已更新</string>
+    <string name="background_display_enabled">后台显示已启用，应用将出现在最近任务列表中（重启应用后生效）</string>
+    <string name="background_display_disabled">后台显示已禁用，应用将不会出现在最近任务列表中（重启应用后生效）</string>
     <string name="setting_change_failed">设置更改失败，请手动重启应用</string>
     <string name="text1">你保护世界，我保护你</string>
     <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
     <string name="find_me">ω寻找我ω</string>
     
-    <!-- 引用的字符串 -->
+    <!-- Shell and tools -->
     <string name="shell_hint">输入命令...</string>
     <string name="clear_log">清空日志</string>
-    <string name="chooser_started_successfully">成功启动应用选择器</string>
-    <string name="chooser_failed_try_direct_launch">应用选择器失败，尝试直接启动: %s</string>
-    <string name="direct_launch_success">直接启动成功</string>
-    <string name="no_apps_found_to_handle_link">未找到可以处理链接的应用</string>
-    <string name="query_failed_but_try_direct_launch">查询不到应用，但尝试直接启动链接</string>
-    <string name="direct_launch_success_bypass">直接启动成功（绕过包可见性限制）</string>
-    <string name="open_link_failed_log">打开链接失败: %s</string>
-    <string name="direct_launch_failed">直接启动失败: %s</string>
-    <string name="process_external_install_uri_failed">处理外部安装URI失败: %s</string>
-    <string name="cannot_process_install_file">无法处理该安装文件</string>
-    <string name="received_install_uri_from_home">接收到HomeActivity传递的安装URI: %s</string>
-    <string name="processed_home_install_request">已处理HomeActivity传递的安装请求，文件已复制到 cache: %s</string>
-    <string name="process_home_install_uri_failed">处理HomeActivity传递的安装URI失败: %s</string>
-    <string name="log_cleared">日志已清空</string>
-    <string name="log_export_header">=== Installer Log Export ===</string>
-    <string name="export_time">Export Time: %s</string>
-    <string name="total_logs">Total Logs: %d</string>
-    <string name="log_content_header">=== Log Content ===</string>
-    <string name="log_file_subject">Installer Log</string>
-    <string name="log_file_generated">日志文件已生成: %s</string>
-    <string name="export_log">导出日志</string>
-    <string name="shell_txt">\@termux</string>
+    <string name="shell_txt">"@termux"</string>
     <string name="title_dashboard">工具</string>
     <string name="hello_world">Hello World!</string>
     <string name="dollar_sign">$</string>
@@ -76,8 +65,10 @@
     <string name="esc">ESC</string>
     <string name="root">root</string>
     <string name="letter_c">C</string>
-    <string name="clipboard">📋</string>
-    <string name="lightning">⚡</string>
+    <string name="clipboard">P</string>
+    <string name="lightning">Q</string>
+    
+    <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku 状态</string>
     <string name="checking">正在检查...</string>
     <string name="grant_shizuku_permission">授予 Shizuku 权限</string>
@@ -104,13 +95,6 @@
     <string name="default_version">1.0.0</string>
     <string name="file_size">文件大小</string>
     <string name="default_file_size">10.24 MB</string>
-    <string name="confirm">确认</string>
-    <string name="language_changed_tip">语言已切换为%s，应用将自动重启</string>
-    <string name="language_change_failed">语言切换失败</string>
-    <string name="feature_developing">功能开发中</string>
-    <string name="notification_settings_updated">通知设置已更新</string>
-    <string name="background_display_enabled">后台显示已启用，应用将出现在最近任务列表中（重启应用后生效）</string>
-    <string name="background_display_disabled">后台显示已禁用，应用将不会出现在最近任务列表中（重启应用后生效）</string>
     <string name="unknown">未知</string>
     <string name="xapk_package">XAPK安装包</string>
     <string name="invalid_install_request">无效的安装请求</string>
@@ -126,6 +110,7 @@
     <string name="xapk_install_failed">XAPK安装失败: %s</string>
     <string name="apk_install_success">APK安装成功</string>
     <string name="apk_install_failed">APK安装失败: %s</string>
+    <string name="start_installation_failed">开始安装失败</string>
     <string name="install_process_failed">安装过程启动失败: %s</string>
     <string name="xapk">XAPK</string>
     <string name="apk_files_count">%d 个APK文件</string>
@@ -133,30 +118,40 @@
     <string name="ok">确定</string>
     <string name="open_link_failed">无法打开链接，请检查浏览器应用</string>
     <string name="link_open_failed">打开链接失败: %s</string>
-    <string name="link_open_error">无法打开链接。 可能的原因： 1. 设备上没有安装浏览器应用 2. Android 14包可见性限制 3. 系统安全设置阻止了链接打开  请尝试安装Chrome、Firefox或其他浏览器应用。</string>
+    <string name="link_open_error">无法打开链接。
+可能的原因：
+1. 设备上没有安装浏览器应用
+2. Android 14包可见性限制
+3. 系统安全设置阻止了链接打开
+
+请尝试安装Chrome、Firefox或其他浏览器应用。</string>
     <string name="receive_install_intent">接收到安装意图，URI: %s</string>
     <string name="start_apk_install">开始安装 APK...</string>
     <string name="create_session">创建安装会话: %s</string>
     <string name="session_id">会话ID: %s</string>
     <string name="write_apk_data">写入 APK 数据...</string>
     <string name="submit_install">提交安装...</string>
-    <string name="copy_file_failed_log">复制文件到临时目录失败喵 Exit code: %d</string>
-    <string name="copy_file_failed">复制文件失败喵</string>
-    <string name="file_copy_success_start_install">文件复制成功，开始安装...</string>
-    <string name="executing_install_command">Executing install command: %s</string>
-    <string name="install_stdout">Install (stdout): %s</string>
-    <string name="install_stderr">Install (stderr): %s</string>
-    <string name="read_install_output_error">读取安装进程输出出错喵: %s</string>
-    <string name="install_success_log" formatted="false">安装成功喵: %s 输出: %s</string>
-    <string name="install_success">✅ 安装成功！</string>
     <string name="install_failed">安装失败: %s</string>
-    <string name="install_exception_log">安装流程异常喵: %s</string>
     <string name="install_exception">安装异常: %s</string>
-    <string name="extract_xapk">📦 正在解压 XAPK (使用原生压缩库)...</string>
-    <string name="extract_complete">✅ 解压完成，共 %d 个 APK</string>
-    <string name="apk_progress" formatted="false">📦 [%d/%d] %s</string>
-    <string name="submitting_install">🚀 提交安装...</string>
-    <string name="xapk_install_success_msg">✨ XAPK 安装成功！共安装 %d 个 APK</string>
+    <string name="extract_xapk">正在解压 XAPK (使用原生压缩库)...</string>
+    <string name="shizuku_not_running">未运行/未安装</string>
+    <string name="shizuku_not_connected">Shizuku 未连接喵.</string>
+    <string name="version_too_low">版本过低喵</string>
+    <string name="shizuku_version_too_low">Shizuku 版本过低喵.</string>
+    <string name="permission_granted">已授予喵</string>
+    <string name="shizuku_connected_and_authorized">Shizuku 已连接并授权喵.</string>
+    <string name="not_authorized">未授予喵</string>
+    <string name="shizuku_connected_but_not_authorized">Shizuku 已连接但未授权喵.</string>
+    <string name="status_unknown">状态未知</string>
+    <string name="check_shizuku_version_permission_failed">检查 Shizuku 版本/权限失败喵: %s</string>
+    <string name="unavailable">不可用喵</string>
+    <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi 捕获异常喵: %s</string>
+    
+    <!-- XAPK extraction -->
+    <string name="extract_complete">解压完成，共 %d 个 APK</string>
+    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
+    <string name="submitting_install">提交安装...</string>
+    <string name="xapk_install_success_msg">XAPK 安装成功！共安装 %d 个 APK</string>
     <string name="xapk_install_exception">XAPK 安装异常: %s</string>
     <string name="apk_not_exist">APK 文件不存在</string>
     <string name="start_extract_xapk">开始解压 XAPK: %s</string>
@@ -171,7 +166,7 @@
     <string name="close_zip_stream_failed">关闭 ZIP 输入流失败</string>
     <string name="close_file_stream">文件输入流已关闭</string>
     <string name="close_file_stream_failed">关闭文件输入流失败</string>
-    <string name="install_success_simple">✅ 安装成功！</string>
+    <string name="install_success_simple">安装成功！</string>
     <string name="extract_complete_summary" formatted="false">解压完成！共处理 %d 个条目，提取 %d 个 APK 文件</string>
     <string name="extract_xapk_error">解压 XAPK 过程中发生错误</string>
     <string name="no_apk_found">XAPK/APKS 文件中未找到任何 APK 文件</string>
@@ -182,78 +177,6 @@
     <string name="apkm_format">APKM (APKMirror 格式)</string>
     <string name="unknown_file_format">未知格式</string>
     <string name="read_xapk_failed">读取 XAPK 失败</string>
-    <string name="export_failed">导出失败: %s</string>
-    <string name="log_saved_to_cache">日志已保存到缓存目录</string>
-    <string name="traditional_chinese">繁体中文</string>
-    <string name="english">English</string>
-    <string name="switch_language_failed">切换语言失败: %s</string>
-    <string name="restart_app_failed">重启应用失败: %s</string>
-    <string name="apply_background_display_setting_failed">应用后台显示设置失败: %s</string>
-    <string name="installer_page">安装器页面</string>
-    <string name="log_page">日志页面</string>
-    <string name="start_installation_failed">开始安装失败</string>
-    <string name="get_file_path_from_uri_failed">从URI获取文件路径失败</string>
-    <string name="log_exported">日志已导出: %s</string>
-    <string name="available_app">可用应用: %s</string>
-    <string name="found_apps_to_handle_link">找到可以处理链接的应用</string>
-    <string name="choose_open_method">选择打开方式</string>
-    <string name="shizuku_connected_but_not_authorized">Shizuku 已连接但未授权喵.</string>
-    <string name="shizuku_not_running">未运行/未安装</string>
-    <string name="shizuku_not_connected">Shizuku 未连接喵.</string>
-    <string name="version_too_low">版本过低喵</string>
-    <string name="shizuku_version_too_low">Shizuku 版本过低喵.</string>
-    <string name="permission_granted">已授予喵</string>
-    <string name="shizuku_connected_and_authorized">Shizuku 已连接并授权喵.</string>
-    <string name="not_authorized">未授权</string>
-    <string name="status_unknown">状态未知</string>
-    <string name="button_clicked">按钮被点击</string>
-    <string name="attempting_to_open_link">尝试打开链接: %s</string>
-    <string name="available_apps_count">可用的应用数量: %d</string>
-    <string name="check_shizuku_version_permission_failed">检查 Shizuku 版本/权限失败喵: %s</string>
-    <string name="unavailable">不可用喵</string>
-    <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi 捕获异常喵: %s</string>
-    <string name="not_connected">未连接</string>
-    <string name="version_too_low_miao">版本过低喵</string>
-    <string name="permission_granted_miao">已授予喵</string>
-    <string name="not_granted_miao">未授予喵</string>
-    <string name="status_unknown_miao">状态未知喵</string>
-    <string name="unavailable_miao">不可用喵</string>
-    <string name="authorized">已授权</string>
-    <string name="install_failed_log" formatted="false">安装失败喵。Exit code: %d Output: %s Error: %s</string>
-    <string name="install_failed_check_log">安装失败，查看日志喵。</string>
-    <string name="temp_file_cleaned">已清理临时文件: %s</string>
-    <string name="clean_temp_file_failed">清理临时文件失败: %s</string>
-    <string name="system_properties">系统属性</string>
-    <string name="system_logs">系统日志</string>
-    <string name="native_library_info">🔧 Native库信息</string>
-    <string name="performance_test">🚀 性能测试</string>
-    <string name="copy_text_to_clipboard">复制文本到剪贴板</string>
-    <string name="terminal_output">Terminal Output</string>
-    <string name="command_history_management">命令历史记录管理</string>
-    <string name="session_error">Session error: %s</string>
-    <string name="trying_to_recreate_session">Trying to recreate session...</string>
-    <string name="retry_once">重试一次</string>
-    <string name="shizuku_session_creation_failed">Shizuku session creation failed: %s</string>
-    <string name="failed_to_create_persistent_shell_session">Failed to create persistent shell session</string>
-    <string name="non_interactive_mode">非交互式模式</string>
-    <string name="disable_job_control_avoid_tty_error">禁用作业控制，避免TTY错误</string>
-    <string name="unknown_file_format_chinese">未知格式</string>
-    <string name="apk_name_failed" formatted="false">%s 失败: %s</string>
-    <string name="memory_info">内存信息</string>
-    <string name="process_list">进程列表</string>
-    <string name="installed_apps">已安装应用</string>
-    <string name="update_current_working_directory">更新当前工作目录</string>
-    <string name="this_method_will_update_background_async">这个方法会在后台异步更新，不影响主流程</string>
-    <string name="in_practice_parse_commands_or_execute_pwd_regularly">实际使用中可以通过解析命令来更新，或者定期执行pwd</string>
-    <string name="fallback_execution_single_command">降级执行（单次命令）</string>
-    <string name="get_current_working_directory">获取当前工作目录</string>
-    <string name="reset_shell_session">重置Shell会话</string>
-    <string name="quick_command_list">快捷命令列表</string>
-    <string name="list_files">列出文件</string>
-    <string name="current_directory">当前目录</string>
-    <string name="current_user">当前用户</string>
-    <string name="system_info">系统信息</string>
-    <string name="disk_space">磁盘空间</string>
     <string name="clean_temp_files">清理临时文件</string>
     <string name="get_apk_count">获取 XAPK 中的 APK 数量</string>
     <string name="xapk_install_callback">XAPK 安装回调接口</string>
@@ -271,6 +194,8 @@
     <string name="xapk_install_exception_log">XAPK 安装异常</string>
     <string name="install_exception_error">安装异常: %s</string>
     <string name="cleanup_temp_files">清理临时文件</string>
+    
+    <!-- Shell session management -->
     <string name="create_persistent_shell_session">创建持久化Shell会话</string>
     <string name="use_shizuku_create_session">使用Shizuku创建会话</string>
     <string name="normal_mode_use_non_interactive_shell">普通模式 - 使用非交互式shell</string>
@@ -282,6 +207,102 @@
     <string name="clear_initial_output">清空初始输出</string>
     <string name="destroy_persistent_session">销毁持久化会话</string>
     <string name="ignore">忽略</string>
+    <string name="update_current_working_directory">更新当前工作目录</string>
+    <string name="this_method_will_update_background_async">这个方法会在后台异步更新，不影响主流程</string>
+    <string name="in_practice_parse_commands_or_execute_pwd_regularly">实际使用中可以通过解析命令来更新，或者定期执行pwd</string>
+    <string name="fallback_execution_single_command">降级执行（单次命令）</string>
+    <string name="get_current_working_directory">获取当前工作目录</string>
+    <string name="reset_shell_session">重置Shell会话</string>
+    
+    <!-- Command utilities -->
+    <string name="quick_command_list">快捷命令列表</string>
+    <string name="list_files">列出文件</string>
+    <string name="current_directory">当前目录</string>
+    <string name="current_user">当前用户</string>
+    <string name="system_info">系统信息</string>
+    <string name="disk_space">磁盘空间</string>
+    <string name="memory_info">内存信息</string>
+    <string name="process_list">进程列表</string>
+    <string name="installed_apps">已安装应用</string>
+    <string name="system_properties">系统属性</string>
+    <string name="system_logs">系统日志</string>
+    <string name="native_library_info">Native库信息</string>
+    <string name="performance_test">性能测试</string>
+    <string name="copy_text_to_clipboard">复制文本到剪贴板</string>
+    <string name="terminal_output">Terminal Output</string>
+    <string name="command_history_management">命令历史记录管理</string>
+    
+    <!-- Session and terminal management -->
+    <string name="session_error">Session error: %s</string>
+    <string name="trying_to_recreate_session">Trying to recreate session...</string>
+    <string name="retry_once">重试一次</string>
+    <string name="shizuku_session_creation_failed">Shizuku session creation failed: %s</string>
+    <string name="failed_to_create_persistent_shell_session">Failed to create persistent shell session</string>
+    <string name="non_interactive_mode">非交互式模式</string>
+    <string name="disable_job_control_avoid_tty_error">禁用作业控制，避免TTY错误</string>
+    <string name="unknown_file_format_chinese">未知格式</string>
+    <string name="apk_name_failed" formatted="false">%s 失败: %s</string>
+    
+    <!-- File operations -->
+    <string name="copy_file_failed_log">复制文件到临时目录失败喵 Exit code: %d</string>
+    <string name="copy_file_failed">复制文件失败喵</string>
+    <string name="file_copy_success_start_install">文件复制成功，开始安装...</string>
+    <string name="executing_install_command">Executing install command: %s</string>
+    <string name="install_stdout">Install (stdout): %s</string>
+    <string name="install_stderr">Install (stderr): %s</string>
+    <string name="read_install_output_error">读取安装进程输出出错喵: %s</string>
+    <string name="install_success_log" formatted="false">安装成功喵: %s 输出: %s</string>
+    <string name="install_success">安装成功！</string>
+    <string name="install_failed_log" formatted="false">安装失败喵。Exit code: %d&#10;Output: %s&#10;Error: %s</string>
+    <string name="install_failed_check_log">安装失败，查看日志喵。</string>
+    <string name="temp_file_cleaned">已清理临时文件: %s</string>
+    <string name="clean_temp_file_failed">清理临时文件失败: %s</string>
+    <string name="install_exception_log">安装流程异常喵: %s</string>
+    <string name="not_connected">未连接</string>
+    <string name="version_too_low_miao">版本过低喵</string>
+    <string name="permission_granted_miao">已授予喵</string>
+    <string name="not_granted_miao">未授予喵</string>
+    <string name="status_unknown_miao">状态未知喵</string>
+    <string name="unavailable_miao">不可用喵</string>
+    <string name="authorized">已授权</string>
+    <string name="button_clicked">按钮被点击</string>
+    <string name="attempting_to_open_link">尝试打开链接: %s</string>
+    <string name="available_apps_count">可用的应用数量: %d</string>
+    <string name="available_app">可用应用: %s</string>
+    <string name="found_apps_to_handle_link">找到可以处理链接的应用</string>
+    <string name="choose_open_method">选择打开方式</string>
+    <string name="chooser_started_successfully">成功启动应用选择器</string>
+    <string name="chooser_failed_try_direct_launch">应用选择器失败，尝试直接启动: %s</string>
+    <string name="direct_launch_success">直接启动成功</string>
+    <string name="no_apps_found_to_handle_link">未找到可以处理链接的应用</string>
+    <string name="query_failed_but_try_direct_launch">查询不到应用，但尝试直接启动链接</string>
+    <string name="direct_launch_success_bypass">直接启动成功（绕过包可见性限制）</string>
+    <string name="open_link_failed_log">打开链接失败: %s</string>
+    <string name="direct_launch_failed">直接启动失败: %s</string>
+    <string name="process_external_install_uri_failed">处理外部安装URI失败: %s</string>
+    <string name="cannot_process_install_file">无法处理该安装文件</string>
+    <string name="received_install_uri_from_home">接收到HomeActivity传递的安装URI: %s</string>
+    <string name="processed_home_install_request">已处理HomeActivity传递的安装请求，文件已复制到 cache: %s</string>
+    <string name="process_home_install_uri_failed">处理HomeActivity传递的安装URI失败: %s</string>
+    <string name="log_cleared">日志已清空</string>
+    <string name="log_export_header">=== Installer Log Export ===</string>
+    <string name="export_time">Export Time: %s</string>
+    <string name="total_logs">Total Logs: %d</string>
+    <string name="log_content_header">=== Log Content ===</string>
+    <string name="log_file_subject">Installer Log</string>
+    <string name="log_file_generated">日志文件已生成: %s</string>
+    <string name="export_log">导出日志</string>
+    <string name="log_exported">日志已导出: %s</string>
+    <string name="export_failed">导出失败: %s</string>
+    <string name="log_saved_to_cache">日志已保存到缓存目录</string>
+    <string name="switch_language_failed">切换语言失败: %s</string>
+    <string name="restart_app_failed">重启应用失败: %s</string>
+    <string name="apply_background_display_setting_failed">应用后台显示设置失败: %s</string>
+    <string name="installer_page">安装器页面</string>
+    <string name="log_page">日志页面</string>
+    <string name="get_file_path_from_uri_failed">从URI获取文件路径失败</string>
+    
+    <!-- Language and preferences -->
     <string name="apply_language_preference_failed">应用语言设置失败: %s</string>
     <string name="apply_language_preference_failed_simple">应用语言偏好失败: %s</string>
     <string name="save_language_setting_failed">保存语言设置失败: %s</string>
@@ -321,11 +342,12 @@
     <string name="check_shizuku_status_failed">检查 Shizuku 状态失败喵: %s</string>
     <string name="copying_file_to_temp">正在复制文件到系统临时目录: %s</string>
     <string name="detected_file_type_apk_count" formatted="false">检测到 %s，包含 %d 个 APK 文件</string>
-    <!-- 新增键的中文翻译补全 -->
     <string name="need_file_access_permission_select_apk">需要文件访问权限以选择 APK。</string>
     <string name="please_select_install_file_miao">请先选择安装包文件喵.</string>
     <string name="install_process_end">=== 安装流程结束 ===</string>
-    <string name="quick_path_title">📁 快捷路径</string>
+    
+    <!-- Quick paths -->
+    <string name="quick_path_title">快捷路径</string>
     <string name="quick_path_root">Root (/)</string>
     <string name="quick_path_sdcard">SD卡 (/sdcard/)</string>
     <string name="quick_path_download">下载 (/sdcard/Download/)</string>
@@ -334,6 +356,8 @@
     <string name="quick_path_system">系统 (/system/)</string>
     <string name="quick_path_system_bin">系统二进制 (/system/bin/)</string>
     <string name="quick_path_home">主目录 (~/)</string>
+    
+    <!-- Shell welcome -->
     <string name="welcome_shell_title">欢迎来到 aShell You - 风格终端</string>
     <string name="welcome_shell_subtitle">Android Shell 环境 v2.0</string>
     <string name="root_mode_enabled_via_shizuku">[*] 通过 Shizuku 启用 Root 模式</string>
@@ -348,12 +372,13 @@
     <string name="process_completed_with_exit_code">[进程完成，退出码 %d]</string>
     <string name="hash_sign">#</string>
     <string name="user">用户</string>
-    <!-- 通知相关 -->
+    
+    <!-- Notifications -->
     <string name="notification_permission_required">需要通知权限</string>
     <string name="notification_enabled">通知已开启</string>
     <string name="notification_disabled">通知已关闭</string>
     
-    <!-- 权限授权相关 -->
+    <!-- Permission authorization -->
     <string name="privilege_settings">权限授权设置</string>
     <string name="shizuku_settings">Shizuku 授权</string>
     <string name="dhizuku_settings">Dhizuku 授权</string>
@@ -367,8 +392,86 @@
     <string name="open_app">打开应用</string>
     <string name="download_from_github">从 GitHub 下载</string>
     <string name="dhizuku_status">Dhizuku 状态</string>
-    <string name="switch_privilege">切换授权器</string>
+    <string name="switch_privilege">切换</string>
     <string name="current_privilege">当前授权器</string>
     <string name="privilege_mode_shizuku">Shizuku</string>
     <string name="privilege_mode_dhizuku">Dhizuku</string>
+    
+    <!-- 原生库测试相关字符串 -->
+    <string name="execute_command_failed">执行命令失败</string>
+    <string name="native_test_title">=== 原生库测试 ===</string>
+    <string name="native_lib_loaded_success">原生库加载成功!</string>
+    <string name="native_lib_test_1">【测试 1】库信息:</string>
+    <string name="native_lib_test_2">【测试 2】性能对比:</string>
+    <string name="native_lib_test_3">【测试 3】哈希性能:</string>
+    <string name="native_lib_test_4">【测试 4】哈希计算示例:</string>
+    <string name="native_lib_test_input">输入: "%s"</string>
+    <string name="native_lib_test_hash">哈希: %s</string>
+    <string name="native_lib_test_completed">所有测试完成!</string>
+    <string name="native_lib_load_failed">原生库加载失败!</string>
+    <string name="native_lib_error_message">错误信息:</string>
+    <string name="native_lib_check_list">请检查:</string>
+    <string name="native_lib_check_ndk">1. NDK 是否正确安装</string>
+    <string name="native_lib_check_cmake">2. CMake 配置是否正确</string>
+    <string name="native_lib_check_arch">3. 架构是否匹配 (arm64-v8a 或 x86_64)</string>
+    
+    <!-- 权限状态相关字符串 -->
+    <string name="privilege_status_title">%s 状态</string>
+    <string name="privilege_not_installed_status">%s 未安装喵</string>
+    <string name="privilege_download_button">下载 %s</string>
+    <string name="privilege_not_running_status">%s 未运行喵</string>
+    <string name="privilege_open_button">打开 %s</string>
+    <string name="privilege_version_low_status">版本过低喵</string>
+    <string name="privilege_update_button">更新 %s</string>
+    <string name="privilege_not_authorized_status">未授权喵</string>
+    <string name="privilege_request_auth_button">请求授权</string>
+    <string name="privilege_authorized_status">权限已授予喵</string>
+    <string name="privilege_authorized_button">已授权</string>
+    <string name="log_external_install_request">接收到外部安装请求: %s</string>
+    <string name="log_processed_external_request">已处理外部安装请求，文件已复制到 cache: %s</string>
+    <string name="log_received_home_install">接收到HomeActivity传递的安装URI: %s</string>
+    <string name="log_processed_home_request">已处理HomeActivity传递的安装请求，文件已复制到 cache: %s</string>
+    <string name="log_detected_file">检测到 %s，包含 %d 个 APK 文件</string>
+    
+    <!-- 授权器相关硬编码字符串 -->
+    <string name="switched_to_privilege">已切换到 %s</string>
+    <string name="privilege_not_installed_log">%s 未安装，正在打开 GitHub 下载页面...</string>
+    <string name="opening_privilege_app">正在打开 %s 应用...</string>
+    <string name="requesting_dhizuku_auth">正在请求 Dhizuku 授权...</string>
+    <string name="shizuku_unavailable_meow">Shizuku 不可用喵: %s</string>
+    <string name="privilege_not_connected_install_log">%s 未连接或未授权，无法安装喵。</string>
+    <string name="requesting_shizuku_auth">正在请求 Shizuku 授权...</string>
+    <string name="requesting_dhizuku_auth_notification">正在请求 Dhizuku 授权...</string>
+    <string name="privilege_not_installed_notification">%s 未安装，正在打开 GitHub 下载页面...</string>
+    <string name="privilege_app_opening_notification">正在打开 %s 应用...</string>
+    <string name="privilege_already_authorized">%s 已授权</string>
+    <!-- Additional strings for UI updates -->
+    <string name="native_test_opened">已打开原生库测试界面</string>
+    <string name="permission_already_granted">已授权</string>
+    <string name="privilege_status_not_installed">未安装</string>
+    <string name="privilege_status_not_running">未运行</string>
+    <string name="privilege_status_not_authorized">未授权</string>
+    <string name="privilege_status_authorized">已授权</string>
+    <string name="privilege_status_version_too_low">版本过低</string>
+    <string name="privilege_status_unknown">未知状态</string>
+    <string name="dhizuku_auth_success">✓ Dhizuku 授权成功</string>
+    <string name="dhizuku_auth_denied">✗ Dhizuku 授权被拒绝</string>
+    <string name="notification_channel_general">通用通知</string>
+    <string name="notification_channel_general_desc">应用通用消息通知</string>
+    <string name="notification_channel_install">安装通知</string>
+    <string name="notification_channel_install_desc">应用安装进度和结果通知</string>
+    <string name="dhizuku_request_permission_method_not_found">无法找到 Dhizuku requestPermission 方法</string>
+    <string name="dhizuku_api_class_not_found">Dhizuku API 类未找到</string>
+    <string name="dhizuku_request_permission_failed">请求 Dhizuku 授权失败: %s</string>
+    <string name="dhizuku_auth_error">✗ Dhizuku 错误: %s</string>
+    <string name="success">成功</string>
+    <string name="failed">失败</string>
+    <string name="theme_settings_developing">主题设置功能开发中</string>
+    <string name="notification_permission_granted">通知权限已授予</string>
+    <string name="notification_permission_denied">通知权限被拒绝，请在设置中手动开启</string>
+    <string name="notification_opened">通知已开启</string>
+    <string name="error_prefix">错误: %s</string>
+    <string name="dhizuku_not_available">Dhizuku 不可用</string>
+    <string name="please_grant_permission_in_dhizuku">请在Dhizuku授权</string>
+    <string name="please_grant_permission_in_dhizuku_toast">请在Dhizuku授权后返回</string>
 </resources>

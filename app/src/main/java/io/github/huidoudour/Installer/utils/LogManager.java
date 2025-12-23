@@ -54,7 +54,10 @@ public class LogManager {
             listener.onLogAdded(logMessage);
         }
         
-        System.out.println("ShizukuInstallerApp: " + logMessage);
+        // 修复硬编码字符串问题
+        String logPrefix = context != null ? 
+            context.getString(R.string.app_name) : "Installer";
+        System.out.println(logPrefix + ": " + logMessage);
     }
     
     public void clearLogs() {

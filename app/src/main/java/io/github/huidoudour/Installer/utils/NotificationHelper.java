@@ -4,8 +4,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
+
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
 import io.github.huidoudour.Installer.R;
 
 /**
@@ -16,8 +18,6 @@ public class NotificationHelper {
     
     private static final String CHANNEL_ID_GENERAL = "installer_general";
     private static final String CHANNEL_ID_INSTALL = "installer_install";
-    private static final String CHANNEL_NAME_GENERAL = "通用通知";
-    private static final String CHANNEL_NAME_INSTALL = "安装通知";
     private static final int NOTIFICATION_ID_GENERAL = 1001;
     
     /**
@@ -31,20 +31,20 @@ public class NotificationHelper {
             // 通用通知渠道
             NotificationChannel generalChannel = new NotificationChannel(
                 CHANNEL_ID_GENERAL,
-                CHANNEL_NAME_GENERAL,
+                context.getString(R.string.notification_channel_general),
                 NotificationManager.IMPORTANCE_DEFAULT
             );
-            generalChannel.setDescription("应用通用消息通知");
+            generalChannel.setDescription(context.getString(R.string.notification_channel_general_desc));
             generalChannel.enableVibration(true);
             notificationManager.createNotificationChannel(generalChannel);
             
             // 安装通知渠道
             NotificationChannel installChannel = new NotificationChannel(
                 CHANNEL_ID_INSTALL,
-                CHANNEL_NAME_INSTALL,
+                context.getString(R.string.notification_channel_install),
                 NotificationManager.IMPORTANCE_HIGH
             );
-            installChannel.setDescription("应用安装进度和结果通知");
+            installChannel.setDescription(context.getString(R.string.notification_channel_install_desc));
             installChannel.enableVibration(true);
             notificationManager.createNotificationChannel(installChannel);
         }

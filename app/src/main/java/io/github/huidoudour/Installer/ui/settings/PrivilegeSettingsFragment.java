@@ -17,12 +17,13 @@ import io.github.huidoudour.Installer.utils.NotificationHelper;
 import io.github.huidoudour.Installer.utils.PrivilegeHelper;
 import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeMode;
 import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.utils.PrivilegeHelper.DhizukuPermissionCallback;
 import rikka.shizuku.Shizuku;
 
 /**
  * 权限授权设置页面
  */
-public class PrivilegeSettingsFragment extends Fragment {
+public class PrivilegeSettingsFragment extends Fragment implements DhizukuPermissionCallback {
     
     private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 1001;
     
@@ -161,30 +162,31 @@ public class PrivilegeSettingsFragment extends Fragment {
             case NOT_INSTALLED:
                 // 未安装，跳转到 GitHub 下载页面
                 PrivilegeHelper.openGithubPage(requireContext(), mode);
-                showNotification(modeName + " 未安装，正在打开 GitHub 下载页面...");
+                showNotification(getString(R.string.privilege_not_installed_notification, modeName));
                 break;
             case NOT_RUNNING:
                 // 未运行，打开应用
                 PrivilegeHelper.openPrivilegeApp(requireContext(), mode);
-                showNotification("正在打开 " + modeName + " 应用...");
+                showNotification(getString(R.string.privilege_app_opening_notification, modeName));
                 break;
             case NOT_AUTHORIZED:
             case VERSION_TOO_LOW:
                 // 未授权或版本过低，请求授权
                 if (mode == PrivilegeMode.SHIZUKU) {
                     PrivilegeHelper.requestShizukuPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
-                    showNotification("正在请求 Shizuku 授权...");
+                    showNotification(getString(R.string.requesting_shizuku_auth));
                 } else {
-                    PrivilegeHelper.requestDhizukuPermission();
-                    showNotification("正在请求 Dhizuku 授权...");
+                    // Dhizuku 权限请求带回调，传入 this 作为回调接收者
+                    PrivilegeHelper.requestDhizukuPermission(requireContext(), this);
+                    showNotification(getString(R.string.requesting_dhizuku_auth_notification));
                 }
                 // 延迟更新状态
                 if (getView() != null) {
-                    getView().postDelayed(this::updatePrivilegeStatus, 1000);
+                    getView().postDelayed(this::updatePrivilegeStatus, 2000);
                 }
                 break;
             case AUTHORIZED:
-                showNotification(modeName + " 已授权");
+                showNotification(getString(R.string.privilege_already_authorized, modeName));
                 break;
         }
     }
@@ -213,6 +215,38 @@ public class PrivilegeSettingsFragment extends Fragment {
             Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    /**
+     * DhizukuPermissionCallback 实现 - 权限已授予
+     */
+    @Override
+    public void onPermissionGranted() {
+        if (getActivity() != null) {
+            showNotification(getString(R.string.dhizuku_auth_success));
+            updatePrivilegeStatus();
+        }
+    }
+    
+    /**
+     * DhizukuPermissionCallback 实现 - 权限被拒绝
+     */
+    @Override
+    public void onPermissionDenied() {
+        if (getActivity() != null) {
+            showNotification(getString(R.string.dhizuku_auth_denied));
+            updatePrivilegeStatus();
+        }
+    }
+    
+    /**
+     * DhizukuPermissionCallback 实现 - 错误
+     */
+    @Override
+    public void onError(String error) {
+        if (getActivity() != null) {
+            showNotification(getString(R.string.dhizuku_auth_error, error));
         }
     }
 }

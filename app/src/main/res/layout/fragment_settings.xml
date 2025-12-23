@@ -297,7 +297,7 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="权限授权管理"
+                                android:text="@string/privilege_settings"
                                 android:textSize="16sp"
                                 android:textColor="?attr/colorOnSurface" />
 
