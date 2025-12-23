@@ -27,12 +27,12 @@ jobs:
 
       - name: Create keystore file
         run: |
-          echo "${{ secrets.SIGN_KEY_STORE_B64 }}" | base64 -d > app/sign_key
+          echo "${{ secrets.SIGN_KEY_STORE_B64 }}" | base64 -d > sign_key
       
       - name: Build Release APK
         run: |
           ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=app/sign_key \
+            -Pandroid.injected.signing.store.file=sign_key \
             -Pandroid.injected.signing.store.password="${{ secrets.SIGN_KEY_STORE_PASSWD }}" \
             -Pandroid.injected.signing.key.alias="${{ secrets.SIGN_KEY_ALIAS }}" \
             -Pandroid.injected.signing.key.password="${{ secrets.SIGN_KEY_ALIAS_PASSWD }}" \
@@ -45,7 +45,7 @@ jobs:
 
       - name: Clean up keystore
         if: always()
-        run: rm -f app/sign_key
+        run: rm -f sign_key
 
       - name: Create Release
         uses: actions/create-release@v1
