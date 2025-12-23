@@ -36,6 +36,7 @@ public class NativeTestActivity extends AppCompatActivity {
     }
 
     private void runNativeLibraryTests() {
+        long startTime = System.currentTimeMillis();
         StringBuilder result = new StringBuilder();
         result.append(getString(R.string.native_test_title)).append("\n\n");
         
@@ -67,7 +68,12 @@ public class NativeTestActivity extends AppCompatActivity {
             result.append(getString(R.string.native_lib_test_input, testInput)).append("\n");
             result.append(getString(R.string.native_lib_test_hash, hash)).append("\n");
             
+            // 计算总耗时
+            long endTime = System.currentTimeMillis();
+            long totalTime = endTime - startTime;
+            double seconds = totalTime / 1000.0;
             result.append("\n").append(getString(R.string.native_lib_test_completed));
+            result.append("\n\n📊 总耗时: ").append(String.format("%.2f s = %d ms", seconds, totalTime));
             
         } else {
             result.append(getString(R.string.native_lib_load_failed)).append("\n\n");
