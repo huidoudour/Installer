@@ -49,10 +49,20 @@ jobs:
         if: always()
         run: rm -f sign_key
 
+      - name: Validate and prepare release tag
+        run: |
+          tag="${{ github.event.inputs.release_tag }}"
+          # 检查tag是否包含无效字符
+          if [[ ! "$tag" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "Error: tag_name contains invalid characters. Use only alphanumeric, dots, hyphens, and underscores."
+            exit 1
+          fi
+          echo "TAG_NAME=$tag" >> $GITHUB_ENV
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.event.inputs.release_tag }}
+          tag_name: ${{ env.TAG_NAME }}
           name: Release ${{ github.event.inputs.release_tag }}
           draft: false
           prerelease: false
