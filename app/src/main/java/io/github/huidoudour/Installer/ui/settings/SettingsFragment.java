@@ -291,12 +291,11 @@ public class SettingsFragment extends Fragment {
             boolean isGranted = NotificationHelper.isNotificationPermissionGranted(requireContext());
             if (isGranted) {
                 tvNotificationStatus.setText(R.string.notification_enabled);
-                btnRequestNotification.setText(R.string.privilege_authorized_button);
-                btnRequestNotification.setEnabled(false);
+                btnRequestNotification.setVisibility(View.GONE); // 有权限时隐藏按钮
             } else {
                 tvNotificationStatus.setText(R.string.notification_disabled);
                 btnRequestNotification.setText(R.string.grant_permission);
-                btnRequestNotification.setEnabled(true);
+                btnRequestNotification.setVisibility(View.VISIBLE); // 无权限时显示按钮
             }
         }
     }
@@ -518,6 +517,27 @@ public class SettingsFragment extends Fragment {
         // 页面恢复时更新状态
         updateNotificationStatus();
         updatePrivilegeStatus();
+        updateVersionInfo();
+    }
+    
+    /**
+     * 更新应用版本信息
+     */
+    private void updateVersionInfo() {
+        TextView tvAppVersion = binding.getRoot().findViewById(R.id.tv_app_version);
+        if (tvAppVersion != null) {
+            try {
+                android.content.pm.PackageInfo packageInfo = requireContext().getPackageManager()
+                    .getPackageInfo(requireContext().getPackageName(), 0);
+                String versionName = packageInfo.versionName;
+                int versionCode = packageInfo.versionCode;
+                tvAppVersion.setText("v" + versionName + " (" + versionCode + ")");
+            } catch (Exception e) {
+                Log.e("SettingsFragment", "Error getting version info: " + e.getMessage());
+                // 出错时显示一个默认值
+                tvAppVersion.setText("v1.0.0 (1)");
+            }
+        }
     }
     
     @Override

@@ -33,7 +33,7 @@
     <string name="accessibility_status_summary">Check accessibility service status</string>
     <string name="about_app">About the app</string>
     <string name="about_developer">About developers</string>
-    <string name="app_version">Version 1.0.0</string>
+    <string name="app_version">Version</string>
     <string name="follow_system">Follow System</string>
     <string name="simplified_chinese">Simplified Chinese</string>
     <string name="confirm">Confirm</string>
@@ -88,7 +88,6 @@
     <string name="package_name">Package name</string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">Version</string>
-    <string name="default_version">1.0.0</string>
     <string name="file_size">File size</string>
     <string name="default_file_size">10.24 MB</string>
     <string name="unknown">Unknown</string>

@@ -34,7 +34,7 @@
     <string name="accessibility_status_summary">检查辅助功能服务状态</string>
     <string name="about_app">关于应用</string>
     <string name="about_developer">关于开发者</string>
-    <string name="app_version">版本 1.0.0</string>
+    <string name="app_version">版本</string>
     <string name="follow_system">跟随系统</string>
     <string name="simplified_chinese">简体中文</string>
     <string name="traditional_chinese">繁体中文</string>
@@ -92,7 +92,6 @@
     <string name="package_name">包名</string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">版本</string>
-    <string name="default_version">1.0.0</string>
     <string name="file_size">文件大小</string>
     <string name="default_file_size">10.24 MB</string>
     <string name="unknown">未知</string>

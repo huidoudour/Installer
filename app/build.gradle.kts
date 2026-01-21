@@ -11,8 +11,8 @@ android {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "3.1"
         
         // 启用NDK - 配置C++共享库编译
         externalNativeBuild {
