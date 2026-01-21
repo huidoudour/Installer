@@ -17,20 +17,18 @@ import io.github.huidoudour.Installer.utils.NotificationHelper;
 import io.github.huidoudour.Installer.utils.PrivilegeHelper;
 import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeMode;
 import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeStatus;
-import io.github.huidoudour.Installer.utils.PrivilegeHelper.DhizukuPermissionCallback;
+
 import rikka.shizuku.Shizuku;
 
 /**
  * 权限授权设置页面
  */
-public class PrivilegeSettingsFragment extends Fragment implements DhizukuPermissionCallback {
+public class PrivilegeSettingsFragment extends Fragment {
     
     private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 1001;
     
     private TextView tvShizukuStatus;
-    private TextView tvDhizukuStatus;
     private MaterialButton btnShizukuAction;
-    private MaterialButton btnDhizukuAction;
     
     // Shizuku 权限监听器
     private final Shizuku.OnRequestPermissionResultListener shizukuPermissionListener = 
@@ -47,9 +45,7 @@ public class PrivilegeSettingsFragment extends Fragment implements DhizukuPermis
         
         // 初始化视图
         tvShizukuStatus = root.findViewById(R.id.tv_shizuku_status);
-        tvDhizukuStatus = root.findViewById(R.id.tv_dhizuku_status);
         btnShizukuAction = root.findViewById(R.id.btn_shizuku_action);
-        btnDhizukuAction = root.findViewById(R.id.btn_dhizuku_action);
         
         // 注册 Shizuku 权限监听器
         try {
@@ -61,10 +57,6 @@ public class PrivilegeSettingsFragment extends Fragment implements DhizukuPermis
         // 设置点击事件
         if (btnShizukuAction != null) {
             btnShizukuAction.setOnClickListener(v -> handlePrivilegeAction(PrivilegeMode.SHIZUKU));
-        }
-        
-        if (btnDhizukuAction != null) {
-            btnDhizukuAction.setOnClickListener(v -> handlePrivilegeAction(PrivilegeMode.DHIZUKU));
         }
         
         // 初始更新状态
@@ -85,11 +77,7 @@ public class PrivilegeSettingsFragment extends Fragment implements DhizukuPermis
             updateStatusUI(tvShizukuStatus, btnShizukuAction, shizukuStatus, PrivilegeMode.SHIZUKU);
         }
         
-        // 更新 Dhizuku 状态
-        if (tvDhizukuStatus != null && btnDhizukuAction != null) {
-            PrivilegeStatus dhizukuStatus = PrivilegeHelper.getStatus(requireContext(), PrivilegeMode.DHIZUKU);
-            updateStatusUI(tvDhizukuStatus, btnDhizukuAction, dhizukuStatus, PrivilegeMode.DHIZUKU);
-        }
+        
     }
     
     /**
@@ -156,7 +144,7 @@ public class PrivilegeSettingsFragment extends Fragment implements DhizukuPermis
      */
     private void handlePrivilegeAction(PrivilegeMode mode) {
         PrivilegeStatus status = PrivilegeHelper.getStatus(requireContext(), mode);
-        String modeName = mode == PrivilegeMode.SHIZUKU ? "Shizuku" : "Dhizuku";
+        String modeName = "Shizuku";
         
         switch (status) {
             case NOT_INSTALLED:
@@ -175,10 +163,6 @@ public class PrivilegeSettingsFragment extends Fragment implements DhizukuPermis
                 if (mode == PrivilegeMode.SHIZUKU) {
                     PrivilegeHelper.requestShizukuPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
                     showNotification(getString(R.string.requesting_shizuku_auth));
-                } else {
-                    // Dhizuku 权限请求带回调，传入 this 作为回调接收者
-                    PrivilegeHelper.requestDhizukuPermission(requireContext(), this);
-                    showNotification(getString(R.string.requesting_dhizuku_auth_notification));
                 }
                 // 延迟更新状态
                 if (getView() != null) {
@@ -218,35 +202,5 @@ public class PrivilegeSettingsFragment extends Fragment implements DhizukuPermis
         }
     }
     
-    /**
-     * DhizukuPermissionCallback 实现 - 权限已授予
-     */
-    @Override
-    public void onPermissionGranted() {
-        if (getActivity() != null) {
-            showNotification(getString(R.string.dhizuku_auth_success));
-            updatePrivilegeStatus();
-        }
-    }
-    
-    /**
-     * DhizukuPermissionCallback 实现 - 权限被拒绝
-     */
-    @Override
-    public void onPermissionDenied() {
-        if (getActivity() != null) {
-            showNotification(getString(R.string.dhizuku_auth_denied));
-            updatePrivilegeStatus();
-        }
-    }
-    
-    /**
-     * DhizukuPermissionCallback 实现 - 错误
-     */
-    @Override
-    public void onError(String error) {
-        if (getActivity() != null) {
-            showNotification(getString(R.string.dhizuku_auth_error, error));
-        }
-    }
+
 }

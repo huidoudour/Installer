@@ -434,29 +434,20 @@ public class SettingsFragment extends Fragment {
     private void showPrivilegeSettingsDialog() {
         // 获取当前授权器
         PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
-        int currentIndex = currentMode == PrivilegeMode.SHIZUKU ? 0 : 1;
+        int currentIndex = 0;
         
-        // 获取两个授权器的状态
+        // 获取Shizuku状态
         PrivilegeStatus shizukuStatus = PrivilegeHelper.getStatus(requireContext(), PrivilegeMode.SHIZUKU);
-        PrivilegeStatus dhizukuStatus = PrivilegeHelper.getStatus(requireContext(), PrivilegeMode.DHIZUKU);
         
         String shizukuDesc = "Shizuku (" + getStatusText(shizukuStatus) + ")";
-        String dhizukuDesc = "Dhizuku (" + getStatusText(dhizukuStatus) + ")";
         
-        String[] options = {shizukuDesc, dhizukuDesc};
+        String[] options = {shizukuDesc};
         
         // 创建MD3风格的AlertDialog - 使用单选列表
         MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.privilege_settings)
                 .setSingleChoiceItems(options, currentIndex, (dialog, which) -> {
-                    // 切换授权器
-                    PrivilegeMode newMode = which == 0 ? PrivilegeMode.SHIZUKU : PrivilegeMode.DHIZUKU;
-                    if (newMode != currentMode) {
-                        PrivilegeHelper.saveCurrentMode(requireContext(), newMode);
-                        showNotification(getString(R.string.switched_to_privilege, PrivilegeHelper.getModeName(newMode)));
-                        // 更新权限状态显示
-                        updatePrivilegeStatus();
-                    }
+                    // 由于只支持Shizuku，无需切换
                     dialog.dismiss();
                 })
                 .setNegativeButton(R.string.cancel, null);
@@ -508,10 +499,8 @@ public class SettingsFragment extends Fragment {
                 if (mode == PrivilegeMode.SHIZUKU) {
                     PrivilegeHelper.requestShizukuPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
                     showNotification(getString(R.string.requesting_shizuku_auth));
-                } else {
-                    PrivilegeHelper.requestDhizukuPermission(requireContext());
-                    showNotification(getString(R.string.requesting_dhizuku_auth_notification));
                 }
+                
                 // 延迟更新状态
                 if (getView() != null) {
                     getView().postDelayed(this::updatePrivilegeStatus, 1000);

@@ -381,7 +381,6 @@
     <!-- Permission authorization -->
     <string name="privilege_settings">权限授权设置</string>
     <string name="shizuku_settings">Shizuku 授权</string>
-    <string name="dhizuku_settings">Dhizuku 授权</string>
     <string name="privilege_status">状态: %s</string>
     <string name="privilege_not_installed">未安装</string>
     <string name="privilege_not_running">未运行</string>
@@ -391,12 +390,10 @@
     <string name="grant_permission">授予权限</string>
     <string name="open_app">打开应用</string>
     <string name="download_from_github">从 GitHub 下载</string>
-    <string name="dhizuku_status">Dhizuku 状态</string>
     <string name="switch_privilege">切换</string>
     <string name="current_privilege">当前授权器</string>
     <string name="privilege_mode_shizuku">Shizuku</string>
-    <string name="privilege_mode_dhizuku">Dhizuku</string>
-    
+
     <!-- 原生库测试相关字符串 -->
     <string name="execute_command_failed">执行命令失败</string>
     <string name="native_test_title">=== 原生库测试 ===</string>
@@ -437,11 +434,9 @@
     <string name="switched_to_privilege">已切换到 %s</string>
     <string name="privilege_not_installed_log">%s 未安装，正在打开 GitHub 下载页面...</string>
     <string name="opening_privilege_app">正在打开 %s 应用...</string>
-    <string name="requesting_dhizuku_auth">正在请求 Dhizuku 授权...</string>
     <string name="shizuku_unavailable_meow">Shizuku 不可用喵: %s</string>
     <string name="privilege_not_connected_install_log">%s 未连接或未授权，无法安装喵。</string>
     <string name="requesting_shizuku_auth">正在请求 Shizuku 授权...</string>
-    <string name="requesting_dhizuku_auth_notification">正在请求 Dhizuku 授权...</string>
     <string name="privilege_not_installed_notification">%s 未安装，正在打开 GitHub 下载页面...</string>
     <string name="privilege_app_opening_notification">正在打开 %s 应用...</string>
     <string name="privilege_already_authorized">%s 已授权</string>
@@ -454,16 +449,10 @@
     <string name="privilege_status_authorized">已授权</string>
     <string name="privilege_status_version_too_low">版本过低</string>
     <string name="privilege_status_unknown">未知状态</string>
-    <string name="dhizuku_auth_success">✓ Dhizuku 授权成功</string>
-    <string name="dhizuku_auth_denied">✗ Dhizuku 授权被拒绝</string>
     <string name="notification_channel_general">通用通知</string>
     <string name="notification_channel_general_desc">应用通用消息通知</string>
     <string name="notification_channel_install">安装通知</string>
     <string name="notification_channel_install_desc">应用安装进度和结果通知</string>
-    <string name="dhizuku_request_permission_method_not_found">无法找到 Dhizuku requestPermission 方法</string>
-    <string name="dhizuku_api_class_not_found">Dhizuku API 类未找到</string>
-    <string name="dhizuku_request_permission_failed">请求 Dhizuku 授权失败: %s</string>
-    <string name="dhizuku_auth_error">✗ Dhizuku 错误: %s</string>
     <string name="success">成功</string>
     <string name="failed">失败</string>
     <string name="theme_settings_developing">主题设置功能开发中</string>
@@ -471,7 +460,4 @@
     <string name="notification_permission_denied">通知权限被拒绝，请在设置中手动开启</string>
     <string name="notification_opened">通知已开启</string>
     <string name="error_prefix">错误: %s</string>
-    <string name="dhizuku_not_available">Dhizuku 不可用</string>
-    <string name="please_grant_permission_in_dhizuku">请在Dhizuku授权</string>
-    <string name="please_grant_permission_in_dhizuku_toast">请在Dhizuku授权后返回</string>
 </resources>

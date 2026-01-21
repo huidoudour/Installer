@@ -363,11 +363,9 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="switched_to_privilege">Switched to %s</string>
     <string name="privilege_not_installed_log">%s not installed, opening GitHub download page...</string>
     <string name="opening_privilege_app">Opening %s app...</string>
-    <string name="requesting_dhizuku_auth">Requesting Dhizuku authorization...</string>
     <string name="shizuku_unavailable_meow">Shizuku unavailable meow: %s</string>
     <string name="privilege_not_connected_install_log">%s not connected or not authorized, cannot install meow.</string>
     <string name="requesting_shizuku_auth">Requesting Shizuku authorization...</string>
-    <string name="requesting_dhizuku_auth_notification">Requesting Dhizuku authorization...</string>
     <string name="privilege_not_installed_notification">%s not installed, opening GitHub download page...</string>
     <string name="privilege_app_opening_notification">Opening %s app...</string>
     <string name="privilege_already_authorized">%s already authorized</string>
@@ -380,16 +378,10 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="privilege_status_authorized">Authorized</string>
     <string name="privilege_status_version_too_low">Version Too Low</string>
     <string name="privilege_status_unknown">Unknown Status</string>
-    <string name="dhizuku_auth_success">✓ Dhizuku authorized successfully</string>
-    <string name="dhizuku_auth_denied">✗ Dhizuku authorization denied</string>
     <string name="notification_channel_general">General Notifications</string>
     <string name="notification_channel_general_desc">Application general message notifications</string>
     <string name="notification_channel_install">Installation Notifications</string>
     <string name="notification_channel_install_desc">Application installation progress and result notifications</string>
-    <string name="dhizuku_request_permission_method_not_found">Unable to find Dhizuku requestPermission method</string>
-    <string name="dhizuku_api_class_not_found">Dhizuku API class not found</string>
-    <string name="dhizuku_request_permission_failed">Failed to request Dhizuku authorization: %s</string>
-    <string name="dhizuku_auth_error">✗ Dhizuku error: %s</string>
     <string name="success">Success</string>
     <string name="failed">Failed</string>
     <string name="theme_settings_developing">Theme settings feature is under development</string>
@@ -399,7 +391,6 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="error_prefix">Error: %s</string>
     <string name="privilege_settings">Permission Settings</string>
     <string name="shizuku_settings">Shizuku Authorization</string>
-    <string name="dhizuku_settings">Dhizuku Authorization</string>
     <string name="privilege_status">Status: %s</string>
     <string name="privilege_not_installed">Not Installed</string>
     <string name="privilege_not_running">Not Running</string>
@@ -409,11 +400,9 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="grant_permission">Grant Permission</string>
     <string name="open_app">Open App</string>
     <string name="download_from_github">Download from GitHub</string>
-    <string name="dhizuku_status">Dhizuku Status</string>
     <string name="switch_privilege">Switch</string>
     <string name="current_privilege">Current Authorization</string>
     <string name="privilege_mode_shizuku">Shizuku</string>
-    <string name="privilege_mode_dhizuku">Dhizuku</string>
     <string name="execute_command_failed">Command execution failed: %s</string>
     <string name="native_test_title">=== Native Library Tests ===</string>
     <string name="native_lib_loaded_success">Native library loaded successfully!</string>
@@ -445,7 +434,4 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="log_processed_external_request">Processed external install request, file copied to cache: %s</string>
     <string name="log_received_home_install">Received install URI from HomeActivity: %s</string>
     <string name="log_processed_home_request">Processed install request from HomeActivity, file copied to cache: %s</string>
-    <string name="dhizuku_not_available">Dhizuku not installed or unavailable</string>
-    <string name="please_grant_permission_in_dhizuku">Please grant permission in Dhizuku...</string>
-    <string name="please_grant_permission_in_dhizuku_toast">Please manually grant permission to this app in Dhizuku app, then return</string>
 </resources>
