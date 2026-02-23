@@ -10,6 +10,7 @@
     <string name="install_title">Install Application</string>
     <string name="select_apk">Select APK</string>
     <string name="install">Install</string>
+    <string name="reinstall">Reinstall</string>
     <string name="cancel">Cancel</string>
     <string name="installing">Installing...</string>
     <string name="app_icon_description">App Icon</string>
@@ -88,7 +89,13 @@
     <string name="package_name">Package name</string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">Version</string>
-    <string name="file_size">File size</string>
+    <string name="file_size">File Size</string>
+    <string name="min_sdk">Min SDK</string>
+    <string name="target_sdk">Target SDK</string>
+    <string name="version_comparison">Version Comparison</string>
+    <string name="current_version">Current Version</string>
+    <string name="new_version">New Version</string>
+    <string name="not_installed">Not Installed</string>
     <string name="default_file_size">10.24 MB</string>
     <string name="unknown">Unknown</string>
     <string name="xapk_package">XAPK Installation Package</string>
@@ -433,4 +440,34 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="log_processed_external_request">Processed external install request, file copied to cache: %s</string>
     <string name="log_received_home_install">Received install URI from HomeActivity: %s</string>
     <string name="log_processed_home_request">Processed install request from HomeActivity, file copied to cache: %s</string>
+    <string name="app_launched_success">App %s launched successfully</string>
+    <string name="checking_app_installed">Checking if app is installed: %s</string>
+    <string name="app_already_installed" formatted="false">App already installed, version name: %s, version code: %d</string>
+    <string name="app_not_installed">App not installed: %s</string>
+    <string name="check_app_install_error">Error checking app installation status: %s</string>
+    <string name="using_query_all_packages">Using QUERY_ALL_PACKAGES permission to query package info directly</string>
+    <string name="launching_app_via_shizuku_shell">Launching app via Shizuku Shell: %s</string>
+    <string name="executing_shell_command">Executing Shell command</string>
+    <string name="using_am_start_command">Using am start command</string>
+    <string name="executing_command">Executing command</string>
+    <string name="shell_command_result">Shell command execution result, exit code: %d</string>
+    <string name="shizuku_shell_launch_failed">Shizuku Shell launch failed: %s</string>
+    <string name="launch_app_via_shizuku_failed">Failed to launch app via Shizuku: %s</string>
+    <string name="traditional_app_launch">Traditional app launch method (fallback solution)</string>
+    <string name="checking_installed_app_info">Checking and updating installed app info</string>
+    <string name="getting_installed_app_info">Getting installed app info</string>
+    <string name="app_installed_updating_version_button">App installed, updating version info and button</string>
+    <string name="app_not_installed_showing_install_info">App not installed, showing installation info</string>
+    <string name="check_installed_app_info_failed">Failed to check installed app info: %s</string>
+    <string name="updating_version_info_installed_app">Updating version info for installed app</string>
+    <string name="updating_version_info_new_install">Updating version info for new install</string>
+    <string name="updating_install_button_installed_app">Updating install button for installed app</string>
+    <string name="updating_install_button_new_install">Updating install button for new install</string>
+    <string name="save_installed_package_name">Saving installed package name for opening app</string>
+    <string name="apply_user_language_preference">Applying user selected language</string>
+    <string name="checking_shizuku_status">Checking Shizuku status</string>
+    <string name="setting_app_source_path">Setting app source path to load icons and labels</string>
+    <string name="getting_app_name">Getting app name</string>
+    <string name="getting_app_icon">Getting app icon</string>
+    <string name="load_app_icon_failed">Failed to load app icon</string>
 </resources>

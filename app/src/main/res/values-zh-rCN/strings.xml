@@ -11,6 +11,7 @@
     <string name="install_title">安装应用</string>
     <string name="select_apk">选择 APK</string>
     <string name="install">安装</string>
+    <string name="reinstall">重新安装</string>
     <string name="cancel">算了</string>
     <string name="installing">安装中...</string>
     <string name="app_icon_description">应用图标</string>
@@ -93,6 +94,12 @@
     <string name="default_package_name">com.example.app</string>
     <string name="version">版本</string>
     <string name="file_size">文件大小</string>
+    <string name="min_sdk">最低SDK</string>
+    <string name="target_sdk">目标SDK</string>
+    <string name="version_comparison">版本对比</string>
+    <string name="current_version">当前版本</string>
+    <string name="new_version">新版本</string>
+    <string name="not_installed">未安装</string>
     <string name="default_file_size">10.24 MB</string>
     <string name="unknown">未知</string>
     <string name="xapk_package">XAPK安装包</string>
@@ -459,4 +466,34 @@
     <string name="notification_permission_denied">通知权限被拒绝，请在设置中手动开启</string>
     <string name="notification_opened">通知已开启</string>
     <string name="error_prefix">错误: %s</string>
+    <string name="app_launched_success">应用%s启动成功</string>
+    <string name="checking_app_installed">检查应用是否已安装: %s</string>
+    <string name="app_already_installed" formatted="false">应用已安装，版本名: %s, 版本号: %d</string>
+    <string name="app_not_installed">应用未安装: %s</string>
+    <string name="check_app_install_error">检查应用安装状态时出错: %s</string>
+    <string name="using_query_all_packages">使用QUERY_ALL_PACKAGES权限直接查询包信息</string>
+    <string name="launching_app_via_shizuku_shell">使用Shizuku Shell启动应用: %s</string>
+    <string name="executing_shell_command">异步执行Shell命令</string>
+    <string name="using_am_start_command">使用am start命令</string>
+    <string name="executing_command">执行命令</string>
+    <string name="shell_command_result">Shell命令执行结果，退出码: %d</string>
+    <string name="shizuku_shell_launch_failed">Shizuku Shell启动失败: %s</string>
+    <string name="launch_app_via_shizuku_failed">使用Shizuku启动应用失败: %s</string>
+    <string name="traditional_app_launch">传统的应用启动方式（回退方案）</string>
+    <string name="checking_installed_app_info">检查并更新已安装应用信息</string>
+    <string name="getting_installed_app_info">获取已安装应用的信息</string>
+    <string name="app_installed_updating_version_button">应用已安装，更新版本信息和按钮</string>
+    <string name="app_not_installed_showing_install_info">应用未安装，显示安装信息</string>
+    <string name="check_installed_app_info_failed">检查已安装应用信息失败: %s</string>
+    <string name="updating_version_info_installed_app">更新已安装应用的版本信息</string>
+    <string name="updating_version_info_new_install">更新新安装的版本信息</string>
+    <string name="updating_install_button_installed_app">为已安装应用更新安装按钮</string>
+    <string name="updating_install_button_new_install">为新安装更新安装按钮</string>
+    <string name="save_installed_package_name">保存安装的包名用于打开应用</string>
+    <string name="apply_user_language_preference">应用用户选择的语言</string>
+    <string name="checking_shizuku_status">检查Shizuku状态</string>
+    <string name="setting_app_source_path">设置应用源路径，以便能够加载图标和标签</string>
+    <string name="getting_app_name">获取应用名称</string>
+    <string name="getting_app_icon">获取应用图标</string>
+    <string name="load_app_icon_failed">加载应用图标失败</string>
 </resources>

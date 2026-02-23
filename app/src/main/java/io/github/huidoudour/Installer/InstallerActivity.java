@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -46,6 +47,8 @@ public class InstallerActivity extends AppCompatActivity {
     private TextView tvPackageName;
     private TextView tvVersion;
     private TextView tvFileSize;
+    private TextView tvMinSdk;
+    private TextView tvTargetSdk;
     private Button btnInstall;
     private Button btnCancel;
     private Button btnCancelProgress;
@@ -92,6 +95,8 @@ public class InstallerActivity extends AppCompatActivity {
         tvPackageName = findViewById(R.id.tv_package_name);
         tvVersion = findViewById(R.id.tv_version);
         tvFileSize = findViewById(R.id.tv_file_size);
+        tvMinSdk = findViewById(R.id.tv_min_sdk);
+        tvTargetSdk = findViewById(R.id.tv_target_sdk);
         btnInstall = findViewById(R.id.btn_install);
         btnCancel = findViewById(R.id.btn_cancel);
         btnCancelProgress = findViewById(R.id.btn_cancel_progress);
@@ -164,6 +169,10 @@ public class InstallerActivity extends AppCompatActivity {
                     tvFileSize.setText(getString(R.string.unknown));
                 }
                 
+                // XAPK文件显示未知SDK信息
+                tvMinSdk.setText(getString(R.string.unknown));
+                tvTargetSdk.setText(getString(R.string.unknown));
+                
                 ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
 
@@ -206,6 +215,17 @@ public class InstallerActivity extends AppCompatActivity {
                 long versionCode = packageInfo.getLongVersionCode();
                 tvVersion.setText(String.format("%s (%d)", versionName, versionCode));
                 
+                // 获取SDK信息
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    int minSdk = packageInfo.applicationInfo.minSdkVersion;
+                    tvMinSdk.setText(String.valueOf(minSdk));
+                } else {
+                    tvMinSdk.setText(getString(R.string.unknown));
+                }
+                
+                int targetSdk = packageInfo.applicationInfo.targetSdkVersion;
+                tvTargetSdk.setText(String.valueOf(targetSdk));
+                
                 // 获取文件大小
                 File file = new File(apkPath);
                 if (file.exists()) {
@@ -246,7 +266,30 @@ public class InstallerActivity extends AppCompatActivity {
         tvPackageName.setText(getString(R.string.unknown));
         tvVersion.setText(getString(R.string.unknown));
         tvFileSize.setText(getString(R.string.unknown));
+        tvMinSdk.setText(getString(R.string.unknown));
+        tvTargetSdk.setText(getString(R.string.unknown));
         ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
+    }
+    
+    /**
+     * 获取已安装应用的信息
+     */
+    private PackageInfo getInstalledAppInfo(String packageName) {
+        try {
+            Log.d(TAG, getString(R.string.checking_app_installed, packageName));
+            
+            // 使用QUERY_ALL_PACKAGES权限直接查询包信息
+            PackageInfo info = getPackageManager().getPackageInfo(packageName, 0);
+            Log.d(TAG, getString(R.string.app_already_installed, info.versionName, info.getLongVersionCode()));
+            return info;
+            
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.d(TAG, getString(R.string.app_not_installed, packageName));
+            return null;
+        } catch (Exception e) {
+            Log.e(TAG, getString(R.string.check_app_install_error, e.getMessage()));
+            return null;
+        }
     }
     
     /**
@@ -407,7 +450,118 @@ public class InstallerActivity extends AppCompatActivity {
         layoutCompletion.setVisibility(View.VISIBLE);
         
         // 保存安装的包名用于打开应用
+        Log.d(TAG, getString(R.string.save_installed_package_name));
         installedPackageName = tvPackageName.getText().toString();
+        
+        // 检查已安装的应用信息并更新按钮和版本显示
+        Log.d(TAG, getString(R.string.checking_installed_app_info));
+        checkAndUpdateInstalledAppInfo();
+    }
+    
+    /**
+     * 检查并更新已安装应用信息
+     */
+    private void checkAndUpdateInstalledAppInfo() {
+        String packageName = tvPackageName.getText().toString();
+        if (packageName == null || packageName.isEmpty()) return;
+        
+        new Thread(() -> {
+            try {
+                // 获取已安装应用的信息
+                PackageInfo installedInfo = getInstalledAppInfo(packageName);
+                
+                runOnUiThread(() -> {
+                    if (installedInfo != null) {
+                        // 应用已安装，更新版本信息和按钮
+                        updateVersionInfoForInstalledApp(installedInfo);
+                        updateInstallButtonForInstalledApp(installedInfo);
+                    } else {
+                        // 应用未安装，显示安装信息
+                        updateVersionInfoForNewInstall();
+                        updateInstallButtonForNewInstall();
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(TAG, getString(R.string.check_installed_app_info_failed, e.getMessage()));
+            }
+        }).start();
+    }
+    
+    /**
+     * 更新已安装应用的版本信息
+     */
+    private void updateVersionInfoForInstalledApp(PackageInfo installedInfo) {
+        try {
+            // 获取待安装APK的信息
+            PackageManager pm = getPackageManager();
+            PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
+            
+            if (apkInfo != null) {
+                String apkVersionName = apkInfo.versionName != null ? apkInfo.versionName : "";
+                long apkVersionCode = apkInfo.getLongVersionCode();
+                
+                String installedVersionName = installedInfo.versionName != null ? installedInfo.versionName : "";
+                long installedVersionCode = installedInfo.getLongVersionCode();
+                
+                // 显示版本对比：旧版本 → 新版本
+                String versionDisplay = String.format("%s (%d) → %s (%d)", 
+                    installedVersionName, installedVersionCode, 
+                    apkVersionName, apkVersionCode);
+                tvVersion.setText(versionDisplay);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, getString(R.string.updating_version_info_installed_app) + ": " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 更新新安装的版本信息
+     */
+    private void updateVersionInfoForNewInstall() {
+        try {
+            PackageManager pm = getPackageManager();
+            PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
+            
+            if (apkInfo != null) {
+                String versionName = apkInfo.versionName != null ? apkInfo.versionName : "";
+                long versionCode = apkInfo.getLongVersionCode();
+                tvVersion.setText(String.format("%s (%d)", versionName, versionCode));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, getString(R.string.updating_version_info_new_install) + ": " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 为已安装应用更新安装按钮
+     */
+    private void updateInstallButtonForInstalledApp(PackageInfo installedInfo) {
+        try {
+            PackageManager pm = getPackageManager();
+            PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
+            
+            if (apkInfo != null) {
+                long apkVersionCode = apkInfo.getLongVersionCode();
+                long installedVersionCode = installedInfo.getLongVersionCode();
+                
+                if (apkVersionCode == installedVersionCode) {
+                    // 版本相同，显示ReInstall
+                    btnInstall.setText(R.string.reinstall);
+                } else {
+                    // 版本不同，显示Install
+                    btnInstall.setText(R.string.install);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, getString(R.string.updating_install_button_installed_app) + ": " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 为新安装更新安装按钮
+     */
+    private void updateInstallButtonForNewInstall() {
+        btnInstall.setText(R.string.install);
     }
     
     /**
@@ -429,22 +583,77 @@ public class InstallerActivity extends AppCompatActivity {
             return;
         }
         
-        try {
-            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(installedPackageName);
-            if (launchIntent != null) {
-                startActivity(launchIntent);
-                finish();
-            } else {
-                Toast.makeText(this, getString(R.string.app_no_launcher, installedPackageName), Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "打开应用失败: " + e.getMessage());
-            Toast.makeText(this, getString(R.string.open_app_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
-        }
+        // 使用Shizuku Shell命令启动应用
+        launchAppViaShizukuShell(installedPackageName);
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+    
+    /**
+     * 使用Shizuku Shell命令启动应用
+     */
+    private void launchAppViaShizukuShell(String packageName) {
+        try {
+            Log.d(TAG, getString(R.string.launching_app_via_shizuku_shell, packageName));
+            
+            // 异步执行Shell命令
+            new Thread(() -> {
+                try {
+                    // 使用am start命令
+                    String command = "am start -n " + packageName + "/.MainActivity";
+                    
+                    // 执行命令
+                    Process process = Runtime.getRuntime().exec(new String[]{
+                        "sh", "-c", command
+                    });
+                    
+                    int exitCode = process.waitFor();
+                    Log.d(TAG, getString(R.string.shell_command_result, exitCode));
+                    
+                    runOnUiThread(() -> {
+                        if (exitCode == 0) {
+                            Toast.makeText(this, getString(R.string.app_launched_success, packageName), 
+                                Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            // 回退到传统方式
+                            launchAppTraditional(packageName);
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e(TAG, getString(R.string.shizuku_shell_launch_failed, e.getMessage()));
+                    runOnUiThread(() -> {
+                        // 回退到传统方式
+                        launchAppTraditional(packageName);
+                    });
+                }
+            }).start();
+            
+        } catch (Exception e) {
+            Log.e(TAG, getString(R.string.launch_app_via_shizuku_failed, e.getMessage()), e);
+            // 回退到传统启动方式
+            launchAppTraditional(packageName);
+        }
+    }
+    
+    /**
+     * 传统的应用启动方式（回退方案）
+     */
+    private void launchAppTraditional(String packageName) {
+        try {
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
+            if (launchIntent != null) {
+                startActivity(launchIntent);
+                finish();
+            } else {
+                Toast.makeText(this, getString(R.string.app_no_launcher, packageName), Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, getString(R.string.open_app_failed, e.getMessage()));
+            Toast.makeText(this, getString(R.string.open_app_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
+        }
     }
 }
