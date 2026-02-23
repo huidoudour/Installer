@@ -73,8 +73,8 @@
             android:theme="@style/Theme.Installer.Dialog"
             android:launchMode="singleTask"
             android:taskAffinity="io.github.huidoudour.Installer.INSTALLER"
-            android:excludeFromRecents="false"
-            android:noHistory="false">
+            android:excludeFromRecents="true"
+            android:noHistory="true">
             <!-- 注册为安装器，处理APK安装请求 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

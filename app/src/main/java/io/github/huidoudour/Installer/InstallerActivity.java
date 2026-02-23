@@ -40,6 +40,7 @@ public class InstallerActivity extends AppCompatActivity {
     
     private LinearLayout layoutInstallInfo;
     private LinearLayout layoutProgress;
+    private LinearLayout layoutCompletion;
     private ImageView ivAppIcon;
     private TextView tvAppName;
     private TextView tvPackageName;
@@ -48,11 +49,17 @@ public class InstallerActivity extends AppCompatActivity {
     private Button btnInstall;
     private Button btnCancel;
     private Button btnCancelProgress;
-    private Button btnInstallDisabled;
+    private Button btnOpenApp;
+    private Button btnFinish;
+    private com.google.android.material.progressindicator.CircularProgressIndicator progressInstall;
     
     private Uri installUri;
     private String filePath;
     private boolean isXapkFile = false;
+    
+    // 安装状态管理
+    private boolean isInstalling = false;
+    private String installedPackageName = null;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +67,7 @@ public class InstallerActivity extends AppCompatActivity {
         LanguageManager.applyUserLanguagePreference(this);
         
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.activity_installer);
         
         // 初始化视图
@@ -78,6 +86,7 @@ public class InstallerActivity extends AppCompatActivity {
     private void initViews() {
         layoutInstallInfo = findViewById(R.id.layout_install_info);
         layoutProgress = findViewById(R.id.layout_progress);
+        layoutCompletion = findViewById(R.id.layout_completion);
         ivAppIcon = findViewById(R.id.iv_app_icon);
         tvAppName = findViewById(R.id.tv_app_name);
         tvPackageName = findViewById(R.id.tv_package_name);
@@ -86,11 +95,15 @@ public class InstallerActivity extends AppCompatActivity {
         btnInstall = findViewById(R.id.btn_install);
         btnCancel = findViewById(R.id.btn_cancel);
         btnCancelProgress = findViewById(R.id.btn_cancel_progress);
-        btnInstallDisabled = findViewById(R.id.btn_install_disabled);
+        btnOpenApp = findViewById(R.id.btn_open_app);
+        btnFinish = findViewById(R.id.btn_finish);
+        progressInstall = findViewById(R.id.progress_install);
         
         btnInstall.setOnClickListener(v -> startInstallation());
         btnCancel.setOnClickListener(v -> finish());
-        btnCancelProgress.setOnClickListener(v -> finish());
+        btnCancelProgress.setOnClickListener(v -> onCancelInstallation());
+        btnOpenApp.setOnClickListener(v -> onOpenInstalledApp());
+        btnFinish.setOnClickListener(v -> finish());
     }
     
     private void handleInstallIntent(Intent intent) {
@@ -263,21 +276,25 @@ public class InstallerActivity extends AppCompatActivity {
         
         if (shizukuReady) {
             btnInstall.setEnabled(true);
-            btnInstallDisabled.setVisibility(View.GONE);
         } else {
             btnInstall.setEnabled(false);
-            btnInstallDisabled.setVisibility(View.VISIBLE);
-            
             // 显示Shizuku状态说明
             Toast.makeText(this, R.string.shizuku_required, Toast.LENGTH_LONG).show();
         }
     }
     
     private void startInstallation() {
+        if (isInstalling) return;
+        
         try {
+            isInstalling = true;
+            
             // 显示进度界面
             layoutInstallInfo.setVisibility(View.GONE);
             layoutProgress.setVisibility(View.VISIBLE);
+            layoutCompletion.setVisibility(View.GONE);
+            
+            // 循环进度条自动运行动画
             
             // 获取当前授权器 - 现在只支持Shizuku
             PrivilegeMode currentMode = PrivilegeHelper.PrivilegeMode.SHIZUKU;
@@ -293,13 +310,13 @@ public class InstallerActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String message) {
                     runOnUiThread(() -> {
-                        Toast.makeText(InstallerActivity.this, R.string.xapk_install_success, Toast.LENGTH_SHORT).show();
-                        finish();
+                        showCompletionUI();
                     });
                 }
                 @Override
                 public void onError(String error) {
                     runOnUiThread(() -> {
+                        isInstalling = false;
                         Toast.makeText(InstallerActivity.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
                         layoutProgress.setVisibility(View.GONE);
                         layoutInstallInfo.setVisibility(View.VISIBLE);
@@ -317,14 +334,14 @@ public class InstallerActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String message) {
                         runOnUiThread(() -> {
-                            Toast.makeText(InstallerActivity.this, R.string.apk_install_success, Toast.LENGTH_SHORT).show();
-                            finish();
+                            showCompletionUI();
                         });
                     }
                     
                     @Override
                     public void onError(String error) {
                         runOnUiThread(() -> {
+                            isInstalling = false;
                             Toast.makeText(InstallerActivity.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
                             layoutProgress.setVisibility(View.GONE);
                             layoutInstallInfo.setVisibility(View.VISIBLE);
@@ -334,6 +351,7 @@ public class InstallerActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.start_installation_failed), e);
+            isInstalling = false;
             Toast.makeText(this, getString(R.string.install_process_failed, e.getMessage()), Toast.LENGTH_LONG).show();
             layoutProgress.setVisibility(View.GONE);
             layoutInstallInfo.setVisibility(View.VISIBLE);
@@ -377,5 +395,56 @@ public class InstallerActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.ok, (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
+    }
+    
+    /**
+     * 显示安装完成界面
+     */
+    private void showCompletionUI() {
+        isInstalling = false;
+        layoutProgress.setVisibility(View.GONE);
+        layoutInstallInfo.setVisibility(View.GONE);
+        layoutCompletion.setVisibility(View.VISIBLE);
+        
+        // 保存安装的包名用于打开应用
+        installedPackageName = tvPackageName.getText().toString();
+    }
+    
+    /**
+     * 取消安装
+     */
+    private void onCancelInstallation() {
+        isInstalling = false;
+        layoutProgress.setVisibility(View.GONE);
+        layoutInstallInfo.setVisibility(View.VISIBLE);
+        Toast.makeText(this, R.string.install_cancelled, Toast.LENGTH_SHORT).show();
+    }
+    
+    /**
+     * 打开已安装的应用
+     */
+    private void onOpenInstalledApp() {
+        if (installedPackageName == null || installedPackageName.isEmpty()) {
+            Toast.makeText(this, R.string.cannot_open_app, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        try {
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(installedPackageName);
+            if (launchIntent != null) {
+                startActivity(launchIntent);
+                finish();
+            } else {
+                Toast.makeText(this, getString(R.string.app_no_launcher, installedPackageName), Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "打开应用失败: " + e.getMessage());
+            Toast.makeText(this, getString(R.string.open_app_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

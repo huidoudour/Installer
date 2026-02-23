@@ -186,6 +186,38 @@
                     app:backgroundTint="@android:color/transparent" />
             </LinearLayout>
 
+            <!-- 安装完成布局 -->
+            <LinearLayout
+                android:id="@+id/layout_completion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+                
+                <!-- 打开应用按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_open_app"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="@string/open_app"
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="?attr/colorPrimary"
+                    android:layout_marginBottom="8dp" />
+                    
+                <!-- 完成按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_finish"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="@string/finish"
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    app:backgroundTint="@android:color/transparent" />
+            </LinearLayout>
+
             <!-- 安装中状态布局 -->
             <LinearLayout
                 android:id="@+id/layout_progress"
@@ -195,17 +227,17 @@
                 android:gravity="center"
                 android:visibility="gone">
                 
-                <!-- 灰化的安装按钮 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_install_disabled"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="@string/installing"
-                    android:textSize="16sp"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="?attr/colorOnSurfaceVariant"
-                    android:enabled="false"
-                    android:layout_marginBottom="8dp" />
+                <!-- 循环进度条 -->
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progress_install"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:trackThickness="4dp"
+                    app:indicatorSize="48dp"
+                    app:indicatorColor="?attr/colorPrimary"
+                    app:trackColor="?attr/colorSurfaceContainerHighest"
+                    android:indeterminate="true" />
                     
                 <!-- 取消按钮 -->
                 <com.google.android.material.button.MaterialButton
