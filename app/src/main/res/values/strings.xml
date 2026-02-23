@@ -411,7 +411,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="log_processed_external_request">Processed external install request, file copied to cache: %s</string>
     <string name="log_received_home_install">Received install URI from HomeActivity: %s</string>
     <string name="log_processed_home_request">Processed install request from HomeActivity, file copied to cache: %s</string>
-    <string name="log_detected_file">Detected %s, contains %d APK files</string>
+    <string name="log_detected_file" formatted="false">Detected %s, contains %d APK files</string>
     
     <!-- 授权器相关硬编码字符串 -->
     <string name="switched_to_privilege">Switched to %s</string>

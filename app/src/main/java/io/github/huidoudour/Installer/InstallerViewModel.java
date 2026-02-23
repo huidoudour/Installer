@@ -1,0 +1,19 @@
+package io.github.huidoudour.Installer;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+
+public class InstallerViewModel extends ViewModel {
+
+    private final MutableLiveData<String> mText;
+
+    public InstallerViewModel() {
+        mText = new MutableLiveData<>();
+        mText.setValue("installer_page");
+    }
+
+    public LiveData<String> getText() {
+        return mText;
+    }
+}

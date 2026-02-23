@@ -427,7 +427,7 @@
     <string name="log_processed_external_request">已处理外部安装请求，文件已复制到 cache: %s</string>
     <string name="log_received_home_install">接收到HomeActivity传递的安装URI: %s</string>
     <string name="log_processed_home_request">已处理HomeActivity传递的安装请求，文件已复制到 cache: %s</string>
-    <string name="log_detected_file">检测到 %s，包含 %d 个 APK 文件</string>
+    <string name="log_detected_file" formatted="false">检测到 %s，包含 %d 个 APK 文件</string>
     
     <!-- 授权器相关硬编码字符串 -->
     <string name="switched_to_privilege">已切换到 %s</string>

@@ -3,8 +3,8 @@ package io.github.huidoudour.Installer;
 import android.app.Application;
 import android.util.Log;
 
-import io.github.huidoudour.Installer.utils.LanguageManager;
-import io.github.huidoudour.Installer.utils.NotificationHelper;
+import io.github.huidoudour.Installer.LanguageManager;
+import io.github.huidoudour.Installer.NotificationHelper;
 import io.github.huidoudour.Installer.R;
 
 /**

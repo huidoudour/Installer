@@ -55,7 +55,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Installer">
         <activity
-            android:name=".ui.activity.HomeActivity"
+            android:name=".HomeActivity"
             android:exported="true"
             android:debuggable="true"
             tools:ignore="HardcodedDebugMode">
@@ -68,10 +68,13 @@
         
         <!-- 独立的安装Activity -->
         <activity
-            android:name=".ui.activity.InstallerActivity"
+            android:name=".InstallerActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer.Dialog"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:taskAffinity="io.github.huidoudour.Installer.INSTALLER"
+            android:excludeFromRecents="false"
+            android:noHistory="false">
             <!-- 注册为安装器，处理APK安装请求 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -85,13 +88,13 @@
 
         <!-- 关于我的页面 Activity-->
         <activity
-            android:name=".ui.activity.MeActivity"
+            android:name=".MeActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer" />
         
         <!-- 设置页面 Activity -->
         <activity
-            android:name=".ui.activity.SettingsActivity"
+            android:name=".SettingsActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer" />
         
