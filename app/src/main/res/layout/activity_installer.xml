@@ -133,7 +133,9 @@
                         android:text="1.0.0"
                         android:textSize="14sp"
                         android:textColor="?attr/colorOnSurface"
-                        android:textAlignment="textEnd" />
+                        android:textAlignment="textEnd"
+                        android:maxLines="3"
+                        android:ellipsize="end" />
                 </LinearLayout>
                 
                 <!-- 文件大小 -->
@@ -213,75 +215,7 @@
                         android:textAlignment="textEnd" />
                 </LinearLayout>
                 
-                <!-- 版本对比信息 -->
-                <LinearLayout
-                    android:id="@+id/layout_version_comparison"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="?attr/colorSurfaceContainerHighest"
-                    android:padding="12dp"
-                    android:layout_marginTop="8dp"
-                    android:visibility="gone">
-                    
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/version_comparison"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginBottom="8dp" />
-                        
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="4dp">
-                        
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/current_version"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurfaceVariant" />
-                            
-                        <TextView
-                            android:id="@+id/tv_current_version"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/not_installed"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textAlignment="textEnd" />
-                    </LinearLayout>
-                    
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/new_version"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurfaceVariant" />
-                            
-                        <TextView
-                            android:id="@+id/tv_new_version"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/unknown"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textAlignment="textEnd" />
-                    </LinearLayout>
-                </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

@@ -180,6 +180,9 @@ public class InstallerActivity extends AppCompatActivity {
             layoutInstallInfo.setVisibility(View.VISIBLE);
             layoutProgress.setVisibility(View.GONE);
 
+            // 检查并显示版本比对信息
+            checkAndDisplayVersionComparison();
+
             // 检查Shizuku状态
             checkShizukuStatus();
         } catch (Exception e) {
@@ -278,14 +281,15 @@ public class InstallerActivity extends AppCompatActivity {
         try {
             Log.d(TAG, getString(R.string.checking_app_installed, packageName));
             
-            // 使用QUERY_ALL_PACKAGES权限直接查询包信息
-            PackageInfo info = getPackageManager().getPackageInfo(packageName, 0);
-            Log.d(TAG, getString(R.string.app_already_installed, info.versionName, info.getLongVersionCode()));
+            // 使用增强版包信息检查工具
+            PackageInfo info = PackageInfoHelper.getInstalledAppInfo(this, packageName);
+            if (info != null) {
+                Log.d(TAG, getString(R.string.app_already_installed, info.versionName, info.getLongVersionCode()));
+            } else {
+                Log.d(TAG, getString(R.string.app_not_installed, packageName));
+            }
             return info;
             
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.d(TAG, getString(R.string.app_not_installed, packageName));
-            return null;
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.check_app_install_error, e.getMessage()));
             return null;
@@ -455,13 +459,13 @@ public class InstallerActivity extends AppCompatActivity {
         
         // 检查已安装的应用信息并更新按钮和版本显示
         Log.d(TAG, getString(R.string.checking_installed_app_info));
-        checkAndUpdateInstalledAppInfo();
+        checkAndDisplayVersionComparison();
     }
     
     /**
-     * 检查并更新已安装应用信息
+     * 检查并显示版本比对信息
      */
-    private void checkAndUpdateInstalledAppInfo() {
+    private void checkAndDisplayVersionComparison() {
         String packageName = tvPackageName.getText().toString();
         if (packageName == null || packageName.isEmpty()) return;
         
@@ -472,47 +476,94 @@ public class InstallerActivity extends AppCompatActivity {
                 
                 runOnUiThread(() -> {
                     if (installedInfo != null) {
-                        // 应用已安装，更新版本信息和按钮
-                        updateVersionInfoForInstalledApp(installedInfo);
+                        // 应用已安装，显示版本比对
+                        displayVersionInMainField(installedInfo);
                         updateInstallButtonForInstalledApp(installedInfo);
                     } else {
-                        // 应用未安装，显示安装信息
-                        updateVersionInfoForNewInstall();
+                        // 应用未安装，显示基础版本信息
+                        displayBasicVersionInfo();
                         updateInstallButtonForNewInstall();
                     }
                 });
             } catch (Exception e) {
                 Log.e(TAG, getString(R.string.check_installed_app_info_failed, e.getMessage()));
+                runOnUiThread(() -> displayBasicVersionInfo());
             }
         }).start();
     }
     
     /**
-     * 更新已安装应用的版本信息
+     * 在主版本字段中显示版本对比信息
      */
-    private void updateVersionInfoForInstalledApp(PackageInfo installedInfo) {
+    private void displayVersionInMainField(PackageInfo installedInfo) {
         try {
             // 获取待安装APK的信息
             PackageManager pm = getPackageManager();
             PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
             
             if (apkInfo != null) {
-                String apkVersionName = apkInfo.versionName != null ? apkInfo.versionName : "";
+                String apkVersionName = apkInfo.versionName != null ? apkInfo.versionName : "Unknown";
                 long apkVersionCode = apkInfo.getLongVersionCode();
                 
-                String installedVersionName = installedInfo.versionName != null ? installedInfo.versionName : "";
+                String installedVersionName = installedInfo.versionName != null ? installedInfo.versionName : "Unknown";
                 long installedVersionCode = installedInfo.getLongVersionCode();
                 
-                // 显示版本对比：旧版本 → 新版本
+                // 在主版本字段中显示版本对比：当前版本 → 新版本
                 String versionDisplay = String.format("%s (%d) → %s (%d)", 
                     installedVersionName, installedVersionCode, 
                     apkVersionName, apkVersionCode);
                 tvVersion.setText(versionDisplay);
+                
+                // 显示SDK信息对比
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    int apkMinSdk = apkInfo.applicationInfo.minSdkVersion;
+                    int installedMinSdk = installedInfo.applicationInfo.minSdkVersion;
+                    tvMinSdk.setText(String.format("%d → %d", installedMinSdk, apkMinSdk));
+                } else {
+                    tvMinSdk.setText("N/A → N/A");
+                }
+                
+                int apkTargetSdk = apkInfo.applicationInfo.targetSdkVersion;
+                int installedTargetSdk = installedInfo.applicationInfo.targetSdkVersion;
+                tvTargetSdk.setText(String.format("%d → %d", installedTargetSdk, apkTargetSdk));
+                
+                // 根据版本差异调整按钮文本
+                int versionComparison = PackageInfoHelper.compareVersions(apkVersionName, installedVersionName);
+                if (versionComparison > 0) {
+                    btnInstall.setText(R.string.upgrade);
+                } else if (versionComparison < 0) {
+                    btnInstall.setText(R.string.downgrade);
+                } else {
+                    btnInstall.setText(R.string.reinstall);
+                }
             }
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.updating_version_info_installed_app) + ": " + e.getMessage());
+            displayBasicVersionInfo();
         }
     }
+    
+    /**
+     * 显示基础版本信息（新安装情况）
+     */
+    private void displayBasicVersionInfo() {
+        try {
+            PackageManager pm = getPackageManager();
+            PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
+            
+            if (apkInfo != null) {
+                String versionName = apkInfo.versionName != null ? apkInfo.versionName : "Unknown";
+                long versionCode = apkInfo.getLongVersionCode();
+                tvVersion.setText(String.format("%s (%d)", versionName, versionCode));
+            }
+            btnInstall.setText(R.string.install);
+        } catch (Exception e) {
+            Log.e(TAG, getString(R.string.updating_version_info_new_install) + ": " + e.getMessage());
+            tvVersion.setText(R.string.unknown);
+        }
+    }
+    
+
     
     /**
      * 更新新安装的版本信息
