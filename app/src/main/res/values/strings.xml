@@ -492,7 +492,11 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="cannot_open_app">Cannot open application</string>
     <string name="app_no_launcher">Application %s has no launcher activity</string>
     <string name="open_app_failed">Failed to open application: %s</string>
-
+    
+    <!-- 版本比对和升级相关 -->
+    <string name="upgrade">Upgrade</string>
+    <string name="downgrade">Downgrade</string>
+    <string name="same_version">Same Version</string>
 
 
 </resources>
