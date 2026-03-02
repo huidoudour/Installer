@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
-    tools:context=".ui.shell.ShellFragment">
+    tools:context=".ShellFragment">
 
     <!-- 命令输入区域 - Material You 风格 -->
     <com.google.android.material.card.MaterialCardView

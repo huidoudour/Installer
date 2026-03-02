@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.ui.installer;
+package io.github.huidoudour.Installer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -43,14 +43,14 @@ import java.util.Locale;
 
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentInstallerBinding;
-import io.github.huidoudour.Installer.utils.LogManager;
+import io.github.huidoudour.Installer.LogManager;
 
-import io.github.huidoudour.Installer.utils.XapkInstaller;
-import io.github.huidoudour.Installer.utils.ShizukuInstallHelper;
-import io.github.huidoudour.Installer.utils.DhizukuInstallHelper;
-import io.github.huidoudour.Installer.utils.PrivilegeHelper;
-import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeMode;
-import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.XapkInstaller;
+import io.github.huidoudour.Installer.ShizukuInstallHelper;
+
+import io.github.huidoudour.Installer.PrivilegeHelper;
+import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
+import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeStatus;
 import rikka.shizuku.Shizuku;
 
 public class InstallerFragment extends Fragment {
@@ -405,41 +405,6 @@ public class InstallerFragment extends Fragment {
                         log(getString(R.string.shizuku_unavailable_meow, t.getMessage()));
                         updatePrivilegeStatusAndUi();
                     }
-                } else {
-                    // Dhizuku 使用 requestPermission API 弹出授权对话框
-                    PrivilegeHelper.requestDhizukuPermission(requireContext(), new PrivilegeHelper.DhizukuPermissionCallback() {
-                        @Override
-                        public void onPermissionGranted() {
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    log(getString(R.string.dhizuku_auth_success));
-                                    Toast.makeText(requireContext(), getString(R.string.dhizuku_auth_success), Toast.LENGTH_SHORT).show();
-                                    updatePrivilegeStatusAndUi();
-                                });
-                            }
-                        }
-
-                        @Override
-                        public void onPermissionDenied() {
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    log(getString(R.string.dhizuku_auth_denied));
-                                    Toast.makeText(requireContext(), getString(R.string.dhizuku_auth_denied), Toast.LENGTH_SHORT).show();
-                                });
-                            }
-                        }
-
-                        @Override
-                        public void onError(String error) {
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    log(getString(R.string.dhizuku_auth_error, error));
-                                    Toast.makeText(requireContext(), getString(R.string.dhizuku_auth_error, error), Toast.LENGTH_LONG).show();
-                                });
-                            }
-                        }
-                    });
-                    log(getString(R.string.requesting_dhizuku_auth));
                 }
                 break;
             case AUTHORIZED:
@@ -474,42 +439,22 @@ public class InstallerFragment extends Fragment {
         // === 根据文件类型和授权器选择安装方式 ===
         if (isXapkFile) {
             // XAPK/APKS 安装
-            if (currentMode == PrivilegeMode.SHIZUKU) {
-                ShizukuInstallHelper.installXapk(
-                    requireContext(),
-                    selectedFilePath,
-                    switchReplaceExisting.isChecked(),
-                    switchGrantPermissions.isChecked(),
-                    createInstallCallback()
-                );
-            } else {
-                DhizukuInstallHelper.installXapk(
-                    requireContext(),
-                    selectedFilePath,
-                    switchReplaceExisting.isChecked(),
-                    switchGrantPermissions.isChecked(),
-                    createInstallCallback()
-                );
-            }
+            ShizukuInstallHelper.installXapk(
+                requireContext(),
+                selectedFilePath,
+                switchReplaceExisting.isChecked(),
+                switchGrantPermissions.isChecked(),
+                createInstallCallback()
+            );
         } else {
             // 单个 APK 安装
-            if (currentMode == PrivilegeMode.SHIZUKU) {
-                ShizukuInstallHelper.installSingleApk(
-                    requireContext(),
-                    new File(selectedFilePath),
-                    switchReplaceExisting.isChecked(),
-                    switchGrantPermissions.isChecked(),
-                    createInstallCallback()
-                );
-            } else {
-                DhizukuInstallHelper.installSingleApk(
-                    requireContext(),
-                    new File(selectedFilePath),
-                    switchReplaceExisting.isChecked(),
-                    switchGrantPermissions.isChecked(),
-                    createInstallCallback()
-                );
-            }
+            ShizukuInstallHelper.installSingleApk(
+                requireContext(),
+                new File(selectedFilePath),
+                switchReplaceExisting.isChecked(),
+                switchGrantPermissions.isChecked(),
+                createInstallCallback()
+            );
         }
     }
     

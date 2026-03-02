@@ -11,8 +11,8 @@ android {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "3.3" //重构后定义新版本
         
         // 启用NDK - 配置C++共享库编译
         externalNativeBuild {
@@ -133,8 +133,7 @@ dependencies {
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
     
-    // Dhizuku dependencies (使用 Maven Central)
-    implementation("io.github.iamr0s:Dhizuku-API:2.2")
+
     
     // Kotlin support
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")

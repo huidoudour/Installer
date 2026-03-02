@@ -1,12 +1,12 @@
-package io.github.huidoudour.Installer.ui.activity;
+package io.github.huidoudour.Installer;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import com.google.android.material.color.DynamicColors;
 import io.github.huidoudour.Installer.databinding.ActivitySettingsBinding;
-import io.github.huidoudour.Installer.ui.settings.SettingsFragment;
-import io.github.huidoudour.Installer.utils.LanguageManager;
+import io.github.huidoudour.Installer.SettingsFragment;
+import io.github.huidoudour.Installer.LanguageManager;
 
 /**
  * 设置页面 Activity

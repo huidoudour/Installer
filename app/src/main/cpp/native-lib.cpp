@@ -12,7 +12,7 @@
  * 获取原生库版本信息
  */
 extern "C" JNIEXPORT jstring JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_getNativeVersion(
+Java_io_github_huidoudour_Installer_NativeHelper_getNativeVersion(
         JNIEnv* env,
         jobject /* this */) {
     LOGI("getNativeVersion called");
@@ -23,7 +23,7 @@ Java_io_github_huidoudour_Installer_utils_NativeHelper_getNativeVersion(
  * 获取 CPU 架构信息
  */
 extern "C" JNIEXPORT jstring JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_getCPUArchitecture(
+Java_io_github_huidoudour_Installer_NativeHelper_getCPUArchitecture(
         JNIEnv* env,
         jobject /* this */) {
     LOGI("getCPUArchitecture called");
@@ -46,7 +46,7 @@ Java_io_github_huidoudour_Installer_utils_NativeHelper_getCPUArchitecture(
  * 注意: 这是简化版,实际生产环境请使用 OpenSSL 或 conscrypt
  */
 extern "C" JNIEXPORT jstring JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_calculateSimpleHash(
+Java_io_github_huidoudour_Installer_NativeHelper_calculateSimpleHash(
         JNIEnv* env,
         jobject /* this */,
         jstring input) {
@@ -81,7 +81,7 @@ Java_io_github_huidoudour_Installer_utils_NativeHelper_calculateSimpleHash(
  * 字符串处理性能测试
  */
 extern "C" JNIEXPORT jlong JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_performanceTest(
+Java_io_github_huidoudour_Installer_NativeHelper_performanceTest(
         JNIEnv* env,
         jobject /* this */,
         jint iterations) {
@@ -108,7 +108,7 @@ Java_io_github_huidoudour_Installer_utils_NativeHelper_performanceTest(
  * 验证原生库是否正确加载
  */
 extern "C" JNIEXPORT jboolean JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_isNativeLibraryLoaded(
+Java_io_github_huidoudour_Installer_NativeHelper_isNativeLibraryLoaded(
         JNIEnv* env,
         jobject /* this */) {
     LOGI("Native library is loaded and working!");
@@ -119,7 +119,7 @@ Java_io_github_huidoudour_Installer_utils_NativeHelper_isNativeLibraryLoaded(
  * 获取构建信息
  */
 extern "C" JNIEXPORT jstring JNICALL
-Java_io_github_huidoudour_Installer_utils_NativeHelper_getBuildInfo(
+Java_io_github_huidoudour_Installer_NativeHelper_getBuildInfo(
         JNIEnv* env,
         jobject /* this */) {
     

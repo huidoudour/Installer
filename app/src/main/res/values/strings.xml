@@ -10,6 +10,7 @@
     <string name="install_title">Install Application</string>
     <string name="select_apk">Select APK File</string>
     <string name="install">Install</string>
+    <string name="reinstall">Reinstall</string>
     <string name="cancel">Cancel</string>
     <string name="installing">Installing...</string>
     <string name="app_icon_description">Application Icon</string>
@@ -33,7 +34,7 @@
     <string name="accessibility_status_summary">Check accessibility service status</string>
     <string name="about_app">About App</string>
     <string name="about_developer">About Developer</string>
-    <string name="app_version">Version 1.0.0</string>
+    <string name="app_version">Version</string>
     <string name="follow_system">Follow System</string>
     <string name="simplified_chinese">Simplified Chinese</string>
     <string name="traditional_chinese">Traditional Chinese</string>
@@ -89,8 +90,13 @@
     <string name="package_name">Package Name</string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">Version</string>
-    <string name="default_version">1.0.0</string>
     <string name="file_size">File Size</string>
+    <string name="min_sdk">Min SDK</string>
+    <string name="target_sdk">Target SDK</string>
+    <string name="version_comparison">Version Comparison</string>
+    <string name="current_version">Current Version</string>
+    <string name="new_version">New Version</string>
+    <string name="not_installed">Not Installed</string>
     <string name="default_file_size">10.24 MB</string>
     <string name="unknown">Unknown</string>
     <string name="xapk_package">XAPK Package</string>
@@ -311,6 +317,36 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="shizuku_binder_listener_error">Cannot add Shizuku binder listener: %s</string>
     <string name="installer_started">Installer started, waiting for operation……</string>
     <string name="get_file_path_uri_error">getFilePathFromUri has issues: %s</string>
+    <string name="app_launched_success">App %s launched successfully</string>
+    <string name="checking_app_installed">Checking if app is installed: %s</string>
+    <string name="app_already_installed" formatted="false">App already installed, version name: %s, version code: %d</string>
+    <string name="app_not_installed">App not installed: %s</string>
+    <string name="check_app_install_error">Error checking app installation status: %s</string>
+    <string name="using_query_all_packages">Using QUERY_ALL_PACKAGES permission to query package info directly</string>
+    <string name="launching_app_via_shizuku_shell">Launching app via Shizuku Shell: %s</string>
+    <string name="executing_shell_command">Executing Shell command</string>
+    <string name="using_am_start_command">Using am start command</string>
+    <string name="executing_command">Executing command</string>
+    <string name="shell_command_result">Shell command execution result, exit code: %d</string>
+    <string name="shizuku_shell_launch_failed">Shizuku Shell launch failed: %s</string>
+    <string name="launch_app_via_shizuku_failed">Failed to launch app via Shizuku: %s</string>
+    <string name="traditional_app_launch">Traditional app launch method (fallback solution)</string>
+    <string name="checking_installed_app_info">Checking and updating installed app info</string>
+    <string name="getting_installed_app_info">Getting installed app info</string>
+    <string name="app_installed_updating_version_button">App installed, updating version info and button</string>
+    <string name="app_not_installed_showing_install_info">App not installed, showing installation info</string>
+    <string name="check_installed_app_info_failed">Failed to check installed app info: %s</string>
+    <string name="updating_version_info_installed_app">Updating version info for installed app</string>
+    <string name="updating_version_info_new_install">Updating version info for new install</string>
+    <string name="updating_install_button_installed_app">Updating install button for installed app</string>
+    <string name="updating_install_button_new_install">Updating install button for new install</string>
+    <string name="save_installed_package_name">Saving installed package name for opening app</string>
+    <string name="apply_user_language_preference">Applying user selected language</string>
+    <string name="checking_shizuku_status">Checking Shizuku status</string>
+    <string name="setting_app_source_path">Setting app source path to load icons and labels</string>
+    <string name="getting_app_name">Getting app name</string>
+    <string name="getting_app_icon">Getting app icon</string>
+    <string name="load_app_icon_failed">Failed to load app icon</string>
     <string name="copy_to_cache_error">Failed to copy to cache: %s</string>
     <string name="request_manage_storage">Requesting MANAGE_EXTERNAL_STORAGE permission.</string>
     <string name="request_manage_storage_error">Error requesting MANAGE_EXTERNAL_STORAGE permission: %s</string>
@@ -361,7 +397,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <!-- Permission authorization related -->
     <string name="privilege_settings">Permission Settings</string>
     <string name="shizuku_settings">Shizuku Authorization</string>
-    <string name="dhizuku_settings">Dhizuku Authorization</string>
+
     <string name="privilege_status">Status: %s</string>
     <string name="privilege_not_installed">Not Installed</string>
     <string name="privilege_not_running">Not Running</string>
@@ -371,12 +407,12 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="grant_permission">Grant Permission</string>
     <string name="open_app">Open App</string>
     <string name="download_from_github">Download from GitHub</string>
-    <string name="dhizuku_status">Dhizuku Status</string>
+
     <string name="switch_privilege">Switch</string>
     <string name="current_privilege">Current Authorization</string>
     <string name="privilege_mode_shizuku">Shizuku</string>
-    <string name="privilege_mode_dhizuku">Dhizuku</string>
-    <string name="dhizuku_not_available">Dhizuku not installed or unavailable</string>
+
+
     <string name="execute_command_failed">Command execution failed: %s</string>
     
     <!-- 原生库测试相关字符串 -->
@@ -412,7 +448,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="log_processed_external_request">Processed external install request, file copied to cache: %s</string>
     <string name="log_received_home_install">Received install URI from HomeActivity: %s</string>
     <string name="log_processed_home_request">Processed install request from HomeActivity, file copied to cache: %s</string>
-    <string name="log_detected_file">Detected %s, contains %d APK files</string>
+    <string name="log_detected_file" formatted="false">Detected %s, contains %d APK files</string>
     
     <!-- 授权器相关硬编码字符串 -->
     <string name="switched_to_privilege">Switched to %s</string>
@@ -421,7 +457,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="shizuku_unavailable_meow">Shizuku unavailable meow: %s</string>
     <string name="privilege_not_connected_install_log">%s not connected or not authorized, cannot install meow.</string>
     <string name="requesting_shizuku_auth">Requesting Shizuku authorization...</string>
-    <string name="requesting_dhizuku_auth_notification">Requesting Dhizuku authorization...</string>
+
     <string name="privilege_not_installed_notification">%s not installed, opening GitHub download page...</string>
     <string name="privilege_app_opening_notification">Opening %s app...</string>
     <string name="privilege_already_authorized">%s already authorized</string>
@@ -438,12 +474,12 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="notification_channel_general_desc">Application general message notifications</string>
     <string name="notification_channel_install">Installation Notifications</string>
     <string name="notification_channel_install_desc">Application installation progress and result notifications</string>
-    <string name="dhizuku_request_permission_method_not_found">Unable to find Dhizuku requestPermission method</string>
-    <string name="dhizuku_api_class_not_found">Dhizuku API class not found</string>
-    <string name="dhizuku_request_permission_failed">Failed to request Dhizuku authorization: %s</string>
-    <string name="dhizuku_auth_success">✓ Dhizuku authorization granted</string>
-    <string name="dhizuku_auth_denied">✗ Dhizuku authorization denied</string>
-    <string name="dhizuku_auth_error">✗ Dhizuku error: %s</string>
+
+
+
+
+
+
     <string name="success">Success</string>
     <string name="failed">Failed</string>
     <string name="theme_settings_developing">Theme settings feature is under development</string>
@@ -451,7 +487,16 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="notification_permission_denied">Notification permission denied, please enable it manually in settings</string>
     <string name="notification_opened">Notification enabled</string>
     <string name="error_prefix">Error: %s</string>
-    <string name="requesting_dhizuku_auth">Requesting Dhizuku authorization...</string>
-    <string name="please_grant_permission_in_dhizuku">Please grant permission in Dhizuku...</string>
-    <string name="please_grant_permission_in_dhizuku_toast">Please manually grant permission to this app in Dhizuku app, then return</string>
+    <string name="finish">Finish</string>
+    <string name="install_cancelled">Installation cancelled</string>
+    <string name="cannot_open_app">Cannot open application</string>
+    <string name="app_no_launcher">Application %s has no launcher activity</string>
+    <string name="open_app_failed">Failed to open application: %s</string>
+    
+    <!-- 版本比对和升级相关 -->
+    <string name="upgrade">Upgrade</string>
+    <string name="downgrade">Downgrade</string>
+    <string name="same_version">Same Version</string>
+
+
 </resources>

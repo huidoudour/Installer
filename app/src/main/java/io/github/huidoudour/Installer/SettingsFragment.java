@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.ui.settings;
+package io.github.huidoudour.Installer;
 
 import android.Manifest;
 import android.content.Intent;
@@ -28,16 +28,16 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import android.widget.Toast;
 
-import io.github.huidoudour.Installer.ui.activity.HomeActivity;
-import io.github.huidoudour.Installer.ui.activity.MeActivity;
+import io.github.huidoudour.Installer.HomeActivity;
+import io.github.huidoudour.Installer.MeActivity;
 import io.github.huidoudour.Installer.NativeTestActivity;
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
-import io.github.huidoudour.Installer.utils.LanguageManager;
-import io.github.huidoudour.Installer.utils.NotificationHelper;
-import io.github.huidoudour.Installer.utils.PrivilegeHelper;
-import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeMode;
-import io.github.huidoudour.Installer.utils.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.LanguageManager;
+import io.github.huidoudour.Installer.NotificationHelper;
+import io.github.huidoudour.Installer.PrivilegeHelper;
+import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
+import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeStatus;
 import rikka.shizuku.Shizuku;
 
 public class SettingsFragment extends Fragment {
@@ -291,12 +291,11 @@ public class SettingsFragment extends Fragment {
             boolean isGranted = NotificationHelper.isNotificationPermissionGranted(requireContext());
             if (isGranted) {
                 tvNotificationStatus.setText(R.string.notification_enabled);
-                btnRequestNotification.setText(R.string.privilege_authorized_button);
-                btnRequestNotification.setEnabled(false);
+                btnRequestNotification.setVisibility(View.GONE); // 有权限时隐藏按钮
             } else {
                 tvNotificationStatus.setText(R.string.notification_disabled);
                 btnRequestNotification.setText(R.string.grant_permission);
-                btnRequestNotification.setEnabled(true);
+                btnRequestNotification.setVisibility(View.VISIBLE); // 无权限时显示按钮
             }
         }
     }
@@ -434,29 +433,20 @@ public class SettingsFragment extends Fragment {
     private void showPrivilegeSettingsDialog() {
         // 获取当前授权器
         PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
-        int currentIndex = currentMode == PrivilegeMode.SHIZUKU ? 0 : 1;
+        int currentIndex = 0;
         
-        // 获取两个授权器的状态
+        // 获取Shizuku状态
         PrivilegeStatus shizukuStatus = PrivilegeHelper.getStatus(requireContext(), PrivilegeMode.SHIZUKU);
-        PrivilegeStatus dhizukuStatus = PrivilegeHelper.getStatus(requireContext(), PrivilegeMode.DHIZUKU);
         
         String shizukuDesc = "Shizuku (" + getStatusText(shizukuStatus) + ")";
-        String dhizukuDesc = "Dhizuku (" + getStatusText(dhizukuStatus) + ")";
         
-        String[] options = {shizukuDesc, dhizukuDesc};
+        String[] options = {shizukuDesc};
         
         // 创建MD3风格的AlertDialog - 使用单选列表
         MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.privilege_settings)
                 .setSingleChoiceItems(options, currentIndex, (dialog, which) -> {
-                    // 切换授权器
-                    PrivilegeMode newMode = which == 0 ? PrivilegeMode.SHIZUKU : PrivilegeMode.DHIZUKU;
-                    if (newMode != currentMode) {
-                        PrivilegeHelper.saveCurrentMode(requireContext(), newMode);
-                        showNotification(getString(R.string.switched_to_privilege, PrivilegeHelper.getModeName(newMode)));
-                        // 更新权限状态显示
-                        updatePrivilegeStatus();
-                    }
+                    // 由于只支持Shizuku，无需切换
                     dialog.dismiss();
                 })
                 .setNegativeButton(R.string.cancel, null);
@@ -508,10 +498,8 @@ public class SettingsFragment extends Fragment {
                 if (mode == PrivilegeMode.SHIZUKU) {
                     PrivilegeHelper.requestShizukuPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
                     showNotification(getString(R.string.requesting_shizuku_auth));
-                } else {
-                    PrivilegeHelper.requestDhizukuPermission(requireContext());
-                    showNotification(getString(R.string.requesting_dhizuku_auth_notification));
                 }
+                
                 // 延迟更新状态
                 if (getView() != null) {
                     getView().postDelayed(this::updatePrivilegeStatus, 1000);
@@ -529,6 +517,27 @@ public class SettingsFragment extends Fragment {
         // 页面恢复时更新状态
         updateNotificationStatus();
         updatePrivilegeStatus();
+        updateVersionInfo();
+    }
+    
+    /**
+     * 更新应用版本信息
+     */
+    private void updateVersionInfo() {
+        TextView tvAppVersion = binding.getRoot().findViewById(R.id.tv_app_version);
+        if (tvAppVersion != null) {
+            try {
+                android.content.pm.PackageInfo packageInfo = requireContext().getPackageManager()
+                    .getPackageInfo(requireContext().getPackageName(), 0);
+                String versionName = packageInfo.versionName;
+                int versionCode = packageInfo.versionCode;
+                tvAppVersion.setText("v" + versionName + " (" + versionCode + ")");
+            } catch (Exception e) {
+                Log.e("SettingsFragment", "Error getting version info: " + e.getMessage());
+                // 出错时显示一个默认值
+                tvAppVersion.setText("v1.0.0 (1)");
+            }
+        }
     }
     
     @Override

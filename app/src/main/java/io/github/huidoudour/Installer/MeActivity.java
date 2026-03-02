@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.ui.activity;
+package io.github.huidoudour.Installer;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -9,8 +9,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
 
-import io.github.huidoudour.Installer.utils.LanguageManager;
-import io.github.huidoudour.Installer.utils.NotificationHelper;
+import io.github.huidoudour.Installer.LanguageManager;
+import io.github.huidoudour.Installer.NotificationHelper;
 import io.github.huidoudour.Installer.R;
 
 public class MeActivity extends AppCompatActivity {

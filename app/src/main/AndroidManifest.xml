@@ -8,6 +8,10 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" 
+        tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.GET_PACKAGE_SIZE" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
     
     <!-- 通知权限 (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -17,8 +21,7 @@
         <!-- Shizuku 应用 -->
         <package android:name="moe.shizuku.privileged.api" />
         
-        <!-- Dhizuku 应用 -->
-        <package android:name="com.rosan.dhizuku" />
+        
         
         <!-- 允许查询所有浏览器应用 -->
         <intent>
@@ -56,7 +59,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Installer">
         <activity
-            android:name=".ui.activity.HomeActivity"
+            android:name=".HomeActivity"
             android:exported="true"
             android:debuggable="true"
             tools:ignore="HardcodedDebugMode">
@@ -69,10 +72,13 @@
         
         <!-- 独立的安装Activity -->
         <activity
-            android:name=".ui.activity.InstallerActivity"
+            android:name=".InstallerActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer.Dialog"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:taskAffinity="io.github.huidoudour.Installer.INSTALLER"
+            android:excludeFromRecents="true"
+            android:noHistory="true">
             <!-- 注册为安装器，处理APK安装请求 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -86,13 +92,13 @@
 
         <!-- 关于我的页面 Activity-->
         <activity
-            android:name=".ui.activity.MeActivity"
+            android:name=".MeActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer" />
         
         <!-- 设置页面 Activity -->
         <activity
-            android:name=".ui.activity.SettingsActivity"
+            android:name=".SettingsActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer" />
         

@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.ui.logs;
+package io.github.huidoudour.Installer;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +23,7 @@ import java.util.Locale;
 
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentLogsBinding;
-import io.github.huidoudour.Installer.utils.LogManager;
+import io.github.huidoudour.Installer.LogManager;
 
 public class LogsFragment extends Fragment implements LogManager.LogListener {
 

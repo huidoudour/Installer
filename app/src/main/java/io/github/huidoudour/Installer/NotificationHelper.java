@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.utils;
+package io.github.huidoudour.Installer;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;

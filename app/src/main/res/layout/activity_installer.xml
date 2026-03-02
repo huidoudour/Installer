@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@android:color/transparent">
+    android:background="@android:color/transparent"
+    android:clickable="true"
+    android:focusable="true">
 
     <!-- 圆角对话框容器 -->
     <com.google.android.material.card.MaterialCardView
@@ -96,9 +99,15 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="com.example.app"
-                        android:textSize="14sp"
+                        android:textSize="12sp"
                         android:textColor="?attr/colorOnSurface"
-                        android:textAlignment="textEnd" />
+                        android:textAlignment="textEnd"
+                        android:maxLines="3"
+                        android:ellipsize="end"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="8sp"
+                        android:autoSizeMaxTextSize="14sp"
+                        android:autoSizeStepGranularity="1sp" />
                 </LinearLayout>
                 
                 <!-- 版本信息 -->
@@ -124,14 +133,17 @@
                         android:text="1.0.0"
                         android:textSize="14sp"
                         android:textColor="?attr/colorOnSurface"
-                        android:textAlignment="textEnd" />
+                        android:textAlignment="textEnd"
+                        android:maxLines="3"
+                        android:ellipsize="end" />
                 </LinearLayout>
                 
                 <!-- 文件大小 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
                     
                     <TextView
                         android:layout_width="wrap_content"
@@ -151,6 +163,59 @@
                         android:textColor="?attr/colorOnSurface"
                         android:textAlignment="textEnd" />
                 </LinearLayout>
+                
+                <!-- 最小SDK版本 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/min_sdk"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginEnd="16dp" />
+                        
+                    <TextView
+                        android:id="@+id/tv_min_sdk"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/unknown"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textAlignment="textEnd" />
+                </LinearLayout>
+                
+                <!-- 目标SDK版本 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/target_sdk"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginEnd="16dp" />
+                        
+                    <TextView
+                        android:id="@+id/tv_target_sdk"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/unknown"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textAlignment="textEnd" />
+                </LinearLayout>
+                
+
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -186,6 +251,38 @@
                     app:backgroundTint="@android:color/transparent" />
             </LinearLayout>
 
+            <!-- 安装完成布局 -->
+            <LinearLayout
+                android:id="@+id/layout_completion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+                
+                <!-- 打开应用按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_open_app"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="@string/open_app"
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="?attr/colorPrimary"
+                    android:layout_marginBottom="8dp" />
+                    
+                <!-- 完成按钮 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_finish"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="@string/finish"
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    app:backgroundTint="@android:color/transparent" />
+            </LinearLayout>
+
             <!-- 安装中状态布局 -->
             <LinearLayout
                 android:id="@+id/layout_progress"
@@ -195,17 +292,17 @@
                 android:gravity="center"
                 android:visibility="gone">
                 
-                <!-- 灰化的安装按钮 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_install_disabled"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="@string/installing"
-                    android:textSize="16sp"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="?attr/colorOnSurfaceVariant"
-                    android:enabled="false"
-                    android:layout_marginBottom="8dp" />
+                <!-- 循环进度条 -->
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progress_install"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:trackThickness="4dp"
+                    app:indicatorSize="48dp"
+                    app:indicatorColor="?attr/colorPrimary"
+                    app:trackColor="?attr/colorSurfaceContainerHighest"
+                    android:indeterminate="true" />
                     
                 <!-- 取消按钮 -->
                 <com.google.android.material.button.MaterialButton

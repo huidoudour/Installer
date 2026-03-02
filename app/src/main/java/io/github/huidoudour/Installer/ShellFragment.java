@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.ui.shell;
+package io.github.huidoudour.Installer;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -27,7 +27,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentShellBinding;
-import io.github.huidoudour.Installer.utils.ShellExecutor;
+import io.github.huidoudour.Installer.ShellExecutor;
 import rikka.shizuku.Shizuku;
 
 import java.text.SimpleDateFormat;

@@ -8,7 +8,7 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:paddingBottom="16dp"
-    tools:context=".ui.logs.LogsFragment">
+    tools:context=".LogsFragment">
 
     <!-- 日志卡片 -->
     <com.google.android.material.card.MaterialCardView

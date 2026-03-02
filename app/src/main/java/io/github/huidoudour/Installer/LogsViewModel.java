@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.ui.logs;
+package io.github.huidoudour.Installer;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

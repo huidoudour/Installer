@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.ui.activity;
+package io.github.huidoudour.Installer;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,7 +16,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import io.github.huidoudour.Installer.databinding.ActivityHomeBinding;
-import io.github.huidoudour.Installer.utils.LanguageManager;
+import io.github.huidoudour.Installer.LanguageManager;
 import io.github.huidoudour.Installer.R;
 
 public class HomeActivity extends AppCompatActivity {

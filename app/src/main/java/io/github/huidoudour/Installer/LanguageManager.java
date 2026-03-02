@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer.utils;
+package io.github.huidoudour.Installer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
