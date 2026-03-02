@@ -1,13 +1,11 @@
 # huidoudour's Installer
 
-## ✨ 新增特性
+## 特性介绍
 
-### C++ 原生库支持
-- ✅ 已集成 C++ 共享库 (`libinstaller-native.so`)
+### C++ 原生库
+- ✅ 集成 C++ 共享库 (`libinstaller-native.so`)
 - ✅ 支持架构: arm64-v8a, x86_64
-- ✅ 16KB 页面对齐 (Android 15+ 兼容)
-- ✅ 提供性能优化的原生方法
-- 📖 详细文档: [原生库文档](app/doc/原生库集成完成说明.md)
+> 实际并无有效功能，仅用于测试 C++ 库的集成。
 
 ## Supported Versions
 [![Android](https://img.shields.io/badge/Android-9--16-3DDC84.svg?logo=android&logoColor=white)]()[![Min SDK](https://img.shields.io/badge/Min%20SDK-28-important.svg)]()[![Target SDK](https://img.shields.io/badge/Target%20SDK-36-blue.svg)]()
