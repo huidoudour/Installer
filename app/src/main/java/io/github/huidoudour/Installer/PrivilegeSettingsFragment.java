@@ -12,12 +12,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 
-import io.github.huidoudour.Installer.R;
-import io.github.huidoudour.Installer.NotificationHelper;
-import io.github.huidoudour.Installer.PrivilegeHelper;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeStatus;
-
 import rikka.shizuku.Shizuku;
 
 /**

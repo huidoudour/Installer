@@ -2,8 +2,6 @@ package io.github.huidoudour.Installer;
 
 import android.content.Context;
 
-import io.github.huidoudour.Installer.R;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;

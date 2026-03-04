@@ -9,10 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
 
-import io.github.huidoudour.Installer.LanguageManager;
-import io.github.huidoudour.Installer.NotificationHelper;
-import io.github.huidoudour.Installer.R;
-
 public class MeActivity extends AppCompatActivity {
 
     @Override

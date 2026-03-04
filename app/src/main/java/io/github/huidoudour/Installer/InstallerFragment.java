@@ -1,7 +1,6 @@
 package io.github.huidoudour.Installer;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -14,7 +13,6 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.provider.Settings;
-import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,28 +27,14 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
-import io.github.huidoudour.Installer.R;
-import io.github.huidoudour.Installer.databinding.FragmentInstallerBinding;
-import io.github.huidoudour.Installer.LogManager;
-
-import io.github.huidoudour.Installer.XapkInstaller;
-import io.github.huidoudour.Installer.ShizukuInstallHelper;
-
-import io.github.huidoudour.Installer.PrivilegeHelper;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.databinding.FragmentInstallerBinding;
 import rikka.shizuku.Shizuku;
 
 public class InstallerFragment extends Fragment {

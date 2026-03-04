@@ -3,7 +3,7 @@ package io.github.huidoudour.Installer;
 import android.content.Context;
 import android.util.Log;
 
-import io.github.huidoudour.Installer.R;
+import com.github.luben.zstd.ZstdInputStream;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import com.github.luben.zstd.ZstdInputStream;
 
 /**
  * XAPK/APKS 安装工具类

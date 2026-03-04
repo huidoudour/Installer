@@ -21,19 +21,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.List;
 
-import io.github.huidoudour.Installer.LanguageManager;
-import io.github.huidoudour.Installer.XapkInstaller;
-import io.github.huidoudour.Installer.ShizukuInstallHelper;
-
-import io.github.huidoudour.Installer.PrivilegeHelper;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
 import rikka.shizuku.Shizuku;
-import io.github.huidoudour.Installer.R;
 
 public class InstallerActivity extends AppCompatActivity {
 
