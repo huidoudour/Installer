@@ -130,8 +130,11 @@ public class ShizukuInstallHelper {
                 if (grantPermissions) createCmd.append(" -g");
                 
                 // 添加安装请求者参数：io.github.huidoudour.zjs
-                createCmd.append(" -i io.github.huidoudour.zjs");
-                
+                // createCmd.append(" -i io.github.huidoudour.zjs");
+
+                // 添加安装请求者参数：me.huidoudour.core
+                createCmd.append(" -i me.huidoudour.core");
+
                 callback.onProgress(context.getString(R.string.create_session, createCmd.toString()));
                 String createOutput = executeCommand(context, createCmd.toString());
                 

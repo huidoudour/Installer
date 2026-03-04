@@ -461,6 +461,12 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="privilege_not_installed_notification">%s not installed, opening GitHub download page...</string>
     <string name="privilege_app_opening_notification">Opening %s app...</string>
     <string name="privilege_already_authorized">%s already authorized</string>
+    <!-- File picker related -->
+    <string name="opening_third_party_file_picker">Opening third-party file manager...</string>
+    <string name="opening_file_manager">Opening %s file manager...</string>
+    <string name="file_manager_not_available">%s file manager not available: %s</string>
+    <string name="processing_file">Processing file...</string>
+    
     <!-- Additional strings for UI updates -->
     <string name="native_test_opened">Native library test interface opened</string>
     <string name="permission_already_granted">Already authorized</string>
@@ -474,11 +480,6 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="notification_channel_general_desc">Application general message notifications</string>
     <string name="notification_channel_install">Installation Notifications</string>
     <string name="notification_channel_install_desc">Application installation progress and result notifications</string>
-
-
-
-
-
 
     <string name="success">Success</string>
     <string name="failed">Failed</string>
