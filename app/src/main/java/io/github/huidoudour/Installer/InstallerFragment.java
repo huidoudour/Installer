@@ -71,7 +71,10 @@ public class InstallerFragment extends Fragment {
     private Button btnSelectFile;
     private Button btnRequestPermission;
     private Button btnSwitchPrivilege;  // 切换授权器按钮
+    private Button btnRefreshFile;  // 刷新文件信息按钮
+    private Button btnSwitchInstallerPackage;  // 切换安装请求者包名按钮
     private Button btnInstall;
+    private SwitchMaterial switchEnableCustomPackageName;  // 启用自定义包名开关
     private SwitchMaterial switchReplaceExisting;
     private SwitchMaterial switchGrantPermissions;
     private View statusIndicator;
@@ -99,59 +102,77 @@ public class InstallerFragment extends Fragment {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     selectedFileUri = result.getData().getData();
                     if (selectedFileUri != null) {
-                        // 显示"正在处理..."的临时状态
-                        tvSelectedFile.setText(R.string.processing_file);
-                        tvFileType.setVisibility(View.GONE);
+                        // === 立即在主线程显示"正在处理..."状态 ===
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                tvSelectedFile.setText(R.string.processing_file);
+                                tvFileType.setVisibility(View.GONE);
+                                btnInstall.setEnabled(false); // 禁用安装按钮防止误操作
+                            });
+                        }
                         
                         // 在新线程中处理所有文件操作
                         new Thread(() -> {
-                            String fileName = getFileNameFromUri(selectedFileUri);
-                            selectedFilePath = getFilePathFromUri(selectedFileUri);
-                            
-                            // 检测文件类型
-                            final boolean localIsXapk;
-                            final String localFileType;
-                            final int localApkCount;
-                            
-                            if (selectedFilePath != null) {
-                                localIsXapk = XapkInstaller.isXapkFile(selectedFilePath);
-                                localFileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
-                                if (localIsXapk) {
-                                    localApkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
+                            try {
+                                String fileName = getFileNameFromUri(selectedFileUri);
+                                selectedFilePath = getFilePathFromUri(selectedFileUri);
+                                
+                                // 检测文件类型
+                                final boolean localIsXapk;
+                                final String localFileType;
+                                final int localApkCount;
+                                
+                                if (selectedFilePath != null) {
+                                    localIsXapk = XapkInstaller.isXapkFile(selectedFilePath);
+                                    localFileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
+                                    if (localIsXapk) {
+                                        localApkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
+                                    } else {
+                                        localApkCount = 0;
+                                    }
                                 } else {
+                                    localIsXapk = false;
+                                    localFileType = "";
                                     localApkCount = 0;
                                 }
-                            } else {
-                                localIsXapk = false;
-                                localFileType = "";
-                                localApkCount = 0;
-                            }
-                            
-                            // 在主线程中更新 UI
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    if (selectedFilePath != null) {
-                                        tvSelectedFile.setText(fileName != null ? fileName : "Unknown");
-                                        
-                                        // === 检测文件类型并显示 ===
-                                        InstallerFragment.this.isXapkFile = localIsXapk;
-                                        tvFileType.setText(localFileType);
-                                        tvFileType.setVisibility(View.VISIBLE);
-                                        
-                                        // 如果是 XAPK，显示包含的 APK 数量
-                                        if (localIsXapk && localApkCount > 0) {
-                                            log(getString(R.string.detected_file_type_apk_count, localFileType, localApkCount));
+                                
+                                // === 在主线程中更新 UI ===
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        if (selectedFilePath != null) {
+                                            // 设置文件名
+                                            tvSelectedFile.setText(fileName != null ? fileName : "Unknown");
+                                            
+                                            // 检测文件类型并显示
+                                            InstallerFragment.this.isXapkFile = localIsXapk;
+                                            tvFileType.setText(localFileType);
+                                            tvFileType.setVisibility(View.VISIBLE);
+                                            
+                                            // 如果是 XAPK，显示包含的 APK 数量
+                                            if (localIsXapk && localApkCount > 0) {
+                                                log(getString(R.string.detected_file_type_apk_count, localFileType, localApkCount));
+                                            }
+                                            
+                                            log(getString(R.string.file_selected_and_cached, selectedFilePath));
+                                            updateInstallButtonState(); // 更新安装按钮状态
+                                        } else {
+                                            tvSelectedFile.setText(fileName != null ? fileName : selectedFileUri.getPath());
+                                            tvFileType.setVisibility(View.GONE);
+                                            log(getString(R.string.file_selected_uri_fail, selectedFileUri.toString()));
+                                            updateInstallButtonState();
                                         }
-                                        
-                                        log(getString(R.string.file_selected_and_cached, selectedFilePath));
-                                        updateInstallButtonState();
-                                    } else {
-                                        tvSelectedFile.setText(fileName != null ? fileName : selectedFileUri.getPath());
+                                    });
+                                }
+                            } catch (Exception e) {
+                                // 处理异常
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        tvSelectedFile.setText(R.string.no_file_selected);
                                         tvFileType.setVisibility(View.GONE);
-                                        log(getString(R.string.file_selected_uri_fail, selectedFileUri.toString()));
+                                        log(getString(R.string.install_exception, e.getMessage()));
                                         updateInstallButtonState();
-                                    }
-                                });
+                                    });
+                                }
                             }
                         }).start();
                     }
@@ -199,7 +220,10 @@ public class InstallerFragment extends Fragment {
         btnSelectFile = binding.btnSelectFile;
         btnRequestPermission = binding.btnRequestPermission;
         btnSwitchPrivilege = binding.btnSwitchPrivilege;
+        btnRefreshFile = binding.btnRefreshFile;  // 新增
+        btnSwitchInstallerPackage = binding.btnSwitchInstallerPackage;  // 新增
         btnInstall = binding.btnInstall;
+        switchEnableCustomPackageName = binding.switchEnableCustomPackageName;  // 新增
         switchReplaceExisting = binding.switchReplaceExisting;
         switchGrantPermissions = binding.switchGrantPermissions;
         statusIndicator = binding.statusIndicator;
@@ -230,6 +254,8 @@ public class InstallerFragment extends Fragment {
         btnSelectFile.setOnClickListener(v -> checkFilePermissionsAndOpenFilePicker());
         btnRequestPermission.setOnClickListener(v -> requestPrivilegePermission());
         btnSwitchPrivilege.setOnClickListener(v -> switchPrivilegeMode());
+        btnRefreshFile.setOnClickListener(v -> refreshFileInfo());
+        btnSwitchInstallerPackage.setOnClickListener(v -> showInstallerPackageSelectionDialog());
         btnInstall.setOnClickListener(v -> installSelectedApk());
 
         // 初始 UI 状态
@@ -360,15 +386,9 @@ public class InstallerFragment extends Fragment {
     }
 
     private void openFilePicker() {
-        // 优先尝试调用第三方文件管理器
-        if (openThirdPartyFilePicker()) {
-            log(getString(R.string.opening_third_party_file_picker));
-            return;
-        }
-            
-        // 如果第三方文件管理器不可用，使用系统默认文件选择器
+        // 使用系统默认文件选择器
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // 进一步优化文件选择器配置以支持华为/鸿蒙设备上的XAPK/APKS文件
+        // 优化文件选择器配置以支持 XAPK/APKS文件
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
             "application/vnd.android.package-archive",  // APK
@@ -382,65 +402,14 @@ public class InstallerFragment extends Fragment {
         try {
             filePickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_package_file)));
             log(getString(R.string.open_file_picker));
+            // 注意：如果用户在系统选择器中看到"MT 管理器不可用"的错误，这是系统级别的问题
+            // 与应用的代码无关，用户可以选择其他文件管理器或直接使用系统文件选择器
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(requireContext(), getString(R.string.file_picker_not_found), Toast.LENGTH_SHORT).show();
             log(getString(R.string.file_picker_not_found));
         }
     }
         
-    /**
-     * 尝试调用第三方文件管理器（MT管理器、质感文件等）
-     * @return 如果成功启动第三方文件管理器返回 true，否则返回 false
-     */
-    private boolean openThirdPartyFilePicker() {
-        // 按优先级尝试不同的文件管理器
-        String[] fileManagers = {
-            "bin.mt.plus",      // MT管理器
-            "me.zhanghai.android.files"  // 质感文件
-        };
-            
-        for (String packageName : fileManagers) {
-            try {
-                // 检查文件管理器是否已安装
-                PackageManager pm = requireContext().getPackageManager();
-                pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-                    
-                // 构建调用文件管理器的 Intent
-                Intent intent = new Intent("android.intent.action.VIEW");
-                intent.setClassName(packageName, packageName + ".activity.FileManagerActivity");
-                intent.setType("file/*");
-                intent.putExtra("select", "file");
-                intent.putExtra("ext", new String[]{".apk", ".apks", ".xapk", ".apkm"});
-                intent.putExtra("multi_select", false);
-                    
-                // 启动文件管理器选择器
-                filePickerLauncher.launch(intent);
-                log(getString(R.string.opening_file_manager, getPackageManagerName(packageName)));
-                return true;
-                    
-            } catch (Exception e) {
-                // 当前文件管理器未安装或启动失败，继续尝试下一个
-                log(getString(R.string.file_manager_not_available, packageName, e.getMessage()));
-            }
-        }
-            
-        return false;
-    }
-        
-    /**
-     * 获取包名的友好名称
-     */
-    private String getPackageManagerName(String packageName) {
-        switch (packageName) {
-            case "bin.mt.plus":
-                return "MT管理器";
-            case "me.zhanghai.android.files":
-                return "质感文件";
-            default:
-                return packageName;
-        }
-    }
-
     /**
      * 切换授权器模式
      */
@@ -599,7 +568,57 @@ public class InstallerFragment extends Fragment {
     }
 
     /**
-     * 更新授权器状态和UI
+     * 显示安装请求者包名选择对话框
+     */
+    private void showInstallerPackageSelectionDialog() {
+        // 使用 SettingsFragment 中的方法直接显示对话框
+        SettingsFragment.showInstallerPackageSelectionDialog(requireContext(), requireActivity());
+    }
+
+    /**
+     * 刷新文件信息
+     */
+    private void refreshFileInfo() {
+        if (selectedFilePath != null && !selectedFilePath.isEmpty()) {
+            // 重新检测文件类型并更新显示
+            new Thread(() -> {
+                try {
+                    final boolean localIsXapk = XapkInstaller.isXapkFile(selectedFilePath);
+                    final String localFileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
+                    final int localApkCount = localIsXapk ? XapkInstaller.getApkCount(requireContext(), selectedFilePath) : 0;
+                    
+                    // 在主线程中更新 UI
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            InstallerFragment.this.isXapkFile = localIsXapk;
+                            tvFileType.setText(localFileType);
+                            tvFileType.setVisibility(View.VISIBLE);
+                            
+                            // 如果是 XAPK，显示包含的 APK 数量
+                            if (localIsXapk && localApkCount > 0) {
+                                log(getString(R.string.detected_file_type_apk_count, localFileType, localApkCount));
+                            }
+                            
+                            log(getString(R.string.file_info_refreshed));
+                            updateInstallButtonState();
+                        });
+                    }
+                } catch (Exception e) {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            log(getString(R.string.refresh_file_info_error, e.getMessage()));
+                            Toast.makeText(requireContext(), R.string.refresh_file_info_error_toast, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }
+            }).start();
+        } else {
+            Toast.makeText(requireContext(), R.string.no_file_to_refresh, Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    /**
+     * 更新授权器状态和 UI
      */
     private void updatePrivilegeStatusAndUi() {
         PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());

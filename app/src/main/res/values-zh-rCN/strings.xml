@@ -440,12 +440,23 @@
     <string name="switched_to_privilege">已切换到 %s</string>
     <string name="privilege_not_installed_log">%s 未安装，正在打开 GitHub 下载页面...</string>
     <string name="opening_privilege_app">正在打开 %s 应用...</string>
-    <string name="shizuku_unavailable_meow">Shizuku 不可用喵: %s</string>
+    <string name="shizuku_unavailable_meow">Shizuku 不可用喵：%s</string>
     <string name="privilege_not_connected_install_log">%s 未连接或未授权，无法安装喵。</string>
     <string name="requesting_shizuku_auth">正在请求 Shizuku 授权...</string>
     <string name="privilege_not_installed_notification">%s 未安装，正在打开 GitHub 下载页面...</string>
     <string name="privilege_app_opening_notification">正在打开 %s 应用...</string>
     <string name="privilege_already_authorized">%s 已授权</string>
+        
+    <!-- File picker related -->
+    <string name="processing_file">正在处理文件...</string>
+    <string name="refresh">刷新</string>
+    <string name="file_info_refreshed">文件信息已刷新。</string>
+    <string name="refresh_file_info_error">刷新文件信息时出错：%s</string>
+    <string name="refresh_file_info_error_toast">刷新文件信息失败</string>
+    <string name="no_file_to_refresh">没有可刷新的文件</string>
+    <string name="switch_installer_package">切换安装器</string>
+    <string name="switch_installer_package_hint">正在打开设置页面以切换安装器包名...</string>
+    <string name="enable_custom_package_name">启用自定义包名</string>
     <!-- Additional strings for UI updates -->
     <string name="native_test_opened">已打开原生库测试界面</string>
     <string name="permission_already_granted">已授权</string>

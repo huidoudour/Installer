@@ -129,11 +129,11 @@ public class ShizukuInstallHelper {
                 if (replaceExisting) createCmd.append(" -r");
                 if (grantPermissions) createCmd.append(" -g");
                 
-                // 添加安装请求者参数：io.github.huidoudour.zjs
-                // createCmd.append(" -i io.github.huidoudour.zjs");
-
-                // 添加安装请求者参数：me.huidoudour.core
-                createCmd.append(" -i me.huidoudour.core");
+                // 添加安装请求者参数（从 SharedPreferences 读取）
+                String installerPackage = getInstallerPackage(context);
+                if (!installerPackage.isEmpty()) {
+                    createCmd.append(" -i ").append(installerPackage);
+                }
 
                 callback.onProgress(context.getString(R.string.create_session, createCmd.toString()));
                 String createOutput = executeCommand(context, createCmd.toString());
@@ -191,8 +191,11 @@ public class ShizukuInstallHelper {
                 if (replaceExisting) createCmd.append(" -r");
                 if (grantPermissions) createCmd.append(" -g");
                 
-                // 添加安装请求者参数：io.github.huidoudour.zjs
-                createCmd.append(" -i io.github.huidoudour.zjs");
+                // 添加安装请求者参数（从 SharedPreferences 读取）
+                String installerPackage = getInstallerPackage(context);
+                if (!installerPackage.isEmpty()) {
+                    createCmd.append(" -i ").append(installerPackage);
+                }
                 
                 callback.onProgress(context.getString(R.string.create_session, ""));
                 String createOutput = executeCommand(context, createCmd.toString());
@@ -265,5 +268,15 @@ public class ShizukuInstallHelper {
         } catch (Exception e) {
             callback.onError(context.getString(R.string.install_exception, e.getMessage()));
         }
+    }
+    
+    /**
+     * 获取用户设置的安装请求者包名
+     * @param context 上下文
+     * @return 安装请求者包名，如果未设置则返回空字符串
+     */
+    private static String getInstallerPackage(Context context) {
+        android.content.SharedPreferences sharedPreferences = context.getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE);
+        return sharedPreferences.getString("installer_package", "");
     }
 }

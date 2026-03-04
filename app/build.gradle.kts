@@ -12,7 +12,7 @@ android {
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
         versionCode = 3
-        versionName = "3.3" //重构后定义新版本
+        versionName = "3.6" //重构后定义新版本
         
         // 启用NDK - 配置C++共享库编译
         externalNativeBuild {

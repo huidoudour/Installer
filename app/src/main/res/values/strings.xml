@@ -466,6 +466,14 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="opening_file_manager">Opening %s file manager...</string>
     <string name="file_manager_not_available">%s file manager not available: %s</string>
     <string name="processing_file">Processing file...</string>
+    <string name="refresh">Refresh</string>
+    <string name="file_info_refreshed">File info refreshed.</string>
+    <string name="refresh_file_info_error">Error refreshing file info: %s</string>
+    <string name="refresh_file_info_error_toast">Failed to refresh file info</string>
+    <string name="no_file_to_refresh">No file to refresh</string>
+    <string name="switch_installer_package">Switch Installer</string>
+    <string name="switch_installer_package_hint">Opening Settings to switch installer package...</string>
+    <string name="enable_custom_package_name">Enable Custom PackageName</string>
     
     <!-- Additional strings for UI updates -->
     <string name="native_test_opened">Native library test interface opened</string>
@@ -498,6 +506,12 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="upgrade">Upgrade</string>
     <string name="downgrade">Downgrade</string>
     <string name="same_version">Same Version</string>
+    
+    <!-- Installer package settings -->
+    <string name="installer_package_settings">Installer Package</string>
+    <string name="current_installer_package">Current Installer Package</string>
+    <string name="current_app">Current App</string>
+    <string name="installer_package_changed">Installer package changed</string>
 
 
 </resources>
