@@ -75,8 +75,8 @@
     <string name="replace_existing_app">Replace existing application</string>
     <string name="auto_grant_permissions">Auto grant permission</string>
     <string name="install_apk">Install APK</string>
-    <string name="select_package">Select Installation package</string>
-    <string name="select_package_file">Select Installation package (APK/APKS/XAPK)</string>
+    <string name="select_package">Select Package</string>
+    <string name="select_package_file">Select Package (apk/apks/xapk)</string>
     <string name="installing_progress">Installing...</string>
     <string name="preparing">Preparing...</string>
     <string name="progress_count">0/0</string>
