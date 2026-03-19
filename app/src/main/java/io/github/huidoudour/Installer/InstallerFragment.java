@@ -854,7 +854,7 @@ public class InstallerFragment extends Fragment {
         // 从 SharedPreferences 加载保存的状态
         boolean enableCustomPackageName = sharedPreferences.getBoolean("enable_custom_package_name", true);
         boolean replaceExisting = sharedPreferences.getBoolean("replace_existing_app", true);
-        boolean grantPermissions = sharedPreferences.getBoolean("auto_grant_permissions", true);
+        boolean grantPermissions = sharedPreferences.getBoolean("auto_grant_permissions", false);
             
         // 设置开关状态（不触发监听器）
         switchEnableCustomPackageName.setChecked(enableCustomPackageName);

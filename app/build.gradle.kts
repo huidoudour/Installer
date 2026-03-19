@@ -133,33 +133,13 @@ dependencies {
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
     
+    // MTDataFilesProvider
+    debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
 
-    
     // Kotlin support
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
     implementation("androidx.core:core-ktx:1.15.0")
     
     // Compression/Decompression native library
     implementation("com.github.luben:zstd-jni:1.5.6-5")
-}
-
-// === 16KB 页面对齐验证任务 ===
-// 此任务用于验证 APK 中的所有原生库是否正确对齐到 16KB
-tasks.register("verify16KBAlignment") {
-    group = "verification"
-    description = "验证 APK 中所有原生库的 16KB 对齐"
-    
-    doLast {
-        val apkFile = file("build/outputs/apk/debug/app-debug-debug.apk")
-        if (apkFile.exists()) {
-            println("✅ 找到 APK: ${apkFile.absolutePath}")
-            println("⚠️  请使用以下命令手动验证原生库对齐:")
-            println("   unzip -l ${apkFile.absolutePath} | grep '\\.so$'")
-            println("   然后对每个 .so 文件执行:")
-            println("   readelf -l <.so文件> | grep LOAD")
-            println("   应该看到对齐值为 0x4000 (16384)")
-        } else {
-            println("❌ APK 文件不存在，请先构建: ./gradlew assembleDebug")
-        }
-    }
 }
