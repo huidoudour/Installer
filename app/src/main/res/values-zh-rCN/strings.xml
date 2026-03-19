@@ -76,8 +76,15 @@
     <string name="no_file_selected">未选择文件</string>
     <string name="select_apk_file">选择 APK 文件</string>
     <string name="install_options">安装选项</string>
+    <string name="enable_custom_package_name">启用自定义包名</string>
+    <string name="switch_installer_package">切换安装器</string>
     <string name="replace_existing_app">替换现有应用</string>
     <string name="auto_grant_permissions">自动授予权限</string>
+    <string name="custom_package_name_setting_changed">自定义包名设置：%s</string>
+    <string name="replace_existing_app_setting_changed">替换现有应用设置：%s</string>
+    <string name="auto_grant_permissions_setting_changed">自动授予权限设置：%s</string>
+    <string name="enabled">已启用</string>
+    <string name="disabled">已禁用</string>
     <string name="install_apk">安装 APK</string>
     <string name="select_package">选择安装包</string>
     <string name="select_package_file">选择安装包 (APK/XAPK/APKS)</string>
@@ -454,9 +461,7 @@
     <string name="refresh_file_info_error">刷新文件信息时出错：%s</string>
     <string name="refresh_file_info_error_toast">刷新文件信息失败</string>
     <string name="no_file_to_refresh">没有可刷新的文件</string>
-    <string name="switch_installer_package">切换安装器</string>
-    <string name="switch_installer_package_hint">正在打开设置页面以切换安装器包名...</string>
-    <string name="enable_custom_package_name">启用自定义包名</string>
+    
     <!-- Additional strings for UI updates -->
     <string name="native_test_opened">已打开原生库测试界面</string>
     <string name="permission_already_granted">已授权</string>

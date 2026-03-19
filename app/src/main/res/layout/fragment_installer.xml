@@ -241,7 +241,9 @@
                     android:textSize="15sp"
                     android:checked="true"
                     android:padding="8dp"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    app:thumbTint="@color/switch_thumb_color"
+                    app:trackTint="@color/switch_track_color" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchReplaceExisting"
@@ -251,7 +253,9 @@
                     android:textSize="15sp"
                     android:checked="true"
                     android:padding="8dp"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    app:thumbTint="@color/switch_thumb_color"
+                    app:trackTint="@color/switch_track_color" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchGrantPermissions"
@@ -260,7 +264,9 @@
                     android:text="@string/auto_grant_permissions"
                     android:textSize="15sp"
                     android:padding="8dp"
-                    android:layout_marginBottom="20dp" />
+                    android:layout_marginBottom="20dp"
+                    app:thumbTint="@color/switch_thumb_color"
+                    app:trackTint="@color/switch_track_color" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnInstall"

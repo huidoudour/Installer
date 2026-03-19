@@ -271,10 +271,27 @@ public class ShizukuInstallHelper {
     /**
      * 获取用户设置的安装请求者包名
      * @param context 上下文
-     * @return 安装请求者包名，如果未设置则返回空字符串
+     * @return 安装请求者包名，如果未启用自定义包名则返回 com.android.shell
      */
     private static String getInstallerPackage(Context context) {
         android.content.SharedPreferences sharedPreferences = context.getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE);
-        return sharedPreferences.getString("installer_package", "");
+        
+        // 检查是否启用了自定义包名
+        boolean enableCustomPackageName = sharedPreferences.getBoolean("enable_custom_package_name", true);
+        
+        if (!enableCustomPackageName) {
+            // 关闭时使用默认的 com.android.shell
+            return "com.android.shell";
+        }
+        
+        // 开启时使用用户选择的包名
+        String installerPackage = sharedPreferences.getString("installer_package", "");
+        
+        // 如果用户没有设置，默认使用 com.android.shell
+        if (installerPackage.isEmpty()) {
+            return "com.android.shell";
+        }
+        
+        return installerPackage;
     }
 }

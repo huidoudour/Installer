@@ -86,6 +86,8 @@ Java_io_github_huidoudour_Installer_NativeHelper_performanceTest(
         jobject /* this */,
         jint iterations) {
     
+    (void)env; //  intentionally unused parameter
+    
     LOGI("performanceTest called with %d iterations", iterations);
     
     auto start = std::chrono::high_resolution_clock::now();
@@ -111,6 +113,8 @@ extern "C" JNIEXPORT jboolean JNICALL
 Java_io_github_huidoudour_Installer_NativeHelper_isNativeLibraryLoaded(
         JNIEnv* env,
         jobject /* this */) {
+    (void)env; //  intentionally unused parameter
+    
     LOGI("Native library is loaded and working!");
     return JNI_TRUE;
 }

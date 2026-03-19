@@ -72,8 +72,15 @@
     <string name="no_file_selected">No file selected</string>
     <string name="select_apk_file">Select APK file</string>
     <string name="install_options">Installation option</string>
+    <string name="enable_custom_package_name">Enable Custom PackageName</string>
+    <string name="switch_installer_package">Switch Installer</string>
     <string name="replace_existing_app">Replace existing application</string>
     <string name="auto_grant_permissions">Auto grant permission</string>
+    <string name="custom_package_name_setting_changed">Custom package name setting: %s</string>
+    <string name="replace_existing_app_setting_changed">Replace existing app setting: %s</string>
+    <string name="auto_grant_permissions_setting_changed">Auto grant permissions setting: %s</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
     <string name="install_apk">Install APK</string>
     <string name="select_package">Select Package</string>
     <string name="select_package_file">Select Package (apk/apks/xapk)</string>
