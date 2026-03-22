@@ -6,18 +6,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.color.DynamicColors;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.color.DynamicColors;
+
 import io.github.huidoudour.Installer.databinding.ActivityHomeBinding;
-import io.github.huidoudour.Installer.LanguageManager;
-import io.github.huidoudour.Installer.R;
 
 public class HomeActivity extends AppCompatActivity {
 

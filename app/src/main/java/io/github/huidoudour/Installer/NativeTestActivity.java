@@ -3,8 +3,8 @@ package io.github.huidoudour.Installer;
 import android.os.Bundle;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
-import io.github.huidoudour.Installer.NativeHelper;
 
 /**
  * 原生库测试 Activity

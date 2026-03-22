@@ -8,8 +8,6 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import io.github.huidoudour.Installer.R;
-
 /**
  * 系统通知工具类
  * 用于发送系统级通知,替代Snackbar

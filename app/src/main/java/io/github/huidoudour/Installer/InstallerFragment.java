@@ -1,7 +1,6 @@
 package io.github.huidoudour.Installer;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -14,7 +13,6 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.provider.Settings;
-import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,36 +27,24 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
-import io.github.huidoudour.Installer.R;
-import io.github.huidoudour.Installer.databinding.FragmentInstallerBinding;
-import io.github.huidoudour.Installer.LogManager;
-
-import io.github.huidoudour.Installer.XapkInstaller;
-import io.github.huidoudour.Installer.ShizukuInstallHelper;
-
-import io.github.huidoudour.Installer.PrivilegeHelper;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.databinding.FragmentInstallerBinding;
 import rikka.shizuku.Shizuku;
 
 public class InstallerFragment extends Fragment {
 
     private FragmentInstallerBinding binding;
     private LogManager logManager;
+    private android.content.SharedPreferences sharedPreferences;
 
     private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 123;
+    private static final String PREFS_NAME = "app_settings";
 
     // 添加标志位，避免重复输出初始化日志
     private static boolean isFirstInit = true;
@@ -71,7 +57,10 @@ public class InstallerFragment extends Fragment {
     private Button btnSelectFile;
     private Button btnRequestPermission;
     private Button btnSwitchPrivilege;  // 切换授权器按钮
+    private Button btnRefreshFile;  // 刷新文件信息按钮
+    private Button btnSwitchInstallerPackage;  // 切换安装请求者包名按钮
     private Button btnInstall;
+    private SwitchMaterial switchEnableCustomPackageName;  // 启用自定义包名开关
     private SwitchMaterial switchReplaceExisting;
     private SwitchMaterial switchGrantPermissions;
     private View statusIndicator;
@@ -99,31 +88,79 @@ public class InstallerFragment extends Fragment {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     selectedFileUri = result.getData().getData();
                     if (selectedFileUri != null) {
-                        String fileName = getFileNameFromUri(selectedFileUri);
-                        selectedFilePath = getFilePathFromUri(selectedFileUri);
-                        if (selectedFilePath != null) {
-                            tvSelectedFile.setText(fileName);
-
-                            // === 检测文件类型并显示 ===
-                            isXapkFile = XapkInstaller.isXapkFile(selectedFilePath);
-                            String fileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
-                            tvFileType.setText(fileType);
-                            tvFileType.setVisibility(View.VISIBLE);
-
-                            // 如果是 XAPK，显示包含的 APK 数量
-                            if (isXapkFile) {
-                                int apkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
-                            log(getString(R.string.detected_file_type_apk_count, fileType, apkCount));
-                            }
-
-                            log(getString(R.string.file_selected_and_cached, selectedFilePath));
-
-
-                        } else {
-                            tvSelectedFile.setText(fileName != null ? fileName : selectedFileUri.getPath());
-                            log(getString(R.string.file_selected_uri_fail, selectedFileUri.toString()));
+                        // === 立即在主线程显示"正在处理..."状态 ===
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                tvSelectedFile.setText(R.string.processing_file);
+                                tvFileType.setVisibility(View.GONE);
+                                btnInstall.setEnabled(false); // 禁用安装按钮防止误操作
+                            });
                         }
-                        updateInstallButtonState();
+                        
+                        // 在新线程中处理所有文件操作
+                        new Thread(() -> {
+                            try {
+                                String fileName = getFileNameFromUri(selectedFileUri);
+                                selectedFilePath = getFilePathFromUri(selectedFileUri);
+                                
+                                // 检测文件类型
+                                final boolean localIsXapk;
+                                final String localFileType;
+                                final int localApkCount;
+                                
+                                if (selectedFilePath != null) {
+                                    localIsXapk = XapkInstaller.isXapkFile(selectedFilePath);
+                                    localFileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
+                                    if (localIsXapk) {
+                                        localApkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
+                                    } else {
+                                        localApkCount = 0;
+                                    }
+                                } else {
+                                    localIsXapk = false;
+                                    localFileType = "";
+                                    localApkCount = 0;
+                                }
+                                
+                                // === 在主线程中更新 UI ===
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        if (selectedFilePath != null) {
+                                            // 设置文件名
+                                            tvSelectedFile.setText(fileName != null ? fileName : "Unknown");
+                                            
+                                            // 检测文件类型并显示
+                                            InstallerFragment.this.isXapkFile = localIsXapk;
+                                            tvFileType.setText(localFileType);
+                                            tvFileType.setVisibility(View.VISIBLE);
+                                            
+                                            // 如果是 XAPK，显示包含的 APK 数量
+                                            if (localIsXapk && localApkCount > 0) {
+                                                log(getString(R.string.detected_file_type_apk_count, localFileType, localApkCount));
+                                            }
+                                            
+                                            log(getString(R.string.file_selected_and_cached, selectedFilePath));
+                                            updateInstallButtonState(); // 更新安装按钮状态
+                                        } else {
+                                            tvSelectedFile.setText(fileName != null ? fileName : selectedFileUri.getPath());
+                                            tvFileType.setVisibility(View.GONE);
+                                            log(getString(R.string.file_selected_uri_fail, selectedFileUri.toString()));
+                                            updateInstallButtonState();
+                                        }
+                                    });
+                                }
+                            } catch (Exception e) {
+                                // 处理异常
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        tvSelectedFile.setText(R.string.no_file_selected);
+                                        tvFileType.setVisibility(View.GONE);
+                                        log(getString(R.string.install_exception, e.getMessage()));
+                                        updateInstallButtonState();
+                                    });
+                                }
+                            }
+                        }).start();
                     }
                 } else {
                     log(getString(R.string.file_selection_failed));
@@ -169,7 +206,10 @@ public class InstallerFragment extends Fragment {
         btnSelectFile = binding.btnSelectFile;
         btnRequestPermission = binding.btnRequestPermission;
         btnSwitchPrivilege = binding.btnSwitchPrivilege;
+        btnRefreshFile = binding.btnRefreshFile;  // 新增
+        btnSwitchInstallerPackage = binding.btnSwitchInstallerPackage;  // 新增
         btnInstall = binding.btnInstall;
+        switchEnableCustomPackageName = binding.switchEnableCustomPackageName;  // 新增
         switchReplaceExisting = binding.switchReplaceExisting;
         switchGrantPermissions = binding.switchGrantPermissions;
         statusIndicator = binding.statusIndicator;
@@ -177,6 +217,12 @@ public class InstallerFragment extends Fragment {
         // 初始化日志管理器
         logManager = LogManager.getInstance();
         logManager.setContext(requireContext());
+        
+        // 初始化 SharedPreferences
+        sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE);
+        
+        // 加载保存的开关状态
+        loadSwitchStates();
 
         // 注册 Shizuku 权限结果监听
         try {
@@ -200,7 +246,28 @@ public class InstallerFragment extends Fragment {
         btnSelectFile.setOnClickListener(v -> checkFilePermissionsAndOpenFilePicker());
         btnRequestPermission.setOnClickListener(v -> requestPrivilegePermission());
         btnSwitchPrivilege.setOnClickListener(v -> switchPrivilegeMode());
+        btnRefreshFile.setOnClickListener(v -> refreshFileInfo());
+        btnSwitchInstallerPackage.setOnClickListener(v -> showInstallerPackageSelectionDialog());
         btnInstall.setOnClickListener(v -> installSelectedApk());
+        
+        // 设置开关监听器
+        switchEnableCustomPackageName.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            saveSwitchStates();
+            log(getString(R.string.custom_package_name_setting_changed, isChecked ? getString(R.string.enabled) : getString(R.string.disabled)));
+            Toast.makeText(requireContext(), getString(R.string.custom_package_name_setting_changed, isChecked ? getString(R.string.enabled) : getString(R.string.disabled)), Toast.LENGTH_SHORT).show();
+        });
+        
+        switchReplaceExisting.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            saveSwitchStates();
+            String message = getString(R.string.replace_existing_app_setting_changed, isChecked ? getString(R.string.enabled) : getString(R.string.disabled));
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+        });
+        
+        switchGrantPermissions.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            saveSwitchStates();
+            String message = getString(R.string.auto_grant_permissions_setting_changed, isChecked ? getString(R.string.enabled) : getString(R.string.disabled));
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+        });
 
         // 初始 UI 状态
         updatePrivilegeStatusAndUi();
@@ -330,13 +397,14 @@ public class InstallerFragment extends Fragment {
     }
 
     private void openFilePicker() {
+        // 使用系统默认文件选择器
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // 进一步优化文件选择器配置以支持华为/鸿蒙设备上的XAPK/APKS文件
+        // 优化文件选择器配置以支持 XAPK/APKS文件
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
             "application/vnd.android.package-archive",  // APK
-            "application/zip",  // XAPK, APKS (ZIP格式)
-            "application/octet-stream"  // 二进制流（用于兼容华为等设备将APKS识别为bin文件的情况）
+            "application/zip",  // XAPK, APKS (ZIP 格式)
+            "application/octet-stream"  // 二进制流（用于兼容华为等设备将 APKS 识别为 bin 文件的情况）
         });
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         // 添加额外的标志以提高兼容性
@@ -345,12 +413,14 @@ public class InstallerFragment extends Fragment {
         try {
             filePickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_package_file)));
             log(getString(R.string.open_file_picker));
+            // 注意：如果用户在系统选择器中看到"MT 管理器不可用"的错误，这是系统级别的问题
+            // 与应用的代码无关，用户可以选择其他文件管理器或直接使用系统文件选择器
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(requireContext(), getString(R.string.file_picker_not_found), Toast.LENGTH_SHORT).show();
             log(getString(R.string.file_picker_not_found));
         }
     }
-
+        
     /**
      * 切换授权器模式
      */
@@ -509,7 +579,57 @@ public class InstallerFragment extends Fragment {
     }
 
     /**
-     * 更新授权器状态和UI
+     * 显示安装请求者包名选择对话框
+     */
+    private void showInstallerPackageSelectionDialog() {
+        // 使用 SettingsFragment 中的方法直接显示对话框
+        SettingsFragment.showInstallerPackageSelectionDialog(requireContext(), requireActivity());
+    }
+
+    /**
+     * 刷新文件信息
+     */
+    private void refreshFileInfo() {
+        if (selectedFilePath != null && !selectedFilePath.isEmpty()) {
+            // 重新检测文件类型并更新显示
+            new Thread(() -> {
+                try {
+                    final boolean localIsXapk = XapkInstaller.isXapkFile(selectedFilePath);
+                    final String localFileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
+                    final int localApkCount = localIsXapk ? XapkInstaller.getApkCount(requireContext(), selectedFilePath) : 0;
+                    
+                    // 在主线程中更新 UI
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            InstallerFragment.this.isXapkFile = localIsXapk;
+                            tvFileType.setText(localFileType);
+                            tvFileType.setVisibility(View.VISIBLE);
+                            
+                            // 如果是 XAPK，显示包含的 APK 数量
+                            if (localIsXapk && localApkCount > 0) {
+                                log(getString(R.string.detected_file_type_apk_count, localFileType, localApkCount));
+                            }
+                            
+                            log(getString(R.string.file_info_refreshed));
+                            updateInstallButtonState();
+                        });
+                    }
+                } catch (Exception e) {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            log(getString(R.string.refresh_file_info_error, e.getMessage()));
+                            Toast.makeText(requireContext(), R.string.refresh_file_info_error_toast, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }
+            }).start();
+        } else {
+            Toast.makeText(requireContext(), R.string.no_file_to_refresh, Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    /**
+     * 更新授权器状态和 UI
      */
     private void updatePrivilegeStatusAndUi() {
         PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
@@ -670,43 +790,43 @@ public class InstallerFragment extends Fragment {
     }
 
     /**
-     * 处理从HomeActivity传递过来的安装参数
-     * 当用户从其他应用选择本应用作为安装器时，HomeActivity会导航到InstallerFragment并传递参数
+     * 处理从 HomeActivity 传递过来的安装参数
+     * 当用户从其他应用选择本应用作为安装器时，HomeActivity 会导航到 InstallerFragment 并传递参数
      */
     private void handleInstallArguments() {
         Bundle arguments = getArguments();
         if (arguments == null) return;
-        
+            
         Uri installUri = arguments.getParcelable("install_uri");
         if (installUri != null) {
             log(getString(R.string.received_install_uri_from_home, installUri.toString()));
-            
-            // 处理URI并设置文件选择
+                
+            // 处理 URI 并设置文件选择
             selectedFileUri = installUri;
             String fileName = getFileNameFromUri(installUri);
             selectedFilePath = getFilePathFromUri(installUri);
-            
+                
             if (selectedFilePath != null) {
                 tvSelectedFile.setText(fileName);
-                
+                    
                 // 检测文件类型并显示
                 isXapkFile = XapkInstaller.isXapkFile(selectedFilePath);
                 String fileType = XapkInstaller.getFileTypeDescription(selectedFilePath);
                 tvFileType.setText(fileType);
                 tvFileType.setVisibility(View.VISIBLE);
-                
+                    
                 // 如果是 XAPK，显示包含的 APK 数量
                 if (isXapkFile) {
                     int apkCount = XapkInstaller.getApkCount(requireContext(), selectedFilePath);
                     log(getString(R.string.detected_file_type_apk_count, fileType, apkCount));
                 }
-                
+                    
                 log(getString(R.string.processed_home_install_request, selectedFilePath));
-                
-
-                
+                    
+    
+                    
                 updateInstallButtonState();
-                
+                    
                 // 清除参数，避免重复处理
                 arguments.remove("install_uri");
             } else {
@@ -714,5 +834,31 @@ public class InstallerFragment extends Fragment {
                 Toast.makeText(requireContext(), R.string.cannot_process_install_file, Toast.LENGTH_SHORT).show();
             }
         }
+    }
+        
+    /**
+     * 保存开关状态
+     */
+    private void saveSwitchStates() {
+        sharedPreferences.edit()
+            .putBoolean("enable_custom_package_name", switchEnableCustomPackageName.isChecked())
+            .putBoolean("replace_existing_app", switchReplaceExisting.isChecked())
+            .putBoolean("auto_grant_permissions", switchGrantPermissions.isChecked())
+            .apply();
+    }
+        
+    /**
+     * 加载开关状态
+     */
+    private void loadSwitchStates() {
+        // 从 SharedPreferences 加载保存的状态
+        boolean enableCustomPackageName = sharedPreferences.getBoolean("enable_custom_package_name", true);
+        boolean replaceExisting = sharedPreferences.getBoolean("replace_existing_app", true);
+        boolean grantPermissions = sharedPreferences.getBoolean("auto_grant_permissions", false);
+            
+        // 设置开关状态（不触发监听器）
+        switchEnableCustomPackageName.setChecked(enableCustomPackageName);
+        switchReplaceExisting.setChecked(replaceExisting);
+        switchGrantPermissions.setChecked(grantPermissions);
     }
 }

@@ -134,9 +134,9 @@
         <!-- 滑块尺寸 -->
         <item name="thumbRadius">10dp</item>
         <!-- 轨道高度 -->
-        <item name="trackHeight">32dp</item>
+        <item name="trackHeight">48dp</item>
         <!-- 轨道圆角 -->
-        <item name="trackCornerRadius">16dp</item>
+        <item name="trackCornerRadius">24dp</item>
         <!-- 滑块图标大小 -->
         <item name="thumbIconSize">16dp</item>
         <!-- 滑块颜色（开关/关闭状态） -->
@@ -153,8 +153,8 @@
     <!-- MD3 开关 - 紧凑版本（用于列表项） -->
     <style name="MD3.Switch.Compact" parent="MD3.Switch">
         <item name="thumbRadius">9dp</item>
-        <item name="trackHeight">28dp</item>
-        <item name="trackCornerRadius">14dp</item>
+        <item name="trackHeight">44dp</item>
+        <item name="trackCornerRadius">22dp</item>
     </style>
     
     <!-- ============ MD3 进度指示器样式 ============ -->

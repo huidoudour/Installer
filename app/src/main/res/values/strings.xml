@@ -73,8 +73,15 @@
     <string name="no_file_selected">No file selected</string>
     <string name="select_apk_file">Select APK File</string>
     <string name="install_options">Install Options</string>
+    <string name="enable_custom_package_name">Enable Custom PackageName</string>
+    <string name="switch_installer_package">Switch Installer</string>
     <string name="replace_existing_app">Replace Existing App</string>
     <string name="auto_grant_permissions">Auto Grant Permissions</string>
+    <string name="custom_package_name_setting_changed">Custom package name setting: %s</string>
+    <string name="replace_existing_app_setting_changed">Replace existing app setting: %s</string>
+    <string name="auto_grant_permissions_setting_changed">Auto grant permissions setting: %s</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
     <string name="install_apk">Install APK</string>
     <string name="select_package">Select Package</string>
     <string name="select_package_file">Select Package (APK/XAPK/APKS)</string>
@@ -461,6 +468,17 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="privilege_not_installed_notification">%s not installed, opening GitHub download page...</string>
     <string name="privilege_app_opening_notification">Opening %s app...</string>
     <string name="privilege_already_authorized">%s already authorized</string>
+    <!-- File picker related -->
+    <string name="opening_third_party_file_picker">Opening third-party file manager...</string>
+    <string name="opening_file_manager">Opening %s file manager...</string>
+    <string name="file_manager_not_available">%s file manager not available: %s</string>
+    <string name="processing_file">Processing file...</string>
+    <string name="refresh">Refresh</string>
+    <string name="file_info_refreshed">File info refreshed.</string>
+    <string name="refresh_file_info_error">Error refreshing file info: %s</string>
+    <string name="refresh_file_info_error_toast">Failed to refresh file info</string>
+    <string name="no_file_to_refresh">No file to refresh</string>
+    
     <!-- Additional strings for UI updates -->
     <string name="native_test_opened">Native library test interface opened</string>
     <string name="permission_already_granted">Already authorized</string>
@@ -474,11 +492,6 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="notification_channel_general_desc">Application general message notifications</string>
     <string name="notification_channel_install">Installation Notifications</string>
     <string name="notification_channel_install_desc">Application installation progress and result notifications</string>
-
-
-
-
-
 
     <string name="success">Success</string>
     <string name="failed">Failed</string>
@@ -497,6 +510,12 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="upgrade">Upgrade</string>
     <string name="downgrade">Downgrade</string>
     <string name="same_version">Same Version</string>
+    
+    <!-- Installer package settings -->
+    <string name="installer_package_settings">Installer Package</string>
+    <string name="current_installer_package">Current Installer Package</string>
+    <string name="current_app">Current App</string>
+    <string name="installer_package_changed">Installer package changed</string>
 
 
 </resources>

@@ -1,9 +1,6 @@
 package io.github.huidoudour.Installer;
 
 import android.content.Context;
-import android.util.Log;
-
-import io.github.huidoudour.Installer.R;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;

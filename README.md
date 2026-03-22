@@ -2,10 +2,27 @@
 
 ## 特性介绍
 
+### Shell 安装器
+- Shizuku 授权的 Shell 安装器
+- 定义了多个安装类型 (APK/APKS/XAPK)
+- 定义了几个安装请求者参数，可通过设置调整
+> 未进行过对 APKS&XAPK 的多种测试
+
 ### C++ 原生库
 - ✅ 集成 C++ 共享库 (`libinstaller-native.so`)
 - ✅ 支持架构: arm64-v8a, x86_64
 > 实际并无有效功能，仅用于测试 C++ 库的集成。
+
+### APP 本身
+
+#### 语言切换
+- ✅ 简体中文
+- ✅ 英语翻译
+
+#### ~~主题切换功能~~
+- ~~✅ 跟随系统~~
+- ~~✅ 亮色模式~~
+- ~~✅ 暗色模式~~
 
 ## Supported Versions
 [![Android](https://img.shields.io/badge/Android-9--16-3DDC84.svg?logo=android&logoColor=white)]()[![Min SDK](https://img.shields.io/badge/Min%20SDK-28-important.svg)]()[![Target SDK](https://img.shields.io/badge/Target%20SDK-36-blue.svg)]()

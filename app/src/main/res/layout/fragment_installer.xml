@@ -43,7 +43,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Shizuku 状态"
+                        android:text="@string/shizuku_status"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface" />
@@ -113,14 +113,32 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
+                <!-- 标题和切换按钮 -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/select_package"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface"
-                    android:layout_marginBottom="16dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/select_package"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRefreshFile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="@string/refresh"
+                        android:textSize="13sp"
+                        app:cornerRadius="8dp"
+                        style="@style/Widget.Material3.Button.TonalButton" />
+                </LinearLayout>
 
                 <!-- 文件信息容器 -->
                 <LinearLayout
@@ -188,14 +206,44 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
+                <!-- 标题和切换按钮 -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/install_options"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface"
-                    android:layout_marginBottom="16dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/install_options"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSwitchInstallerPackage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="@string/switch_installer_package"
+                        android:textSize="13sp"
+                        app:cornerRadius="8dp"
+                        style="@style/Widget.Material3.Button.TonalButton" />
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchEnableCustomPackageName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/enable_custom_package_name"
+                    android:textSize="15sp"
+                    android:checked="true"
+                    android:padding="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:thumbTint="@color/switch_thumb_color"
+                    app:trackTint="@color/switch_track_color" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchReplaceExisting"
@@ -205,7 +253,9 @@
                     android:textSize="15sp"
                     android:checked="true"
                     android:padding="8dp"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    app:thumbTint="@color/switch_thumb_color"
+                    app:trackTint="@color/switch_track_color" />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchGrantPermissions"
@@ -214,7 +264,9 @@
                     android:text="@string/auto_grant_permissions"
                     android:textSize="15sp"
                     android:padding="8dp"
-                    android:layout_marginBottom="20dp" />
+                    android:layout_marginBottom="20dp"
+                    app:thumbTint="@color/switch_thumb_color"
+                    app:trackTint="@color/switch_track_color" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnInstall"

@@ -1,43 +1,32 @@
 package io.github.huidoudour.Installer;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.radiobutton.MaterialRadioButton;
-import android.widget.Toast;
 
-import io.github.huidoudour.Installer.HomeActivity;
-import io.github.huidoudour.Installer.MeActivity;
-import io.github.huidoudour.Installer.NativeTestActivity;
-import io.github.huidoudour.Installer.R;
-import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
-import io.github.huidoudour.Installer.LanguageManager;
-import io.github.huidoudour.Installer.NotificationHelper;
-import io.github.huidoudour.Installer.PrivilegeHelper;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
 import rikka.shizuku.Shizuku;
 
 public class SettingsFragment extends Fragment {
@@ -46,6 +35,10 @@ public class SettingsFragment extends Fragment {
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "app_settings";
     private static final String KEY_NOTIFICATION_ENABLED = "notification_enabled";
+    private static final String KEY_INSTALLER_PACKAGE = "installer_package"; // 安装请求者包名
+    
+    // 预制的安装请求者包名列表
+    private static final String CURRENT_APP_PACKAGE = "io.github.huidoudour.Installer"; // 当前应用包名（独立定义）
     private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 1001;
     
     // Shizuku 权限监听器
@@ -78,6 +71,7 @@ public class SettingsFragment extends Fragment {
         setupAboutButton();
         setupNativeTestButton();
         setupSettingsItems();
+        setupInstallerPackageSetting(); // 初始化安装请求者设置
 
         return root;
     }
@@ -550,5 +544,181 @@ public class SettingsFragment extends Fragment {
             e.printStackTrace();
         }
         binding = null;
+    }
+    
+    /**
+     * 设置安装请求者包名
+     */
+    private void setupInstallerPackageSetting() {
+        View installerPackageSetting = binding.getRoot().findViewById(R.id.installer_package_setting_layout);
+        TextView tvCurrentInstallerPackage = binding.getRoot().findViewById(R.id.tv_current_installer_package);
+        
+        if (installerPackageSetting != null && tvCurrentInstallerPackage != null) {
+            // 更新当前显示的安装请求者
+            updateCurrentInstallerPackageDisplay(tvCurrentInstallerPackage);
+            
+            // 点击卡片打开选择对话框
+            installerPackageSetting.setOnClickListener(v -> showInstallerPackageSelectionDialog());
+        }
+    }
+    
+    /**
+     * 更新当前安装请求者的显示
+     */
+    private void updateCurrentInstallerPackageDisplay(TextView textView) {
+        String currentPackage = getInstallerPackage();
+        String displayName;
+        
+        switch (currentPackage) {
+            case "me.huidoudour.core":
+                displayName = "me.huidoudour.core";
+                break;
+            case "io.github.huidoudour.zjs":
+                displayName = "io.github.huidoudour.zjs";
+                break;
+            case CURRENT_APP_PACKAGE:
+                displayName = CURRENT_APP_PACKAGE + " (" + getString(R.string.current_app) + ")";
+                break;
+            default:
+                // 如果是空字符串或其他值，使用当前实际的应用包名
+                displayName = requireContext().getPackageName() + " (" + getString(R.string.current_app) + ")";
+                break;
+        }
+        
+        textView.setText(displayName);
+    }
+    
+    /**
+     * 获取当前设置的安装请求者包名
+     */
+    private String getInstallerPackage() {
+        return sharedPreferences.getString(KEY_INSTALLER_PACKAGE, "");
+    }
+    
+    /**
+     * 显示安装请求者选择对话框（静态方法，可从其他 Fragment 调用）
+     */
+    public static void showInstallerPackageSelectionDialog(Context context, Activity activity) {
+        android.content.SharedPreferences sharedPreferences = context.getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE);
+        String currentPackage = sharedPreferences.getString(KEY_INSTALLER_PACKAGE, "");
+        int currentIndex = -1;
+        
+        // 使用独立定义的包名，而不是动态获取
+        String[] options = {
+            CURRENT_APP_PACKAGE + " (" + context.getString(R.string.current_app) + ")",
+            "me.huidoudour.core",
+            "io.github.huidoudour.zjs"
+        };
+        
+        // 确定当前选中的项
+        if (currentPackage.isEmpty() || currentPackage.equals(context.getPackageName())) {
+            currentIndex = 0; // 默认使用当前应用包名
+        } else if (currentPackage.equals("me.huidoudour.core")) {
+            currentIndex = 1;
+        } else if (currentPackage.equals("io.github.huidoudour.zjs")) {
+            currentIndex = 2;
+        } else if (currentPackage.equals(CURRENT_APP_PACKAGE)) {
+            currentIndex = 0; // 如果保存的是独立定义的包名，也选中第一项
+        }
+        
+        // 创建 MD3 风格的 AlertDialog
+        androidx.appcompat.app.AlertDialog.Builder alertBuilder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.installer_package_settings)
+                .setSingleChoiceItems(options, currentIndex, (dialog, which) -> {
+                    String selectedPackage;
+                    
+                    switch (which) {
+                        case 0:
+                            // 使用独立定义的当前应用包名
+                            selectedPackage = CURRENT_APP_PACKAGE;
+                            break;
+                        case 1:
+                            selectedPackage = "me.huidoudour.core";
+                            break;
+                        case 2:
+                            selectedPackage = "io.github.huidoudour.zjs";
+                            break;
+                        default:
+                            selectedPackage = CURRENT_APP_PACKAGE;
+                    }
+                    
+                    // 保存选择
+                    sharedPreferences.edit().putString(KEY_INSTALLER_PACKAGE, selectedPackage).apply();
+                    
+                    // 显示提示信息
+                    android.widget.Toast.makeText(context, context.getString(R.string.installer_package_changed), android.widget.Toast.LENGTH_SHORT).show();
+                    
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.cancel, null);
+        
+        if (activity != null && !activity.isFinishing()) {
+            alertBuilder.show();
+        }
+    }
+    
+    /**
+     * 显示安装请求者选择对话框
+     */
+    private void showInstallerPackageSelectionDialog() {
+        String currentPackage = getInstallerPackage();
+        int currentIndex = -1;
+        
+        // 使用独立定义的包名，而不是动态获取
+        String[] options = {
+            CURRENT_APP_PACKAGE + " (" + getString(R.string.current_app) + ")",
+            "me.huidoudour.core",
+            "io.github.huidoudour.zjs"
+        };
+        
+        // 确定当前选中的项
+        if (currentPackage.isEmpty() || currentPackage.equals(requireContext().getPackageName())) {
+            currentIndex = 0; // 默认使用当前应用包名
+        } else if (currentPackage.equals("me.huidoudour.core")) {
+            currentIndex = 1;
+        } else if (currentPackage.equals("io.github.huidoudour.zjs")) {
+            currentIndex = 2;
+        } else if (currentPackage.equals(CURRENT_APP_PACKAGE)) {
+            currentIndex = 0; // 如果保存的是独立定义的包名，也选中第一项
+        }
+        
+        // 创建 MD3 风格的 AlertDialog
+        MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.installer_package_settings)
+                .setSingleChoiceItems(options, currentIndex, (dialog, which) -> {
+                    String selectedPackage;
+                    
+                    switch (which) {
+                        case 0:
+                            // 使用独立定义的当前应用包名
+                            selectedPackage = CURRENT_APP_PACKAGE;
+                            break;
+                        case 1:
+                            selectedPackage = "me.huidoudour.core";
+                            break;
+                        case 2:
+                            selectedPackage = "io.github.huidoudour.zjs";
+                            break;
+                        default:
+                            selectedPackage = CURRENT_APP_PACKAGE;
+                    }
+                    
+                    // 保存选择
+                    sharedPreferences.edit().putString(KEY_INSTALLER_PACKAGE, selectedPackage).apply();
+                    
+                    // 更新显示
+                    TextView tvCurrentInstallerPackage = binding.getRoot().findViewById(R.id.tv_current_installer_package);
+                    if (tvCurrentInstallerPackage != null) {
+                        updateCurrentInstallerPackageDisplay(tvCurrentInstallerPackage);
+                    }
+                    
+                    // 显示提示信息
+                    showNotification(getString(R.string.installer_package_changed));
+                    
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.cancel, null);
+        
+        alertBuilder.show();
     }
 }

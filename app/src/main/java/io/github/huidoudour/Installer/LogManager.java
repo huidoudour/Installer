@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import io.github.huidoudour.Installer.R;
-
 /**
  * 全局日志管理器
  * 用于在不同Fragment之间共享日志数据

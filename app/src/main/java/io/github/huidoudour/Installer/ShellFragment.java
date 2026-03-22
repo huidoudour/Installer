@@ -1,9 +1,7 @@
 package io.github.huidoudour.Installer;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -19,20 +17,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import io.github.huidoudour.Installer.R;
-import io.github.huidoudour.Installer.databinding.FragmentShellBinding;
-import io.github.huidoudour.Installer.ShellExecutor;
-import rikka.shizuku.Shizuku;
-
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
+
+import io.github.huidoudour.Installer.databinding.FragmentShellBinding;
 
 public class ShellFragment extends Fragment {
 
