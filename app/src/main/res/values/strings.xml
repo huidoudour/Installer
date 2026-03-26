@@ -48,8 +48,10 @@
     <string name="background_display_disabled">Background display disabled, app will not appear in recent tasks (effective after restart)</string>
     <string name="setting_change_failed">Setting change failed, please restart app manually</string>
     <string name="text1">你保护世界，我保护你</string>
-    <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
+    <string name="about_me">亻尔女子，我是 huidoudour（慧兜兜）</string>
     <string name="find_me">ω寻找我ω</string>
+    <string name="about_description">专注于 Android 应用安装工具开发</string>
+    <string name="visit_github">访问 GitHub</string>
     
     <!-- Reference strings -->
     <string name="shell_hint">Enter command...</string>
