@@ -156,13 +156,7 @@ public class SettingsFragment extends Fragment {
      * 更新当前语言显示
      */
     private void updateCurrentLanguageDisplay() {
-        TextView tvCurrentLanguage = binding.getRoot().findViewById(R.id.tv_current_language);
-        if (tvCurrentLanguage != null) {
-            String currentLanguage = LanguageManager.getUserLanguage(requireContext());
-            String displayName = currentLanguage.equals("zh") ? 
-                getString(R.string.simplified_chinese) : getString(R.string.english);
-            tvCurrentLanguage.setText(displayName);
-        }
+        // 已简化UI，不再显示当前语言文本
     }
 
     private void showLanguageSelectionDialog() {
@@ -256,42 +250,37 @@ public class SettingsFragment extends Fragment {
      * 设置通知功能
      */
     private void setupNotificationSettings() {
-        TextView tvNotificationStatus = binding.getRoot().findViewById(R.id.tv_notification_status);
-        MaterialButton btnRequestNotification = binding.getRoot().findViewById(R.id.btn_request_notification);
+        View notificationSetting = binding.getRoot().findViewById(R.id.notification_setting_layout);
         
-        if (tvNotificationStatus != null && btnRequestNotification != null) {
-            // 更新通知状态显示
-            updateNotificationStatus();
-            
-            // 设置按钮点击事件
-            btnRequestNotification.setOnClickListener(v -> {
-                if (NotificationHelper.isNotificationPermissionGranted(requireContext())) {
-                    showNotification(getString(R.string.notification_enabled));
-                } else {
-                    requestNotificationPermission();
-                }
-            });
+        if (notificationSetting != null) {
+            // 点击卡片打开对话框
+            notificationSetting.setOnClickListener(v -> showNotificationPermissionDialog());
         }
     }
     
     /**
-     * 更新通知状态显示
+     * 显示通知权限对话框
      */
-    private void updateNotificationStatus() {
-        TextView tvNotificationStatus = binding.getRoot().findViewById(R.id.tv_notification_status);
-        MaterialButton btnRequestNotification = binding.getRoot().findViewById(R.id.btn_request_notification);
+    private void showNotificationPermissionDialog() {
+        boolean isGranted = NotificationHelper.isNotificationPermissionGranted(requireContext());
         
-        if (tvNotificationStatus != null && btnRequestNotification != null) {
-            boolean isGranted = NotificationHelper.isNotificationPermissionGranted(requireContext());
-            if (isGranted) {
-                tvNotificationStatus.setText(R.string.notification_enabled);
-                btnRequestNotification.setVisibility(View.GONE); // 有权限时隐藏按钮
-            } else {
-                tvNotificationStatus.setText(R.string.notification_disabled);
-                btnRequestNotification.setText(R.string.grant_permission);
-                btnRequestNotification.setVisibility(View.VISIBLE); // 无权限时显示按钮
-            }
+        MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.notification_settings);
+        
+        if (isGranted) {
+            // 已授权，显示锁定状态
+            alertBuilder.setMessage(R.string.notification_permission_granted)
+                    .setPositiveButton(R.string.ok, null);
+        } else {
+            // 未授权，显示请求权限按钮
+            alertBuilder.setMessage(R.string.notification_permission_required)
+                    .setPositiveButton(R.string.grant_permission, (dialog, which) -> {
+                        requestNotificationPermission();
+                    })
+                    .setNegativeButton(R.string.cancel, null);
         }
+        
+        alertBuilder.show();
     }
     
     /**
@@ -299,7 +288,6 @@ public class SettingsFragment extends Fragment {
      */
     private void setupPrivilegeSettings() {
         View privilegeSetting = binding.getRoot().findViewById(R.id.privilege_setting_layout);
-        MaterialButton btnRequestPrivilege = binding.getRoot().findViewById(R.id.btn_request_privilege);
         
         if (privilegeSetting != null) {
             // 更新权限状态显示
@@ -308,14 +296,6 @@ public class SettingsFragment extends Fragment {
             // 点击卡片打开选择对话框
             privilegeSetting.setOnClickListener(v -> showPrivilegeSettingsDialog());
         }
-        
-        if (btnRequestPrivilege != null) {
-            // 点击按钮请求当前授权器权限
-            btnRequestPrivilege.setOnClickListener(v -> {
-                PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
-                handlePrivilegeAction(currentMode);
-            });
-        }
     }
     
     /**
@@ -323,39 +303,17 @@ public class SettingsFragment extends Fragment {
      */
     private void updatePrivilegeStatus() {
         TextView tvPrivilegeStatus = binding.getRoot().findViewById(R.id.tv_privilege_status);
-        MaterialButton btnRequestPrivilege = binding.getRoot().findViewById(R.id.btn_request_privilege);
         
-        if (tvPrivilegeStatus != null && btnRequestPrivilege != null) {
+        if (tvPrivilegeStatus != null) {
             PrivilegeMode currentMode = PrivilegeHelper.getCurrentMode(requireContext());
             PrivilegeStatus status = PrivilegeHelper.getStatus(requireContext(), currentMode);
             String modeName = PrivilegeHelper.getModeName(currentMode);
             
             // 更新状态文本
             tvPrivilegeStatus.setText(modeName + ": " + getStatusText(status));
-            
-            // 更新按钮文本和状态
-            switch (status) {
-                case NOT_INSTALLED:
-                    btnRequestPrivilege.setText(getString(R.string.privilege_download_button, modeName));
-                    btnRequestPrivilege.setEnabled(true);
-                    break;
-                case NOT_RUNNING:
-                    btnRequestPrivilege.setText(getString(R.string.privilege_open_button, modeName));
-                    btnRequestPrivilege.setEnabled(true);
-                    break;
-                case NOT_AUTHORIZED:
-                case VERSION_TOO_LOW:
-                    btnRequestPrivilege.setText(R.string.grant_permission);
-                    btnRequestPrivilege.setEnabled(true);
-                    break;
-                case AUTHORIZED:
-                    btnRequestPrivilege.setText(R.string.privilege_authorized_button);
-                    btnRequestPrivilege.setEnabled(false);
-                    break;
-            }
         }
     }
-    
+
     /**
      * 请求通知权限
      */
@@ -366,12 +324,10 @@ public class SettingsFragment extends Fragment {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             } else {
                 sharedPreferences.edit().putBoolean(KEY_NOTIFICATION_ENABLED, true).apply();
-                updateNotificationStatus();
                 showNotification(getString(R.string.notification_opened));
             }
         } else {
             sharedPreferences.edit().putBoolean(KEY_NOTIFICATION_ENABLED, true).apply();
-            updateNotificationStatus();
             showNotification(getString(R.string.notification_opened));
         }
     }
@@ -381,7 +337,6 @@ public class SettingsFragment extends Fragment {
      */
     private void updateNotificationSwitch(boolean enabled) {
         sharedPreferences.edit().putBoolean(KEY_NOTIFICATION_ENABLED, enabled).apply();
-        updateNotificationStatus();
     }
     
     /**
@@ -509,7 +464,6 @@ public class SettingsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         // 页面恢复时更新状态
-        updateNotificationStatus();
         updatePrivilegeStatus();
         updateVersionInfo();
     }
@@ -551,12 +505,8 @@ public class SettingsFragment extends Fragment {
      */
     private void setupInstallerPackageSetting() {
         View installerPackageSetting = binding.getRoot().findViewById(R.id.installer_package_setting_layout);
-        TextView tvCurrentInstallerPackage = binding.getRoot().findViewById(R.id.tv_current_installer_package);
         
-        if (installerPackageSetting != null && tvCurrentInstallerPackage != null) {
-            // 更新当前显示的安装请求者
-            updateCurrentInstallerPackageDisplay(tvCurrentInstallerPackage);
-            
+        if (installerPackageSetting != null) {
             // 点击卡片打开选择对话框
             installerPackageSetting.setOnClickListener(v -> showInstallerPackageSelectionDialog());
         }
@@ -566,26 +516,7 @@ public class SettingsFragment extends Fragment {
      * 更新当前安装请求者的显示
      */
     private void updateCurrentInstallerPackageDisplay(TextView textView) {
-        String currentPackage = getInstallerPackage();
-        String displayName;
-        
-        switch (currentPackage) {
-            case "me.huidoudour.core":
-                displayName = "me.huidoudour.core";
-                break;
-            case "io.github.huidoudour.zjs":
-                displayName = "io.github.huidoudour.zjs";
-                break;
-            case CURRENT_APP_PACKAGE:
-                displayName = CURRENT_APP_PACKAGE + " (" + getString(R.string.current_app) + ")";
-                break;
-            default:
-                // 如果是空字符串或其他值，使用当前实际的应用包名
-                displayName = requireContext().getPackageName() + " (" + getString(R.string.current_app) + ")";
-                break;
-        }
-        
-        textView.setText(displayName);
+        // 已简化UI，不再在卡片上显示当前包名
     }
     
     /**
@@ -707,10 +638,7 @@ public class SettingsFragment extends Fragment {
                     sharedPreferences.edit().putString(KEY_INSTALLER_PACKAGE, selectedPackage).apply();
                     
                     // 更新显示
-                    TextView tvCurrentInstallerPackage = binding.getRoot().findViewById(R.id.tv_current_installer_package);
-                    if (tvCurrentInstallerPackage != null) {
-                        updateCurrentInstallerPackageDisplay(tvCurrentInstallerPackage);
-                    }
+                    // 无需更新UI显示，对话框关闭后会自动刷新
                     
                     // 显示提示信息
                     showNotification(getString(R.string.installer_package_changed));
