@@ -17,8 +17,8 @@ android {
         // 启用NDK - 配置C++共享库编译
         externalNativeBuild {
             cmake {
-                // 指定支持的架构
-                abiFilters("arm64-v8a", "x86_64")
+                // 指定支持的架构 - 包含全部 4 个架构以支持通用 APK
+                abiFilters("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
                 // C++ 编译参数
                 cppFlags += listOf("-std=c++17")
                 // 添加 16KB 页面对齐支持
@@ -66,7 +66,8 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    // 限定 APK 仅包含 arm64-v8a 与 x86_64 架构
+    
+    // 启用 ViewBinding
     buildFeatures {
         viewBinding = true
     }
@@ -79,11 +80,12 @@ android {
         }
     }
     
+    // 配置 APK 分块 - 支持全部 4 个架构
     splits {
         abi {
             isEnable = true
             reset()
-            include("arm64-v8a", "x86_64")
+            include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
             isUniversalApk = true
         }
     }
