@@ -27,9 +27,9 @@ import java.io.InputStream;
 import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
 import rikka.shizuku.Shizuku;
 
-public class InstallerActivity extends AppCompatActivity {
+public class InstallDialog extends AppCompatActivity {
 
-    private static final String TAG = "InstallerActivity";
+    private static final String TAG = "InstallDialog";
     
     private LinearLayout layoutInstallInfo;
     private LinearLayout layoutProgress;
@@ -46,7 +46,8 @@ public class InstallerActivity extends AppCompatActivity {
     private Button btnCancelProgress;
     private Button btnOpenApp;
     private Button btnFinish;
-    private com.google.android.material.progressindicator.CircularProgressIndicator progressInstall;
+    private com.google.android.material.progressindicator.LinearProgressIndicator progressInstall;
+    private TextView tvProgressDetail;
     
     private Uri installUri;
     private String filePath;
@@ -63,7 +64,7 @@ public class InstallerActivity extends AppCompatActivity {
         
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.activity_installer);
+        setContentView(R.layout.dialog_install);
         
         // 初始化视图
         initViews();
@@ -95,6 +96,7 @@ public class InstallerActivity extends AppCompatActivity {
         btnOpenApp = findViewById(R.id.btn_open_app);
         btnFinish = findViewById(R.id.btn_finish);
         progressInstall = findViewById(R.id.progress_install);
+        tvProgressDetail = findViewById(R.id.tv_progress_detail);
         
         btnInstall.setOnClickListener(v -> startInstallation());
         btnCancel.setOnClickListener(v -> finish());
@@ -344,7 +346,12 @@ public class InstallerActivity extends AppCompatActivity {
                 ShizukuInstallHelper.installXapk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                 @Override
                 public void onProgress(String message) {
-                    // 保持静默或可选展示
+                    runOnUiThread(() -> {
+                        // 更新进度详情文本
+                        if (tvProgressDetail != null && message != null) {
+                            tvProgressDetail.setText(message);
+                        }
+                    });
                 }
                 @Override
                 public void onSuccess(String message) {
@@ -356,7 +363,7 @@ public class InstallerActivity extends AppCompatActivity {
                 public void onError(String error) {
                     runOnUiThread(() -> {
                         isInstalling = false;
-                        Toast.makeText(InstallerActivity.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
+                        Toast.makeText(InstallDialog.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
                         layoutProgress.setVisibility(View.GONE);
                         layoutInstallInfo.setVisibility(View.VISIBLE);
                     });
@@ -367,7 +374,12 @@ public class InstallerActivity extends AppCompatActivity {
                 ShizukuInstallHelper.installApk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                     @Override
                     public void onProgress(String message) {
-                        // 在安装过程中不显示进度消息
+                        runOnUiThread(() -> {
+                            // 更新进度详情文本
+                            if (tvProgressDetail != null && message != null) {
+                                tvProgressDetail.setText(message);
+                            }
+                        });
                     }
                     
                     @Override
@@ -381,7 +393,7 @@ public class InstallerActivity extends AppCompatActivity {
                     public void onError(String error) {
                         runOnUiThread(() -> {
                             isInstalling = false;
-                            Toast.makeText(InstallerActivity.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
+                            Toast.makeText(InstallDialog.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
                             layoutProgress.setVisibility(View.GONE);
                             layoutInstallInfo.setVisibility(View.VISIBLE);
                         });

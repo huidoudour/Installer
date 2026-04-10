@@ -8,6 +8,7 @@
     
     <!-- Install page -->
     <string name="install_title">Install Application</string>
+    <string name="install_dialog_title">Installation Dialog</string>
     <string name="select_apk">Select APK File</string>
     <string name="install">Install</string>
     <string name="reinstall">Reinstall</string>
@@ -301,6 +302,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="restart_app_failed">App restart failed: %s</string>
     <string name="apply_background_display_setting_failed">Failed to apply background display setting: %s</string>
     <string name="installer_page">Installer Page</string>
+    <string name="install_dialog_page">Installation Dialog Page</string>
     <string name="log_page">Log Page</string>
     <string name="get_file_path_from_uri_failed">Failed to get file path from URI</string>
     <!-- New string resources -->

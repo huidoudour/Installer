@@ -68,13 +68,13 @@
             </intent-filter>
         </activity>
         
-        <!-- 独立的安装Activity -->
+        <!-- 安装对话 -->
         <activity
-            android:name=".InstallerActivity"
+            android:name=".InstallDialog"
             android:exported="true"
             android:theme="@style/Theme.Installer.Dialog"
             android:launchMode="singleTask"
-            android:taskAffinity="io.github.huidoudour.Installer.INSTALLER"
+            android:taskAffinity="io.github.huidoudour.Installer.INSTALL_DIALOG"
             android:excludeFromRecents="true"
             android:noHistory="true">
             <!-- 注册为安装器，处理APK安装请求 -->
@@ -94,12 +94,7 @@
             android:exported="true"
             android:theme="@style/Theme.Installer" />
         
-        <!-- 设置页面 Activity -->
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Installer" />
-        
+
         <!-- 原生库测试 Activity -->
         <activity
             android:name=".NativeTestActivity"
