@@ -376,8 +376,8 @@
     <string name="quick_path_home">主目錄 (~/)</string>
     
     <!-- Shell welcome -->
-    <string name="welcome_shell_title">歡迎來到 aShell You - 風格終端</string>
-    <string name="welcome_shell_subtitle">Android Shell 環境 v2.0</string>
+    <string name="welcome_shell_title">歡迎來到~終端</string>
+    <string name="welcome_shell_subtitle">~v2.0</string>
     <string name="root_mode_enabled_via_shizuku">[*] 透過 Shizuku 啟用 Root 模式</string>
     <string name="working_directory_tmp">[*] 工作目錄: /data/local/tmp</string>
     <string name="user_mode_tip">[!] 用戶模式（授予 Shizuku 獲取 Root）</string>
@@ -462,7 +462,7 @@
     <!-- File picker related -->
     <string name="opening_third_party_file_picker">開啟第三方檔案管理器...</string>
     <string name="opening_file_manager">開啟 %s 檔案管理器...</string>
-    <string name="file_manager_not_available">%s 檔案管理器不可用: %s</string>
+    <string name="file_manager_not_available">%1$s 檔案管理器不可用: %2$s</string>
     <string name="processing_file">正在處理檔案...</string>
     <string name="refresh">重新整理</string>
     <string name="file_info_refreshed">檔案資訊已重新整理。</string>

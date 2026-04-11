@@ -389,8 +389,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="quick_path_system">System (/system/)</string>
     <string name="quick_path_system_bin">System Bin (/system/bin/)</string>
     <string name="quick_path_home">Home (~/)</string>
-    <string name="welcome_shell_title">Welcome to aShell You - Style Terminal</string>
-    <string name="welcome_shell_subtitle">Android Shell Environment v2.0</string>
+    <string name="welcome_shell_title">欢迎来到~终端</string>
+    <string name="welcome_shell_subtitle">~v2.0</string>
     <string name="root_mode_enabled_via_shizuku">[*] Root mode enabled via Shizuku</string>
     <string name="working_directory_tmp">[*] Working directory: /data/local/tmp</string>
     <string name="user_mode_tip">[!] User mode (grant Shizuku for root)</string>
@@ -477,7 +477,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <!-- File picker related -->
     <string name="opening_third_party_file_picker">Opening third-party file manager...</string>
     <string name="opening_file_manager">Opening %s file manager...</string>
-    <string name="file_manager_not_available">%s file manager not available: %s</string>
+    <string name="file_manager_not_available">%1$s file manager not available: %2$s</string>
     <string name="processing_file">Processing file...</string>
     <string name="refresh">Refresh</string>
     <string name="file_info_refreshed">File info refreshed.</string>

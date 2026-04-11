@@ -32,10 +32,7 @@ public class ShellFragment extends Fragment {
     private FragmentShellBinding binding;
     private TextView tvTerminalOutput;
     private EditText etCommandInput;
-    private TextView tvPrompt;
     private NestedScrollView scrollViewOutput;
-    private View shizukuIndicator;
-    private TextView tvShizukuStatus;
     
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
     private boolean isExecuting = false;
@@ -57,10 +54,7 @@ public class ShellFragment extends Fragment {
         // 初始化视图
         tvTerminalOutput = binding.tvTerminalOutput;
         etCommandInput = binding.etCommandInput;
-        tvPrompt = binding.tvPrompt;
         scrollViewOutput = binding.scrollViewOutput;
-        shizukuIndicator = binding.shizukuIndicator;
-        tvShizukuStatus = binding.tvShizukuStatus;
         
         // 获取Material You颜色
         initMaterialColors();
@@ -99,19 +93,10 @@ public class ShellFragment extends Fragment {
         
         // 移除自动重新获取焦点的逻辑
 
-        // 更新 Shizuku 状态
-        updateShizukuStatus();
-        
-        // 显示欢迎信息
-        showWelcomeMessage();
-        
-        // 不要自动打开键盘，等待用户点击输入框
-        
-        // 显示欢迎信息
-        showWelcomeMessage();
-
         return root;
     }
+
+
 
     /**
      * 初始化Material You颜色
@@ -426,7 +411,6 @@ public class ShellFragment extends Fragment {
      */
     private void clearScreen() {
         tvTerminalOutput.setText("");
-        showWelcomeMessage();
     }
 
     /**
@@ -478,14 +462,16 @@ public class ShellFragment extends Fragment {
     private void keepKeyboardOpen() {
         etCommandInput.postDelayed(() -> {
             if (getContext() != null && etCommandInput != null) {
+                // 先请求焦点
                 etCommandInput.requestFocus();
+                // 强制显示键盘，使用 SHOW_FORCED 确保持续显示
                 InputMethodManager imm = (InputMethodManager) 
                     requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null) {
-                    imm.showSoftInput(etCommandInput, InputMethodManager.SHOW_IMPLICIT);
+                    imm.showSoftInput(etCommandInput, InputMethodManager.SHOW_FORCED);
                 }
             }
-        }, 100);
+        }, 50); // 减少延迟时间，避免闪烁
     }
     
     /**
@@ -504,30 +490,14 @@ public class ShellFragment extends Fragment {
         });
     }
     
-    /**
-     * 更新 Shizuku 状态
-     */
-    private void updateShizukuStatus() {
-        if (ShellExecutor.isShizukuAvailable()) {
-            shizukuIndicator.setBackgroundColor(colorPrimary);
-            tvShizukuStatus.setText(getString(R.string.root));
-            tvShizukuStatus.setTextColor(colorPrimary);
-            tvPrompt.setText(getString(R.string.hash_sign));
-            tvPrompt.setTextColor(colorPrimary);
-        } else {
-            shizukuIndicator.setBackgroundColor(colorTertiary);
-            tvShizukuStatus.setText(getString(R.string.user));
-            tvShizukuStatus.setTextColor(colorTertiary);
-            tvPrompt.setText(getString(R.string.dollar_sign));
-            tvPrompt.setTextColor(colorTertiary);
-        }
-    }
-
     @Override
     public void onResume() {
         super.onResume();
-        updateShizukuStatus();
-        // 不要自动打开键盘
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
