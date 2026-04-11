@@ -15,11 +15,11 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.DynamicColors;
 
-import io.github.huidoudour.Installer.databinding.ActivityHomeBinding;
+import io.github.huidoudour.Installer.databinding.ActivityMainBinding;
 
-public class HomeActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
-    private ActivityHomeBinding binding;
+    private ActivityMainBinding binding;
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "app_settings";
     private static final String KEY_BACKGROUND_DISPLAY = "background_display";
@@ -48,7 +48,7 @@ public class HomeActivity extends AppCompatActivity {
             return; // 立即返回，避免继续执行下面的代码
         }
 
-        binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         // 隐藏 ActionBar
@@ -61,7 +61,7 @@ public class HomeActivity extends AppCompatActivity {
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_home);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
         // 处理从其他应用传递过来的安装意图
@@ -93,10 +93,10 @@ public class HomeActivity extends AppCompatActivity {
                 bundle.putParcelable("install_uri", data);
                 
                 // 导航到安装器页面
-                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_home);
+                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
                 navController.navigate(R.id.navigation_home, bundle);
                 
-                Log.d("HomeActivity", getString(R.string.receive_install_intent, data.toString()));
+                Log.d("MainActivity", getString(R.string.receive_install_intent, data.toString()));
             }
         }
     }
@@ -107,7 +107,7 @@ public class HomeActivity extends AppCompatActivity {
     private void setTaskExcludeFromRecents() {
         // 最可靠的方法：重新启动应用，确保标志在Activity启动前设置
         // 因为FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS必须在Activity启动前设置才有效
-        Intent restartIntent = new Intent(this, HomeActivity.class);
+        Intent restartIntent = new Intent(this, MainActivity.class);
         restartIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         restartIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         startActivity(restartIntent);

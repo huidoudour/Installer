@@ -277,7 +277,7 @@ public class InstallerFragment extends Fragment {
         // 处理从其他应用传递过来的安装URI
         handleInstallUriFromIntent();
 
-        // 处理从HomeActivity传递过来的安装参数
+        // 处理从MainActivity传递过来的安装参数
         handleInstallArguments();
 
         if (isFirstInit) {
@@ -790,8 +790,8 @@ public class InstallerFragment extends Fragment {
     }
 
     /**
-     * 处理从 HomeActivity 传递过来的安装参数
-     * 当用户从其他应用选择本应用作为安装器时，HomeActivity 会导航到 InstallerFragment 并传递参数
+     * 处理从 MainActivity 传递过来的安装参数
+     * 当用户从其他应用选择本应用作为安装器时，MainActivity 会导航到 InstallerFragment 并传递参数
      */
     private void handleInstallArguments() {
         Bundle arguments = getArguments();

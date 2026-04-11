@@ -11,8 +11,8 @@ android {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
-        versionCode = 474 //版本代码
-        versionName = "4.7.4" //版本名称
+        versionCode = 484 //版本代码
+        versionName = "4.8.4" //版本名称
         
         // 启用NDK - 配置C++共享库编译
         externalNativeBuild {
