@@ -24,13 +24,31 @@ public class LanguageManager {
     public static void applyUserLanguagePreference(Context context) {
         try {
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            String languageCode = prefs.getString(KEY_APP_LANGUAGE, Locale.getDefault().getLanguage());
+            String languageCode = prefs.getString(KEY_APP_LANGUAGE, "system");
             
             Locale locale;
-            if ("en".equals(languageCode)) {
-                locale = Locale.ENGLISH;
-            } else {
-                locale = Locale.SIMPLIFIED_CHINESE;
+            if ("system".equals(languageCode)) {
+                // 跟随系统，不设置特定locale
+                return;
+            }
+            
+            switch (languageCode) {
+                case "en":
+                    locale = Locale.ENGLISH;
+                    break;
+                case "zh-TW":
+                    locale = Locale.TRADITIONAL_CHINESE;
+                    break;
+                case "ru":
+                    locale = new Locale("ru");
+                    break;
+                case "ja":
+                    locale = Locale.JAPANESE;
+                    break;
+                case "zh":
+                default:
+                    locale = Locale.SIMPLIFIED_CHINESE;
+                    break;
             }
             
             Locale.setDefault(locale);
@@ -47,7 +65,7 @@ public class LanguageManager {
     /**
      * 保存用户选择的语言
      * @param context 上下文
-     * @param languageCode 语言代码 ("zh" 或 "en")
+     * @param languageCode 语言代码 ("system", "zh", "zh-TW", "en", "ru", "ja")
      */
     public static void saveUserLanguage(Context context, String languageCode) {
         try {
@@ -61,15 +79,15 @@ public class LanguageManager {
     /**
      * 获取用户选择的语言
      * @param context 上下文
-     * @return 语言代码 ("zh" 或 "en")
+     * @return 语言代码 ("system", "zh", "zh-TW", "en", "ru", "ja")
      */
     public static String getUserLanguage(Context context) {
         try {
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            return prefs.getString(KEY_APP_LANGUAGE, Locale.getDefault().getLanguage());
+            return prefs.getString(KEY_APP_LANGUAGE, "system");
         } catch (Exception e) {
             Log.e(TAG, context.getString(R.string.get_language_setting_failed, e.getMessage()));
-            return Locale.getDefault().getLanguage();
+            return "system";
         }
     }
     
@@ -80,10 +98,22 @@ public class LanguageManager {
      * @return 语言显示名称
      */
     public static String getLanguageDisplayName(Context context, String languageCode) {
-        if ("en".equals(languageCode)) {
-            return "English";
-        } else {
-            return context.getString(R.string.simplified_chinese);
+        if ("system".equals(languageCode)) {
+            return context.getString(R.string.follow_system);
+        }
+        
+        switch (languageCode) {
+            case "en":
+                return "English";
+            case "zh-TW":
+                return context.getString(R.string.traditional_chinese);
+            case "ru":
+                return context.getString(R.string.russian);
+            case "ja":
+                return context.getString(R.string.japanese);
+            case "zh":
+            default:
+                return context.getString(R.string.simplified_chinese);
         }
     }
 }

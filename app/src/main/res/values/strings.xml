@@ -40,6 +40,8 @@
     <string name="simplified_chinese">Simplified Chinese</string>
     <string name="traditional_chinese">Traditional Chinese</string>
     <string name="english">English</string>
+    <string name="russian">Русский</string>
+    <string name="japanese">日本語</string>
     <string name="confirm">Confirm</string>
     <string name="language_changed_tip">Language switched to %s, app will restart automatically</string>
     <string name="language_change_failed">Language switch failed</string>
