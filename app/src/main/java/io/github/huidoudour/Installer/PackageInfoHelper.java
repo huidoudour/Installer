@@ -25,7 +25,7 @@ public class PackageInfoHelper {
      */
     public static PackageInfo getInstalledAppInfo(Context context, String packageName) {
         if (context == null || packageName == null || packageName.isEmpty()) {
-            Log.w(TAG, "无效的参数: context=" + context + ", packageName=" + packageName);
+            Log.w(TAG, "Invalid parameters: context=" + context + ", packageName=" + packageName);
             return null;
         }
         
@@ -35,18 +35,18 @@ public class PackageInfoHelper {
             // 方法1: 直接查询（适用于有明确权限的情况）
             PackageInfo info = pm.getPackageInfo(packageName, 
                 PackageManager.GET_ACTIVITIES | PackageManager.GET_SERVICES | PackageManager.GET_PERMISSIONS);
-            Log.d(TAG, "成功获取包信息: " + packageName);
+            Log.d(TAG, "Successfully retrieved package info: " + packageName);
             return info;
             
         } catch (PackageManager.NameNotFoundException e) {
-            Log.d(TAG, "应用未安装: " + packageName);
+            Log.d(TAG, "App not installed: " + packageName);
             return null;
         } catch (SecurityException e) {
-            Log.w(TAG, "权限不足，尝试备用方案: " + packageName + ", 错误: " + e.getMessage());
+            Log.w(TAG, "Insufficient permissions, trying fallback: " + packageName + ", error: " + e.getMessage());
             // 权限不足，尝试备用方案
             return getInstalledAppInfoFallback(context, packageName);
         } catch (Exception e) {
-            Log.e(TAG, "获取包信息时发生未知错误: " + packageName, e);
+            Log.e(TAG, "Unknown error getting package info: " + packageName, e);
             return null;
         }
     }
@@ -67,20 +67,20 @@ public class PackageInfoHelper {
             
             for (PackageInfo pkg : packages) {
                 if (packageName.equals(pkg.packageName)) {
-                    Log.d(TAG, "通过备用方案找到包: " + packageName);
+                    Log.d(TAG, "Found package via fallback: " + packageName);
                     return pkg;
                 }
             }
             
-            Log.d(TAG, "备用方案也未找到包: " + packageName);
+            Log.d(TAG, "Package not found via fallback: " + packageName);
             return null;
             
         } catch (SecurityException e) {
-            Log.e(TAG, "备用方案权限不足: " + packageName, e);
+            Log.e(TAG, "Fallback insufficient permissions: " + packageName, e);
             // 如果连备用方案都失败，尝试最基本的查询
             return getMinimalPackageInfo(context, packageName);
         } catch (Exception e) {
-            Log.e(TAG, "备用方案执行失败: " + packageName, e);
+            Log.e(TAG, "Fallback execution failed: " + packageName, e);
             return null;
         }
     }
@@ -97,10 +97,10 @@ public class PackageInfoHelper {
         try {
             // 方法3: 最基本的查询，不带任何标志
             PackageInfo info = pm.getPackageInfo(packageName, 0);
-            Log.d(TAG, "通过最简方案获取到包信息: " + packageName);
+            Log.d(TAG, "Retrieved package info via minimal approach: " + packageName);
             return info;
         } catch (Exception e) {
-            Log.e(TAG, "所有方案都失败了: " + packageName, e);
+            Log.e(TAG, "All approaches failed: " + packageName, e);
             return null;
         }
     }
@@ -133,7 +133,7 @@ public class PackageInfoHelper {
             
             return 0;
         } catch (Exception e) {
-            Log.e(TAG, "版本号比较失败: " + version1 + " vs " + version2, e);
+            Log.e(TAG, "Version comparison failed: " + version1 + " vs " + version2, e);
             // 字符串比较作为后备
             return version1.compareTo(version2);
         }
@@ -158,7 +158,7 @@ public class PackageInfoHelper {
             PackageManager pm = context.getPackageManager();
             return pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
         } catch (Exception e) {
-            Log.e(TAG, "获取应用信息失败: " + packageName, e);
+            Log.e(TAG, "Failed to get application info: " + packageName, e);
             return null;
         }
     }
@@ -182,7 +182,7 @@ public class PackageInfoHelper {
                 packageNames.add(pkg.packageName);
             }
         } catch (Exception e) {
-            Log.e(TAG, "获取已安装包列表失败", e);
+            Log.e(TAG, "Failed to get installed packages list", e);
         }
         return packageNames;
     }

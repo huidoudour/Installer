@@ -134,14 +134,14 @@ public class InstallDialog extends AppCompatActivity {
             Uri sharedUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             
             if (sharedUri != null) {
-                Log.d(TAG, "接收到分享的文件: " + sharedUri.toString());
+                Log.d(TAG, "Received shared file: " + sharedUri.toString());
                 installUri = sharedUri;
                 processInstallFile();
             } else {
                 showErrorAndExit(getString(R.string.invalid_install_request));
             }
         } catch (Exception e) {
-            Log.e(TAG, "处理分享意图失败", e);
+            Log.e(TAG, "Failed to handle send intent", e);
             showErrorAndExit(getString(R.string.error_processing_install_file));
         }
     }
@@ -268,7 +268,7 @@ public class InstallDialog extends AppCompatActivity {
                         ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
                     }
                 } catch (Exception e) {
-                    Log.e(TAG, "加载应用图标失败", e);
+                    Log.e(TAG, "Failed to load app icon", e);
                     ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
                 }
             } else {
@@ -276,7 +276,7 @@ public class InstallDialog extends AppCompatActivity {
                 setDefaultInfo();
             }
         } catch (Exception e) {
-            Log.e(TAG, "解析APK信息失败", e);
+            Log.e(TAG, "Failed to parse APK info", e);
             setDefaultInfo();
         }
     }
@@ -468,7 +468,7 @@ public class InstallDialog extends AppCompatActivity {
                 outputStream.flush();
                 outputStream.close();
                 
-                Log.d(TAG, "临时文件已创建: " + tempFile.getAbsolutePath());
+                Log.d(TAG, "Temp file created: " + tempFile.getAbsolutePath());
                 return tempFile.getAbsolutePath();
             }
         } catch (Exception e) {
@@ -509,7 +509,7 @@ public class InstallDialog extends AppCompatActivity {
                     }
                 }
             } catch (Exception e) {
-                Log.w(TAG, "无法从 ContentResolver 获取文件名", e);
+                Log.w(TAG, "Cannot get filename from ContentResolver", e);
             }
         }
         
@@ -693,10 +693,13 @@ public class InstallDialog extends AppCompatActivity {
                 long installedVersionCode = installedInfo.getLongVersionCode();
                 
                 if (apkVersionCode == installedVersionCode) {
-                    // 版本相同，显示ReInstall
+                    // 版本相同，显示重新安装
                     btnInstall.setText(R.string.reinstall);
+                } else if (apkVersionCode > installedVersionCode) {
+                    // APK版本大于已安装版本，显示升级应用
+                    btnInstall.setText(R.string.upgrade_app);
                 } else {
-                    // 版本不同，显示Install
+                    // APK版本小于已安装版本，显示降级(或保持安装)
                     btnInstall.setText(R.string.install);
                 }
             }

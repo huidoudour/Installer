@@ -419,9 +419,9 @@ public class ShellFragment extends Fragment {
     private void copyOutput() {
         String output = tvTerminalOutput.getText().toString();
         if (ShellExecutor.copyToClipboard(requireContext(), output)) {
-            Toast.makeText(requireContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(requireContext(), "Copy failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.copy_failed, Toast.LENGTH_SHORT).show();
         }
     }
 

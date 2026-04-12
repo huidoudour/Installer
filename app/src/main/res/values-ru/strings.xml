@@ -12,6 +12,7 @@
     <string name="select_apk">Выбрать APK</string>
     <string name="install">Установить</string>
     <string name="reinstall">Переустановить</string>
+    <string name="upgrade_app">Обновить приложение</string>
     <string name="cancel">Отмена</string>
     <string name="installing">Установка...</string>
     <string name="app_icon_description">Значок приложения</string>

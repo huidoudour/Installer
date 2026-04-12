@@ -12,7 +12,10 @@
     <string name="select_apk">选择 APK</string>
     <string name="install">安装</string>
     <string name="reinstall">重新安装</string>
+    <string name="upgrade_app">升级应用</string>
     <string name="cancel">算了</string>
+    <string name="copied_to_clipboard">已复制到剪贴板</string>
+    <string name="copy_failed">复制失败</string>
     <string name="installing">安装中...</string>
     <string name="app_icon_description">应用图标</string>
     

@@ -12,7 +12,10 @@
     <string name="select_apk">Select APK File</string>
     <string name="install">Install</string>
     <string name="reinstall">Reinstall</string>
+    <string name="upgrade_app">Upgrade App</string>
     <string name="cancel">Cancel</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="copy_failed">Copy failed</string>
     <string name="installing">Installing...</string>
     <string name="app_icon_description">Application Icon</string>
     

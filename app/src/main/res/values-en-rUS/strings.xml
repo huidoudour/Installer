@@ -11,6 +11,7 @@
     <string name="select_apk">Select APK</string>
     <string name="install">Install</string>
     <string name="reinstall">Reinstall</string>
+    <string name="upgrade_app">Upgrade App</string>
     <string name="cancel">Cancel</string>
     <string name="installing">Installing...</string>
     <string name="app_icon_description">App Icon</string>

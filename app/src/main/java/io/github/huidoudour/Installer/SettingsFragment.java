@@ -210,8 +210,11 @@ public class SettingsFragment extends Fragment {
                 radioJapanese.setChecked(true);
                 break;
             case "zh":
-            default:
                 radioSimplified.setChecked(true);
+                break;
+            default:
+                // 未知语言，默认跟随系统
+                radioSystem.setChecked(true);
                 break;
         }
         

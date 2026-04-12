@@ -12,6 +12,7 @@
     <string name="select_apk">APKを選択</string>
     <string name="install">インストール</string>
     <string name="reinstall">再インストール</string>
+    <string name="upgrade_app">アプリをアップグレード</string>
     <string name="cancel">キャンセル</string>
     <string name="installing">インストール中...</string>
     <string name="app_icon_description">アプリアイコン</string>

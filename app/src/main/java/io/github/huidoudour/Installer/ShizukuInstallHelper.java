@@ -123,7 +123,7 @@ public class ShizukuInstallHelper {
                 callback.onProgress(context.getString(R.string.start_apk_install));
                 
                 // 创建安装会话 - 添加安装请求者参数
-                StringBuilder createCmd = new StringBuilder("pm install-create");
+                StringBuilder createCmd = new StringBuilder("pm install-create --user 0");
                 if (replaceExisting) createCmd.append(" -r");
                 if (grantPermissions) createCmd.append(" -g");
                 
@@ -185,7 +185,7 @@ public class ShizukuInstallHelper {
                 callback.onProgress(context.getString(R.string.extract_complete, extractedApks.size()));
                 
                 // 创建安装会话
-                StringBuilder createCmd = new StringBuilder("pm install-create");
+                StringBuilder createCmd = new StringBuilder("pm install-create --user 0");
                 if (replaceExisting) createCmd.append(" -r");
                 if (grantPermissions) createCmd.append(" -g");
                 
