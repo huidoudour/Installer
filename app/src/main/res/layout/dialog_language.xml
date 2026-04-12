@@ -39,7 +39,7 @@
     <!-- 语言列表容器 - 使用固定高度限制,优先显示前3个选项 -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="260dp"
+        android:layout_height="220dp"
         android:scrollbars="vertical">
 
         <LinearLayout
@@ -68,11 +68,19 @@
                 android:gravity="center_vertical"
                 android:padding="12dp">
 
-                <RadioButton
-                    android:id="@+id/radio_system"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp" />
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_system"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="0dp"
+                        android:gravity="center"
+                        android:buttonTint="?attr/colorPrimary" />
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -119,11 +127,19 @@
                 android:gravity="center_vertical"
                 android:padding="12dp">
 
-                <RadioButton
-                    android:id="@+id/radio_chinese_simplified"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp" />
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_chinese_simplified"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="0dp"
+                        android:gravity="center"
+                        android:buttonTint="?attr/colorPrimary" />
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -170,11 +186,19 @@
                 android:gravity="center_vertical"
                 android:padding="12dp">
 
-                <RadioButton
-                    android:id="@+id/radio_english"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp" />
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_english"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="0dp"
+                        android:gravity="center"
+                        android:buttonTint="?attr/colorPrimary" />
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -221,11 +245,19 @@
                 android:gravity="center_vertical"
                 android:padding="12dp">
 
-                <RadioButton
-                    android:id="@+id/radio_chinese_traditional"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp" />
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_chinese_traditional"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="0dp"
+                        android:gravity="center"
+                        android:buttonTint="?attr/colorPrimary" />
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -272,11 +304,19 @@
                 android:gravity="center_vertical"
                 android:padding="12dp">
 
-                <RadioButton
-                    android:id="@+id/radio_russian"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp" />
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_russian"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="0dp"
+                        android:gravity="center"
+                        android:buttonTint="?attr/colorPrimary" />
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -323,11 +363,19 @@
                 android:gravity="center_vertical"
                 android:padding="12dp">
 
-                <RadioButton
-                    android:id="@+id/radio_japanese"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp" />
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_japanese"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="0dp"
+                        android:gravity="center"
+                        android:buttonTint="?attr/colorPrimary" />
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -380,7 +428,7 @@
             android:textSize="14sp"
             style="@style/Widget.Material3.Button.OutlinedButton" />
 
-        <!-- 确认按钮 - 使用主题色边框 -->
+        <!-- 确认按钮 - 使用淡蓝色边框 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_language_confirm"
             android:layout_width="wrap_content"
@@ -390,7 +438,7 @@
             android:textSize="14sp"
             android:layout_marginStart="8dp"
             style="@style/Widget.Material3.Button.OutlinedButton"
-            app:strokeColor="?attr/colorPrimary"
+            app:strokeColor="#6BA3D6"
             app:strokeWidth="2dp" />
     </LinearLayout>
 

@@ -479,4 +479,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
     <string name="getting_app_name">Getting app name</string>
     <string name="getting_app_icon">Getting app icon</string>
     <string name="load_app_icon_failed">Failed to load app icon</string>
+    
+    <!-- Easter egg -->
+    <string name="easter_egg_found">Congratulations! You found the easter egg!</string>
 </resources>

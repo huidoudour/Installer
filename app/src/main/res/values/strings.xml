@@ -523,5 +523,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="current_app">Current App</string>
     <string name="installer_package_changed">Installer package changed</string>
 
+    <!-- Easter egg -->
+    <string name="easter_egg_found">恭喜发现彩蛋！</string>
+
 
 </resources>

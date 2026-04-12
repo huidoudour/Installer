@@ -37,6 +37,12 @@ public class SettingsFragment extends Fragment {
     private static final String KEY_NOTIFICATION_ENABLED = "notification_enabled";
     private static final String KEY_INSTALLER_PACKAGE = "installer_package"; // 安装请求者包名
     
+    // 彩蛋相关
+    private int versionClickCount = 0;
+    private long lastClickTime = 0;
+    private static final int EASTER_EGG_CLICK_COUNT = 9; // 菜单点击次数
+    private static final long CLICK_TIME_WINDOW = 2000; // 2秒内完成点击
+    
     // 预制的安装请求者包名列表
     private static final String CURRENT_APP_PACKAGE = "io.github.huidoudour.Installer"; // 当前应用包名（独立定义）
     private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 1001;
@@ -86,6 +92,12 @@ public class SettingsFragment extends Fragment {
                 getActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         });
+        
+        // 初始化版本号点击事件（只在 onCreate 时设置一次）
+        View versionInfoLayout = binding.getRoot().findViewById(R.id.version_info_layout);
+        if (versionInfoLayout != null) {
+            versionInfoLayout.setOnClickListener(v -> handleVersionClick());
+        }
     }
     
     /**
@@ -573,6 +585,36 @@ public class SettingsFragment extends Fragment {
                 tvAppVersion.setText("v1.0.0 (1)");
             }
         }
+    }
+    
+    /**
+     * 处理版本号点击事件（彩蛋）
+     */
+    private void handleVersionClick() {
+        long currentTime = System.currentTimeMillis();
+        
+        // 如果距离上次点击超过时间窗口，重置计数
+        if (currentTime - lastClickTime > CLICK_TIME_WINDOW) {
+            versionClickCount = 0;
+        }
+        
+        versionClickCount++;
+        lastClickTime = currentTime;
+        
+        // 达到6次点击，触发彩蛋
+        if (versionClickCount >= EASTER_EGG_CLICK_COUNT) {
+            versionClickCount = 0; // 重置计数
+            showNotification(getString(R.string.easter_egg_found));
+            openEasterEgg();
+        }
+    }
+    
+    /**
+     * 打开彩蛋页面
+     */
+    private void openEasterEgg() {
+        Intent intent = new Intent(getActivity(), EasterEggWebViewActivity.class);
+        startActivity(intent);
     }
     
     @Override

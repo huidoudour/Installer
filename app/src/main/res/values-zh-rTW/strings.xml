@@ -537,5 +537,8 @@
     <string name="current_app">當前應用</string>
     <string name="installer_package_changed">安裝器包已變更</string>
 
+    <!-- Easter egg -->
+    <string name="easter_egg_found">恭喜發現彩蛋！</string>
+
 
 </resources>

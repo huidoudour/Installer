@@ -537,5 +537,8 @@
     <string name="current_app">Текущее приложение</string>
     <string name="installer_package_changed">Пакет установщика изменен</string>
 
+    <!-- Easter egg -->
+    <string name="easter_egg_found">Поздравляем! Вы нашли пасхалку!</string>
+
 
 </resources>

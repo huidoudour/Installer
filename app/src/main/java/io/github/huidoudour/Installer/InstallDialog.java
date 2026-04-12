@@ -111,12 +111,38 @@ public class InstallDialog extends AppCompatActivity {
         String action = intent.getAction();
         Uri data = intent.getData();
         
+        // 处理 VIEW 或 INSTALL_PACKAGE 动作
         if ((Intent.ACTION_VIEW.equals(action) || Intent.ACTION_INSTALL_PACKAGE.equals(action)) && data != null) {
             installUri = data;
             processInstallFile();
+        }
+        // 处理 SEND 动作（从分享功能接收文件）
+        else if (Intent.ACTION_SEND.equals(action)) {
+            handleSendIntent(intent);
         } else {
             // 如果没有有效的安装意图，显示错误并退出
             showErrorAndExit(getString(R.string.invalid_install_request));
+        }
+    }
+    
+    /**
+     * 处理分享意图
+     */
+    private void handleSendIntent(Intent intent) {
+        try {
+            // 获取分享的 URI
+            Uri sharedUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            
+            if (sharedUri != null) {
+                Log.d(TAG, "接收到分享的文件: " + sharedUri.toString());
+                installUri = sharedUri;
+                processInstallFile();
+            } else {
+                showErrorAndExit(getString(R.string.invalid_install_request));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "处理分享意图失败", e);
+            showErrorAndExit(getString(R.string.error_processing_install_file));
         }
     }
     
@@ -418,25 +444,92 @@ public class InstallDialog extends AppCompatActivity {
                 InputStream inputStream = getContentResolver().openInputStream(uri);
                 if (inputStream == null) return null;
                 
-                // 创建临时文件
-                File tempFile = new File(getCacheDir(), "temp_install.apk");
+                // 获取文件名，用于确定正确的扩展名
+                String fileName = getFileNameFromUri(uri);
+                String extension = getFileExtension(fileName);
+                
+                // 根据文件类型创建临时文件
+                File tempFile;
+                if (".xapk".equals(extension) || ".apks".equals(extension) || ".apkm".equals(extension)) {
+                    tempFile = new File(getCacheDir(), "temp_install_" + System.currentTimeMillis() + extension);
+                } else {
+                    tempFile = new File(getCacheDir(), "temp_install.apk");
+                }
+                
                 FileOutputStream outputStream = new FileOutputStream(tempFile);
                 
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[8192]; // 增加缓冲区大小以提高性能
                 int length;
                 while ((length = inputStream.read(buffer)) > 0) {
                     outputStream.write(buffer, 0, length);
                 }
                 
                 inputStream.close();
+                outputStream.flush();
                 outputStream.close();
                 
+                Log.d(TAG, "临时文件已创建: " + tempFile.getAbsolutePath());
                 return tempFile.getAbsolutePath();
             }
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.get_file_path_from_uri_failed), e);
         }
         return null;
+    }
+    
+    /**
+     * 从 URI 获取文件名
+     */
+    private String getFileNameFromUri(Uri uri) {
+        String fileName = null;
+        
+        // 尝试从 URI 路径中提取文件名
+        if (uri.getPath() != null) {
+            String path = uri.getPath();
+            int lastSlash = path.lastIndexOf('/');
+            if (lastSlash != -1 && lastSlash < path.length() - 1) {
+                fileName = path.substring(lastSlash + 1);
+            }
+        }
+        
+        // 如果无法从路径中获取，尝试查询 ContentResolver
+        if (fileName == null || fileName.isEmpty()) {
+            try {
+                String[] projection = {android.provider.OpenableColumns.DISPLAY_NAME};
+                android.database.Cursor cursor = getContentResolver().query(
+                    uri, projection, null, null, null);
+                if (cursor != null) {
+                    try {
+                        int nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                        if (cursor.moveToFirst() && nameIndex != -1) {
+                            fileName = cursor.getString(nameIndex);
+                        }
+                    } finally {
+                        cursor.close();
+                    }
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "无法从 ContentResolver 获取文件名", e);
+            }
+        }
+        
+        return fileName != null ? fileName : "temp.apk";
+    }
+    
+    /**
+     * 获取文件扩展名
+     */
+    private String getFileExtension(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return ".apk";
+        }
+        
+        int lastDot = fileName.lastIndexOf('.');
+        if (lastDot != -1 && lastDot < fileName.length() - 1) {
+            return fileName.substring(lastDot).toLowerCase();
+        }
+        
+        return ".apk";
     }
     
     private void showErrorAndExit(String message) {
