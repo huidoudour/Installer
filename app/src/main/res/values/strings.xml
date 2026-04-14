@@ -75,6 +75,8 @@
     <string name="letter_c">C</string>
     <string name="clipboard">P</string>
     <string name="lightning">Q</string>
+
+    <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku Status</string>
     <string name="checking">Checking...</string>
     <string name="grant_shizuku_permission">Grant Shizuku Permission</string>
@@ -137,12 +139,12 @@
     <string name="open_link_failed">Unable to open link, please check your browser</string>
     <string name="link_open_failed">Failed to open link: %s</string>
     <string name="link_open_error">Unable to open link.
-Possible causes:
-1. No browser app installed on device
-2. Android 14 package visibility restrictions
-3. System security settings blocked the link
+    Possible causes:
+    1. No browser app installed on device
+    2. Android 14 package visibility restrictions
+    3. System security settings blocked the link
 
-Please try installing Chrome, Firefox or other browser.</string>
+    Please try installing Chrome, Firefox or other browser.</string>
     <string name="receive_install_intent">Received install intent, URI: %s</string>
     <string name="start_apk_install">Starting APK installation...</string>
     <string name="create_session">Creating install session: %s</string>
@@ -164,6 +166,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="check_shizuku_version_permission_failed">Failed to check Shizuku version/permission: %s</string>
     <string name="unavailable">Unavailable</string>
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi caught exception: %s</string>
+
+    <!-- XAPK extraction -->
     <string name="extract_complete">Extraction complete, total %d APK files</string>
     <string name="apk_progress" formatted="false">[%d/%d] %s</string>
     <string name="submitting_install">Submitting install...</string>
@@ -210,6 +214,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="xapk_install_exception_log">XAPK installation exception</string>
     <string name="install_exception_error">Installation exception: %s</string>
     <string name="cleanup_temp_files">Clean temporary files</string>
+
+    <!-- Shell session management -->
     <string name="create_persistent_shell_session">Create persistent shell session</string>
     <string name="use_shizuku_create_session">Use Shizuku to create session</string>
     <string name="normal_mode_use_non_interactive_shell">Normal mode - use non-interactive shell</string>
@@ -227,6 +233,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="fallback_execution_single_command">Fallback execution (single command)</string>
     <string name="get_current_working_directory">Get current working directory</string>
     <string name="reset_shell_session">Reset shell session</string>
+
+    <!-- Command utilities -->
     <string name="quick_command_list">Quick command list</string>
     <string name="list_files">List files</string>
     <string name="current_directory">Current directory</string>
@@ -243,6 +251,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="copy_text_to_clipboard">Copy text to clipboard</string>
     <string name="terminal_output">Terminal Output</string>
     <string name="command_history_management">Command history management</string>
+
+    <!-- Session and terminal management -->
     <string name="session_error">Session error: %s</string>
     <string name="trying_to_recreate_session">Trying to recreate session...</string>
     <string name="retry_once">Retry once</string>
@@ -252,6 +262,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="disable_job_control_avoid_tty_error">Disable job control, avoid TTY error</string>
     <string name="unknown_file_format_chinese">Unknown format</string>
     <string name="apk_name_failed" formatted="false">%s failed: %s</string>
+
+    <!-- File operations -->
     <string name="copy_file_failed_log">Failed to copy file to temp directory Exit code: %d</string>
     <string name="copy_file_failed">Failed to copy file</string>
     <string name="file_copy_success_start_install">File copied successfully, starting installation...</string>
@@ -310,7 +322,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="install_dialog_page">Installation Dialog Page</string>
     <string name="log_page">Log Page</string>
     <string name="get_file_path_from_uri_failed">Failed to get file path from URI</string>
-    <!-- New string resources -->
+
+    <!-- Language and preferences -->
     <string name="apply_language_preference_failed">Failed to apply language setting: %s</string>
     <string name="apply_language_preference_failed_simple">Failed to apply language preference: %s</string>
     <string name="save_language_setting_failed">Failed to save language setting: %s</string>
@@ -383,6 +396,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="need_file_access_permission_select_apk">Need file access permission to select APK.</string>
     <string name="please_select_install_file_miao">Please select install package file first.</string>
     <string name="install_process_end">=== Install process ended ===</string>
+
+    <!-- Quick paths -->
     <string name="quick_path_title">Quick Path</string>
     <string name="quick_path_root">Root (/)</string>
     <string name="quick_path_sdcard">SD Card (/sdcard/)</string>
@@ -392,6 +407,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="quick_path_system">System (/system/)</string>
     <string name="quick_path_system_bin">System Bin (/system/bin/)</string>
     <string name="quick_path_home">Home (~/)</string>
+
+    <!-- Shell welcome -->
     <string name="welcome_shell_title">欢迎来到~终端</string>
     <string name="welcome_shell_subtitle">~v2.0</string>
     <string name="root_mode_enabled_via_shizuku">[*] Root mode enabled via Shizuku</string>
@@ -406,6 +423,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="process_completed_with_exit_code">[Process completed with exit code %d]</string>
     <string name="hash_sign">#</string>
     <string name="user">user</string>
+
+    <!-- Notifications -->
     <string name="notification_permission_required">Notification permission required</string>
     <string name="notification_enabled">Notifications enabled</string>
     <string name="notification_disabled">Notifications disabled</string>
@@ -413,7 +432,6 @@ Please try installing Chrome, Firefox or other browser.</string>
     <!-- Permission authorization related -->
     <string name="privilege_settings">Permission Settings</string>
     <string name="shizuku_settings">Shizuku Authorization</string>
-
     <string name="privilege_status">Status: %s</string>
     <string name="privilege_not_installed">Not Installed</string>
     <string name="privilege_not_running">Not Running</string>
@@ -423,12 +441,11 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="grant_permission">Grant Permission</string>
     <string name="open_app">Open App</string>
     <string name="download_from_github">Download from GitHub</string>
-
     <string name="switch_privilege">Switch</string>
     <string name="current_privilege">Current Authorization</string>
     <string name="privilege_mode_shizuku">Shizuku</string>
 
-
+    <!-- Native library test related strings -->
     <string name="execute_command_failed">Command execution failed: %s</string>
     
     <!-- 原生库测试相关字符串 -->
@@ -473,10 +490,10 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="shizuku_unavailable_meow">Shizuku unavailable meow: %s</string>
     <string name="privilege_not_connected_install_log">%s not connected or not authorized, cannot install meow.</string>
     <string name="requesting_shizuku_auth">Requesting Shizuku authorization...</string>
-
     <string name="privilege_not_installed_notification">%s not installed, opening GitHub download page...</string>
     <string name="privilege_app_opening_notification">Opening %s app...</string>
     <string name="privilege_already_authorized">%s already authorized</string>
+
     <!-- File picker related -->
     <string name="opening_third_party_file_picker">Opening third-party file manager...</string>
     <string name="opening_file_manager">Opening %s file manager...</string>
@@ -501,7 +518,6 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="notification_channel_general_desc">Application general message notifications</string>
     <string name="notification_channel_install">Installation Notifications</string>
     <string name="notification_channel_install_desc">Application installation progress and result notifications</string>
-
     <string name="success">Success</string>
     <string name="failed">Failed</string>
     <string name="theme_settings_developing">Theme settings feature is under development</string>
@@ -528,6 +544,5 @@ Please try installing Chrome, Firefox or other browser.</string>
 
     <!-- Easter egg -->
     <string name="easter_egg_found">恭喜发现彩蛋！</string>
-
 
 </resources>

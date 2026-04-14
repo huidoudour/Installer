@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Main navigation titles -->
     <string name="app_name">Installer</string>
     <string name="title_home">安裝</string>
     <string name="title_shell">Shell</string>
     <string name="title_notifications">日誌</string>
     <string name="title_settings">設定</string>
-    
+
     <!-- Install page -->
     <string name="install_title">安裝應用程式</string>
+    <string name="install_dialog_title">安裝對話框</string>
     <string name="select_apk">選擇 APK</string>
     <string name="install">安裝</string>
     <string name="reinstall">重新安裝</string>
     <string name="upgrade_app">升級應用</string>
     <string name="cancel">取消</string>
+    <string name="copied_to_clipboard">已複製到剪貼簿</string>
+    <string name="copy_failed">複製失敗</string>
     <string name="installing">安裝中...</string>
     <string name="app_icon_description">應用程式圖示</string>
-    
+
     <!-- Settings page -->
     <string name="settings_title">設定</string>
     <string name="settings_subtitle">應用程式配置和個人化設定</string>
@@ -56,11 +58,10 @@
     <string name="find_me">ω尋找我ω</string>
     <string name="about_description">專注於 Android 應用安裝工具開發</string>
     <string name="visit_github">訪問 GitHub</string>
-    
+
     <!-- Shell and tools -->
     <string name="shell_hint">輸入命令...</string>
     <string name="clear_log">清空日誌</string>
-    <string name="export_log">匯出日誌</string>
     <string name="shell_txt">"@termux"</string>
     <string name="title_dashboard">工具</string>
     <string name="hello_world">Hello World!</string>
@@ -74,7 +75,7 @@
     <string name="letter_c">C</string>
     <string name="clipboard">P</string>
     <string name="lightning">Q</string>
-    
+
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku 狀態</string>
     <string name="checking">正在檢查...</string>
@@ -138,12 +139,12 @@
     <string name="open_link_failed">無法開啟連結，請檢查瀏覽器應用</string>
     <string name="link_open_failed">開啟連結失敗: %s</string>
     <string name="link_open_error">無法開啟連結。
-可能的原因：
-1. 設備上沒有安裝瀏覽器應用
-2. Android 14包可見性限制
-3. 系統安全設定阻止了連結開啟
+    可能的原因：
+    1. 設備上沒有安裝瀏覽器應用
+    2. Android 14包可見性限制
+    3. 系統安全設定阻止了連結開啟
 
-請嘗試安裝Chrome、Firefox或其他瀏覽器應用。</string>
+    請嘗試安裝Chrome、Firefox或其他瀏覽器應用。</string>
     <string name="receive_install_intent">接收到安裝意圖，URI: %s</string>
     <string name="start_apk_install">開始安裝 APK...</string>
     <string name="create_session">建立安裝會話: %s</string>
@@ -165,7 +166,7 @@
     <string name="check_shizuku_version_permission_failed">檢查 Shizuku 版本/權限失敗: %s</string>
     <string name="unavailable">不可用</string>
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi 捕獲異常: %s</string>
-    
+
     <!-- XAPK extraction -->
     <string name="extract_complete">解壓完成，共 %d 個 APK</string>
     <string name="apk_progress" formatted="false">[%d/%d] %s</string>
@@ -213,7 +214,7 @@
     <string name="xapk_install_exception_log">XAPK 安裝異常</string>
     <string name="install_exception_error">安裝異常: %s</string>
     <string name="cleanup_temp_files">清理臨時檔案</string>
-    
+
     <!-- Shell session management -->
     <string name="create_persistent_shell_session">建立持久化Shell會話</string>
     <string name="use_shizuku_create_session">使用Shizuku建立會話</string>
@@ -232,7 +233,7 @@
     <string name="fallback_execution_single_command">降級執行（單次命令）</string>
     <string name="get_current_working_directory">獲取當前工作目錄</string>
     <string name="reset_shell_session">重置Shell會話</string>
-    
+
     <!-- Command utilities -->
     <string name="quick_command_list">快捷命令列表</string>
     <string name="list_files">列出檔案</string>
@@ -250,7 +251,7 @@
     <string name="copy_text_to_clipboard">複製文字到剪貼簿</string>
     <string name="terminal_output">終端輸出</string>
     <string name="command_history_management">命令歷史記錄管理</string>
-    
+
     <!-- Session and terminal management -->
     <string name="session_error">Session error: %s</string>
     <string name="trying_to_recreate_session">Trying to recreate session...</string>
@@ -261,7 +262,7 @@
     <string name="disable_job_control_avoid_tty_error">禁用作業控制，避免TTY錯誤</string>
     <string name="unknown_file_format_chinese">未知格式</string>
     <string name="apk_name_failed" formatted="false">%s 失敗: %s</string>
-    
+
     <!-- File operations -->
     <string name="copy_file_failed_log">複製檔案到臨時目錄失敗 Exit code: %d</string>
     <string name="copy_file_failed">複製檔案失敗</string>
@@ -310,6 +311,7 @@
     <string name="log_content_header">=== Log Content ===</string>
     <string name="log_file_subject">Installer Log</string>
     <string name="log_file_generated">日誌檔案已生成: %s</string>
+    <string name="export_log">匯出日誌</string>
     <string name="log_exported">日誌已匯出: %s</string>
     <string name="export_failed">匯出失敗: %s</string>
     <string name="log_saved_to_cache">日誌已儲存到快取目錄</string>
@@ -320,7 +322,7 @@
     <string name="install_dialog_page">安裝對話框頁面</string>
     <string name="log_page">日誌頁面</string>
     <string name="get_file_path_from_uri_failed">從URI獲取檔案路徑失敗</string>
-    
+
     <!-- Language and preferences -->
     <string name="apply_language_preference_failed">應用語言設定失敗: %s</string>
     <string name="apply_language_preference_failed_simple">應用語言偏好失敗: %s</string>
@@ -344,158 +346,6 @@
     <string name="shizuku_binder_listener_error">不能添加 Shizuku binder listener: %s</string>
     <string name="installer_started">Installer 已啟動，等待操作……</string>
     <string name="get_file_path_uri_error">getFilePathFromUri 有問題: %s</string>
-    <string name="copy_to_cache_error">複製到 cache 失敗: %s</string>
-    <string name="request_manage_storage">請求 MANAGE_EXTERNAL_STORAGE 權限.</string>
-    <string name="request_manage_storage_error">請求 MANAGE_EXTERNAL_STORAGE 權限出錯: %s</string>
-    <string name="request_read_storage">請求 READ_EXTERNAL_STORAGE 權限.</string>
-    <string name="open_file_picker">開啟檔案選擇器...</string>
-    <string name="file_picker_not_found">檔案選擇器未找到.</string>
-    <string name="request_shizuku_permission">嘗試請求 Shizuku 權限...</string>
-    <string name="shizuku_not_started">Shizuku沒啟動。</string>
-    <string name="shizuku_version_low">Shizuku 版本過低或不相容。</string>
-    <string name="shizuku_authorized">Shizuku 已授權.</string>
-    <string name="log_manager_waiting">等待操作...</string>
-    <string name="shizuku_check_failed">Shizuku 不可用: %s</string>
-    <string name="apk_not_selected">未選擇 APK 或路徑無效.</string>
-    <string name="shizuku_not_connected_install">Shizuku 未連接或未授權，無法透過 Shizuku 安裝.</string>
-    <string name="check_shizuku_status_failed">檢查 Shizuku 狀態失敗: %s</string>
-    <string name="copying_file_to_temp">正在複製檔案到系統臨時目錄: %s</string>
-    <string name="detected_file_type_apk_count" formatted="false">檢測到 %s，包含 %d 個 APK 檔案</string>
-    <string name="need_file_access_permission_select_apk">需要檔案存取權限以選擇 APK。</string>
-    <string name="please_select_install_file_miao">請先選擇安裝包檔案.</string>
-    <string name="install_process_end">=== 安裝流程結束 ===</string>
-    
-    <!-- Quick paths -->
-    <string name="quick_path_title">快捷路徑</string>
-    <string name="quick_path_root">Root (/)</string>
-    <string name="quick_path_sdcard">SD卡 (/sdcard/)</string>
-    <string name="quick_path_download">下載 (/sdcard/Download/)</string>
-    <string name="quick_path_tmp">臨時 (/data/local/tmp/)</string>
-    <string name="quick_path_app_data">應用資料 (/data/data/)</string>
-    <string name="quick_path_system">系統 (/system/)</string>
-    <string name="quick_path_system_bin">系統二進位 (/system/bin/)</string>
-    <string name="quick_path_home">主目錄 (~/)</string>
-    
-    <!-- Shell welcome -->
-    <string name="welcome_shell_title">歡迎來到~終端</string>
-    <string name="welcome_shell_subtitle">~v2.0</string>
-    <string name="root_mode_enabled_via_shizuku">[*] 透過 Shizuku 啟用 Root 模式</string>
-    <string name="working_directory_tmp">[*] 工作目錄: /data/local/tmp</string>
-    <string name="user_mode_tip">[!] 用戶模式（授予 Shizuku 獲取 Root）</string>
-    <string name="working_directory_sdcard">[*] 工作目錄: /sdcard</string>
-    <string name="type_help_for_command_list">輸入 help 獲取命令列表</string>
-    <string name="command_running">命令執行中...</string>
-    <string name="root_prompt">root@ashell:~#</string>
-    <string name="user_prompt">user@ashell:~$</string>
-    <string name="command_cancelled_session_reset">[命令已取消，會話已重置]</string>
-    <string name="process_completed_with_exit_code">[進程完成，退出碼 %d]</string>
-    <string name="hash_sign">#</string>
-    <string name="user">用戶</string>
-    
-    <!-- Notifications -->
-    <string name="notification_permission_required">需要通知權限</string>
-    <string name="notification_enabled">通知已開啟</string>
-    <string name="notification_disabled">通知已關閉</string>
-    
-    <!-- Permission authorization -->
-    <string name="privilege_settings">權限授權設定</string>
-    <string name="shizuku_settings">Shizuku 授權</string>
-    <string name="privilege_status">狀態: %s</string>
-    <string name="privilege_not_installed">未安裝</string>
-    <string name="privilege_not_running">未運行</string>
-    <string name="privilege_not_authorized">未授權</string>
-    <string name="privilege_authorized">已授權</string>
-    <string name="privilege_version_too_low">版本過低</string>
-    <string name="grant_permission">授予權限</string>
-    <string name="open_app">開啟應用</string>
-    <string name="download_from_github">從 GitHub 下載</string>
-    <string name="switch_privilege">切換</string>
-    <string name="current_privilege">當前授權器</string>
-    <string name="privilege_mode_shizuku">Shizuku</string>
-
-    <!-- Native library test related strings -->
-    <string name="execute_command_failed">執行命令失敗</string>
-    <string name="native_test_title">=== 原生庫測試 ===</string>
-    <string name="native_lib_loaded_success">原生庫載入成功!</string>
-    <string name="native_lib_test_1">【測試 1】庫資訊:</string>
-    <string name="native_lib_test_2">【測試 2】效能對比:</string>
-    <string name="native_lib_test_3">【測試 3】哈希效能:</string>
-    <string name="native_lib_test_4">【測試 4】哈希計算示例:</string>
-    <string name="native_lib_test_input">輸入: "%s"</string>
-    <string name="native_lib_test_hash">哈希: %s</string>
-    <string name="native_lib_test_completed">所有測試完成!</string>
-    <string name="native_lib_load_failed">原生庫載入失敗!</string>
-    <string name="native_lib_error_message">錯誤訊息:</string>
-    <string name="native_lib_check_list">請檢查:</string>
-    <string name="native_lib_check_ndk">1. NDK 是否正確安裝</string>
-    <string name="native_lib_check_cmake">2. CMake 配置是否正確</string>
-    <string name="native_lib_check_arch">3. 架構是否匹配 (arm64-v8a 或 x86_64)</string>
-    
-    <!-- Privilege status related strings -->
-    <string name="privilege_status_title">%s 狀態</string>
-    <string name="privilege_not_installed_status">%s 未安裝</string>
-    <string name="privilege_download_button">下載 %s</string>
-    <string name="privilege_not_running_status">%s 未運行</string>
-    <string name="privilege_open_button">開啟 %s</string>
-    <string name="privilege_version_low_status">版本過低</string>
-    <string name="privilege_update_button">更新 %s</string>
-    <string name="privilege_not_authorized_status">未授權</string>
-    <string name="privilege_request_auth_button">請求授權</string>
-    <string name="privilege_authorized_status">權限已授予</string>
-    <string name="privilege_authorized_button">已授權</string>
-    <string name="log_external_install_request">接收到外部安裝請求: %s</string>
-    <string name="log_processed_external_request">已處理外部安裝請求，檔案已複製到 cache: %s</string>
-    <string name="log_received_home_install">接收到HomeActivity傳遞的安裝URI: %s</string>
-    <string name="log_processed_home_request">已處理HomeActivity傳遞的安裝請求，檔案已複製到 cache: %s</string>
-    <string name="log_detected_file" formatted="false">檢測到 %s，包含 %d 個 APK 檔案</string>
-    
-    <!-- Authorization related hardcoded strings -->
-    <string name="switched_to_privilege">已切換到 %s</string>
-    <string name="privilege_not_installed_log">%s 未安裝，正在開啟 GitHub 下載頁面...</string>
-    <string name="opening_privilege_app">正在開啟 %s 應用...</string>
-    <string name="shizuku_unavailable_meow">Shizuku 不可用：%s</string>
-    <string name="privilege_not_connected_install_log">%s 未連接或未授權，無法安裝。</string>
-    <string name="requesting_shizuku_auth">正在請求 Shizuku 授權...</string>
-    <string name="privilege_not_installed_notification">%s 未安裝，正在開啟 GitHub 下載頁面...</string>
-    <string name="privilege_app_opening_notification">正在開啟 %s 應用...</string>
-    <string name="privilege_already_authorized">%s 已授權</string>
-        
-    <!-- File picker related -->
-    <string name="opening_third_party_file_picker">開啟第三方檔案管理器...</string>
-    <string name="opening_file_manager">開啟 %s 檔案管理器...</string>
-    <string name="file_manager_not_available">%1$s 檔案管理器不可用: %2$s</string>
-    <string name="processing_file">正在處理檔案...</string>
-    <string name="refresh">重新整理</string>
-    <string name="file_info_refreshed">檔案資訊已重新整理。</string>
-    <string name="refresh_file_info_error">重新整理檔案資訊時出錯：%s</string>
-    <string name="refresh_file_info_error_toast">重新整理檔案資訊失敗</string>
-    <string name="no_file_to_refresh">沒有可重新整理的檔案</string>
-    
-    <!-- Additional strings for UI updates -->
-    <string name="native_test_opened">已開啟原生庫測試介面</string>
-    <string name="permission_already_granted">已授權</string>
-    <string name="privilege_status_not_installed">未安裝</string>
-    <string name="privilege_status_not_running">未運行</string>
-    <string name="privilege_status_not_authorized">未授權</string>
-    <string name="privilege_status_authorized">已授權</string>
-    <string name="privilege_status_version_too_low">版本過低</string>
-    <string name="privilege_status_unknown">未知狀態</string>
-    <string name="notification_channel_general">通用通知</string>
-    <string name="notification_channel_general_desc">應用通用訊息通知</string>
-    <string name="notification_channel_install">安裝通知</string>
-    <string name="notification_channel_install_desc">應用安裝進度和結果通知</string>
-    <string name="success">成功</string>
-    <string name="failed">失敗</string>
-    <string name="theme_settings_developing">主題設定功能開發中</string>
-    <string name="notification_permission_granted">通知權限已授予</string>
-    <string name="notification_permission_denied">通知權限被拒絕，請在設定中手動開啟</string>
-    <string name="notification_opened">通知已開啟</string>
-    <string name="error_prefix">錯誤: %s</string>
-    <string name="finish">完成</string>
-    <string name="install_cancelled">安裝已取消</string>
-    <string name="cannot_open_app">無法開啟應用程式</string>
-    <string name="app_no_launcher">應用程式 %s 沒有啟動器活動</string>
-    <string name="open_app_failed">開啟應用程式失敗: %s</string>
     <string name="app_launched_success">應用%s啟動成功</string>
     <string name="checking_app_installed">檢查應用是否已安裝: %s</string>
     <string name="app_already_installed" formatted="false">應用已安裝，版本名: %s, 版本號: %d</string>
@@ -526,12 +376,166 @@
     <string name="getting_app_name">獲取應用名稱</string>
     <string name="getting_app_icon">獲取應用圖示</string>
     <string name="load_app_icon_failed">載入應用圖示失敗</string>
-    
+    <string name="copy_to_cache_error">複製到 cache 失敗: %s</string>
+    <string name="request_manage_storage">請求 MANAGE_EXTERNAL_STORAGE 權限.</string>
+    <string name="request_manage_storage_error">請求 MANAGE_EXTERNAL_STORAGE 權限出錯: %s</string>
+    <string name="request_read_storage">請求 READ_EXTERNAL_STORAGE 權限.</string>
+    <string name="open_file_picker">開啟檔案選擇器...</string>
+    <string name="file_picker_not_found">檔案選擇器未找到.</string>
+    <string name="request_shizuku_permission">嘗試請求 Shizuku 權限...</string>
+    <string name="shizuku_not_started">Shizuku沒啟動。</string>
+    <string name="shizuku_version_low">Shizuku 版本過低或不相容。</string>
+    <string name="shizuku_authorized">Shizuku 已授權.</string>
+    <string name="log_manager_waiting">等待操作...</string>
+    <string name="shizuku_check_failed">Shizuku 不可用: %s</string>
+    <string name="apk_not_selected">未選擇 APK 或路徑無效.</string>
+    <string name="shizuku_not_connected_install">Shizuku 未連接或未授權，無法透過 Shizuku 安裝.</string>
+    <string name="check_shizuku_status_failed">檢查 Shizuku 狀態失敗: %s</string>
+    <string name="copying_file_to_temp">正在複製檔案到系統臨時目錄: %s</string>
+    <string name="detected_file_type_apk_count" formatted="false">檢測到 %s，包含 %d 個 APK 檔案</string>
+    <string name="need_file_access_permission_select_apk">需要檔案存取權限以選擇 APK。</string>
+    <string name="please_select_install_file_miao">請先選擇安裝包檔案.</string>
+    <string name="install_process_end">=== 安裝流程結束 ===</string>
+
+    <!-- Quick paths -->
+    <string name="quick_path_title">快捷路徑</string>
+    <string name="quick_path_root">Root (/)</string>
+    <string name="quick_path_sdcard">SD卡 (/sdcard/)</string>
+    <string name="quick_path_download">下載 (/sdcard/Download/)</string>
+    <string name="quick_path_tmp">臨時 (/data/local/tmp/)</string>
+    <string name="quick_path_app_data">應用資料 (/data/data/)</string>
+    <string name="quick_path_system">系統 (/system/)</string>
+    <string name="quick_path_system_bin">系統二進位 (/system/bin/)</string>
+    <string name="quick_path_home">主目錄 (~/)</string>
+
+    <!-- Shell welcome -->
+    <string name="welcome_shell_title">歡迎來到~終端</string>
+    <string name="welcome_shell_subtitle">~v2.0</string>
+    <string name="root_mode_enabled_via_shizuku">[*] 透過 Shizuku 啟用 Root 模式</string>
+    <string name="working_directory_tmp">[*] 工作目錄: /data/local/tmp</string>
+    <string name="user_mode_tip">[!] 用戶模式（授予 Shizuku 獲取 Root）</string>
+    <string name="working_directory_sdcard">[*] 工作目錄: /sdcard</string>
+    <string name="type_help_for_command_list">輸入 help 獲取命令列表</string>
+    <string name="command_running">命令執行中...</string>
+    <string name="root_prompt">root@ashell:~#</string>
+    <string name="user_prompt">user@ashell:~$</string>
+    <string name="command_cancelled_session_reset">[命令已取消，會話已重置]</string>
+    <string name="process_completed_with_exit_code">[進程完成，退出碼 %d]</string>
+    <string name="hash_sign">#</string>
+    <string name="user">用戶</string>
+
+    <!-- Notifications -->
+    <string name="notification_permission_required">需要通知權限</string>
+    <string name="notification_enabled">通知已開啟</string>
+    <string name="notification_disabled">通知已關閉</string>
+
+    <!-- Permission authorization -->
+    <string name="privilege_settings">權限授權設定</string>
+    <string name="shizuku_settings">Shizuku 授權</string>
+    <string name="privilege_status">狀態: %s</string>
+    <string name="privilege_not_installed">未安裝</string>
+    <string name="privilege_not_running">未運行</string>
+    <string name="privilege_not_authorized">未授權</string>
+    <string name="privilege_authorized">已授權</string>
+    <string name="privilege_version_too_low">版本過低</string>
+    <string name="grant_permission">授予權限</string>
+    <string name="open_app">開啟應用</string>
+    <string name="download_from_github">從 GitHub 下載</string>
+    <string name="switch_privilege">切換</string>
+    <string name="current_privilege">當前授權器</string>
+    <string name="privilege_mode_shizuku">Shizuku</string>
+
+    <!-- Native library test related strings -->
+    <string name="execute_command_failed">執行命令失敗</string>
+
+    <!-- 原生库测试相关字符串 -->
+    <string name="native_test_title">=== 原生庫測試 ===</string>
+    <string name="native_lib_loaded_success">原生庫載入成功!</string>
+    <string name="native_lib_test_1">【測試 1】庫資訊:</string>
+    <string name="native_lib_test_2">【測試 2】效能對比:</string>
+    <string name="native_lib_test_3">【測試 3】哈希效能:</string>
+    <string name="native_lib_test_4">【測試 4】哈希計算示例:</string>
+    <string name="native_lib_test_input">輸入: "%s"</string>
+    <string name="native_lib_test_hash">哈希: %s</string>
+    <string name="native_lib_test_completed">所有測試完成!</string>
+    <string name="native_lib_load_failed">原生庫載入失敗!</string>
+    <string name="native_lib_error_message">錯誤訊息:</string>
+    <string name="native_lib_check_list">請檢查:</string>
+    <string name="native_lib_check_ndk">1. NDK 是否正確安裝</string>
+    <string name="native_lib_check_cmake">2. CMake 配置是否正確</string>
+    <string name="native_lib_check_arch">3. 架構是否匹配 (arm64-v8a 或 x86_64)</string>
+
+    <!-- Privilege status related strings -->
+    <string name="privilege_status_title">%s 狀態</string>
+    <string name="privilege_not_installed_status">%s 未安裝</string>
+    <string name="privilege_download_button">下載 %s</string>
+    <string name="privilege_not_running_status">%s 未運行</string>
+    <string name="privilege_open_button">開啟 %s</string>
+    <string name="privilege_version_low_status">版本過低</string>
+    <string name="privilege_update_button">更新 %s</string>
+    <string name="privilege_not_authorized_status">未授權</string>
+    <string name="privilege_request_auth_button">請求授權</string>
+    <string name="privilege_authorized_status">權限已授予</string>
+    <string name="privilege_authorized_button">已授權</string>
+    <string name="log_external_install_request">接收到外部安裝請求: %s</string>
+    <string name="log_processed_external_request">已處理外部安裝請求，檔案已複製到 cache: %s</string>
+    <string name="log_received_home_install">接收到HomeActivity傳遞的安裝URI: %s</string>
+    <string name="log_processed_home_request">已處理HomeActivity傳遞的安裝請求，檔案已複製到 cache: %s</string>
+    <string name="log_detected_file" formatted="false">檢測到 %s，包含 %d 個 APK 檔案</string>
+
+    <!-- Authorization related hardcoded strings -->
+    <string name="switched_to_privilege">已切換到 %s</string>
+    <string name="privilege_not_installed_log">%s 未安裝，正在開啟 GitHub 下載頁面...</string>
+    <string name="opening_privilege_app">正在開啟 %s 應用...</string>
+    <string name="shizuku_unavailable_meow">Shizuku 不可用：%s</string>
+    <string name="privilege_not_connected_install_log">%s 未連接或未授權，無法安裝。</string>
+    <string name="requesting_shizuku_auth">正在請求 Shizuku 授權...</string>
+    <string name="privilege_not_installed_notification">%s 未安裝，正在開啟 GitHub 下載頁面...</string>
+    <string name="privilege_app_opening_notification">正在開啟 %s 應用...</string>
+    <string name="privilege_already_authorized">%s 已授權</string>
+
+    <!-- File picker related -->
+    <string name="opening_third_party_file_picker">開啟第三方檔案管理器...</string>
+    <string name="opening_file_manager">開啟 %s 檔案管理器...</string>
+    <string name="file_manager_not_available">%1$s 檔案管理器不可用: %2$s</string>
+    <string name="processing_file">正在處理檔案...</string>
+    <string name="refresh">重新整理</string>
+    <string name="file_info_refreshed">檔案資訊已重新整理。</string>
+    <string name="refresh_file_info_error">重新整理檔案資訊時出錯：%s</string>
+    <string name="refresh_file_info_error_toast">重新整理檔案資訊失敗</string>
+    <string name="no_file_to_refresh">沒有可重新整理的檔案</string>
+
+    <!-- Additional strings for UI updates -->
+    <string name="native_test_opened">已開啟原生庫測試介面</string>
+    <string name="permission_already_granted">已授權</string>
+    <string name="privilege_status_not_installed">未安裝</string>
+    <string name="privilege_status_not_running">未運行</string>
+    <string name="privilege_status_not_authorized">未授權</string>
+    <string name="privilege_status_authorized">已授權</string>
+    <string name="privilege_status_version_too_low">版本過低</string>
+    <string name="privilege_status_unknown">未知狀態</string>
+    <string name="notification_channel_general">通用通知</string>
+    <string name="notification_channel_general_desc">應用通用訊息通知</string>
+    <string name="notification_channel_install">安裝通知</string>
+    <string name="notification_channel_install_desc">應用安裝進度和結果通知</string>
+    <string name="success">成功</string>
+    <string name="failed">失敗</string>
+    <string name="theme_settings_developing">主題設定功能開發中</string>
+    <string name="notification_permission_granted">通知權限已授予</string>
+    <string name="notification_permission_denied">通知權限被拒絕，請在設定中手動開啟</string>
+    <string name="notification_opened">通知已開啟</string>
+    <string name="error_prefix">錯誤: %s</string>
+    <string name="finish">完成</string>
+    <string name="install_cancelled">安裝已取消</string>
+    <string name="cannot_open_app">無法開啟應用程式</string>
+    <string name="app_no_launcher">應用程式 %s 沒有啟動器活動</string>
+    <string name="open_app_failed">開啟應用程式失敗: %s</string>
+
     <!-- Version comparison and upgrade related -->
     <string name="upgrade">升級</string>
     <string name="downgrade">降級</string>
     <string name="same_version">相同版本</string>
-    
+
     <!-- Installer package settings -->
     <string name="installer_package_settings">安裝器包</string>
     <string name="current_installer_package">當前安裝器包</string>
@@ -540,6 +544,5 @@
 
     <!-- Easter egg -->
     <string name="easter_egg_found">恭喜發現彩蛋！</string>
-
 
 </resources>

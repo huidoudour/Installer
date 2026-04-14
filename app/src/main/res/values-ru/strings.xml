@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Main navigation titles -->
     <string name="app_name">Installer</string>
     <string name="title_home">Установка</string>
     <string name="title_shell">Shell</string>
     <string name="title_notifications">Журналы</string>
     <string name="title_settings">Настройки</string>
-    
+
     <!-- Install page -->
     <string name="install_title">Установить приложение</string>
+    <string name="install_dialog_title">Диалог установки</string>
     <string name="select_apk">Выбрать APK</string>
     <string name="install">Установить</string>
     <string name="reinstall">Переустановить</string>
     <string name="upgrade_app">Обновить приложение</string>
     <string name="cancel">Отмена</string>
+    <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
+    <string name="copy_failed">Копирование не удалось</string>
     <string name="installing">Установка...</string>
     <string name="app_icon_description">Значок приложения</string>
-    
+
     <!-- Settings page -->
     <string name="settings_title">Настройки</string>
     <string name="settings_subtitle">Конфигурация приложения и персонализация</string>
@@ -56,11 +58,10 @@
     <string name="find_me">ω寻找我ω</string>
     <string name="about_description">Разработка инструментов установки Android приложений</string>
     <string name="visit_github">Посетить GitHub</string>
-    
+
     <!-- Shell and tools -->
     <string name="shell_hint">Введите команду...</string>
     <string name="clear_log">Очистить журнал</string>
-    <string name="export_log">Экспорт журнала</string>
     <string name="shell_txt">"@termux"</string>
     <string name="title_dashboard">Инструменты</string>
     <string name="hello_world">Hello World!</string>
@@ -74,7 +75,7 @@
     <string name="letter_c">C</string>
     <string name="clipboard">P</string>
     <string name="lightning">Q</string>
-    
+
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Статус Shizuku</string>
     <string name="checking">Проверка...</string>
@@ -138,12 +139,12 @@
     <string name="open_link_failed">Невозможно открыть ссылку, проверьте браузер</string>
     <string name="link_open_failed">Не удалось открыть ссылку: %s</string>
     <string name="link_open_error">Невозможно открыть ссылку.
-Возможные причины:
-1. На устройстве не установлен браузер
-2. Ограничения видимости пакетов Android 14
-3. Системные настройки безопасности блокируют открытие ссылки
+    Возможные причины:
+    1. На устройстве не установлен браузер
+    2. Ограничения видимости пакетов Android 14
+    3. Системные настройки безопасности блокируют открытие ссылки
 
-Попробуйте установить Chrome, Firefox или другой браузер.</string>
+    Попробуйте установить Chrome, Firefox или другой браузер.</string>
     <string name="receive_install_intent">Получен intent установки, URI: %s</string>
     <string name="start_apk_install">Начало установки APK...</string>
     <string name="create_session">Создание сессии установки: %s</string>
@@ -165,7 +166,7 @@
     <string name="check_shizuku_version_permission_failed">Не удалось проверить версию/разрешения Shizuku: %s</string>
     <string name="unavailable">Недоступен</string>
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi поймал исключение: %s</string>
-    
+
     <!-- XAPK extraction -->
     <string name="extract_complete">Извлечение завершено, всего %d APK</string>
     <string name="apk_progress" formatted="false">[%d/%d] %s</string>
@@ -213,7 +214,7 @@
     <string name="xapk_install_exception_log">Исключение установки XAPK</string>
     <string name="install_exception_error">Исключение установки: %s</string>
     <string name="cleanup_temp_files">Очистка временных файлов</string>
-    
+
     <!-- Shell session management -->
     <string name="create_persistent_shell_session">Создать постоянную сессию Shell</string>
     <string name="use_shizuku_create_session">Использовать Shizuku для создания сессии</string>
@@ -232,7 +233,7 @@
     <string name="fallback_execution_single_command">Резервное выполнение (одиночная команда)</string>
     <string name="get_current_working_directory">Получить текущую рабочую директорию</string>
     <string name="reset_shell_session">Сбросить сессию Shell</string>
-    
+
     <!-- Command utilities -->
     <string name="quick_command_list">Список быстрых команд</string>
     <string name="list_files">Список файлов</string>
@@ -250,7 +251,7 @@
     <string name="copy_text_to_clipboard">Копировать текст в буфер обмена</string>
     <string name="terminal_output">Вывод терминала</string>
     <string name="command_history_management">Управление историей команд</string>
-    
+
     <!-- Session and terminal management -->
     <string name="session_error">Ошибка сессии: %s</string>
     <string name="trying_to_recreate_session">Попытка воссоздать сессию...</string>
@@ -261,7 +262,7 @@
     <string name="disable_job_control_avoid_tty_error">Отключить управление задачами, избежать ошибки TTY</string>
     <string name="unknown_file_format_chinese">Неизвестный формат</string>
     <string name="apk_name_failed" formatted="false">%s не удалось: %s</string>
-    
+
     <!-- File operations -->
     <string name="copy_file_failed_log">Не удалось скопировать файл во временную директорию. Код выхода: %d</string>
     <string name="copy_file_failed">Не удалось скопировать файл</string>
@@ -310,6 +311,7 @@
     <string name="log_content_header">=== Содержимое журнала ===</string>
     <string name="log_file_subject">Журнал Installer</string>
     <string name="log_file_generated">Файл журнала создан: %s</string>
+    <string name="export_log">Экспорт журнала</string>
     <string name="log_exported">Журнал экспортирован: %s</string>
     <string name="export_failed">Ошибка экспорта: %s</string>
     <string name="log_saved_to_cache">Журнал сохранен в директорию кэша</string>
@@ -320,7 +322,7 @@
     <string name="install_dialog_page">Страница диалога установки</string>
     <string name="log_page">Страница журнала</string>
     <string name="get_file_path_from_uri_failed">Не удалось получить путь к файлу из URI</string>
-    
+
     <!-- Language and preferences -->
     <string name="apply_language_preference_failed">Не удалось применить настройку языка: %s</string>
     <string name="apply_language_preference_failed_simple">Не удалось применить языковые предпочтения: %s</string>
@@ -344,158 +346,6 @@
     <string name="shizuku_binder_listener_error">Не удалось добавить слушатель binder Shizuku: %s</string>
     <string name="installer_started">Installer запущен, ожидание операции……</string>
     <string name="get_file_path_uri_error">getFilePathFromUri имеет проблемы: %s</string>
-    <string name="copy_to_cache_error">Не удалось скопировать в cache: %s</string>
-    <string name="request_manage_storage">Запрос разрешения MANAGE_EXTERNAL_STORAGE.</string>
-    <string name="request_manage_storage_error">Ошибка запроса разрешения MANAGE_EXTERNAL_STORAGE: %s</string>
-    <string name="request_read_storage">Запрос разрешения READ_EXTERNAL_STORAGE.</string>
-    <string name="open_file_picker">Открытие выбора файлов...</string>
-    <string name="file_picker_not_found">Выбор файлов не найден.</string>
-    <string name="request_shizuku_permission">Попытка запросить разрешение Shizuku...</string>
-    <string name="shizuku_not_started">Shizuku не запущен.</string>
-    <string name="shizuku_version_low">Версия Shizuku слишком низкая или несовместима.</string>
-    <string name="shizuku_authorized">Shizuku авторизован.</string>
-    <string name="log_manager_waiting">Ожидание операции...</string>
-    <string name="shizuku_check_failed">Shizuku недоступен: %s</string>
-    <string name="apk_not_selected">APK не выбран или путь недействителен.</string>
-    <string name="shizuku_not_connected_install">Shizuku не подключен или не авторизован, невозможно установить через Shizuku.</string>
-    <string name="check_shizuku_status_failed">Не удалось проверить статус Shizuku: %s</string>
-    <string name="copying_file_to_temp">Копирование файла во временную директорию системы: %s</string>
-    <string name="detected_file_type_apk_count" formatted="false">Обнаружено %s, содержит %d APK файлов</string>
-    <string name="need_file_access_permission_select_apk">Требуется разрешение на доступ к файлам для выбора APK.</string>
-    <string name="please_select_install_file_miao">Пожалуйста, сначала выберите файл установочного пакета.</string>
-    <string name="install_process_end">=== Процесс установки завершен ===</string>
-    
-    <!-- Quick paths -->
-    <string name="quick_path_title">Быстрые пути</string>
-    <string name="quick_path_root">Root (/)</string>
-    <string name="quick_path_sdcard">SD карта (/sdcard/)</string>
-    <string name="quick_path_download">Загрузки (/sdcard/Download/)</string>
-    <string name="quick_path_tmp">Временные (/data/local/tmp/)</string>
-    <string name="quick_path_app_data">Данные приложений (/data/data/)</string>
-    <string name="quick_path_system">Система (/system/)</string>
-    <string name="quick_path_system_bin">Системные бинарные файлы (/system/bin/)</string>
-    <string name="quick_path_home">Домашняя директория (~/)</string>
-    
-    <!-- Shell welcome -->
-    <string name="welcome_shell_title">Добро пожаловать в ~терминал</string>
-    <string name="welcome_shell_subtitle">~v2.0</string>
-    <string name="root_mode_enabled_via_shizuku">[*] Root режим включен через Shizuku</string>
-    <string name="working_directory_tmp">[*] Рабочая директория: /data/local/tmp</string>
-    <string name="user_mode_tip">[!] Пользовательский режим (предоставьте Shizuku для root)</string>
-    <string name="working_directory_sdcard">[*] Рабочая директория: /sdcard</string>
-    <string name="type_help_for_command_list">Введите help для списка команд</string>
-    <string name="command_running">Команда выполняется...</string>
-    <string name="root_prompt">root@ashell:~#</string>
-    <string name="user_prompt">user@ashell:~$</string>
-    <string name="command_cancelled_session_reset">[Команда отменена, сессия сброшена]</string>
-    <string name="process_completed_with_exit_code">[Процесс завершен с кодом выхода %d]</string>
-    <string name="hash_sign">#</string>
-    <string name="user">пользователь</string>
-    
-    <!-- Notifications -->
-    <string name="notification_permission_required">Требуется разрешение на уведомления</string>
-    <string name="notification_enabled">Уведомления включены</string>
-    <string name="notification_disabled">Уведомления отключены</string>
-    
-    <!-- Permission authorization -->
-    <string name="privilege_settings">Настройки разрешений</string>
-    <string name="shizuku_settings">Авторизация Shizuku</string>
-    <string name="privilege_status">Статус: %s</string>
-    <string name="privilege_not_installed">Не установлено</string>
-    <string name="privilege_not_running">Не запущен</string>
-    <string name="privilege_not_authorized">Не авторизован</string>
-    <string name="privilege_authorized">Авторизован</string>
-    <string name="privilege_version_too_low">Версия слишком низкая</string>
-    <string name="grant_permission">Предоставить разрешение</string>
-    <string name="open_app">Открыть приложение</string>
-    <string name="download_from_github">Скачать с GitHub</string>
-    <string name="switch_privilege">Переключить</string>
-    <string name="current_privilege">Текущий авторизатор</string>
-    <string name="privilege_mode_shizuku">Shizuku</string>
-
-    <!-- Native library test related strings -->
-    <string name="execute_command_failed">Не удалось выполнить команду</string>
-    <string name="native_test_title">=== Тесты нативной библиотеки ===</string>
-    <string name="native_lib_loaded_success">Нативная библиотека успешно загружена!</string>
-    <string name="native_lib_test_1">【Тест 1】Информация о библиотеке:</string>
-    <string name="native_lib_test_2">【Тест 2】Сравнение производительности:</string>
-    <string name="native_lib_test_3">【Тест 3】Производительность хеширования:</string>
-    <string name="native_lib_test_4">【Тест 4】Пример вычисления хеша:</string>
-    <string name="native_lib_test_input">Ввод: "%s"</string>
-    <string name="native_lib_test_hash">Хеш: %s</string>
-    <string name="native_lib_test_completed">Все тесты завершены!</string>
-    <string name="native_lib_load_failed">Не удалось загрузить нативную библиотеку!</string>
-    <string name="native_lib_error_message">Сообщение об ошибке:</string>
-    <string name="native_lib_check_list">Пожалуйста, проверьте:</string>
-    <string name="native_lib_check_ndk">1. NDK правильно установлен</string>
-    <string name="native_lib_check_cmake">2. Конфигурация CMake правильная</string>
-    <string name="native_lib_check_arch">3. Архитектура совпадает (arm64-v8a или x86_64)</string>
-    
-    <!-- Privilege status related strings -->
-    <string name="privilege_status_title">Статус %s</string>
-    <string name="privilege_not_installed_status">%s не установлен</string>
-    <string name="privilege_download_button">Скачать %s</string>
-    <string name="privilege_not_running_status">%s не запущен</string>
-    <string name="privilege_open_button">Открыть %s</string>
-    <string name="privilege_version_low_status">Версия слишком низкая</string>
-    <string name="privilege_update_button">Обновить %s</string>
-    <string name="privilege_not_authorized_status">Не авторизован</string>
-    <string name="privilege_request_auth_button">Запросить авторизацию</string>
-    <string name="privilege_authorized_status">Разрешение предоставлено</string>
-    <string name="privilege_authorized_button">Авторизован</string>
-    <string name="log_external_install_request">Получен внешний запрос установки: %s</string>
-    <string name="log_processed_external_request">Обработан внешний запрос установки, файл скопирован в cache: %s</string>
-    <string name="log_received_home_install">Получен URI установки от HomeActivity: %s</string>
-    <string name="log_processed_home_request">Обработан запрос установки от HomeActivity, файл скопирован в cache: %s</string>
-    <string name="log_detected_file" formatted="false">Обнаружено %s, содержит %d APK файлов</string>
-    
-    <!-- Authorization related hardcoded strings -->
-    <string name="switched_to_privilege">Переключено на %s</string>
-    <string name="privilege_not_installed_log">%s не установлен, открывается страница загрузки GitHub...</string>
-    <string name="opening_privilege_app">Открытие приложения %s...</string>
-    <string name="shizuku_unavailable_meow">Shizuku недоступен: %s</string>
-    <string name="privilege_not_connected_install_log">%s не подключен или не авторизован, невозможно установить.</string>
-    <string name="requesting_shizuku_auth">Запрос авторизации Shizuku...</string>
-    <string name="privilege_not_installed_notification">%s не установлен, открывается страница загрузки GitHub...</string>
-    <string name="privilege_app_opening_notification">Открытие приложения %s...</string>
-    <string name="privilege_already_authorized">%s уже авторизован</string>
-        
-    <!-- File picker related -->
-    <string name="opening_third_party_file_picker">Открытие стороннего файлового менеджера...</string>
-    <string name="opening_file_manager">Открытие файлового менеджера %s...</string>
-    <string name="file_manager_not_available">Файловый менеджер %1$s недоступен: %2$s</string>
-    <string name="processing_file">Обработка файла...</string>
-    <string name="refresh">Обновить</string>
-    <string name="file_info_refreshed">Информация о файле обновлена.</string>
-    <string name="refresh_file_info_error">Ошибка при обновлении информации о файле: %s</string>
-    <string name="refresh_file_info_error_toast">Не удалось обновить информацию о файле</string>
-    <string name="no_file_to_refresh">Нет файла для обновления</string>
-    
-    <!-- Additional strings for UI updates -->
-    <string name="native_test_opened">Открыт интерфейс тестирования нативной библиотеки</string>
-    <string name="permission_already_granted">Уже авторизован</string>
-    <string name="privilege_status_not_installed">Не установлено</string>
-    <string name="privilege_status_not_running">Не запущен</string>
-    <string name="privilege_status_not_authorized">Не авторизован</string>
-    <string name="privilege_status_authorized">Авторизован</string>
-    <string name="privilege_status_version_too_low">Версия слишком низкая</string>
-    <string name="privilege_status_unknown">Неизвестный статус</string>
-    <string name="notification_channel_general">Общие уведомления</string>
-    <string name="notification_channel_general_desc">Общие уведомления приложения</string>
-    <string name="notification_channel_install">Уведомления об установке</string>
-    <string name="notification_channel_install_desc">Уведомления о прогрессе и результате установки приложения</string>
-    <string name="success">Успех</string>
-    <string name="failed">Неудача</string>
-    <string name="theme_settings_developing">Функция настроек темы в разработке</string>
-    <string name="notification_permission_granted">Разрешение на уведомления предоставлено</string>
-    <string name="notification_permission_denied">Разрешение на уведомления отклонено, включите его вручную в настройках</string>
-    <string name="notification_opened">Уведомления включены</string>
-    <string name="error_prefix">Ошибка: %s</string>
-    <string name="finish">Готово</string>
-    <string name="install_cancelled">Установка отменена</string>
-    <string name="cannot_open_app">Невозможно открыть приложение</string>
-    <string name="app_no_launcher">Приложение %s не имеет активности запуска</string>
-    <string name="open_app_failed">Не удалось открыть приложение: %s</string>
     <string name="app_launched_success">Приложение %s успешно запущено</string>
     <string name="checking_app_installed">Проверка установки приложения: %s</string>
     <string name="app_already_installed" formatted="false">Приложение уже установлено, имя версии: %s, код версии: %d</string>
@@ -526,12 +376,166 @@
     <string name="getting_app_name">Получение имени приложения</string>
     <string name="getting_app_icon">Получение значка приложения</string>
     <string name="load_app_icon_failed">Не удалось загрузить значок приложения</string>
-    
+    <string name="copy_to_cache_error">Не удалось скопировать в cache: %s</string>
+    <string name="request_manage_storage">Запрос разрешения MANAGE_EXTERNAL_STORAGE.</string>
+    <string name="request_manage_storage_error">Ошибка запроса разрешения MANAGE_EXTERNAL_STORAGE: %s</string>
+    <string name="request_read_storage">Запрос разрешения READ_EXTERNAL_STORAGE.</string>
+    <string name="open_file_picker">Открытие выбора файлов...</string>
+    <string name="file_picker_not_found">Выбор файлов не найден.</string>
+    <string name="request_shizuku_permission">Попытка запросить разрешение Shizuku...</string>
+    <string name="shizuku_not_started">Shizuku не запущен.</string>
+    <string name="shizuku_version_low">Версия Shizuku слишком низкая или несовместима.</string>
+    <string name="shizuku_authorized">Shizuku авторизован.</string>
+    <string name="log_manager_waiting">Ожидание операции...</string>
+    <string name="shizuku_check_failed">Shizuku недоступен: %s</string>
+    <string name="apk_not_selected">APK не выбран или путь недействителен.</string>
+    <string name="shizuku_not_connected_install">Shizuku не подключен или не авторизован, невозможно установить через Shizuku.</string>
+    <string name="check_shizuku_status_failed">Не удалось проверить статус Shizuku: %s</string>
+    <string name="copying_file_to_temp">Копирование файла во временную директорию системы: %s</string>
+    <string name="detected_file_type_apk_count" formatted="false">Обнаружено %s, содержит %d APK файлов</string>
+    <string name="need_file_access_permission_select_apk">Требуется разрешение на доступ к файлам для выбора APK.</string>
+    <string name="please_select_install_file_miao">Пожалуйста, сначала выберите файл установочного пакета.</string>
+    <string name="install_process_end">=== Процесс установки завершен ===</string>
+
+    <!-- Quick paths -->
+    <string name="quick_path_title">Быстрые пути</string>
+    <string name="quick_path_root">Root (/)</string>
+    <string name="quick_path_sdcard">SD карта (/sdcard/)</string>
+    <string name="quick_path_download">Загрузки (/sdcard/Download/)</string>
+    <string name="quick_path_tmp">Временные (/data/local/tmp/)</string>
+    <string name="quick_path_app_data">Данные приложений (/data/data/)</string>
+    <string name="quick_path_system">Система (/system/)</string>
+    <string name="quick_path_system_bin">Системные бинарные файлы (/system/bin/)</string>
+    <string name="quick_path_home">Домашняя директория (~/)</string>
+
+    <!-- Shell welcome -->
+    <string name="welcome_shell_title">Добро пожаловать в ~терминал</string>
+    <string name="welcome_shell_subtitle">~v2.0</string>
+    <string name="root_mode_enabled_via_shizuku">[*] Root режим включен через Shizuku</string>
+    <string name="working_directory_tmp">[*] Рабочая директория: /data/local/tmp</string>
+    <string name="user_mode_tip">[!] Пользовательский режим (предоставьте Shizuku для root)</string>
+    <string name="working_directory_sdcard">[*] Рабочая директория: /sdcard</string>
+    <string name="type_help_for_command_list">Введите help для списка команд</string>
+    <string name="command_running">Команда выполняется...</string>
+    <string name="root_prompt">root@ashell:~#</string>
+    <string name="user_prompt">user@ashell:~$</string>
+    <string name="command_cancelled_session_reset">[Команда отменена, сессия сброшена]</string>
+    <string name="process_completed_with_exit_code">[Процесс завершен с кодом выхода %d]</string>
+    <string name="hash_sign">#</string>
+    <string name="user">пользователь</string>
+
+    <!-- Notifications -->
+    <string name="notification_permission_required">Требуется разрешение на уведомления</string>
+    <string name="notification_enabled">Уведомления включены</string>
+    <string name="notification_disabled">Уведомления отключены</string>
+
+    <!-- Permission authorization -->
+    <string name="privilege_settings">Настройки разрешений</string>
+    <string name="shizuku_settings">Авторизация Shizuku</string>
+    <string name="privilege_status">Статус: %s</string>
+    <string name="privilege_not_installed">Не установлено</string>
+    <string name="privilege_not_running">Не запущен</string>
+    <string name="privilege_not_authorized">Не авторизован</string>
+    <string name="privilege_authorized">Авторизован</string>
+    <string name="privilege_version_too_low">Версия слишком низкая</string>
+    <string name="grant_permission">Предоставить разрешение</string>
+    <string name="open_app">Открыть приложение</string>
+    <string name="download_from_github">Скачать с GitHub</string>
+    <string name="switch_privilege">Переключить</string>
+    <string name="current_privilege">Текущий авторизатор</string>
+    <string name="privilege_mode_shizuku">Shizuku</string>
+
+    <!-- Native library test related strings -->
+    <string name="execute_command_failed">Не удалось выполнить команду</string>
+
+    <!-- 原生库测试相关字符串 -->
+    <string name="native_test_title">=== Тесты нативной библиотеки ===</string>
+    <string name="native_lib_loaded_success">Нативная библиотека успешно загружена!</string>
+    <string name="native_lib_test_1">【Тест 1】Информация о библиотеке:</string>
+    <string name="native_lib_test_2">【Тест 2】Сравнение производительности:</string>
+    <string name="native_lib_test_3">【Тест 3】Производительность хеширования:</string>
+    <string name="native_lib_test_4">【Тест 4】Пример вычисления хеша:</string>
+    <string name="native_lib_test_input">Ввод: "%s"</string>
+    <string name="native_lib_test_hash">Хеш: %s</string>
+    <string name="native_lib_test_completed">Все тесты завершены!</string>
+    <string name="native_lib_load_failed">Не удалось загрузить нативную библиотеку!</string>
+    <string name="native_lib_error_message">Сообщение об ошибке:</string>
+    <string name="native_lib_check_list">Пожалуйста, проверьте:</string>
+    <string name="native_lib_check_ndk">1. NDK правильно установлен</string>
+    <string name="native_lib_check_cmake">2. Конфигурация CMake правильная</string>
+    <string name="native_lib_check_arch">3. Архитектура совпадает (arm64-v8a или x86_64)</string>
+
+    <!-- Privilege status related strings -->
+    <string name="privilege_status_title">Статус %s</string>
+    <string name="privilege_not_installed_status">%s не установлен</string>
+    <string name="privilege_download_button">Скачать %s</string>
+    <string name="privilege_not_running_status">%s не запущен</string>
+    <string name="privilege_open_button">Открыть %s</string>
+    <string name="privilege_version_low_status">Версия слишком низкая</string>
+    <string name="privilege_update_button">Обновить %s</string>
+    <string name="privilege_not_authorized_status">Не авторизован</string>
+    <string name="privilege_request_auth_button">Запросить авторизацию</string>
+    <string name="privilege_authorized_status">Разрешение предоставлено</string>
+    <string name="privilege_authorized_button">Авторизован</string>
+    <string name="log_external_install_request">Получен внешний запрос установки: %s</string>
+    <string name="log_processed_external_request">Обработан внешний запрос установки, файл скопирован в cache: %s</string>
+    <string name="log_received_home_install">Получен URI установки от HomeActivity: %s</string>
+    <string name="log_processed_home_request">Обработан запрос установки от HomeActivity, файл скопирован в cache: %s</string>
+    <string name="log_detected_file" formatted="false">Обнаружено %s, содержит %d APK файлов</string>
+
+    <!-- Authorization related hardcoded strings -->
+    <string name="switched_to_privilege">Переключено на %s</string>
+    <string name="privilege_not_installed_log">%s не установлен, открывается страница загрузки GitHub...</string>
+    <string name="opening_privilege_app">Открытие приложения %s...</string>
+    <string name="shizuku_unavailable_meow">Shizuku недоступен: %s</string>
+    <string name="privilege_not_connected_install_log">%s не подключен или не авторизован, невозможно установить.</string>
+    <string name="requesting_shizuku_auth">Запрос авторизации Shizuku...</string>
+    <string name="privilege_not_installed_notification">%s не установлен, открывается страница загрузки GitHub...</string>
+    <string name="privilege_app_opening_notification">Открытие приложения %s...</string>
+    <string name="privilege_already_authorized">%s уже авторизован</string>
+
+    <!-- File picker related -->
+    <string name="opening_third_party_file_picker">Открытие стороннего файлового менеджера...</string>
+    <string name="opening_file_manager">Открытие файлового менеджера %s...</string>
+    <string name="file_manager_not_available">Файловый менеджер %1$s недоступен: %2$s</string>
+    <string name="processing_file">Обработка файла...</string>
+    <string name="refresh">Обновить</string>
+    <string name="file_info_refreshed">Информация о файле обновлена.</string>
+    <string name="refresh_file_info_error">Ошибка при обновлении информации о файле: %s</string>
+    <string name="refresh_file_info_error_toast">Не удалось обновить информацию о файле</string>
+    <string name="no_file_to_refresh">Нет файла для обновления</string>
+
+    <!-- Additional strings for UI updates -->
+    <string name="native_test_opened">Открыт интерфейс тестирования нативной библиотеки</string>
+    <string name="permission_already_granted">Уже авторизован</string>
+    <string name="privilege_status_not_installed">Не установлено</string>
+    <string name="privilege_status_not_running">Не запущен</string>
+    <string name="privilege_status_not_authorized">Не авторизован</string>
+    <string name="privilege_status_authorized">Авторизован</string>
+    <string name="privilege_status_version_too_low">Версия слишком низкая</string>
+    <string name="privilege_status_unknown">Неизвестный статус</string>
+    <string name="notification_channel_general">Общие уведомления</string>
+    <string name="notification_channel_general_desc">Общие уведомления приложения</string>
+    <string name="notification_channel_install">Уведомления об установке</string>
+    <string name="notification_channel_install_desc">Уведомления о прогрессе и результате установки приложения</string>
+    <string name="success">Успех</string>
+    <string name="failed">Неудача</string>
+    <string name="theme_settings_developing">Функция настроек темы в разработке</string>
+    <string name="notification_permission_granted">Разрешение на уведомления предоставлено</string>
+    <string name="notification_permission_denied">Разрешение на уведомления отклонено, включите его вручную в настройках</string>
+    <string name="notification_opened">Уведомления включены</string>
+    <string name="error_prefix">Ошибка: %s</string>
+    <string name="finish">Готово</string>
+    <string name="install_cancelled">Установка отменена</string>
+    <string name="cannot_open_app">Невозможно открыть приложение</string>
+    <string name="app_no_launcher">Приложение %s не имеет активности запуска</string>
+    <string name="open_app_failed">Не удалось открыть приложение: %s</string>
+
     <!-- Version comparison and upgrade related -->
     <string name="upgrade">Обновление</string>
     <string name="downgrade">Понижение версии</string>
     <string name="same_version">Та же версия</string>
-    
+
     <!-- Installer package settings -->
     <string name="installer_package_settings">Пакет установщика</string>
     <string name="current_installer_package">Текущий пакет установщика</string>
@@ -540,6 +544,5 @@
 
     <!-- Easter egg -->
     <string name="easter_egg_found">Поздравляем! Вы нашли пасхалку!</string>
-
 
 </resources>
