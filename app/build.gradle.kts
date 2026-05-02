@@ -144,4 +144,8 @@ dependencies {
     
     // Compression/Decompression native library
     implementation("com.github.luben:zstd-jni:1.5.6-5")
+
+    // Dhizuku
+    implementation(libs.iamr0s.dhizuku.api)
+    implementation(libs.iamr0s.androidAppProcess)
 }
