@@ -24,6 +24,9 @@
         <!-- Shizuku 应用 -->
         <package android:name="moe.shizuku.privileged.api" />
         
+        <!-- Dhizuku 应用 -->
+        <package android:name="com.rosan.dhizuku" />
+        
         
         
         <!-- 允许查询所有浏览器应用 -->
@@ -152,7 +155,22 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        
+
+        <!--
+        <meta-data
+                android:name="io.github.huidoudour.zjs"
+                android:value="true" />
+        <meta-data
+                android:name="me.huidoudour.core"
+                android:value="true" />
+        -->
+
+        <meta-data
+                android:name="io.github.huidoudour.zjs.version"
+                android:value="26" />
+        <meta-data
+                android:name="me.huidoudour.core.version"
+                android:value="27" />
     </application>
 
 </manifest>

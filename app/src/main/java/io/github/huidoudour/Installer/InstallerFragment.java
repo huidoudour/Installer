@@ -475,6 +475,15 @@ public class InstallerFragment extends Fragment {
                         log(getString(R.string.shizuku_unavailable_meow, t.getMessage()));
                         updatePrivilegeStatusAndUi();
                     }
+                } else if (currentMode == PrivilegeMode.DHIZUKU) {
+                    log(getString(R.string.request_dhizuku_permission));
+                    try {
+                        // 使用 Dhizuku API 请求权限，会弹出授权对话框
+                        PrivilegeHelper.requestDhizukuPermission();
+                    } catch (Throwable t) {
+                        log(getString(R.string.dhizuku_unavailable_meow, t.getMessage()));
+                        updatePrivilegeStatusAndUi();
+                    }
                 }
                 break;
             case AUTHORIZED:
@@ -507,24 +516,48 @@ public class InstallerFragment extends Fragment {
         log(getString(R.string.start_apk_install));
 
         // === 根据文件类型和授权器选择安装方式 ===
-        if (isXapkFile) {
-            // XAPK/APKS 安装
-            ShizukuInstallHelper.installXapk(
-                requireContext(),
-                selectedFilePath,
-                switchReplaceExisting.isChecked(),
-                switchGrantPermissions.isChecked(),
-                createInstallCallback()
-            );
+        if (currentMode == PrivilegeMode.DHIZUKU) {
+            // 使用 Dhizuku 安装
+            if (isXapkFile) {
+                // XAPK/APKS 安装
+                DhizukuInstallHelper.installXapk(
+                    requireContext(),
+                    selectedFilePath,
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createDhizukuInstallCallback()
+                );
+            } else {
+                // 单个 APK 安装
+                DhizukuInstallHelper.installSingleApk(
+                    requireContext(),
+                    new File(selectedFilePath),
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createDhizukuInstallCallback()
+                );
+            }
         } else {
-            // 单个 APK 安装
-            ShizukuInstallHelper.installSingleApk(
-                requireContext(),
-                new File(selectedFilePath),
-                switchReplaceExisting.isChecked(),
-                switchGrantPermissions.isChecked(),
-                createInstallCallback()
-            );
+            // 使用 Shizuku 安装（默认）
+            if (isXapkFile) {
+                // XAPK/APKS 安装
+                ShizukuInstallHelper.installXapk(
+                    requireContext(),
+                    selectedFilePath,
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            } else {
+                // 单个 APK 安装
+                ShizukuInstallHelper.installSingleApk(
+                    requireContext(),
+                    new File(selectedFilePath),
+                    switchReplaceExisting.isChecked(),
+                    switchGrantPermissions.isChecked(),
+                    createInstallCallback()
+                );
+            }
         }
     }
     
@@ -533,6 +566,45 @@ public class InstallerFragment extends Fragment {
      */
     private ShizukuInstallHelper.InstallCallback createInstallCallback() {
         return new ShizukuInstallHelper.InstallCallback() {
+            @Override
+            public void onProgress(String message) {
+                log(message);
+            }
+
+            @Override
+            public void onSuccess(String message) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        log(message);
+                        log(getString(R.string.install_process_end));
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+                        clearSelection();
+                        btnInstall.setEnabled(true);
+                        updateInstallButtonState();
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        log(getString(R.string.error_prefix, error));
+                        log(getString(R.string.install_process_end));
+                        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                        btnInstall.setEnabled(true);
+                        updateInstallButtonState();
+                    });
+                }
+            }
+        };
+    }
+    
+    /**
+     * 创建 Dhizuku 安装回调接口
+     */
+    private DhizukuInstallHelper.InstallCallback createDhizukuInstallCallback() {
+        return new DhizukuInstallHelper.InstallCallback() {
             @Override
             public void onProgress(String message) {
                 log(message);

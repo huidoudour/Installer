@@ -3,34 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="description" content="huidoudour's Installer - 基于 Shizuku 的现代化 Android APK 安装器">
     <meta name="keywords" content="Android, APK Installer, Shizuku, C++, Native Library">
     <meta name="author" content="huidoudour">
     <title>Installer - 现代化 Android APK 安装器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
 
         :root {
-            --primary-color: #3DDC84;
-            --secondary-color: #2196F3;
-            --dark-bg: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --accent-color: #ff6b6b;
-            --success-color: #51cf66;
+            --primary-color: #4facfe;
+            --secondary-color: #00f2fe;
+            --accent-color: #43e97b;
+            --dark-color: #2d3436;
+            --light-color: #f5f6fa;
+            --glass-color: rgba(255, 255, 255, 0.15);
+            --text-color: #2d3436;
+            --text-light: #636e72;
+            --card-bg: #ffffff;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: var(--text-primary);
+            font-family: 'Poppins', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: -webkit-linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
             line-height: 1.6;
             min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background Animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff, #5f27cd, #01a3a4, #f368e0, #ff6348, #7bed9f);
+            background: -webkit-linear-gradient(-45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff, #5f27cd, #01a3a4, #f368e0, #ff6348, #7bed9f);
+            background-size: 400% 400%;
+            -webkit-background-size: 400% 400%;
+            animation: gradient 30s ease infinite;
+            -webkit-animation: gradient 30s ease infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .container {
@@ -41,61 +78,133 @@
 
         header {
             text-align: center;
-            padding: 60px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 20px;
             margin-bottom: 40px;
-            box-shadow: 0 10px 30px rgba(61, 220, 132, 0.3);
+            padding: 40px 30px;
+            border-radius: 16px;
+            background: var(--glass-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--dark-color);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
         }
 
         header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: var(--dark-color);
+            animation: fadeInUp 0.8s ease-out;
         }
 
         header p {
-            font-size: 1.3em;
+            font-size: 1.2rem;
+            color: var(--dark-color);
             opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeInUp 1s ease-out;
         }
 
         .badges {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 25px;
+            animation: fadeInUp 1.2s ease-out;
         }
 
         .badges img {
-            height: 20px;
-            transition: transform 0.2s;
+            height: 22px;
+            transition: var(--transition);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         }
 
         .badges img:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) translateY(-2px);
         }
 
         .section {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 30px;
+            background: var(--glass-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 35px;
             margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .section:nth-child(2) { animation-delay: 0.1s; }
+        .section:nth-child(3) { animation-delay: 0.2s; }
+        .section:nth-child(4) { animation-delay: 0.3s; }
+        .section:nth-child(5) { animation-delay: 0.4s; }
+        .section:nth-child(6) { animation-delay: 0.5s; }
+        .section:nth-child(7) { animation-delay: 0.6s; }
+
+        .section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            -webkit-transform: scaleX(0);
+            transition: transform 0.4s ease;
+            -webkit-transition: transform 0.4s ease;
+            transform-origin: left;
+            -webkit-transform-origin: left;
         }
 
         .section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .section:hover::before {
+            transform: scaleX(1);
         }
 
         .section h2 {
-            color: var(--primary-color);
+            color: var(--dark-color);
             font-size: 2em;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
         }
 
         .feature-grid {
@@ -106,22 +215,49 @@
         }
 
         .feature-card {
-            background: linear-gradient(135deg, #3a3a3a, #2d2d2d);
-            padding: 25px;
-            border-radius: 12px;
-            border-left: 4px solid var(--primary-color);
-            transition: all 0.3s;
+            background: var(--glass-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 28px;
+            border-radius: 16px;
+            border-left: 4px solid #667eea;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
         }
 
         .feature-card:hover {
-            border-left-color: var(--secondary-color);
-            transform: translateX(5px);
+            border-left-color: #764ba2;
+            transform: translateX(8px) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
         }
 
         .feature-card h3 {
-            color: var(--secondary-color);
-            margin-bottom: 10px;
-            font-size: 1.3em;
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
         }
 
         .feature-card ul {
@@ -130,18 +266,20 @@
         }
 
         .feature-card li {
-            padding: 5px 0;
-            color: var(--text-secondary);
+            padding: 8px 0;
+            color: var(--text-light);
             position: relative;
-            padding-left: 25px;
+            padding-left: 28px;
+            font-weight: 400;
         }
 
         .feature-card li:before {
             content: "✓";
             position: absolute;
             left: 0;
-            color: var(--success-color);
+            color: var(--accent-color);
             font-weight: bold;
+            font-size: 1.1em;
         }
 
         .tech-stack {
@@ -152,44 +290,74 @@
         }
 
         .tech-tag {
-            background: linear-gradient(135deg, var(--secondary-color), #1976D2);
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 0.9em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background: -webkit-linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            padding: 12px 22px;
+            border-radius: 30px;
+            font-size: 0.95em;
             font-weight: 600;
-            box-shadow: 0 3px 10px rgba(33, 150, 243, 0.3);
-            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: var(--transition);
         }
 
         .tech-tag:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.5);
+            transform: scale(1.08) translateY(-3px);
+            box-shadow: 0 8px 25px rgba(118, 75, 162, 0.4);
         }
 
         .download-section {
             text-align: center;
-            padding: 40px;
-            background: linear-gradient(135deg, var(--accent-color), #e74c3c);
-            border-radius: 15px;
+            padding: 50px 40px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
             margin-top: 30px;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotateGradient 20s linear infinite;
+        }
+
+        @keyframes rotateGradient {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .download-btn {
-            display: inline-block;
-            padding: 15px 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 45px;
             background: white;
-            color: var(--accent-color);
+            color: #667eea;
             text-decoration: none;
-            border-radius: 30px;
+            border-radius: 50px;
             font-size: 1.2em;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
         }
 
         .download-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            transform: scale(1.08) translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
 
         .reference-list {
@@ -198,28 +366,33 @@
         }
 
         .reference-list li {
-            padding: 10px 0;
-            border-bottom: 1px solid #3a3a3a;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
         }
 
         .reference-list a {
-            color: var(--secondary-color);
+            color: #667eea;
             text-decoration: none;
-            transition: color 0.3s;
+            transition: var(--transition);
+            font-weight: 500;
         }
 
         .reference-list a:hover {
-            color: var(--primary-color);
+            color: #764ba2;
+            text-decoration: underline;
         }
 
         footer {
             text-align: center;
-            padding: 40px 20px;
+            padding: 40px 30px;
             margin-top: 40px;
-            background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
-            border-radius: 15px;
-            border-top: 2px solid var(--primary-color);
-            box-shadow: 0 -5px 20px rgba(61, 220, 132, 0.1);
+            background: var(--glass-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 2s ease-out;
         }
 
         .footer-content {
@@ -236,17 +409,22 @@
         }
 
         .footer-link {
-            color: var(--primary-color);
+            color: #667eea;
             text-decoration: none;
             font-size: 1.1em;
-            transition: all 0.3s;
-            padding: 8px 15px;
-            border-radius: 8px;
+            transition: var(--transition);
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .footer-link:hover {
-            background: rgba(61, 220, 132, 0.1);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
         .footer-author {
@@ -255,7 +433,7 @@
         }
 
         .footer-copyright {
-            color: var(--text-secondary);
+            color: var(--text-light);
             font-size: 0.9em;
             margin-top: 10px;
         }
@@ -268,21 +446,33 @@
         }
 
         .version-card {
-            background: #3a3a3a;
-            padding: 15px;
-            border-radius: 10px;
+            background: var(--glass-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 12px;
             text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .version-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
         }
 
         .version-card h4 {
-            color: var(--primary-color);
-            margin-bottom: 5px;
+            color: var(--dark-color);
+            margin-bottom: 10px;
+            font-size: 1em;
+            font-weight: 600;
         }
 
         .version-card p {
-            color: var(--text-secondary);
-            font-size: 1.2em;
-            font-weight: bold;
+            color: var(--text-light);
+            font-size: 1.3em;
+            font-weight: 700;
         }
 
         @media (max-width: 768px) {
@@ -304,29 +494,111 @@
         }
 
         .code-block {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 8px;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
             overflow-x: auto;
-            margin-top: 15px;
-            border-left: 4px solid var(--primary-color);
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         .code-block code {
-            color: var(--primary-color);
+            color: #4facfe;
             font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.8;
         }
 
         .highlight {
-            color: var(--primary-color);
+            color: #667eea;
             font-weight: bold;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🚀 huidoudour's Installer</h1>
+            <h1><i class="fas fa-rocket"></i> huidoudour's Installer</h1>
             <p>基于 Shizuku 的现代化 Android APK 安装器</p>
             <div class="badges">
                 <img src="https://img.shields.io/badge/Android-9--16-3DDC84.svg?logo=android&logoColor=white" alt="Android">
@@ -339,10 +611,10 @@
         </header>
 
         <div class="section">
-            <h2>✨ 核心特性</h2>
+            <h2><i class="fas fa-star"></i> 核心特性</h2>
             <div class="feature-grid">
                 <div class="feature-card">
-                    <h3>🔧 现代化 APK 安装</h3>
+                    <h3><i class="fas fa-wrench"></i> 现代化 APK 安装</h3>
                     <ul>
                         <li>基于 Shizuku 服务</li>
                         <li>无需 Root 权限</li>
@@ -353,7 +625,7 @@
                 </div>
 
                 <div class="feature-card">
-                    <h3>⚡ C++ 原生库支持</h3>
+                    <h3><i class="fas fa-bolt"></i> C++ 原生库支持</h3>
                     <ul>
                         <li>集成 libinstaller-native.so</li>
                         <li>支持 arm64-v8a, x86_64</li>
@@ -364,7 +636,7 @@
                 </div>
 
                 <div class="feature-card">
-                    <h3>🎨 Material Design 3</h3>
+                    <h3><i class="fas fa-palette"></i> Material Design 3</h3>
                     <ul>
                         <li>底部导航栏设计</li>
                         <li>卡片式布局</li>
@@ -375,7 +647,7 @@
                 </div>
 
                 <div class="feature-card">
-                    <h3>🛡️ 兼容性保证</h3>
+                    <h3><i class="fas fa-shield-alt"></i> 兼容性保证</h3>
                     <ul>
                         <li>Android 9 - 16 支持</li>
                         <li>16KB 页面大小适配</li>
@@ -384,51 +656,62 @@
                         <li>多架构支持</li>
                     </ul>
                 </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-user-shield"></i> Dhizuku 设备所有者模式</h3>
+                    <ul>
+                        <li>支持 Dhizuku 授权方式</li>
+                        <li>Device Owner 高权限安装</li>
+                        <li>无需 Root 或 Shizuku</li>
+                        <li>手动授权机制</li>
+                        <li>与 Shizuku 无缝切换</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         <div class="section">
-            <h2>🛠️ 技术栈</h2>
+            <h2><i class="fas fa-tools"></i> 技术栈</h2>
             <div class="tech-stack">
-                <span class="tech-tag">Kotlin</span>
-                <span class="tech-tag">Java</span>
-                <span class="tech-tag">C++ (NDK)</span>
-                <span class="tech-tag">CMake 3.22.1</span>
-                <span class="tech-tag">Shizuku API 13.1.5</span>
-                <span class="tech-tag">Material Design 3</span>
-                <span class="tech-tag">AndroidX Navigation</span>
-                <span class="tech-tag">ViewBinding</span>
-                <span class="tech-tag">Gradle KTS</span>
+                <span class="tech-tag"><i class="fab fa-kickstarter"></i> Kotlin</span>
+                <span class="tech-tag"><i class="fab fa-java"></i> Java</span>
+                <span class="tech-tag"><i class="fas fa-code"></i> C++ (NDK)</span>
+                <span class="tech-tag"><i class="fas fa-cogs"></i> CMake 3.22.1</span>
+                <span class="tech-tag"><i class="fas fa-mobile-alt"></i> Shizuku API 13.1.5</span>
+                <span class="tech-tag"><i class="fas fa-paint-brush"></i> Material Design 3</span>
+                <span class="tech-tag"><i class="fas fa-compass"></i> AndroidX Navigation</span>
+                <span class="tech-tag"><i class="fas fa-eye"></i> ViewBinding</span>
+                <span class="tech-tag"><i class="fas fa-hammer"></i> Gradle KTS</span>
             </div>
         </div>
 
         <div class="section">
-            <h2>📋 版本信息</h2>
+            <h2><i class="fas fa-info-circle"></i> 版本信息</h2>
             <div class="version-info">
                 <div class="version-card">
-                    <h4>版本号</h4>
-                    <p>1.0</p>
+                    <h4><i class="fas fa-code-branch"></i> 版本号</h4>
+                    <p>v4.9.2</p>
                 </div>
                 <div class="version-card">
-                    <h4>最低 SDK</h4>
+                    <h4><i class="fas fa-arrow-down"></i> 最低 SDK</h4>
                     <p>28 (Android 9)</p>
                 </div>
                 <div class="version-card">
-                    <h4>目标 SDK</h4>
+                    <h4><i class="fas fa-bullseye"></i> 目标 SDK</h4>
                     <p>36 (Android 16)</p>
                 </div>
                 <div class="version-card">
-                    <h4>编译 SDK</h4>
+                    <h4><i class="fas fa-compile"></i> 编译 SDK</h4>
                     <p>36</p>
                 </div>
             </div>
         </div>
 
         <div class="section">
-            <h2>📱 主要功能</h2>
+            <h2><i class="fas fa-mobile-alt"></i> 主要功能</h2>
             <div class="feature-grid">
                 <div class="feature-card">
-                    <h3>Shizuku 集成</h3>
+                    <h3><i class="fas fa-plug"></i> Shizuku 集成</h3>
                     <ul>
                         <li>实时状态监控</li>
                         <li>自动权限请求</li>
@@ -437,7 +720,17 @@
                 </div>
 
                 <div class="feature-card">
-                    <h3>文件管理</h3>
+                    <h3><i class="fas fa-user-shield"></i> Dhizuku 支持</h3>
+                    <ul>
+                        <li>设备所有者模式</li>
+                        <li>手动授权机制</li>
+                        <li>高权限安装能力</li>
+                        <li>与 Shizuku 无缝切换</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-folder-open"></i> 文件管理</h3>
                     <ul>
                         <li>智能文件选择器</li>
                         <li>自动权限处理</li>
@@ -446,7 +739,7 @@
                 </div>
 
                 <div class="feature-card">
-                    <h3>安装选项</h3>
+                    <h3><i class="fas fa-sliders-h"></i> 安装选项</h3>
                     <ul>
                         <li>替换现有应用 (-r)</li>
                         <li>自动授予权限 (-g)</li>
@@ -455,7 +748,7 @@
                 </div>
 
                 <div class="feature-card">
-                    <h3>日志系统</h3>
+                    <h3><i class="fas fa-file-alt"></i> 日志系统</h3>
                     <ul>
                         <li>实时日志显示</li>
                         <li>时间戳记录</li>
@@ -466,69 +759,67 @@
         </div>
 
         <div class="section">
-            <h2>🔧 构建配置</h2>
+            <h2><i class="fas fa-cog"></i> 构建配置</h2>
             <div class="code-block">
                 <code>
-// Gradle 配置<br>
-compileSdk = 36<br>
-minSdk = 28<br>
-targetSdk = 36<br>
-<br>
-// NDK 配置<br>
-abiFilters("arm64-v8a", "x86_64")<br>
-cppFlags += listOf("-std=c++17")<br>
-<br>
-// 16KB 页面对齐支持<br>
-arguments += listOf(<br>
-&nbsp;&nbsp;"-DANDROID_STL=c++_shared",<br>
-&nbsp;&nbsp;"-DCMAKE_VERBOSE_MAKEFILE=ON"<br>
-)
+                    externalNativeBuild {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;cmake {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 指定支持的架构 - 包含全部 4 个架构以支持通用 APK<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;abiFilters("arm64-v8a", "armeabi-v7a", "x86_64", "x86")<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// C++ 编译参数<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cppFlags += listOf("-std=c++17")<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 添加 16KB 页面对齐支持<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arguments += listOf(<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"-DANDROID_STL=c++_shared",<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"-DCMAKE_VERBOSE_MAKEFILE=ON"<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                    }
                 </code>
             </div>
         </div>
 
         <div class="section">
-            <h2>📚 项目参考与依赖</h2>
+            <h2><i class="fas fa-book"></i> 项目参考与依赖</h2>
             <ul class="reference-list">
                 <li>
                     <a href="https://github.com/wxxsfxyzm/InstallerX-Revived" target="_blank">
-                        📦 wxxsfxyzm/InstallerX-Revived
+                        <i class="fas fa-box"></i> wxxsfxyzm/InstallerX-Revived
                     </a>
                 </li>
                 <li>
                     <a href="https://github.com/iamr0s/InstallerX" target="_blank">
-                        📦 iamr0s/InstallerX
+                        <i class="fas fa-box"></i> iamr0s/InstallerX
                     </a>
                 </li>
                 <li>
                     <a href="https://github.com/RikkaApps/Shizuku" target="_blank">
-                        🔧 RikkaApps/Shizuku
+                        <i class="fas fa-wrench"></i> RikkaApps/Shizuku
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/iamr0s/Dhizuku" target="_blank">
+                        <i class="fas fa-user-shield"></i> iamr0s/Dhizuku
                     </a>
                 </li>
                 <li>
                     <a href="https://github.com/DP-Hridayan/aShellYou" target="_blank">
-                        💻 DP-Hridayan/aShellYou
+                        <i class="fas fa-terminal"></i> DP-Hridayan/aShellYou
                     </a>
                 </li>
             </ul>
         </div>
 
-        <div class="download-section">
-            <h2 style="margin-bottom: 20px; color: white;">📥 获取应用</h2>
-            <a href="https://github.com/huidoudour/Installer" class="download-btn" target="_blank">
-                访问 GitHub 仓库
-            </a>
-        </div>
 
         <footer>
             <div class="footer-content">
                 <div class="footer-author">
-                    Made with ❤️ by <span class="highlight"><a href="https://github.com/huidoudour" target="_blank" style="color: var(--primary-color); text-decoration: none;">huidoudour</a></span>
+                    Made with <i class="fas fa-heart" style="color: #ff6b6b;"></i> by <span class="highlight"><a href="https://github.com/huidoudour" target="_blank" style="color: #667eea; text-decoration: none;">huidoudour</a></span>
                 </div>
                 <div class="footer-links">
-                    <a href="https://github.com/huidoudour" class="footer-link" target="_blank">👤 GitHub</a>
-                    <a href="https://github.com/huidoudour/Installer" class="footer-link" target="_blank">📦 项目仓库</a>
-                    <a href="https://github.com/huidoudour/Installer/issues" class="footer-link" target="_blank">💬 反馈建议</a>
+                    <a href="https://github.com/huidoudour" class="footer-link" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                    <a href="https://github.com/huidoudour/Installer" class="footer-link" target="_blank"><i class="fas fa-box"></i> 项目仓库</a>
+                    <a href="https://github.com/huidoudour/Installer/issues" class="footer-link" target="_blank"><i class="fas fa-comments"></i> 反馈建议</a>
                 </div>
                 <div class="footer-copyright">
                     © 2024 Installer Project · All Rights Reserved · Powered by GitHub Pages
@@ -536,5 +827,30 @@ arguments += listOf(<br>
             </div>
         </footer>
     </div>
+
+    <!-- 返回顶部按钮 -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // 返回顶部功能
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
 </body>
 </html>

@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 
+import com.rosan.dhizuku.api.Dhizuku;
+
 import rikka.shizuku.Shizuku;
 
 /**
@@ -19,13 +21,17 @@ public class PrivilegeHelper {
     private static final String SHIZUKU_PACKAGE = "moe.shizuku.privileged.api";
     private static final String SHIZUKU_GITHUB_URL = "https://github.com/RikkaApps/Shizuku";
     
+    private static final String DHIZUKU_PACKAGE = "com.rosan.dhizuku";
+    private static final String DHIZUKU_GITHUB_URL = "https://github.com/iamr0s/Dhizuku";
+    
     private static final String PREFS_NAME = "privilege_settings";
     private static final String KEY_CURRENT_MODE = "current_mode";
     
 
     
     public enum PrivilegeMode {
-        SHIZUKU
+        SHIZUKU,
+        DHIZUKU
     }
     
     public enum PrivilegeStatus {
@@ -42,7 +48,18 @@ public class PrivilegeHelper {
      * 检查指定授权器是否已安装
      */
     public static boolean isInstalled(Context context, PrivilegeMode mode) {
-        String packageName = SHIZUKU_PACKAGE;
+        String packageName;
+        switch (mode) {
+            case SHIZUKU:
+                packageName = SHIZUKU_PACKAGE;
+                break;
+            case DHIZUKU:
+                packageName = DHIZUKU_PACKAGE;
+                break;
+            default:
+                packageName = SHIZUKU_PACKAGE;
+                break;
+        }
         try {
             context.getPackageManager().getPackageInfo(packageName, 0);
             return true;
@@ -74,6 +91,27 @@ public class PrivilegeHelper {
         }
     }
     
+    /**
+     * 检查 Dhizuku 状态
+     */
+    public static PrivilegeStatus checkDhizukuStatus() {
+        try {
+            // 检查 Dhizuku 是否可用
+            if (!Dhizuku.init()) {
+                return PrivilegeStatus.NOT_RUNNING;
+            }
+            
+            // 检查权限状态
+            if (Dhizuku.isPermissionGranted()) {
+                return PrivilegeStatus.AUTHORIZED;
+            } else {
+                return PrivilegeStatus.NOT_AUTHORIZED;
+            }
+        } catch (Exception e) {
+            return PrivilegeStatus.NOT_RUNNING;
+        }
+    }
+    
 
     
 
@@ -86,7 +124,14 @@ public class PrivilegeHelper {
             return PrivilegeStatus.NOT_INSTALLED;
         }
         
-        return checkShizukuStatus();
+        switch (mode) {
+            case SHIZUKU:
+                return checkShizukuStatus();
+            case DHIZUKU:
+                return checkDhizukuStatus();
+            default:
+                return checkShizukuStatus();
+        }
     }
     
     /**
@@ -104,6 +149,32 @@ public class PrivilegeHelper {
         }
     }
     
+    /**
+     * 请求 Dhizuku 授权
+     */
+    public static void requestDhizukuPermission() {
+        try {
+            if (!Dhizuku.isPermissionGranted()) {
+                // 使用 Dhizuku API 请求权限，会弹出授权对话框
+                Dhizuku.requestPermission(new com.rosan.dhizuku.api.DhizukuRequestPermissionListener() {
+                    @Override
+                    public void onRequestPermission(int grantResult) {
+                        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                            android.util.Log.i("PrivilegeHelper", "Dhizuku permission granted");
+                        } else {
+                            android.util.Log.w("PrivilegeHelper", "Dhizuku permission denied: " + grantResult);
+                        }
+                    }
+                });
+            } else {
+                android.util.Log.i("PrivilegeHelper", "Dhizuku permission already granted");
+            }
+        } catch (Exception e) {
+            android.util.Log.e("PrivilegeHelper", "Error requesting Dhizuku permission: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
 
     
 
@@ -114,7 +185,18 @@ public class PrivilegeHelper {
      * 打开指定授权器应用
      */
     public static void openPrivilegeApp(Context context, PrivilegeMode mode) {
-        String packageName = SHIZUKU_PACKAGE;
+        String packageName;
+        switch (mode) {
+            case SHIZUKU:
+                packageName = SHIZUKU_PACKAGE;
+                break;
+            case DHIZUKU:
+                packageName = DHIZUKU_PACKAGE;
+                break;
+            default:
+                packageName = SHIZUKU_PACKAGE;
+                break;
+        }
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
         if (intent != null) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -126,7 +208,18 @@ public class PrivilegeHelper {
      * 打开 GitHub 项目页面
      */
     public static void openGithubPage(Context context, PrivilegeMode mode) {
-        String url = SHIZUKU_GITHUB_URL;
+        String url;
+        switch (mode) {
+            case SHIZUKU:
+                url = SHIZUKU_GITHUB_URL;
+                break;
+            case DHIZUKU:
+                url = DHIZUKU_GITHUB_URL;
+                break;
+            default:
+                url = SHIZUKU_GITHUB_URL;
+                break;
+        }
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
@@ -195,15 +288,32 @@ public class PrivilegeHelper {
      * 切换到另一个授权器
      */
     public static PrivilegeMode switchMode(Context context) {
-        // 由于只支持Shizuku，切换功能不再适用
-        return PrivilegeMode.SHIZUKU;
+        PrivilegeMode currentMode = getCurrentMode(context);
+        PrivilegeMode newMode;
+        
+        // 在 Shizuku 和 Dhizuku 之间切换
+        if (currentMode == PrivilegeMode.SHIZUKU) {
+            newMode = PrivilegeMode.DHIZUKU;
+        } else {
+            newMode = PrivilegeMode.SHIZUKU;
+        }
+        
+        saveCurrentMode(context, newMode);
+        return newMode;
     }
     
     /**
      * 获取授权器名称
      */
     public static String getModeName(PrivilegeMode mode) {
-        return "Shizuku";
+        switch (mode) {
+            case SHIZUKU:
+                return "Shizuku";
+            case DHIZUKU:
+                return "Dhizuku";
+            default:
+                return "Shizuku";
+        }
     }
     
 
@@ -215,6 +325,7 @@ public class PrivilegeHelper {
      */
     public static void initialize(Context context) {
         // 检查并缓存权限器状态
-        getStatus(context, PrivilegeMode.SHIZUKU);
+        PrivilegeMode currentMode = getCurrentMode(context);
+        getStatus(context, currentMode);
     }
 }

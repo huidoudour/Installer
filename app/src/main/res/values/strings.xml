@@ -78,8 +78,12 @@
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku Status</string>
+    <string name="dhizuku_status">Dhizuku Status</string>
     <string name="checking">Checking...</string>
     <string name="grant_shizuku_permission">Grant Shizuku Permission</string>
+    <string name="grant_dhizuku_permission">Grant Dhizuku Permission</string>
+    <string name="request_shizuku_permission">Attempting to request Shizuku permission...</string>
+    <string name="request_dhizuku_permission">Attempting to request Dhizuku permission...</string>
     <string name="no_file_selected">No file selected</string>
     <string name="select_apk_file">Select APK File</string>
     <string name="install_options">Install Options</string>
@@ -126,6 +130,7 @@
     <string name="parse_file_failed">Failed to parse install file info</string>
     <string name="set_app_icon_failed">Failed to set app icon</string>
     <string name="shizuku_required">Shizuku authorization required to install app</string>
+    <string name="dhizuku_required">Dhizuku authorization required to install app</string>
     <string name="xapk_install_success">XAPK installed successfully</string>
     <string name="xapk_install_failed">XAPK installation failed: %s</string>
     <string name="apk_install_success">APK installed successfully</string>
@@ -155,17 +160,24 @@
     <string name="install_exception">Installation exception: %s</string>
     <string name="extract_xapk">Extracting XAPK (using native compression library)...</string>
     <string name="shizuku_not_running">Not Running/Not Installed</string>
+    <string name="dhizuku_not_running">Not Running/Not Installed</string>
     <string name="shizuku_not_connected">Shizuku not connected.</string>
+    <string name="dhizuku_not_connected">Dhizuku not connected.</string>
     <string name="version_too_low">Version too low</string>
     <string name="shizuku_version_too_low">Shizuku version too low.</string>
+    <string name="dhizuku_version_too_low">Dhizuku version too low.</string>
     <string name="permission_granted">Permission granted</string>
     <string name="shizuku_connected_and_authorized">Shizuku connected and authorized.</string>
+    <string name="dhizuku_connected_and_authorized">Dhizuku connected and authorized.</string>
     <string name="not_authorized">Not authorized</string>
     <string name="shizuku_connected_but_not_authorized">Shizuku connected but not authorized.</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizuku connected but not authorized.</string>
     <string name="status_unknown">Status unknown</string>
     <string name="check_shizuku_version_permission_failed">Failed to check Shizuku version/permission: %s</string>
+    <string name="check_dhizuku_version_permission_failed">Failed to check Dhizuku version/permission: %s</string>
     <string name="unavailable">Unavailable</string>
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi caught exception: %s</string>
+    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUi caught exception: %s</string>
 
     <!-- XAPK extraction -->
     <string name="extract_complete">Extraction complete, total %d APK files</string>
@@ -206,6 +218,7 @@
     <string name="callback_param">Install callback</string>
     <string name="install_all_apks">Install all APK files</string>
     <string name="use_shizuku_install_single_apk">Use ShizukuInstallHelper to install single APK</string>
+    <string name="use_dhizuku_install_single_apk">Use DhizukuInstallHelper to install single APK</string>
     <string name="install_progress">Installation progress: %s</string>
     <string name="apk_install_success_log">APK installed successfully: %s</string>
     <string name="apk_install_failed_log">APK installation failed: %s</string>
@@ -222,6 +235,7 @@
     <string name="initialize_environment_clear_prompt_disable_job_control">Initialize environment - clear prompt and disable job control</string>
     <string name="switch_to_user_accessible_directory">Switch to user accessible directory</string>
     <string name="shizuku_mode_access_any_directory">In Shizuku mode can access any directory, using /data/local/tmp</string>
+    <string name="dhizuku_mode_access_any_directory">In Dhizuku mode can access any directory, using /data/local/tmp</string>
     <string name="normal_mode_use_sdcard">Normal mode uses /sdcard</string>
     <string name="wait_for_initialization">Wait for initialization to complete</string>
     <string name="clear_initial_output">Clear initial output</string>
@@ -333,8 +347,11 @@
     <string name="opening_zip_file_log">Opening ZIP file...</string>
     <string name="zip_file_opened_log">ZIP file opened successfully</string>
     <string name="extracting_apk_log">Extracting APK: %s</string>
-    <string name="shizuku_permission_granted">Shizuku permission granted.</string>
-    <string name="shizuku_permission_denied">Shizuku permission denied.</string>
+    <string name="shizuku_permission_granted">Shizuku permission granted</string>
+    <string name="shizuku_permission_denied">Shizuku permission denied</string>
+    <string name="dhizuku_permission_granted">Dhizuku permission granted</string>
+    <string name="dhizuku_permission_denied">Dhizuku permission denied</string>
+    <string name="dhizuku_permission_requested">Dhizuku permission requested</string>
     <string name="file_selected_and_cached">File selected and copied to cache: %s</string>
     <string name="file_selected_uri_fail">File selected (URI) but failed to copy to cache, URI: %s</string>
     <string name="file_selection_failed">File selection failed or cancelled.</string>
@@ -343,6 +360,7 @@
     <string name="read_storage_permission_granted">READ_EXTERNAL_STORAGE permission granted.</string>
     <string name="read_storage_permission_denied">READ_EXTERNAL_STORAGE permission denied.</string>
     <string name="shizuku_unavailable">Shizuku unavailable: %s</string>
+    <string name="dhizuku_unavailable">Dhizuku unavailable: %s</string>
     <string name="shizuku_binder_listener_error">Cannot add Shizuku binder listener: %s</string>
     <string name="installer_started">Installer started, waiting for operation……</string>
     <string name="get_file_path_uri_error">getFilePathFromUri has issues: %s</string>
@@ -382,7 +400,6 @@
     <string name="request_read_storage">Requesting READ_EXTERNAL_STORAGE permission.</string>
     <string name="open_file_picker">Opening file picker...</string>
     <string name="file_picker_not_found">File picker not found.</string>
-    <string name="request_shizuku_permission">Attempting to request Shizuku permission...</string>
     <string name="shizuku_not_started">Shizuku not started.</string>
     <string name="shizuku_version_low">Shizuku version too low or incompatible.</string>
     <string name="shizuku_authorized">Shizuku authorized.</string>
@@ -488,6 +505,7 @@
     <string name="privilege_not_installed_log">%s not installed, opening GitHub download page...</string>
     <string name="opening_privilege_app">Opening %s app...</string>
     <string name="shizuku_unavailable_meow">Shizuku unavailable meow: %s</string>
+    <string name="dhizuku_unavailable_meow">Dhizuku unavailable meow: %s</string>
     <string name="privilege_not_connected_install_log">%s not connected or not authorized, cannot install meow.</string>
     <string name="requesting_shizuku_auth">Requesting Shizuku authorization...</string>
     <string name="privilege_not_installed_notification">%s not installed, opening GitHub download page...</string>
