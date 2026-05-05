@@ -32,11 +32,6 @@ lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-view
 # https://github.com/iamr0s/Dhizuku-API
 iamr0s-dhizuku-api = { group = "io.github.iamr0s", name = "Dhizuku-API", version = "2.5.4" }
 
-# AndroidAppProcess
-# https://github.com/iamr0s/AndroidAppProcess
-# iamr0s-androidAppProcess = { group = "io.github.iamr0s", name = "AndroidAppProcess", version = "1.4.1" }
-iamr0s-androidAppProcess = { group = "com.github.wxxsfxyzm", name = "AndroidAppProcess", version = "v1.4.1-revived" }
-
-
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }

@@ -147,5 +147,10 @@ dependencies {
 
     // Dhizuku
     implementation(libs.iamr0s.dhizuku.api)
-    implementation(libs.iamr0s.androidAppProcess)
+
+    // Hidden API for Dhizuku binder wrapper (compileOnly - uses system framework at runtime)
+    compileOnly(project(":hidden-api"))
+
+    // Bypass Android hidden API restrictions
+    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
 }
