@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.util;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -12,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.huidoudour.Installer.R;
 import rikka.shizuku.Shizuku;
 
 /**

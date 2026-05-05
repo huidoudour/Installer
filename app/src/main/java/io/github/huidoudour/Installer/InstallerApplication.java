@@ -3,6 +3,9 @@ package io.github.huidoudour.Installer;
 import android.app.Application;
 import android.util.Log;
 
+import io.github.huidoudour.Installer.util.LanguageManager;
+import io.github.huidoudour.Installer.util.NotificationHelper;
+
 /**
  * 自定义Application类
  * 用于全局应用语言设置

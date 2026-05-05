@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.util;
 
 import android.content.Context;
 import android.util.Log;
@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import io.github.huidoudour.Installer.R;
 
 /**
  * XAPK/APKS 安装工具类

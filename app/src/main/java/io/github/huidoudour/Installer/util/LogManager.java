@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.util;
 
 import android.content.Context;
 
@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import io.github.huidoudour.Installer.R;
 
 /**
  * 全局日志管理器

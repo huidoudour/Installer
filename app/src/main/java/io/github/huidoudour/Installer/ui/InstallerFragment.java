@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.ui;
 
 import android.Manifest;
 import android.app.Activity;
@@ -32,9 +32,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
-import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentInstallerBinding;
+import io.github.huidoudour.Installer.util.DhizukuInstallHelper;
+import io.github.huidoudour.Installer.util.LogManager;
+import io.github.huidoudour.Installer.util.PrivilegeHelper;
+import io.github.huidoudour.Installer.util.PrivilegeHelper.PrivilegeMode;
+import io.github.huidoudour.Installer.util.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.util.ShizukuInstallHelper;
+import io.github.huidoudour.Installer.util.XapkInstaller;
 import rikka.shizuku.Shizuku;
 
 public class InstallerFragment extends Fragment {
@@ -894,7 +900,7 @@ public class InstallerFragment extends Fragment {
                 }
                     
                 log(getString(R.string.processed_home_install_request, selectedFilePath));
-                    
+                
     
                     
                 updateInstallButtonState();

@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.util;
 
 import android.content.Context;
 
@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+
+import io.github.huidoudour.Installer.R;
 
 /**
  * Shizuku APK 安装辅助类

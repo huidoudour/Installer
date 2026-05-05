@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.util;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,9 +26,9 @@ public class PrivilegeHelper {
     
     private static final String PREFS_NAME = "privilege_settings";
     private static final String KEY_CURRENT_MODE = "current_mode";
-    
 
-    
+
+
     public enum PrivilegeMode {
         SHIZUKU,
         DHIZUKU
@@ -41,8 +41,8 @@ public class PrivilegeHelper {
         AUTHORIZED,         // 已授权
         VERSION_TOO_LOW     // 版本过低
     }
-    
 
+    
     
     /**
      * 检查指定授权器是否已安装
@@ -135,11 +135,11 @@ public class PrivilegeHelper {
             return PrivilegeStatus.NOT_RUNNING;
         }
     }
-    
 
     
 
     
+
     /**
      * 获取指定授权器的状态
      */
@@ -232,11 +232,10 @@ public class PrivilegeHelper {
             e.printStackTrace();
         }
     }
-    
 
     
 
-
+    
 
     
     /**

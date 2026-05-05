@@ -16,6 +16,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.DynamicColors;
 
 import io.github.huidoudour.Installer.databinding.ActivityMainBinding;
+import io.github.huidoudour.Installer.util.LanguageManager;
 
 public class MainActivity extends AppCompatActivity {
 

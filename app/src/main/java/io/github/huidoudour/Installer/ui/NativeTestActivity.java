@@ -1,10 +1,12 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.ui;
 
 import android.os.Bundle;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import io.github.huidoudour.Installer.util.NativeHelper;
 
 /**
  * 原生库测试 Activity

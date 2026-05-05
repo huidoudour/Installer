@@ -1,16 +1,16 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.ui;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class ShellViewModel extends ViewModel {
+public class InstallerViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public ShellViewModel() {
+    public InstallerViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("Shell 页面 待开发");
+        mText.setValue("installer_page");
     }
 
     public LiveData<String> getText() {

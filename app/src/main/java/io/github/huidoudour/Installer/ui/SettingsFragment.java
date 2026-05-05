@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.ui;
 
 import android.Manifest;
 import android.app.Activity;
@@ -24,9 +24,13 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
-import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
+import io.github.huidoudour.Installer.util.LanguageManager;
+import io.github.huidoudour.Installer.util.NotificationHelper;
+import io.github.huidoudour.Installer.util.PrivilegeHelper;
+import io.github.huidoudour.Installer.util.PrivilegeHelper.PrivilegeMode;
+import io.github.huidoudour.Installer.util.PrivilegeHelper.PrivilegeStatus;
 import rikka.shizuku.Shizuku;
 
 public class SettingsFragment extends Fragment {
@@ -605,33 +609,10 @@ public class SettingsFragment extends Fragment {
     }
     
     /**
-     * 处理版本号点击事件（彩蛋）
+     * 处理版本号点击事件
      */
     private void handleVersionClick() {
-        long currentTime = System.currentTimeMillis();
-        
-        // 如果距离上次点击超过时间窗口，重置计数
-        if (currentTime - lastClickTime > CLICK_TIME_WINDOW) {
-            versionClickCount = 0;
-        }
-        
-        versionClickCount++;
-        lastClickTime = currentTime;
-        
-        // 达到6次点击，触发彩蛋
-        if (versionClickCount >= EASTER_EGG_CLICK_COUNT) {
-            versionClickCount = 0; // 重置计数
-            showNotification(getString(R.string.easter_egg_found));
-            openEasterEgg();
-        }
-    }
-    
-    /**
-     * 打开彩蛋页面
-     */
-    private void openEasterEgg() {
-        Intent intent = new Intent(getActivity(), EasterEggWebViewActivity.class);
-        startActivity(intent);
+        showNotification("啥也没有呀");
     }
     
     @Override

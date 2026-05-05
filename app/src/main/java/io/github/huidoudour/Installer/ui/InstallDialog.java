@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.ui;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -24,7 +24,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import io.github.huidoudour.Installer.PrivilegeHelper.PrivilegeMode;
+import io.github.huidoudour.Installer.util.LanguageManager;
+import io.github.huidoudour.Installer.util.PackageInfoHelper;
+import io.github.huidoudour.Installer.util.PrivilegeHelper;
+import io.github.huidoudour.Installer.util.ShizukuInstallHelper;
+import io.github.huidoudour.Installer.util.XapkInstaller;
 import rikka.shizuku.Shizuku;
 
 public class InstallDialog extends AppCompatActivity {
@@ -364,7 +368,7 @@ public class InstallDialog extends AppCompatActivity {
             // 循环进度条自动运行动画
             
             // 获取当前授权器 - 现在只支持Shizuku
-            PrivilegeMode currentMode = PrivilegeHelper.PrivilegeMode.SHIZUKU;
+            PrivilegeHelper.PrivilegeMode currentMode = PrivilegeHelper.PrivilegeMode.SHIZUKU;
             
             // 开始安装过程
             if (isXapkFile) {
@@ -659,7 +663,7 @@ public class InstallDialog extends AppCompatActivity {
             tvVersion.setText(R.string.unknown);
         }
     }
-    
+
 
     
     /**

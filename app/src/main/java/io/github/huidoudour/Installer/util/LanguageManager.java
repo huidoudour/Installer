@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -7,6 +7,8 @@ import android.content.res.Resources;
 import android.util.Log;
 
 import java.util.Locale;
+
+import io.github.huidoudour.Installer.R;
 
 /**
  * 语言管理工具类

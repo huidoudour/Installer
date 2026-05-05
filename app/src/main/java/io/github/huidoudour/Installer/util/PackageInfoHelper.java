@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.util;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -86,7 +86,7 @@ public class PackageInfoHelper {
     }
     
     /**
-     * 最简方案：只获取最基本的应用信息
+     * 最简方案：只获取最基本的的应用信息
      * @param context 上下文
      * @param packageName 包名
      * @return PackageInfo对象

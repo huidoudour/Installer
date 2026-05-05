@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.ui;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -7,6 +7,9 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import io.github.huidoudour.Installer.util.LanguageManager;
+import io.github.huidoudour.Installer.util.NotificationHelper;
 
 public class MeActivity extends AppCompatActivity {
 

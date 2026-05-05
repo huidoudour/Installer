@@ -1,4 +1,4 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer.ui;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -25,7 +25,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentShellBinding;
+import io.github.huidoudour.Installer.util.ShellExecutor;
 
 public class ShellFragment extends Fragment {
 
