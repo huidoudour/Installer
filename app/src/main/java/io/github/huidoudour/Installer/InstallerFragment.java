@@ -478,8 +478,8 @@ public class InstallerFragment extends Fragment {
                 } else if (currentMode == PrivilegeMode.DHIZUKU) {
                     log(getString(R.string.request_dhizuku_permission));
                     try {
-                        // 使用 Dhizuku API 请求权限，会弹出授权对话框
-                        PrivilegeHelper.requestDhizukuPermission();
+                        // 使用带 context 的方法，确保 Dhizuku.init() 正确初始化
+                        PrivilegeHelper.requestDhizukuPermission(requireContext());
                     } catch (Throwable t) {
                         log(getString(R.string.dhizuku_unavailable_meow, t.getMessage()));
                         updatePrivilegeStatusAndUi();

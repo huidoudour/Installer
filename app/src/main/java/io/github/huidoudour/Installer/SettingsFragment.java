@@ -561,8 +561,8 @@ public class SettingsFragment extends Fragment {
                     PrivilegeHelper.requestShizukuPermission(REQUEST_CODE_SHIZUKU_PERMISSION);
                     showNotification(getString(R.string.requesting_shizuku_auth));
                 } else if (mode == PrivilegeMode.DHIZUKU) {
-                    // 使用 Dhizuku API 请求权限，会弹出授权对话框
-                    PrivilegeHelper.requestDhizukuPermission();
+                    // 使用带 context 的方法，确保 Dhizuku.init() 正确初始化
+                    PrivilegeHelper.requestDhizukuPermission(requireContext());
                 }
                 
                 // 延迟更新状态

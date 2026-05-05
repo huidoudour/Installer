@@ -93,15 +93,39 @@ public class PrivilegeHelper {
     
     /**
      * 检查 Dhizuku 状态
+     * 注意：必须传入 context 参数调用 Dhizuku.init()，
+     * 无参版本依赖 ActivityThread.currentActivityThread() 可能在某些情况下失败
      */
-    public static PrivilegeStatus checkDhizukuStatus() {
+    public static PrivilegeStatus checkDhizukuStatus(Context context) {
         try {
-            // 检查 Dhizuku 是否可用
-            if (!Dhizuku.init()) {
+            // 使用带 context 的 init 方法，避免无参 init 获取不到正确 context
+            if (!Dhizuku.init(context.getApplicationContext())) {
                 return PrivilegeStatus.NOT_RUNNING;
             }
             
             // 检查权限状态
+            if (Dhizuku.isPermissionGranted()) {
+                return PrivilegeStatus.AUTHORIZED;
+            } else {
+                return PrivilegeStatus.NOT_AUTHORIZED;
+            }
+        } catch (Exception e) {
+            android.util.Log.e(TAG, "checkDhizukuStatus error: " + e.getMessage());
+            return PrivilegeStatus.NOT_RUNNING;
+        }
+    }
+    
+    /**
+     * 检查 Dhizuku 状态（无 context 版本，兼容旧调用）
+     * @deprecated 使用 {@link #checkDhizukuStatus(Context)} 代替
+     */
+    @Deprecated
+    public static PrivilegeStatus checkDhizukuStatus() {
+        try {
+            if (!Dhizuku.init()) {
+                return PrivilegeStatus.NOT_RUNNING;
+            }
+            
             if (Dhizuku.isPermissionGranted()) {
                 return PrivilegeStatus.AUTHORIZED;
             } else {
@@ -128,7 +152,7 @@ public class PrivilegeHelper {
             case SHIZUKU:
                 return checkShizukuStatus();
             case DHIZUKU:
-                return checkDhizukuStatus();
+                return checkDhizukuStatus(context);
             default:
                 return checkShizukuStatus();
         }
@@ -151,26 +175,60 @@ public class PrivilegeHelper {
     
     /**
      * 请求 Dhizuku 授权
+     * 必须传入 context，确保 Dhizuku.init() 能正确初始化
      */
-    public static void requestDhizukuPermission() {
+    public static void requestDhizukuPermission(Context context) {
         try {
+            // 先确保初始化成功
+            if (!Dhizuku.init(context.getApplicationContext())) {
+                android.util.Log.e(TAG, "Dhizuku init failed when requesting permission");
+                return;
+            }
+            
             if (!Dhizuku.isPermissionGranted()) {
                 // 使用 Dhizuku API 请求权限，会弹出授权对话框
                 Dhizuku.requestPermission(new com.rosan.dhizuku.api.DhizukuRequestPermissionListener() {
                     @Override
                     public void onRequestPermission(int grantResult) {
                         if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                            android.util.Log.i("PrivilegeHelper", "Dhizuku permission granted");
+                            android.util.Log.i(TAG, "Dhizuku permission granted");
                         } else {
-                            android.util.Log.w("PrivilegeHelper", "Dhizuku permission denied: " + grantResult);
+                            android.util.Log.w(TAG, "Dhizuku permission denied: " + grantResult);
                         }
                     }
                 });
             } else {
-                android.util.Log.i("PrivilegeHelper", "Dhizuku permission already granted");
+                android.util.Log.i(TAG, "Dhizuku permission already granted");
             }
         } catch (Exception e) {
-            android.util.Log.e("PrivilegeHelper", "Error requesting Dhizuku permission: " + e.getMessage());
+            android.util.Log.e(TAG, "Error requesting Dhizuku permission: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * 请求 Dhizuku 授权（无 context 版本，兼容旧调用）
+     * @deprecated 使用 {@link #requestDhizukuPermission(Context)} 代替
+     */
+    @Deprecated
+    public static void requestDhizukuPermission() {
+        try {
+            if (!Dhizuku.isPermissionGranted()) {
+                Dhizuku.requestPermission(new com.rosan.dhizuku.api.DhizukuRequestPermissionListener() {
+                    @Override
+                    public void onRequestPermission(int grantResult) {
+                        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                            android.util.Log.i(TAG, "Dhizuku permission granted");
+                        } else {
+                            android.util.Log.w(TAG, "Dhizuku permission denied: " + grantResult);
+                        }
+                    }
+                });
+            } else {
+                android.util.Log.i(TAG, "Dhizuku permission already granted");
+            }
+        } catch (Exception e) {
+            android.util.Log.e(TAG, "Error requesting Dhizuku permission: " + e.getMessage());
             e.printStackTrace();
         }
     }
