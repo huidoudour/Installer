@@ -8,6 +8,8 @@ import android.net.Uri;
 
 import com.rosan.dhizuku.api.Dhizuku;
 
+import io.github.huidoudour.Installer.R;
+
 import rikka.shizuku.Shizuku;
 
 /**

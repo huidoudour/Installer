@@ -78,7 +78,7 @@
         
         <!-- 安装对话 -->
         <activity
-            android:name=".InstallDialog"
+            android:name=".ui.InstallDialog"
             android:exported="true"
             android:theme="@style/Theme.Installer.Dialog"
             android:launchMode="singleTask"
@@ -118,22 +118,16 @@
 
         <!-- 关于我的页面 Activity-->
         <activity
-            android:name=".MeActivity"
+            android:name=".ui.MeActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer" />
         
 
         <!-- 原生库测试 Activity -->
         <activity
-            android:name=".NativeTestActivity"
+            android:name=".ui.NativeTestActivity"
             android:exported="false"
             android:label="C++ 原生库测试"
-            android:theme="@style/Theme.Installer" />
-        
-        <!-- 彩蛋 WebView Activity -->
-        <activity
-            android:name=".EasterEggWebViewActivity"
-            android:exported="false"
             android:theme="@style/Theme.Installer" />
         
         <!-- Shizuku provider -->

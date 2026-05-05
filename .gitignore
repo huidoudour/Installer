@@ -2,6 +2,7 @@
 .gradle
 .idea/
 /.lingma
+/.idea/workbuddy
 /local.properties
 /.idea/caches
 /.idea/libraries

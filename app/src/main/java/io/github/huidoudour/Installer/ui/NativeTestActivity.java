@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.util.NativeHelper;
 
 /**

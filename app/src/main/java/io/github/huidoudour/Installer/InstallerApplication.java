@@ -3,6 +3,7 @@ package io.github.huidoudour.Installer;
 import android.app.Application;
 import android.util.Log;
 
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.util.LanguageManager;
 import io.github.huidoudour.Installer.util.NotificationHelper;
 

@@ -8,6 +8,7 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.util.LanguageManager;
 import io.github.huidoudour.Installer.util.NotificationHelper;
 

@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
+import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.util.LanguageManager;
 import io.github.huidoudour.Installer.util.PackageInfoHelper;
 import io.github.huidoudour.Installer.util.PrivilegeHelper;

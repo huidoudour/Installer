@@ -111,7 +111,7 @@ public class DhizukuInstallHelper {
             int userId) throws Exception {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Constructor<PackageInstaller> constructor = reflect.getDeclaredConstructor(
+            Constructor<?> constructor = reflect.getDeclaredConstructor(
                 PackageInstaller.class,
                 IPackageInstaller.class,
                 String.class,
@@ -121,9 +121,9 @@ public class DhizukuInstallHelper {
             if (constructor == null) {
                 throw new Exception("Failed to get PackageInstaller constructor for Android S+");
             }
-            return constructor.newInstance(iPackageInstaller, installerPackageName, null, userId);
+            return (PackageInstaller) constructor.newInstance(iPackageInstaller, installerPackageName, null, userId);
         } else {
-            Constructor<PackageInstaller> constructor = reflect.getDeclaredConstructor(
+            Constructor<?> constructor = reflect.getDeclaredConstructor(
                 PackageInstaller.class,
                 IPackageInstaller.class,
                 String.class,
@@ -132,7 +132,7 @@ public class DhizukuInstallHelper {
             if (constructor == null) {
                 throw new Exception("Failed to get PackageInstaller constructor for pre-Android S");
             }
-            return constructor.newInstance(iPackageInstaller, installerPackageName, userId);
+            return (PackageInstaller) constructor.newInstance(iPackageInstaller, installerPackageName, userId);
         }
     }
 
@@ -197,12 +197,19 @@ public class DhizukuInstallHelper {
             PackageInstaller.SessionParams.MODE_FULL_INSTALL
         );
 
-        int installFlags = params.installFlags;
-        installFlags |= 0x00000002; // INSTALL_REPLACE_EXISTING
-        if (grantPermissions) {
-            installFlags |= 0x00000100; // GRANT_ALL_REQUESTED_PERMISSIONS
+        // 使用反射访问 installFlags 字段（隐藏API）
+        try {
+            java.lang.reflect.Field flagsField = PackageInstaller.SessionParams.class.getDeclaredField("installFlags");
+            flagsField.setAccessible(true);
+            int installFlags = flagsField.getInt(params);
+            installFlags |= 0x00000002; // INSTALL_REPLACE_EXISTING
+            if (grantPermissions) {
+                installFlags |= 0x00000100; // GRANT_ALL_REQUESTED_PERMISSIONS
+            }
+            flagsField.setInt(params, installFlags);
+        } catch (Exception e) {
+            android.util.Log.w(TAG, "Failed to set installFlags via reflection: " + e.getMessage());
         }
-        params.installFlags = installFlags;
 
         int sessionId = packageInstaller.createSession(params);
         android.util.Log.i(TAG, "Created session: " + sessionId);
@@ -256,7 +263,7 @@ public class DhizukuInstallHelper {
                 IPackageManager iPackageManager = getIPackageManager();
                 IPackageInstaller iPackageInstaller = getIPackageInstaller(iPackageManager);
 
-                int userId = android.os.UserHandle.myUserId();
+                int userId = getUserId();
                 PackageInstaller packageInstaller = createPackageInstaller(
                     context, iPackageInstaller, installerPackageName, userId);
 
@@ -301,7 +308,7 @@ public class DhizukuInstallHelper {
                 IPackageManager iPackageManager = getIPackageManager();
                 IPackageInstaller iPackageInstaller = getIPackageInstaller(iPackageManager);
 
-                int userId = android.os.UserHandle.myUserId();
+                int userId = getUserId();
                 PackageInstaller packageInstaller = createPackageInstaller(
                     context, iPackageInstaller, installerPackageName, userId);
 
@@ -335,6 +342,25 @@ public class DhizukuInstallHelper {
                 }
             }
         }).start();
+    }
+
+    /**
+     * 获取当前用户ID（兼容不同Android版本）
+     */
+    private static int getUserId() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return android.os.Process.myUserHandle().hashCode();
+        } else {
+            // 对于旧版本，尝试使用反射调用 UserHandle.myUserId()
+            try {
+                java.lang.reflect.Method myUserIdMethod = android.os.UserHandle.class.getDeclaredMethod("myUserId");
+                myUserIdMethod.setAccessible(true);
+                return (int) myUserIdMethod.invoke(null);
+            } catch (Exception e) {
+                android.util.Log.w(TAG, "Failed to get user ID via reflection, using default 0");
+                return 0;
+            }
+        }
     }
 
     public static void installApk(Context context, String apkPath, boolean replaceExisting, boolean grantPermissions, InstallCallback callback) {
