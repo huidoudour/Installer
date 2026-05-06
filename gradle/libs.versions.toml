@@ -28,6 +28,10 @@ api = { group = "dev.rikka.shizuku", name = "api", version.ref = "api" }
 provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "provider" }
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+# Dhizuku-API
+# https://github.com/iamr0s/Dhizuku-API
+iamr0s-dhizuku-api = { group = "io.github.iamr0s", name = "Dhizuku-API", version = "2.5.4" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }

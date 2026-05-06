@@ -8,10 +8,25 @@
     
     <!-- Install page -->
     <string name="install_title">Install Application</string>
+    <string name="authorization_method">Authorization Method</string>
+    <string name="shizuku">Shizuku</string>
+    <string name="dhizuku">Dhizuku</string>
+    <string name="grant">Grant</string>
+    <string name="install_dialog_title">Installation Dialog</string>
     <string name="select_apk">Select APK File</string>
     <string name="install">Install</string>
     <string name="reinstall">Reinstall</string>
+    <string name="upgrade_app">Upgrade App</string>
     <string name="cancel">Cancel</string>
+    <string name="privilege">Privilege</string>
+    <string name="back">Back</string>
+    <string name="switched_to_shizuku">Switched to Shizuku</string>
+    <string name="switched_to_dhizuku">Switched to Dhizuku</string>
+    <string name="close">Close</string>
+    <string name="request_authorization">Request Authorization</string>
+    <string name="privilege_settings_hint">Select the authorization method for installing apps. Make sure the selected service is running and authorized.</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="copy_failed">Copy failed</string>
     <string name="installing">Installing...</string>
     <string name="app_icon_description">Application Icon</string>
     
@@ -39,6 +54,8 @@
     <string name="simplified_chinese">Simplified Chinese</string>
     <string name="traditional_chinese">Traditional Chinese</string>
     <string name="english">English</string>
+    <string name="russian">Русский</string>
+    <string name="japanese">日本語</string>
     <string name="confirm">Confirm</string>
     <string name="language_changed_tip">Language switched to %s, app will restart automatically</string>
     <string name="language_change_failed">Language switch failed</string>
@@ -48,8 +65,10 @@
     <string name="background_display_disabled">Background display disabled, app will not appear in recent tasks (effective after restart)</string>
     <string name="setting_change_failed">Setting change failed, please restart app manually</string>
     <string name="text1">你保护世界，我保护你</string>
-    <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
+    <string name="about_me">亻尔女子，我是 huidoudour（慧兜兜）</string>
     <string name="find_me">ω寻找我ω</string>
+    <string name="about_description">专注于 Android 应用安装工具开发</string>
+    <string name="visit_github">访问 GitHub</string>
     
     <!-- Reference strings -->
     <string name="shell_hint">Enter command...</string>
@@ -67,9 +86,15 @@
     <string name="letter_c">C</string>
     <string name="clipboard">P</string>
     <string name="lightning">Q</string>
+
+    <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku Status</string>
+    <string name="dhizuku_status">Dhizuku Status</string>
     <string name="checking">Checking...</string>
     <string name="grant_shizuku_permission">Grant Shizuku Permission</string>
+    <string name="grant_dhizuku_permission">Grant Dhizuku Permission</string>
+    <string name="request_shizuku_permission">Attempting to request Shizuku permission...</string>
+    <string name="request_dhizuku_permission">Attempting to request Dhizuku permission...</string>
     <string name="no_file_selected">No file selected</string>
     <string name="select_apk_file">Select APK File</string>
     <string name="install_options">Install Options</string>
@@ -94,14 +119,14 @@
     <string name="real_time_logs">Display all operation logs in real time</string>
     <string name="waiting_operation">Waiting for operation……</string>
     <string name="app_name_label">App Name</string>
-    <string name="package_name">Package Name</string>
+    <string name="package_name_label">Package Name: </string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">Version</string>
     <string name="file_size">File Size</string>
-    <string name="min_sdk">Min SDK</string>
-    <string name="target_sdk">Target SDK</string>
+    <string name="min_sdk">Min SDK: </string>
+    <string name="target_sdk">Target SDK: </string>
     <string name="version_comparison">Version Comparison</string>
-    <string name="current_version">Current Version</string>
+    <string name="current_version">Current Version: </string>
     <string name="new_version">New Version</string>
     <string name="not_installed">Not Installed</string>
     <string name="default_file_size">10.24 MB</string>
@@ -116,6 +141,7 @@
     <string name="parse_file_failed">Failed to parse install file info</string>
     <string name="set_app_icon_failed">Failed to set app icon</string>
     <string name="shizuku_required">Shizuku authorization required to install app</string>
+    <string name="dhizuku_required">Dhizuku authorization required to install app</string>
     <string name="xapk_install_success">XAPK installed successfully</string>
     <string name="xapk_install_failed">XAPK installation failed: %s</string>
     <string name="apk_install_success">APK installed successfully</string>
@@ -129,12 +155,12 @@
     <string name="open_link_failed">Unable to open link, please check your browser</string>
     <string name="link_open_failed">Failed to open link: %s</string>
     <string name="link_open_error">Unable to open link.
-Possible causes:
-1. No browser app installed on device
-2. Android 14 package visibility restrictions
-3. System security settings blocked the link
+    Possible causes:
+    1. No browser app installed on device
+    2. Android 14 package visibility restrictions
+    3. System security settings blocked the link
 
-Please try installing Chrome, Firefox or other browser.</string>
+    Please try installing Chrome, Firefox or other browser.</string>
     <string name="receive_install_intent">Received install intent, URI: %s</string>
     <string name="start_apk_install">Starting APK installation...</string>
     <string name="create_session">Creating install session: %s</string>
@@ -145,17 +171,26 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="install_exception">Installation exception: %s</string>
     <string name="extract_xapk">Extracting XAPK (using native compression library)...</string>
     <string name="shizuku_not_running">Not Running/Not Installed</string>
+    <string name="dhizuku_not_running">Not Running/Not Installed</string>
     <string name="shizuku_not_connected">Shizuku not connected.</string>
+    <string name="dhizuku_not_connected">Dhizuku not connected.</string>
     <string name="version_too_low">Version too low</string>
     <string name="shizuku_version_too_low">Shizuku version too low.</string>
+    <string name="dhizuku_version_too_low">Dhizuku version too low.</string>
     <string name="permission_granted">Permission granted</string>
     <string name="shizuku_connected_and_authorized">Shizuku connected and authorized.</string>
+    <string name="dhizuku_connected_and_authorized">Dhizuku connected and authorized.</string>
     <string name="not_authorized">Not authorized</string>
     <string name="shizuku_connected_but_not_authorized">Shizuku connected but not authorized.</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizuku connected but not authorized.</string>
     <string name="status_unknown">Status unknown</string>
     <string name="check_shizuku_version_permission_failed">Failed to check Shizuku version/permission: %s</string>
+    <string name="check_dhizuku_version_permission_failed">Failed to check Dhizuku version/permission: %s</string>
     <string name="unavailable">Unavailable</string>
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi caught exception: %s</string>
+    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUi caught exception: %s</string>
+
+    <!-- XAPK extraction -->
     <string name="extract_complete">Extraction complete, total %d APK files</string>
     <string name="apk_progress" formatted="false">[%d/%d] %s</string>
     <string name="submitting_install">Submitting install...</string>
@@ -194,6 +229,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="callback_param">Install callback</string>
     <string name="install_all_apks">Install all APK files</string>
     <string name="use_shizuku_install_single_apk">Use ShizukuInstallHelper to install single APK</string>
+    <string name="use_dhizuku_install_single_apk">Use DhizukuInstallHelper to install single APK</string>
     <string name="install_progress">Installation progress: %s</string>
     <string name="apk_install_success_log">APK installed successfully: %s</string>
     <string name="apk_install_failed_log">APK installation failed: %s</string>
@@ -202,12 +238,15 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="xapk_install_exception_log">XAPK installation exception</string>
     <string name="install_exception_error">Installation exception: %s</string>
     <string name="cleanup_temp_files">Clean temporary files</string>
+
+    <!-- Shell session management -->
     <string name="create_persistent_shell_session">Create persistent shell session</string>
     <string name="use_shizuku_create_session">Use Shizuku to create session</string>
     <string name="normal_mode_use_non_interactive_shell">Normal mode - use non-interactive shell</string>
     <string name="initialize_environment_clear_prompt_disable_job_control">Initialize environment - clear prompt and disable job control</string>
     <string name="switch_to_user_accessible_directory">Switch to user accessible directory</string>
     <string name="shizuku_mode_access_any_directory">In Shizuku mode can access any directory, using /data/local/tmp</string>
+    <string name="dhizuku_mode_access_any_directory">In Dhizuku mode can access any directory, using /data/local/tmp</string>
     <string name="normal_mode_use_sdcard">Normal mode uses /sdcard</string>
     <string name="wait_for_initialization">Wait for initialization to complete</string>
     <string name="clear_initial_output">Clear initial output</string>
@@ -219,6 +258,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="fallback_execution_single_command">Fallback execution (single command)</string>
     <string name="get_current_working_directory">Get current working directory</string>
     <string name="reset_shell_session">Reset shell session</string>
+
+    <!-- Command utilities -->
     <string name="quick_command_list">Quick command list</string>
     <string name="list_files">List files</string>
     <string name="current_directory">Current directory</string>
@@ -235,6 +276,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="copy_text_to_clipboard">Copy text to clipboard</string>
     <string name="terminal_output">Terminal Output</string>
     <string name="command_history_management">Command history management</string>
+
+    <!-- Session and terminal management -->
     <string name="session_error">Session error: %s</string>
     <string name="trying_to_recreate_session">Trying to recreate session...</string>
     <string name="retry_once">Retry once</string>
@@ -244,6 +287,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="disable_job_control_avoid_tty_error">Disable job control, avoid TTY error</string>
     <string name="unknown_file_format_chinese">Unknown format</string>
     <string name="apk_name_failed" formatted="false">%s failed: %s</string>
+
+    <!-- File operations -->
     <string name="copy_file_failed_log">Failed to copy file to temp directory Exit code: %d</string>
     <string name="copy_file_failed">Failed to copy file</string>
     <string name="file_copy_success_start_install">File copied successfully, starting installation...</string>
@@ -299,9 +344,11 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="restart_app_failed">App restart failed: %s</string>
     <string name="apply_background_display_setting_failed">Failed to apply background display setting: %s</string>
     <string name="installer_page">Installer Page</string>
+    <string name="install_dialog_page">Installation Dialog Page</string>
     <string name="log_page">Log Page</string>
     <string name="get_file_path_from_uri_failed">Failed to get file path from URI</string>
-    <!-- New string resources -->
+
+    <!-- Language and preferences -->
     <string name="apply_language_preference_failed">Failed to apply language setting: %s</string>
     <string name="apply_language_preference_failed_simple">Failed to apply language preference: %s</string>
     <string name="save_language_setting_failed">Failed to save language setting: %s</string>
@@ -311,8 +358,11 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="opening_zip_file_log">Opening ZIP file...</string>
     <string name="zip_file_opened_log">ZIP file opened successfully</string>
     <string name="extracting_apk_log">Extracting APK: %s</string>
-    <string name="shizuku_permission_granted">Shizuku permission granted.</string>
-    <string name="shizuku_permission_denied">Shizuku permission denied.</string>
+    <string name="shizuku_permission_granted">Shizuku permission granted</string>
+    <string name="shizuku_permission_denied">Shizuku permission denied</string>
+    <string name="dhizuku_permission_granted">Dhizuku permission granted</string>
+    <string name="dhizuku_permission_denied">Dhizuku permission denied</string>
+    <string name="dhizuku_permission_requested">Dhizuku permission requested</string>
     <string name="file_selected_and_cached">File selected and copied to cache: %s</string>
     <string name="file_selected_uri_fail">File selected (URI) but failed to copy to cache, URI: %s</string>
     <string name="file_selection_failed">File selection failed or cancelled.</string>
@@ -321,6 +371,7 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="read_storage_permission_granted">READ_EXTERNAL_STORAGE permission granted.</string>
     <string name="read_storage_permission_denied">READ_EXTERNAL_STORAGE permission denied.</string>
     <string name="shizuku_unavailable">Shizuku unavailable: %s</string>
+    <string name="dhizuku_unavailable">Dhizuku unavailable: %s</string>
     <string name="shizuku_binder_listener_error">Cannot add Shizuku binder listener: %s</string>
     <string name="installer_started">Installer started, waiting for operation……</string>
     <string name="get_file_path_uri_error">getFilePathFromUri has issues: %s</string>
@@ -360,7 +411,6 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="request_read_storage">Requesting READ_EXTERNAL_STORAGE permission.</string>
     <string name="open_file_picker">Opening file picker...</string>
     <string name="file_picker_not_found">File picker not found.</string>
-    <string name="request_shizuku_permission">Attempting to request Shizuku permission...</string>
     <string name="shizuku_not_started">Shizuku not started.</string>
     <string name="shizuku_version_low">Shizuku version too low or incompatible.</string>
     <string name="shizuku_authorized">Shizuku authorized.</string>
@@ -374,6 +424,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="need_file_access_permission_select_apk">Need file access permission to select APK.</string>
     <string name="please_select_install_file_miao">Please select install package file first.</string>
     <string name="install_process_end">=== Install process ended ===</string>
+
+    <!-- Quick paths -->
     <string name="quick_path_title">Quick Path</string>
     <string name="quick_path_root">Root (/)</string>
     <string name="quick_path_sdcard">SD Card (/sdcard/)</string>
@@ -383,8 +435,10 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="quick_path_system">System (/system/)</string>
     <string name="quick_path_system_bin">System Bin (/system/bin/)</string>
     <string name="quick_path_home">Home (~/)</string>
-    <string name="welcome_shell_title">Welcome to aShell You - Style Terminal</string>
-    <string name="welcome_shell_subtitle">Android Shell Environment v2.0</string>
+
+    <!-- Shell welcome -->
+    <string name="welcome_shell_title">欢迎来到~终端</string>
+    <string name="welcome_shell_subtitle">~v2.0</string>
     <string name="root_mode_enabled_via_shizuku">[*] Root mode enabled via Shizuku</string>
     <string name="working_directory_tmp">[*] Working directory: /data/local/tmp</string>
     <string name="user_mode_tip">[!] User mode (grant Shizuku for root)</string>
@@ -397,6 +451,8 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="process_completed_with_exit_code">[Process completed with exit code %d]</string>
     <string name="hash_sign">#</string>
     <string name="user">user</string>
+
+    <!-- Notifications -->
     <string name="notification_permission_required">Notification permission required</string>
     <string name="notification_enabled">Notifications enabled</string>
     <string name="notification_disabled">Notifications disabled</string>
@@ -404,7 +460,6 @@ Please try installing Chrome, Firefox or other browser.</string>
     <!-- Permission authorization related -->
     <string name="privilege_settings">Permission Settings</string>
     <string name="shizuku_settings">Shizuku Authorization</string>
-
     <string name="privilege_status">Status: %s</string>
     <string name="privilege_not_installed">Not Installed</string>
     <string name="privilege_not_running">Not Running</string>
@@ -414,12 +469,11 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="grant_permission">Grant Permission</string>
     <string name="open_app">Open App</string>
     <string name="download_from_github">Download from GitHub</string>
-
     <string name="switch_privilege">Switch</string>
     <string name="current_privilege">Current Authorization</string>
     <string name="privilege_mode_shizuku">Shizuku</string>
 
-
+    <!-- Native library test related strings -->
     <string name="execute_command_failed">Command execution failed: %s</string>
     
     <!-- 原生库测试相关字符串 -->
@@ -462,16 +516,17 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="privilege_not_installed_log">%s not installed, opening GitHub download page...</string>
     <string name="opening_privilege_app">Opening %s app...</string>
     <string name="shizuku_unavailable_meow">Shizuku unavailable meow: %s</string>
+    <string name="dhizuku_unavailable_meow">Dhizuku unavailable meow: %s</string>
     <string name="privilege_not_connected_install_log">%s not connected or not authorized, cannot install meow.</string>
     <string name="requesting_shizuku_auth">Requesting Shizuku authorization...</string>
-
     <string name="privilege_not_installed_notification">%s not installed, opening GitHub download page...</string>
     <string name="privilege_app_opening_notification">Opening %s app...</string>
     <string name="privilege_already_authorized">%s already authorized</string>
+
     <!-- File picker related -->
     <string name="opening_third_party_file_picker">Opening third-party file manager...</string>
     <string name="opening_file_manager">Opening %s file manager...</string>
-    <string name="file_manager_not_available">%s file manager not available: %s</string>
+    <string name="file_manager_not_available">%1$s file manager not available: %2$s</string>
     <string name="processing_file">Processing file...</string>
     <string name="refresh">Refresh</string>
     <string name="file_info_refreshed">File info refreshed.</string>
@@ -492,7 +547,6 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="notification_channel_general_desc">Application general message notifications</string>
     <string name="notification_channel_install">Installation Notifications</string>
     <string name="notification_channel_install_desc">Application installation progress and result notifications</string>
-
     <string name="success">Success</string>
     <string name="failed">Failed</string>
     <string name="theme_settings_developing">Theme settings feature is under development</string>
@@ -516,6 +570,12 @@ Please try installing Chrome, Firefox or other browser.</string>
     <string name="current_installer_package">Current Installer Package</string>
     <string name="current_app">Current App</string>
     <string name="installer_package_changed">Installer package changed</string>
+
+    <string name="previous_step">Previous</string>
+    <string name="next_step">Next</string>
+    <string name="select_privilege_mode">Select Authorization</string>
+    <string name="upgrade_version">Upgrade Version: </string>
+    <string name="arrow_down">Down Arrow</string>
 
 
 </resources>

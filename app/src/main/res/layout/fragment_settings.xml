@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".SettingsFragment">
+    tools:context=".ui.SettingsFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -48,13 +48,13 @@
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="12dp" />
 
                 <!-- 主题设置 -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="8dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
                     app:strokeColor="?attr/colorOutline"
@@ -70,36 +70,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="16dp">
+                        android:padding="12dp">
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_palette_24dp"
                             android:tint="?attr/colorPrimary"
-                            android:layout_marginEnd="16dp" />
+                            android:layout_marginEnd="12dp" />
 
-                        <LinearLayout
+                        <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/theme_settings"
-                                android:textSize="16sp"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/follow_system"
-                                android:textSize="13sp"
-                                android:textColor="?attr/colorOnSurfaceVariant"
-                                android:layout_marginTop="4dp" />
-                        </LinearLayout>
+                            android:text="@string/theme_settings"
+                            android:textSize="15sp"
+                            android:textColor="?attr/colorOnSurface" />
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
@@ -113,7 +99,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="8dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
                     app:strokeColor="?attr/colorOutline"
@@ -129,37 +115,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="16dp">
+                        android:padding="12dp">
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_language_24dp"
                             android:tint="?attr/colorPrimary"
-                            android:layout_marginEnd="16dp" />
+                            android:layout_marginEnd="12dp" />
 
-                        <LinearLayout
+                        <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/language_settings"
-                                android:textSize="16sp"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:id="@+id/tv_current_language"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/simplified_chinese"
-                                android:textSize="13sp"
-                                android:textColor="?attr/colorOnSurfaceVariant"
-                                android:layout_marginTop="4dp" />
-                        </LinearLayout>
+                            android:text="@string/language_settings"
+                            android:textSize="15sp"
+                            android:textColor="?attr/colorOnSurface" />
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
@@ -171,69 +142,46 @@
 
                 <!-- 通知设置 -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/notification_setting_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="8dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
                     app:strokeColor="?attr/colorOutline"
                     app:strokeWidth="1dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="@drawable/ripple_effect"
                     style="@style/Widget.Material3.CardView.Outlined">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_notifications_24dp"
+                            android:tint="?attr/colorPrimary"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginBottom="12dp">
+                            android:layout_weight="1"
+                            android:text="@string/notification_settings"
+                            android:textSize="15sp"
+                            android:textColor="?attr/colorOnSurface" />
 
-                            <com.google.android.material.imageview.ShapeableImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_notifications_24dp"
-                                android:tint="?attr/colorPrimary"
-                                android:layout_marginEnd="16dp" />
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/notification_settings"
-                                    android:textSize="16sp"
-                                    android:textColor="?attr/colorOnSurface" />
-
-                                <TextView
-                                    android:id="@+id/tv_notification_status"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/checking"
-                                    android:textSize="13sp"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:layout_marginTop="4dp" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_request_notification"
-                            android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:text="@string/grant_permission"
-                            android:textSize="14sp"
-                            android:visibility="gone"
-                            android:foreground="@drawable/ripple_effect"
-                            app:cornerRadius="8dp"
-                            style="@style/Widget.Material3.Button.TonalButton" />
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_forward_24dp"
+                            android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
                 
@@ -241,7 +189,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="8dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
                     app:strokeColor="?attr/colorOutline"
@@ -254,37 +202,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="16dp">
+                        android:padding="12dp">
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_share"
+                            android:src="@drawable/ic_package_24dp"
                             android:tint="?attr/colorPrimary"
-                            android:layout_marginEnd="16dp" />
+                            android:layout_marginEnd="12dp" />
 
-                        <LinearLayout
+                        <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/current_installer_package"
-                                android:textSize="16sp"
-                                android:textColor="?attr/colorOnSurface" />
-
-                            <TextView
-                                android:id="@+id/tv_current_installer_package"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/checking"
-                                android:textSize="13sp"
-                                android:textColor="?attr/colorOnSurfaceVariant"
-                                android:layout_marginTop="4dp" />
-                        </LinearLayout>
+                            android:text="@string/current_installer_package"
+                            android:textSize="15sp"
+                            android:textColor="?attr/colorOnSurface" />
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
@@ -326,7 +259,6 @@
                     android:id="@+id/privilege_setting_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
                     app:strokeColor="?attr/colorOutline"
@@ -341,14 +273,14 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="16dp">
+                        android:padding="12dp">
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@android:drawable/ic_lock_idle_lock"
                             android:tint="?attr/colorPrimary"
-                            android:layout_marginEnd="16dp" />
+                            android:layout_marginEnd="12dp" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -360,7 +292,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/privilege_settings"
-                                android:textSize="16sp"
+                                android:textSize="15sp"
                                 android:textColor="?attr/colorOnSurface" />
 
                             <TextView
@@ -380,20 +312,6 @@
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
-
-                <!-- 当前授权器请求按钮 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_request_privilege"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="@string/grant_permission"
-                    android:textSize="15sp"
-                    android:backgroundTint="@color/button_secondary"
-                    android:foreground="@drawable/ripple_effect"
-                    app:cornerRadius="12dp"
-                    app:icon="@android:drawable/ic_lock_idle_lock"
-                    app:iconGravity="textStart"
-                    style="@style/Widget.Material3.Button" />
                 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -448,16 +366,20 @@
                     style="@style/Widget.Material3.CardView.Outlined">
 
                     <LinearLayout
+                        android:id="@+id/version_info_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
 
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_agenda"
+                            android:src="@drawable/ic_version_24dp"
                             android:tint="?attr/colorPrimary"
                             android:layout_marginEnd="16dp" />
 

@@ -1,6 +1,8 @@
 *.iml
 .gradle
 .idea/
+/.lingma
+/.idea/workbuddy
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -19,6 +21,7 @@ build.txt
 /按钮样式设计指南.md
 MarsCodeWorkspaceAppSettings.xml
 log.txt
+*.log
 /.qoder/
 /clone_cache/
 /GITHUB_WORKFLOW_SETUP.md
