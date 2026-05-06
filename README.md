@@ -39,3 +39,5 @@
 - [RikkaApps/Shizuku](https://github.com/RikkaApps/Shizuku)<br>
 - [iamr0s/Dhizuku](https://github.com/iamr0s/Dhizuku)<br>
 - [DP-Hridayan/aShellYou](https://github.com/DP-Hridayan/aShellYou)<br>
+
+> 若有任何涉及到侵权的地方，请联系我。

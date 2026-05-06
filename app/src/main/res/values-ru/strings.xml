@@ -55,8 +55,9 @@
     <string name="russian">Русский</string>
     <string name="japanese">日本語</string>
     <string name="confirm">Подтвердить</string>
-    <string name="language_changed_tip">Язык изменен на %s, приложение перезапустится автоматически</string>
+    <string name="language_changed_tip">Язык изменен на %s</string>
     <string name="language_change_failed">Не удалось изменить язык</string>
+    <string name="theme_changed_tip">Тема изменена на %s</string>
     <string name="feature_developing">Функция в разработке</string>
     <string name="notification_settings_updated">Настройки уведомлений обновлены</string>
     <string name="background_display_enabled">Фоновое отображение включено, приложение появится в списке недавних задач (после перезапуска)</string>

@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.File;
@@ -61,7 +62,7 @@ public class InstallerFragment extends Fragment {
     private TextView tvSelectedFile;
     private TextView tvFileType;  // 新增：文件类型显示
     private Button btnSelectFile;
-    private Button btnRequestPermission;
+    private MaterialButton btnRequestPermission;
     private Button btnSwitchPrivilege;  // 切换授权器按钮
     private Button btnRefreshFile;  // 刷新文件信息按钮
     private Button btnSwitchInstallerPackage;  // 切换安装请求者包名按钮
@@ -723,9 +724,16 @@ public class InstallerFragment extends Fragment {
             case NOT_INSTALLED:
                 currentStatus = "Not installed";
                 tvPrivilegeStatus.setText(getString(R.string.privilege_not_installed_status, modeName));
-                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_indicator_error));
+                statusIndicator.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.status_indicator_error)));
                 btnRequestPermission.setText(getString(R.string.privilege_download_button, modeName));
+                // 根据当前模式设置图标
+                if (currentMode == PrivilegeMode.SHIZUKU) {
+                    btnRequestPermission.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_shizuku));
+                } else {
+                    btnRequestPermission.setIcon(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_lock_idle_lock));
+                }
                 btnRequestPermission.setEnabled(true);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
                     log(getString(R.string.privilege_not_installed_log, modeName));
@@ -735,9 +743,16 @@ public class InstallerFragment extends Fragment {
             case NOT_RUNNING:
                 currentStatus = "Not running";
                 tvPrivilegeStatus.setText(getString(R.string.privilege_not_running_status, modeName));
-                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_indicator_error));
+                statusIndicator.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.status_indicator_error)));
                 btnRequestPermission.setText(getString(R.string.privilege_open_button, modeName));
+                // 根据当前模式设置图标
+                if (currentMode == PrivilegeMode.SHIZUKU) {
+                    btnRequestPermission.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_shizuku));
+                } else {
+                    btnRequestPermission.setIcon(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_lock_idle_lock));
+                }
                 btnRequestPermission.setEnabled(true);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
                     log(getString(R.string.opening_privilege_app, modeName));
@@ -747,9 +762,16 @@ public class InstallerFragment extends Fragment {
             case VERSION_TOO_LOW:
                 currentStatus = getString(R.string.version_too_low);
                 tvPrivilegeStatus.setText(getString(R.string.privilege_version_low_status));
-                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-                statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_indicator_error));
+                statusIndicator.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.status_indicator_error)));
                 btnRequestPermission.setText(getString(R.string.privilege_update_button, modeName));
+                // 根据当前模式设置图标
+                if (currentMode == PrivilegeMode.SHIZUKU) {
+                    btnRequestPermission.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_shizuku));
+                } else {
+                    btnRequestPermission.setIcon(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_lock_idle_lock));
+                }
                 btnRequestPermission.setEnabled(true);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
                     log(getString(R.string.privilege_version_low_status) + ": " + modeName);
@@ -759,9 +781,16 @@ public class InstallerFragment extends Fragment {
             case NOT_AUTHORIZED:
                 currentStatus = getString(R.string.not_authorized);
                 tvPrivilegeStatus.setText(getString(R.string.privilege_not_authorized_status));
-                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
-                statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_indicator_warning));
+                statusIndicator.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.status_indicator_warning)));
                 btnRequestPermission.setText(getString(R.string.privilege_request_auth_button));
+                // 根据当前模式设置图标
+                if (currentMode == PrivilegeMode.SHIZUKU) {
+                    btnRequestPermission.setIcon(ContextCompat.getDrawable(requireContext(), R.drawable.ic_shizuku));
+                } else {
+                    btnRequestPermission.setIcon(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_lock_idle_lock));
+                }
                 btnRequestPermission.setEnabled(true);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
                     log(getString(R.string.privilege_not_authorized_status) + ": " + modeName);
@@ -771,9 +800,12 @@ public class InstallerFragment extends Fragment {
             case AUTHORIZED:
                 currentStatus = getString(R.string.authorized);
                 tvPrivilegeStatus.setText(getString(R.string.privilege_authorized_status));
-                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-                statusIndicator.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
+                tvPrivilegeStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.status_indicator_success));
+                statusIndicator.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.status_indicator_success)));
                 btnRequestPermission.setText(getString(R.string.privilege_authorized_button));
+                // 权限已授予时使用锁图标
+                btnRequestPermission.setIcon(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_lock_idle_lock));
                 btnRequestPermission.setEnabled(false);
                 if (!currentStatus.equals(lastPrivilegeStatus)) {
                     log(getString(R.string.privilege_authorized_status) + ": " + modeName);

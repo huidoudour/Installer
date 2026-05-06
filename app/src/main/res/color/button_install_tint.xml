@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 安装按钮颜色 - 自动适配深色模式 -->
+    <item android:color="@color/button_install" />
+</selector>

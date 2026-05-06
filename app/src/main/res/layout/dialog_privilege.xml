@@ -39,9 +39,10 @@
 
             <!-- Shizuku 图标 -->
             <ImageView
+                android:id="@+id/iv_shizuku_icon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/ic_shizuku"
+                android:src="@drawable/ic_warning"
                 android:contentDescription="@string/shizuku" />
 
             <LinearLayout
@@ -100,9 +101,10 @@
 
             <!-- Dhizuku 图标 -->
             <ImageView
+                android:id="@+id/iv_dhizuku_icon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/ic_dhizuku"
+                android:src="@drawable/ic_warning"
                 android:contentDescription="@string/dhizuku" />
 
             <LinearLayout
@@ -191,7 +193,7 @@
             android:textSize="14sp"
             android:textStyle="bold"
             app:cornerRadius="12dp"
-            app:backgroundTint="@color/button_secondary" />
+            app:backgroundTint="@color/button_secondary_tint" />
     </LinearLayout>
 
 </LinearLayout>

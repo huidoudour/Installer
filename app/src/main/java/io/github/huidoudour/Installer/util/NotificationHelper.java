@@ -58,7 +58,7 @@ public class NotificationHelper {
      */
     public static void showNotification(Context context, String title, String message) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID_GENERAL)
-            .setSmallIcon(R.drawable.ic_notifications_24dp)
+            .setSmallIcon(R.drawable.ic_notifications)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

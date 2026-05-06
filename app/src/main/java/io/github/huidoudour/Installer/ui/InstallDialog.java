@@ -69,6 +69,11 @@ public class InstallDialog extends AppCompatActivity {
     private Button btnDhizukuGrant;
     private com.google.android.material.card.MaterialCardView cardShizuku;
     private com.google.android.material.card.MaterialCardView cardDhizuku;
+    private ImageView ivShizukuIcon;
+    private ImageView ivDhizukuIcon;
+    
+    // 图标缓存
+    private android.util.LruCache<String, android.graphics.drawable.Drawable> iconCache;
 
     private Uri installUri;
     private String filePath;
@@ -83,12 +88,20 @@ public class InstallDialog extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 应用用户选择的主题
+        io.github.huidoudour.Installer.util.ThemeManager.applyUserThemePreference(this);
+        
         // 应用用户选择的语言
         LanguageManager.applyUserLanguagePreference(this);
 
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.dialog_install);
+        
+        // 初始化图标缓存 (最多缓存10个图标)
+        int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        int cacheSize = maxMemory / 8;
+        iconCache = new android.util.LruCache<>(cacheSize);
 
         // 初始化视图
         initViews();
@@ -153,8 +166,14 @@ public class InstallDialog extends AppCompatActivity {
         btnDhizukuGrant = dialogView.findViewById(R.id.btn_dhizuku_grant);
         cardShizuku = dialogView.findViewById(R.id.card_shizuku);
         cardDhizuku = dialogView.findViewById(R.id.card_dhizuku);
+        ivShizukuIcon = dialogView.findViewById(R.id.iv_shizuku_icon);
+        ivDhizukuIcon = dialogView.findViewById(R.id.iv_dhizuku_icon);
         Button btnPrivilegeCancel = dialogView.findViewById(R.id.btn_privilege_cancel);
         Button btnPrivilegeNext = dialogView.findViewById(R.id.btn_privilege_next);
+
+        // 加载 Shizuku 和 Dhizuku 的应用图标（暂时注释，使用静态SVG图标）
+        loadAppIcon("moe.shizuku.privileged.api", ivShizukuIcon);
+        loadAppIcon("com.rosan.dhizuku", ivDhizukuIcon);
 
         // 更新授权方式 UI
         updatePrivilegeModeUI();
@@ -212,6 +231,56 @@ public class InstallDialog extends AppCompatActivity {
         }
     }
 
+    /**
+     * 从缓存或PackageManager加载应用图标
+     * @param packageName 包名
+     * @param imageView 显示图标的ImageView
+     */
+    private void loadAppIcon(String packageName, ImageView imageView) {
+        if (imageView == null) return;
+        
+        // 先从缓存中查找
+        android.graphics.drawable.Drawable cachedIcon = iconCache.get(packageName);
+        if (cachedIcon != null) {
+            imageView.setImageDrawable(cachedIcon);
+            Log.d(TAG, "Using cached icon for: " + packageName);
+            return;
+        }
+        
+        // 缓存中没有，从PackageManager加载
+        try {
+            PackageManager pm = getPackageManager();
+            android.content.pm.ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
+            android.graphics.drawable.Drawable icon = appInfo.loadIcon(pm);
+            
+            if (icon != null) {
+                // 存入缓存
+                iconCache.put(packageName, icon);
+                imageView.setImageDrawable(icon);
+                Log.d(TAG, "Loaded and cached icon for: " + packageName);
+            } else {
+                // 如果获取失败，使用默认图标
+                setDefaultIcon(imageView, packageName);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to load icon for " + packageName + ": " + e.getMessage());
+            setDefaultIcon(imageView, packageName);
+        }
+    }
+    
+    /**
+     * 设置默认图标
+     */
+    private void setDefaultIcon(ImageView imageView, String packageName) {
+        if ("moe.shizuku.privileged.api".equals(packageName)) {
+            imageView.setImageResource(R.drawable.ic_shizuku);
+        } else if ("com.rosan.dhizuku".equals(packageName)) {
+            imageView.setImageResource(R.drawable.ic_warning);
+        } else {
+            imageView.setImageResource(android.R.drawable.sym_def_app_icon);
+        }
+    }
+    
     /**
      * 请求 Shizuku 权限
      */
@@ -816,8 +885,16 @@ public class InstallDialog extends AppCompatActivity {
      * 检查并显示版本比对信息
      */
     private void checkAndDisplayVersionComparison() {
-        String packageName = tvPackageName.getText().toString();
-        if (packageName == null || packageName.isEmpty()) return;
+        // 从 tvPackageName 中提取纯包名（去掉"包名: "前缀）
+        String packageNameText = tvPackageName.getText().toString();
+        String packageName = extractPackageName(packageNameText);
+        
+        if (packageName == null || packageName.isEmpty()) {
+            Log.w(TAG, "Cannot extract package name from: " + packageNameText);
+            return;
+        }
+
+        Log.d(TAG, "Checking installed app for package: " + packageName);
 
         new Thread(() -> {
             try {
@@ -826,10 +903,12 @@ public class InstallDialog extends AppCompatActivity {
 
                 runOnUiThread(() -> {
                     if (installedInfo != null) {
+                        Log.d(TAG, "App is installed, showing version comparison");
                         // 应用已安装，显示版本比对
                         displayVersionInMainField(installedInfo);
                         updateInstallButtonForInstalledApp(installedInfo);
                     } else {
+                        Log.d(TAG, "App is not installed, showing basic info");
                         // 应用未安装，显示基础版本信息
                         displayBasicVersionInfo();
                         updateInstallButtonForNewInstall();
@@ -840,6 +919,28 @@ public class InstallDialog extends AppCompatActivity {
                 runOnUiThread(() -> displayBasicVersionInfo());
             }
         }).start();
+    }
+    
+    /**
+     * 从显示文本中提取纯包名
+     * @param displayText 显示文本，格式为 "包名: com.example.app"
+     * @return 纯包名，如 "com.example.app"
+     */
+    private String extractPackageName(String displayText) {
+        if (displayText == null || displayText.isEmpty()) {
+            return null;
+        }
+        
+        // 查找最后一个冒号的位置
+        int colonIndex = displayText.lastIndexOf(':');
+        if (colonIndex != -1 && colonIndex < displayText.length() - 1) {
+            // 提取冒号后的内容并去除空格
+            String packageName = displayText.substring(colonIndex + 1).trim();
+            return packageName.isEmpty() ? null : packageName;
+        }
+        
+        // 如果没有冒号，直接返回原文本（可能是纯包名）
+        return displayText.trim();
     }
 
     /**

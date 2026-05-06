@@ -31,6 +31,7 @@ import io.github.huidoudour.Installer.util.NotificationHelper;
 import io.github.huidoudour.Installer.util.PrivilegeHelper;
 import io.github.huidoudour.Installer.util.PrivilegeHelper.PrivilegeMode;
 import io.github.huidoudour.Installer.util.PrivilegeHelper.PrivilegeStatus;
+import io.github.huidoudour.Installer.util.ThemeManager;
 import rikka.shizuku.Shizuku;
 
 public class SettingsFragment extends Fragment {
@@ -186,6 +187,7 @@ public class SettingsFragment extends Fragment {
         com.google.android.material.card.MaterialCardView cardEnglish = dialogView.findViewById(R.id.language_english);
         com.google.android.material.card.MaterialCardView cardRussian = dialogView.findViewById(R.id.language_russian);
         com.google.android.material.card.MaterialCardView cardJapanese = dialogView.findViewById(R.id.language_japanese);
+        com.google.android.material.card.MaterialCardView cardMeow = dialogView.findViewById(R.id.language_meow);
         
         // 获取所有RadioButton (不使用RadioGroup,直接手动管理单选状态)
         android.widget.RadioButton radioSystem = dialogView.findViewById(R.id.radio_system);
@@ -194,6 +196,7 @@ public class SettingsFragment extends Fragment {
         android.widget.RadioButton radioEnglish = dialogView.findViewById(R.id.radio_english);
         android.widget.RadioButton radioRussian = dialogView.findViewById(R.id.radio_russian);
         android.widget.RadioButton radioJapanese = dialogView.findViewById(R.id.radio_japanese);
+        android.widget.RadioButton radioMeow = dialogView.findViewById(R.id.radio_meow);
         
         // 获取当前语言并设置选中状态
         String currentLang = LanguageManager.getUserLanguage(requireContext());
@@ -212,6 +215,9 @@ public class SettingsFragment extends Fragment {
                 break;
             case "ja":
                 radioJapanese.setChecked(true);
+                break;
+            case "zh-HK":
+                radioMeow.setChecked(true);
                 break;
             case "zh":
                 radioSimplified.setChecked(true);
@@ -233,6 +239,7 @@ public class SettingsFragment extends Fragment {
             radioEnglish.setChecked(false);
             radioRussian.setChecked(false);
             radioJapanese.setChecked(false);
+            radioMeow.setChecked(false);
             
             // 根据点击的卡片设置对应的RadioButton
             if (v == cardSystem) {
@@ -253,6 +260,9 @@ public class SettingsFragment extends Fragment {
             } else if (v == cardJapanese) {
                 radioJapanese.setChecked(true);
                 selectedLanguage[0] = "ja";
+            } else if (v == cardMeow) {
+                radioMeow.setChecked(true);
+                selectedLanguage[0] = "zh-HK";
             }
         };
         
@@ -262,6 +272,7 @@ public class SettingsFragment extends Fragment {
         cardEnglish.setOnClickListener(languageClickListener);
         cardRussian.setOnClickListener(languageClickListener);
         cardJapanese.setOnClickListener(languageClickListener);
+        cardMeow.setOnClickListener(languageClickListener);
         
         // 创建Material Dialog - 透明背景以显示圆角
         com.google.android.material.dialog.MaterialAlertDialogBuilder builder = 
@@ -291,16 +302,16 @@ public class SettingsFragment extends Fragment {
                 // 保存语言设置
                 LanguageManager.saveUserLanguage(requireContext(), langCode);
                 
-                // 更新应用语言
+                // 更新应用语言（无需重启）
                 LanguageManager.applyUserLanguagePreference(requireContext());
                 
                 // 显示提示信息
                 String langName = LanguageManager.getLanguageDisplayName(requireContext(), langCode);
                 showNotification(getString(R.string.language_changed_tip, langName));
                 
-                // 重启应用
+                // 重新创建Activity以应用语言更改（比完全重启更轻量）
                 dialog.dismiss();
-                restartApp();
+                requireActivity().recreate();
             } catch (Exception e) {
                 Log.e("SettingsFragment", "Language selection failed: " + e.getMessage());
                 showNotification(R.string.language_change_failed);
@@ -319,36 +330,11 @@ public class SettingsFragment extends Fragment {
             // 更新界面上显示的语言
             updateCurrentLanguageDisplay();
             
-            // 重启应用以使语言设置生效
-            restartApp();
+            // 重新创建Activity以应用语言更改（比完全重启更轻量）
+            requireActivity().recreate();
         } catch (Exception e) {
             Log.e("SettingsFragment", getString(R.string.switch_language_failed, e.getMessage()));
             showNotification(R.string.language_change_failed);
-        }
-    }
-    
-    /**
-     * 重启应用以使语言设置生效
-     */
-    private void restartApp() {
-        try {
-            // 延迟一小段时间后重启应用
-            requireActivity().getWindow().getDecorView().postDelayed(() -> {
-                Intent intent = requireActivity().getPackageManager()
-                        .getLaunchIntentForPackage(requireActivity().getPackageName());
-                if (intent != null) {
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    if (requireActivity() != null) {
-                        requireActivity().finish();
-                    }
-                    // 杀死当前进程以确保完全重启
-                    Runtime.getRuntime().exit(0);
-                }
-            }, 500); // 延迟500毫秒
-        } catch (Exception e) {
-            Log.e("SettingsFragment", getString(R.string.restart_app_failed, e.getMessage()));
         }
     }
     
@@ -449,22 +435,101 @@ public class SettingsFragment extends Fragment {
      * 显示主题选择对话框
      */
     private void showThemeSelectionDialog() {
-        // 创建MD3风格的AlertDialog
-        MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.theme_settings)
-                .setSingleChoiceItems(new String[]{
-                        "Follow System",  // getString(R.string.follow_system)
-                        "Light Theme",  // getString(R.string.light_theme)
-                        "Dark Theme"    // getString(R.string.dark_theme)
-                    },
-                    0, // 默认选中第一个
-                    (dialog, which) -> {
-                        showNotification(getString(R.string.theme_settings_developing));
-                        dialog.dismiss();
-                    })
-                .setNegativeButton(R.string.cancel, null);
-        
-        alertBuilder.show();
+        // 使用自定义Dialog布局
+        android.view.View dialogView = getLayoutInflater().inflate(R.layout.dialog_theme, null);
+            
+        // 获取所有选项卡
+        com.google.android.material.card.MaterialCardView cardSystem = dialogView.findViewById(R.id.theme_system);
+        com.google.android.material.card.MaterialCardView cardLight = dialogView.findViewById(R.id.theme_light);
+        com.google.android.material.card.MaterialCardView cardDark = dialogView.findViewById(R.id.theme_dark);
+            
+        // 获取RadioButton
+        android.widget.RadioButton radioSystem = dialogView.findViewById(R.id.radio_system);
+        android.widget.RadioButton radioLight = dialogView.findViewById(R.id.radio_light);
+        android.widget.RadioButton radioDark = dialogView.findViewById(R.id.radio_dark);
+            
+        // 获取当前主题并设置选中状态
+        int currentTheme = ThemeManager.getUserTheme(requireContext());
+        switch (currentTheme) {
+            case ThemeManager.THEME_LIGHT:
+                radioLight.setChecked(true);
+                break;
+            case ThemeManager.THEME_DARK:
+                radioDark.setChecked(true);
+                break;
+            case ThemeManager.THEME_FOLLOW_SYSTEM:
+            default:
+                radioSystem.setChecked(true);
+                break;
+        }
+            
+        // 为每个卡片设置点击事件
+        final int[] selectedTheme = {currentTheme};
+            
+        View.OnClickListener themeClickListener = v -> {
+            // 清除所有RadioButton的选中状态
+            radioSystem.setChecked(false);
+            radioLight.setChecked(false);
+            radioDark.setChecked(false);
+                
+            // 根据点击的卡片设置对应的RadioButton
+            if (v == cardSystem) {
+                radioSystem.setChecked(true);
+                selectedTheme[0] = ThemeManager.THEME_FOLLOW_SYSTEM;
+            } else if (v == cardLight) {
+                radioLight.setChecked(true);
+                selectedTheme[0] = ThemeManager.THEME_LIGHT;
+            } else if (v == cardDark) {
+                radioDark.setChecked(true);
+                selectedTheme[0] = ThemeManager.THEME_DARK;
+            }
+        };
+            
+        cardSystem.setOnClickListener(themeClickListener);
+        cardLight.setOnClickListener(themeClickListener);
+        cardDark.setOnClickListener(themeClickListener);
+            
+        // 创建Material Dialog
+        com.google.android.material.dialog.MaterialAlertDialogBuilder builder = 
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setView(dialogView)
+                .setBackgroundInsetStart(0)
+                .setBackgroundInsetEnd(0)
+                .setBackgroundInsetTop(0)
+                .setBackgroundInsetBottom(0);
+            
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.show();
+            
+        // 设置按钮点击事件
+        dialogView.findViewById(R.id.btn_theme_cancel).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btn_theme_confirm).setOnClickListener(v -> {
+            try {
+                int themeMode = selectedTheme[0];
+                    
+                // 如果选择的与当前相同，直接关闭
+                if (themeMode == currentTheme) {
+                    dialog.dismiss();
+                    return;
+                }
+                    
+                // 保存主题设置
+                ThemeManager.saveUserTheme(requireContext(), themeMode);
+                    
+                // 应用主题（无需重启）
+                ThemeManager.applyTheme(themeMode);
+                    
+                // 显示提示信息
+                String themeName = ThemeManager.getThemeDisplayName(requireContext(), themeMode);
+                showNotification(getString(R.string.theme_changed_tip, themeName));
+                    
+                dialog.dismiss();
+            } catch (Exception e) {
+                Log.e("SettingsFragment", "Theme selection failed: " + e.getMessage());
+                showNotification(R.string.feature_developing);
+            }
+        });
     }
     
     /**

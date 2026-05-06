@@ -28,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 应用用户选择的主题
+        io.github.huidoudour.Installer.util.ThemeManager.applyUserThemePreference(this);
+        
         // 应用用户选择的语言
         LanguageManager.applyUserLanguagePreference(this);
         

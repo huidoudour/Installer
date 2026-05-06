@@ -57,8 +57,9 @@
     <string name="russian">Русский</string>
     <string name="japanese">日本語</string>
     <string name="confirm">确认</string>
-    <string name="language_changed_tip">语言已切换为%s，应用将自动重启</string>
+    <string name="language_changed_tip">语言已切换为%s</string>
     <string name="language_change_failed">语言切换失败</string>
+    <string name="theme_changed_tip">主题已切换为%s</string>
     <string name="feature_developing">功能开发中</string>
     <string name="notification_settings_updated">通知设置已更新</string>
     <string name="background_display_enabled">后台显示已启用，应用将出现在最近任务列表中（重启应用后生效）</string>

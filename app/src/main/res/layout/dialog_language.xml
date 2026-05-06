@@ -55,7 +55,7 @@
             android:layout_marginBottom="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+            app:cardBackgroundColor="@android:color/transparent"
             app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp"
             android:clickable="true"
@@ -96,6 +96,7 @@
                         android:textColor="?attr/colorOnSurface" />
 
                     <TextView
+                        android:id="@+id/tv_subtitle_system"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Follow System"
@@ -114,7 +115,7 @@
             android:layout_marginBottom="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+            app:cardBackgroundColor="@android:color/transparent"
             app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp"
             android:clickable="true"
@@ -155,6 +156,7 @@
                         android:textColor="?attr/colorOnSurface" />
 
                     <TextView
+                        android:id="@+id/tv_subtitle_simplified"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="简体中文"
@@ -173,7 +175,7 @@
             android:layout_marginBottom="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+            app:cardBackgroundColor="@android:color/transparent"
             app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp"
             android:clickable="true"
@@ -214,6 +216,7 @@
                         android:textColor="?attr/colorOnSurface" />
 
                     <TextView
+                        android:id="@+id/tv_subtitle_english"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="English"
@@ -232,7 +235,7 @@
             android:layout_marginBottom="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+            app:cardBackgroundColor="@android:color/transparent"
             app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp"
             android:clickable="true"
@@ -273,6 +276,7 @@
                         android:textColor="?attr/colorOnSurface" />
 
                     <TextView
+                        android:id="@+id/tv_subtitle_traditional"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="繁體中文"
@@ -291,7 +295,7 @@
             android:layout_marginBottom="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+            app:cardBackgroundColor="@android:color/transparent"
             app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp"
             android:clickable="true"
@@ -332,6 +336,7 @@
                         android:textColor="?attr/colorOnSurface" />
 
                     <TextView
+                        android:id="@+id/tv_subtitle_russian"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Русский"
@@ -347,10 +352,10 @@
             android:id="@+id/language_japanese"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+            app:cardBackgroundColor="@android:color/transparent"
             app:strokeColor="?attr/colorOutline"
             app:strokeWidth="1dp"
             android:clickable="true"
@@ -391,9 +396,70 @@
                         android:textColor="?attr/colorOnSurface" />
 
                     <TextView
+                        android:id="@+id/tv_subtitle_japanese"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="日本語"
+                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 喵语言 Meow~ -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/language_meow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:strokeColor="?attr/colorOutline"
+            app:strokeWidth="1dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_meow"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="0dp"
+                        android:gravity="center"
+                        android:buttonTint="?attr/colorPrimary" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/meow_language"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <TextView
+                        android:id="@+id/tv_subtitle_meow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="喵语中文"
                         android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:layout_marginTop="4dp" />

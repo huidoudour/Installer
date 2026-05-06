@@ -72,7 +72,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:layout_marginEnd="12dp"
-                        android:background="@drawable/ic_launcher_background" />
+                        android:background="@drawable/status_indicator_circle" />
 
                     <TextView
                         android:id="@+id/tvPrivilegeStatus"
@@ -90,7 +90,7 @@
                     android:layout_height="56dp"
                     android:text="@string/grant_permission"
                     android:textSize="15sp"
-                    android:backgroundTint="@color/button_secondary"
+                    app:backgroundTint="@color/button_secondary_tint"
                     app:cornerRadius="12dp"
                     app:icon="@android:drawable/ic_lock_idle_lock"
                     app:iconGravity="textStart"
@@ -183,7 +183,7 @@
                     android:layout_height="56dp"
                     android:text="@string/select_package_file"
                     android:textSize="15sp"
-                    android:backgroundTint="@color/button_primary"
+                    app:backgroundTint="@color/button_primary_tint"
                     app:cornerRadius="12dp"
                     app:icon="@android:drawable/ic_menu_upload"
                     app:iconGravity="textStart"
@@ -275,7 +275,7 @@
                     android:text="@string/install_apk"
                     android:textSize="16sp"
                     android:enabled="false"
-                    android:backgroundTint="@color/button_install"
+                    app:backgroundTint="@color/button_install_tint"
                     app:cornerRadius="12dp"
                     app:icon="@android:drawable/stat_sys_download_done"
                     app:iconGravity="textStart"

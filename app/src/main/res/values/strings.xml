@@ -35,6 +35,8 @@
     <string name="settings_subtitle">Customize Your App Experience</string>
     <string name="app_settings">App Settings</string>
     <string name="theme_settings">Theme</string>
+    <string name="light_theme">Light Theme</string>
+    <string name="dark_theme">Dark Theme</string>
     <string name="language_settings">Language</string>
     <string name="notification_settings">Notifications</string>
     <string name="background_display">Background Display</string>
@@ -56,9 +58,11 @@
     <string name="english">English</string>
     <string name="russian">Русский</string>
     <string name="japanese">日本語</string>
+    <string name="meow_language">喵语中文</string>
     <string name="confirm">Confirm</string>
-    <string name="language_changed_tip">Language switched to %s, app will restart automatically</string>
+    <string name="language_changed_tip">Language switched to %s</string>
     <string name="language_change_failed">Language switch failed</string>
+    <string name="theme_changed_tip">Theme switched to %s</string>
     <string name="feature_developing">Feature under development</string>
     <string name="notification_settings_updated">Notification settings updated</string>
     <string name="background_display_enabled">Background display enabled, app will appear in recent tasks (effective after restart)</string>

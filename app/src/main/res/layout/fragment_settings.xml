@@ -75,7 +75,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_palette_24dp"
+                            android:src="@drawable/ic_palette"
                             android:tint="?attr/colorPrimary"
                             android:layout_marginEnd="12dp" />
 
@@ -90,7 +90,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward_24dp"
+                            android:src="@drawable/ic_forward"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -120,7 +120,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_language_24dp"
+                            android:src="@drawable/ic_language"
                             android:tint="?attr/colorPrimary"
                             android:layout_marginEnd="12dp" />
 
@@ -135,7 +135,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward_24dp"
+                            android:src="@drawable/ic_forward"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -165,7 +165,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_notifications_24dp"
+                            android:src="@drawable/ic_notifications"
                             android:tint="?attr/colorPrimary"
                             android:layout_marginEnd="12dp" />
 
@@ -180,7 +180,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward_24dp"
+                            android:src="@drawable/ic_forward"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -207,7 +207,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_package_24dp"
+                            android:src="@drawable/ic_package"
                             android:tint="?attr/colorPrimary"
                             android:layout_marginEnd="12dp" />
 
@@ -222,7 +222,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward_24dp"
+                            android:src="@drawable/ic_forward"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -308,7 +308,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward_24dp"
+                            android:src="@drawable/ic_forward"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -350,7 +350,7 @@
                     android:backgroundTint="@color/button_primary"
                     android:foreground="@drawable/ripple_effect"
                     app:cornerRadius="12dp"
-                    app:icon="@android:drawable/ic_menu_info_details"
+                    app:icon="@drawable/butterfly"
                     app:iconGravity="textStart"
                     style="@style/Widget.Material3.Button" />
 
@@ -379,7 +379,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_version_24dp"
+                            android:src="@drawable/ic_version"
                             android:tint="?attr/colorPrimary"
                             android:layout_marginEnd="16dp" />
 

@@ -47,6 +47,10 @@ public class LanguageManager {
                 case "ja":
                     locale = Locale.JAPANESE;
                     break;
+                case "zh-HK":
+                    // 喵语言 - 使用香港中文地区
+                    locale = new Locale("zh", "HK");
+                    break;
                 case "zh":
                 default:
                     locale = Locale.SIMPLIFIED_CHINESE;
@@ -67,7 +71,7 @@ public class LanguageManager {
     /**
      * 保存用户选择的语言
      * @param context 上下文
-     * @param languageCode 语言代码 ("system", "zh", "zh-TW", "en", "ru", "ja")
+     * @param languageCode 语言代码 ("system", "zh", "zh-TW", "zh-HK", "en", "ru", "ja")
      */
     public static void saveUserLanguage(Context context, String languageCode) {
         try {
@@ -81,7 +85,7 @@ public class LanguageManager {
     /**
      * 获取用户选择的语言
      * @param context 上下文
-     * @return 语言代码 ("system", "zh", "zh-TW", "en", "ru", "ja")
+     * @return 语言代码 ("system", "zh", "zh-TW", "zh-HK", "en", "ru", "ja")
      */
     public static String getUserLanguage(Context context) {
         try {
@@ -113,6 +117,8 @@ public class LanguageManager {
                 return context.getString(R.string.russian);
             case "ja":
                 return context.getString(R.string.japanese);
+            case "zh-HK":
+                return context.getString(R.string.meow_language);
             case "zh":
             default:
                 return context.getString(R.string.simplified_chinese);

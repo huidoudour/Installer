@@ -152,7 +152,7 @@
                         android:textStyle="bold"
                         app:cornerRadius="16dp"
                         app:elevation="4dp"
-                        app:backgroundTint="@color/button_secondary"
+                        app:backgroundTint="@color/button_secondary_tint"
                         android:layout_marginBottom="8dp" />
 
                     <!-- 按钮行：权限和取消 -->
@@ -170,7 +170,7 @@
                             android:text="@string/privilege"
                             android:textSize="14sp"
                             app:cornerRadius="12dp"
-                            app:backgroundTint="@color/button_primary"
+                            app:backgroundTint="@color/button_primary_tint"
                             android:layout_marginEnd="8dp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -203,7 +203,7 @@
                         android:layout_marginBottom="16dp"
                         app:trackThickness="8dp"
                         app:trackCornerRadius="4dp"
-                        app:indicatorColor="@color/button_primary"
+                        app:indicatorColor="?attr/colorPrimary"
                         app:trackColor="?attr/colorSurfaceContainerHighest"
                         android:indeterminate="true" />
 
@@ -240,7 +240,7 @@
                     android:textStyle="bold"
                     app:cornerRadius="16dp"
                     app:elevation="4dp"
-                    app:backgroundTint="@color/button_primary"
+                    app:backgroundTint="@color/button_primary_tint"
                     android:layout_marginBottom="8dp" />
 
                 <!-- 按钮行：返回和完成 -->
@@ -270,7 +270,8 @@
                         android:layout_weight="1"
                         android:text="@string/finish"
                         android:textSize="14sp"
-                        app:cornerRadius="12dp" />
+                        app:cornerRadius="12dp"
+                        app:backgroundTint="@color/button_secondary_tint" />
                 </LinearLayout>
             </LinearLayout>
 

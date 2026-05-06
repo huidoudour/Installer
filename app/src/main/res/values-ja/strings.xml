@@ -55,8 +55,9 @@
     <string name="russian">Русский</string>
     <string name="japanese">日本語</string>
     <string name="confirm">確認</string>
-    <string name="language_changed_tip">言語が%sに変更されました。アプリは自動的に再起動します</string>
+    <string name="language_changed_tip">言語が%sに変更されました</string>
     <string name="language_change_failed">言語の変更に失敗しました</string>
+    <string name="theme_changed_tip">テーマが%sに変更されました</string>
     <string name="feature_developing">機能開発中</string>
     <string name="notification_settings_updated">通知設定を更新しました</string>
     <string name="background_display_enabled">バックグラウンド表示が有効になりました。アプリは最近のタスクリストに表示されます（再起動後有効）</string>
