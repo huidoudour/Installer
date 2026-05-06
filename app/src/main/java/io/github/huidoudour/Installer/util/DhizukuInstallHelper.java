@@ -22,7 +22,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import io.github.huidoudour.Installer.R;
 
@@ -53,6 +56,54 @@ public class DhizukuInstallHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             HiddenApiBypass.addHiddenApiExemptions("");
         }
+    }
+
+    /**
+     * 从 APK 文件获取包名
+     *
+     * 优先用 PackageManager.getPackageArchiveInfo() 读取包名（Android 9+ 推荐，无需隐藏 API）；
+     * 若失败则降级到反射 PackageParser（Android 9 及以下）。
+     * 两种方式都失败时返回 null。
+     */
+    private static String getPackageNameFromApk(Context context, File apkFile) {
+        // 方式1：PackageManager.getPackageArchiveInfo()（官方 API，推荐）
+        try {
+            android.content.pm.PackageInfo info =
+                    context.getPackageManager().getPackageArchiveInfo(apkFile.getAbsolutePath(), 0);
+            if (info != null && info.packageName != null && !info.packageName.isEmpty()) {
+                android.util.Log.i(TAG, "Got package name via getPackageArchiveInfo: " + info.packageName);
+                return info.packageName;
+            }
+        } catch (Exception e) {
+            android.util.Log.w(TAG, "Failed to get package name via getPackageArchiveInfo: " + e.getMessage());
+        }
+
+        // 方式2：反射 PackageParser（Android 9 及以下可用）
+        try {
+            Class<?> packageParserClass = Class.forName("android.content.pm.PackageParser");
+            java.lang.reflect.Method parseBaseApkLiteMethod = packageParserClass.getDeclaredMethod(
+                "parseBaseApkLite",
+                java.io.File.class,
+                int.class
+            );
+            parseBaseApkLiteMethod.setAccessible(true);
+            Object parser = packageParserClass.getConstructor().newInstance();
+            Object pkg = parseBaseApkLiteMethod.invoke(parser, apkFile, 0);
+            if (pkg != null) {
+                java.lang.reflect.Field packageNameField = pkg.getClass().getDeclaredField("packageName");
+                packageNameField.setAccessible(true);
+                String name = (String) packageNameField.get(pkg);
+                if (name != null && !name.isEmpty()) {
+                    android.util.Log.i(TAG, "Got package name via PackageParser: " + name);
+                    return name;
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.w(TAG, "Failed to get package name via PackageParser: " + e.getMessage());
+        }
+
+        android.util.Log.w(TAG, "All methods failed to get package name from APK");
+        return null;
     }
 
     private static void ensureInitialized(Context context) throws Exception {
@@ -241,13 +292,113 @@ public class DhizukuInstallHelper {
     }
 
     /**
-     * 提交安装
+     * 提交安装（同步方式）
+     * 使用 LocalIntentReceiver + 轮询双重机制
      */
-    private static void commitSession(Context context, PackageInstaller.Session session) throws Exception {
+    private static void commitSession(Context context, PackageInstaller.Session session, String packageName) throws Exception {
         LocalIntentReceiver receiver = new LocalIntentReceiver();
-        IntentSender intentSender = receiver.getIntentSender();
-        session.commit(intentSender);
-        installResultVerify(context, receiver);
+        final long startTime = System.currentTimeMillis();
+        final long timeout = 120000; // 2分钟超时
+        final long pollInterval = 500; // 500ms 轮询间隔
+        final long initialWait = 2000; // 先等待 2 秒让 Dhizuku 处理
+
+        try {
+            android.util.Log.i(TAG, "Creating IntentSender from LocalIntentReceiver...");
+            IntentSender intentSender = receiver.getIntentSender();
+            android.util.Log.i(TAG, "IntentSender created successfully, committing session...");
+
+            // 提交安装
+            session.commit(intentSender);
+            android.util.Log.i(TAG, "Session.commit() returned, starting hybrid wait mechanism...");
+
+            // 策略1: 先等待一小段时间让 Dhizuku 处理
+            Thread.sleep(initialWait);
+
+            // 检查 IntentSender 是否收到回调
+            if (receiver.hasReceivedResult()) {
+                Intent result = receiver.getResultBlocking(1000); // 等待最多 1 秒获取结果
+                if (result != null) {
+                    android.util.Log.i(TAG, "Got result from IntentSender callback!");
+                    handleInstallResult(context, result, session);
+                    return;
+                }
+            }
+
+            // 策略2: 轮询检查包是否已安装（作为 IntentSender 的备选）
+            android.util.Log.i(TAG, "IntentSender callback not received, using poll mechanism...");
+            while (System.currentTimeMillis() - startTime < timeout) {
+                if (isPackageInstalled(context, packageName)) {
+                    android.util.Log.i(TAG, "Package installed successfully (detected by polling)!");
+                    return;
+                }
+
+                // 检查是否收到 IntentSender 回调
+                if (receiver.hasReceivedResult()) {
+                    Intent result = receiver.getResultBlocking(100);
+                    if (result != null) {
+                        android.util.Log.i(TAG, "Got result from IntentSender (delayed)!");
+                        handleInstallResult(context, result, session);
+                        return;
+                    }
+                }
+
+                Thread.sleep(pollInterval);
+            }
+
+            // 超时，检查最终状态
+            if (isPackageInstalled(context, packageName)) {
+                android.util.Log.i(TAG, "Package installed (found after timeout)!");
+                return;
+            }
+
+            throw new Exception("Install timeout: package not installed within " + (timeout / 1000) + " seconds");
+
+        } catch (Exception e) {
+            android.util.Log.e(TAG, "Error during commit: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
+     * 处理安装结果
+     */
+    private static void handleInstallResult(Context context, Intent result, PackageInstaller.Session session) throws Exception {
+        int status = result.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
+        String message = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
+
+        android.util.Log.i(TAG, "Installation result: status=" + status + ", message=" + message);
+
+        if (status == PackageInstaller.STATUS_SUCCESS) {
+            android.util.Log.i(TAG, "Install successful!");
+            return;
+        } else if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
+            Intent confirmIntent = result.getParcelableExtra(Intent.EXTRA_INTENT);
+            if (confirmIntent != null) {
+                android.util.Log.i(TAG, "Pending user action, starting confirmation activity");
+                confirmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(confirmIntent);
+                Thread.sleep(5000); // 等待用户操作
+                return;
+            }
+        }
+
+        int legacyStatus = result.getIntExtra("android.content.pm.extra.LEGACY_STATUS", -1);
+        throw new Exception("Install failed: status=" + status + ", legacyStatus=" + legacyStatus + ", message=" + message);
+    }
+
+    /**
+     * 检查包是否已安装
+     */
+    private static boolean isPackageInstalled(Context context, String packageName) {
+        if (packageName == null || packageName.isEmpty()) {
+            return false;
+        }
+        try {
+            context.getPackageManager().getPackageInfo(packageName, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     public static void installSingleApk(Context context, File apkFile, boolean replaceExisting, boolean grantPermissions, InstallCallback callback) {
@@ -255,6 +406,11 @@ public class DhizukuInstallHelper {
             PackageInstaller.Session session = null;
             try {
                 callback.onProgress(context.getString(R.string.start_apk_install));
+
+                // 获取要安装的 APK 的包名
+                String targetPackageName = getPackageNameFromApk(context, apkFile);
+                android.util.Log.i(TAG, "Target package name: " + targetPackageName);
+
                 ensureInitialized(context);
 
                 String installerPackageName = getDhizukuComponentName();
@@ -275,7 +431,7 @@ public class DhizukuInstallHelper {
                 writeApkToSession(session, apkFile, "base.apk");
 
                 callback.onProgress(context.getString(R.string.submit_install));
-                commitSession(context, session);
+                commitSession(context, session, targetPackageName);
 
                 callback.onSuccess(context.getString(R.string.install_success_simple));
 
@@ -301,6 +457,13 @@ public class DhizukuInstallHelper {
                 extractedApks = XapkInstaller.extractXapk(context, xapkPath);
                 callback.onProgress(context.getString(R.string.extract_complete, extractedApks.size()));
 
+                // 获取主 APK 的包名（通常第一个文件是主 APK）
+                String targetPackageName = null;
+                if (!extractedApks.isEmpty()) {
+                    targetPackageName = getPackageNameFromApk(context, extractedApks.get(0));
+                }
+                android.util.Log.i(TAG, "XAPK main package name: " + targetPackageName);
+
                 ensureInitialized(context);
 
                 String installerPackageName = getDhizukuComponentName();
@@ -324,7 +487,7 @@ public class DhizukuInstallHelper {
                 }
 
                 callback.onProgress(context.getString(R.string.submitting_install));
-                commitSession(context, session);
+                commitSession(context, session, targetPackageName);
 
                 callback.onSuccess(context.getString(R.string.xapk_install_success_msg, extractedApks.size()));
 
