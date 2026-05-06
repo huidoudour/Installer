@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Toolbar 背景色 -->
+    <color name="toolbar_background">#FFD8F5C5</color>
+    <color name="toolbar_title">#FF000000</color>
+</resources>

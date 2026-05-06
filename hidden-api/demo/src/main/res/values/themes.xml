@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.HiddenApiDemo" parent="Theme.Material3.Light.NoActionBar">
+        <!-- 主色调 -->
+        <item name="colorPrimary">#FF6200EE</item>
+        <item name="colorOnPrimary">#FFFFFFFF</item>
+        
+        <!-- 次要色 -->
+        <item name="colorSecondary">#FF03DAC5</item>
+        <item name="colorOnSecondary">#FF000000</item>
+        
+        <!-- 背景色 -->
+        <item name="android:colorBackground">#FFFFFFFF</item>
+        <item name="colorSurface">#FFFFFFFF</item>
+        <item name="colorOnSurface">#FF1C1B1F</item>
+        
+        <!-- 状态栏颜色 - 白色背景，深色图标 -->
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- Chip 标签颜色 -->
+    <color name="chip_aidl">#FF2196F3</color>
+    <color name="chip_interface">#FF4CAF50</color>
+    <color name="chip_class">#FFFF9800</color>
+    
+    <!-- 文本和分割线 -->
+    <color name="text_secondary">#FF757575</color>
+    <color name="divider">#FFE0E0E0</color>
+    <color name="card_bg">#FFFFFFFF</color>
+    <color name="code_bg">#FFF5F5F5</color>
+</resources>

@@ -9,3 +9,4 @@ pluginManagement {
 rootProject.name = "Installer"
 include(":app")
 include(":hidden-api")
+include(":hidden-api:demo")
