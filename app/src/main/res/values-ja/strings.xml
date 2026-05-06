@@ -18,6 +18,11 @@
     <string name="reinstall">再インストール</string>
     <string name="upgrade_app">アプリをアップグレード</string>
     <string name="cancel">キャンセル</string>
+    <string name="privilege">権限</string>
+    <string name="back">戻る</string>
+    <string name="switched_to_shizuku">Shizukuに切り替えました</string>
+    <string name="switched_to_dhizuku">Dhizukuに切り替えました</string>
+    <string name="close">閉じる</string>
     <string name="copied_to_clipboard">クリップボードにコピーされました</string>
     <string name="copy_failed">コピーに失敗しました</string>
     <string name="installing">インストール中...</string>
@@ -86,13 +91,11 @@
     <string name="checking">確認中...</string>
     <string name="grant_shizuku_permission">Shizuku権限を付与</string>
     <string name="grant_dhizuku_permission">Dhizuku権限を付与</string>
-    <string name="request_shizuku_permission">Shizuku権限をリクエストしようとしています...</string>
     <string name="request_dhizuku_permission">Dhizuku権限をリクエストしようとしています...</string>
     <string name="dhizuku_not_running">未実行/未インストール</string>
     <string name="dhizuku_not_connected">Dhizukuが接続されていません。</string>
     <string name="dhizuku_version_too_low">Dhizukuのバージョンが低すぎます。</string>
     <string name="dhizuku_connected_and_authorized">Dhizukuが接続され、認証されました。</string>
-    <string name="dhizuku_connected_but_not_authorized">Dhizukuは接続されていますが、認証されていません。</string>
     <string name="check_dhizuku_version_permission_failed">Dhizukuのバージョン/権限の確認に失敗しました: %s</string>
     <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUiが例外をキャッチ: %s</string>
     <string name="no_file_selected">ファイルが選択されていません</string>
@@ -119,7 +122,6 @@
     <string name="real_time_logs">すべての操作ログをリアルタイムで表示</string>
     <string name="waiting_operation">操作を待機中……</string>
     <string name="app_name_label">アプリ名</string>
-    <string name="package_name">パッケージ名</string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">バージョン</string>
     <string name="file_size">ファイルサイズ</string>
@@ -175,7 +177,6 @@
     <string name="shizuku_version_too_low">Shizukuのバージョンが低すぎます。</string>
     <string name="permission_granted">許可されました</string>
     <string name="shizuku_connected_and_authorized">Shizukuが接続され、認証されました。</string>
-    <string name="dhizuku_connected_and_authorized">Dhizukuが接続され、認証されました。</string>
     <string name="not_authorized">未認証</string>
     <string name="shizuku_connected_but_not_authorized">Shizukuは接続されていますが、認証されていません。</string>
     <string name="dhizuku_connected_but_not_authorized">Dhizukuは接続されていますが、認証されていません。</string>
@@ -272,11 +273,11 @@
     <string name="command_history_management">コマンド履歴管理</string>
 
     <!-- Session and terminal management -->
-    <string name="session_error">Session error: %s</string>
-    <string name="trying_to_recreate_session">Trying to recreate session...</string>
+    <string name="session_error">セッションエラー: %s</string>
+    <string name="trying_to_recreate_session">セッションを再作成中...</string>
     <string name="retry_once">もう一度試す</string>
-    <string name="shizuku_session_creation_failed">Shizuku session creation failed: %s</string>
-    <string name="failed_to_create_persistent_shell_session">Failed to create persistent shell session</string>
+    <string name="shizuku_session_creation_failed">Shizuku セッション作成失敗: %s</string>
+    <string name="failed_to_create_persistent_shell_session">永続的な Shell セッションの作成に失敗しました</string>
     <string name="non_interactive_mode">非対話型モード</string>
     <string name="disable_job_control_avoid_tty_error">ジョブ制御を無効にしてTTYエラーを回避</string>
     <string name="unknown_file_format_chinese">不明な形式</string>
@@ -286,9 +287,9 @@
     <string name="copy_file_failed_log">一時ディレクトリへのファイルコピーに失敗しました Exit code: %d</string>
     <string name="copy_file_failed">ファイルのコピーに失敗しました</string>
     <string name="file_copy_success_start_install">ファイルのコピーに成功しました。インストールを開始します...</string>
-    <string name="executing_install_command">Executing install command: %s</string>
-    <string name="install_stdout">Install (stdout): %s</string>
-    <string name="install_stderr">Install (stderr): %s</string>
+    <string name="executing_install_command">インストールコマンドを実行: %s</string>
+    <string name="install_stdout">インストール (標準出力): %s</string>
+    <string name="install_stderr">インストール (標準エラー): %s</string>
     <string name="read_install_output_error">インストールプロセスの出力読み取りエラー: %s</string>
     <string name="install_success_log" formatted="false">インストール成功: %s 出力: %s</string>
     <string name="install_success">インストール成功！</string>
@@ -324,11 +325,11 @@
     <string name="processed_home_install_request">HomeActivityからのインストールリクエストを処理しました。ファイルはcacheにコピーされました: %s</string>
     <string name="process_home_install_uri_failed">HomeActivityからのインストールURIの処理に失敗しました: %s</string>
     <string name="log_cleared">ログがクリアされました</string>
-    <string name="log_export_header">=== Installer Log Export ===</string>
-    <string name="export_time">Export Time: %s</string>
-    <string name="total_logs">Total Logs: %d</string>
-    <string name="log_content_header">=== Log Content ===</string>
-    <string name="log_file_subject">Installer Log</string>
+    <string name="log_export_header">=== Installer ログエクスポート ===</string>
+    <string name="export_time">エクスポート時間: %s</string>
+    <string name="total_logs">総ログ数: %d</string>
+    <string name="log_content_header">=== ログ内容 ===</string>
+    <string name="log_file_subject">Installer ログ</string>
     <string name="log_file_generated">ログファイルが生成されました: %s</string>
     <string name="export_log">ログをエクスポート</string>
     <string name="log_exported">ログがエクスポートされました: %s</string>
@@ -566,7 +567,16 @@
     <string name="current_app">現在のアプリ</string>
     <string name="installer_package_changed">インストーラーパッケージが変更されました</string>
 
-    <!-- Easter egg -->
-    <string name="easter_egg_found">おめでとうございます！イースターエッグを見つけました！</string>
+
+    <!-- Missing strings from default -->
+    <string name="request_authorization">認証をリクエスト</string>
+    <string name="privilege_settings_hint">アプリのインストールに使用する認証方式を選択してください。選択したサービスが実行中で認証されていることを確認してください。</string>
+    <string name="dhizuku_required">アプリをインストールするにはDhizukuの認証が必要です</string>
+    <string name="package_name_label">パッケージ名：</string>
+    <string name="previous_step">前へ</string>
+    <string name="next_step">次へ</string>
+    <string name="select_privilege_mode">認証方式を選択</string>
+    <string name="upgrade_version">アップグレードバージョン：</string>
+    <string name="arrow_down">下矢印</string>
 
 </resources>

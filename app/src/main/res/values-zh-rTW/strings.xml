@@ -12,12 +12,17 @@
     <string name="shizuku">Shizuku</string>
     <string name="dhizuku">Dhizuku</string>
     <string name="grant">授予</string>
+    <string name="privilege">權限</string>
+    <string name="back">返回</string>
     <string name="install_dialog_title">安裝對話框</string>
     <string name="select_apk">選擇 APK</string>
     <string name="install">安裝</string>
     <string name="reinstall">重新安裝</string>
     <string name="upgrade_app">升級應用</string>
     <string name="cancel">取消</string>
+    <string name="switched_to_shizuku">已切換到 Shizuku</string>
+    <string name="switched_to_dhizuku">已切換到 Dhizuku</string>
+    <string name="close">關閉</string>
     <string name="copied_to_clipboard">已複製到剪貼簿</string>
     <string name="copy_failed">複製失敗</string>
     <string name="installing">安裝中...</string>
@@ -119,14 +124,14 @@
     <string name="real_time_logs">即時顯示所有操作日誌</string>
     <string name="waiting_operation">等待操作……</string>
     <string name="app_name_label">應用名稱</string>
-    <string name="package_name">包名</string>
+    <string name="package_name_label">包名：</string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">版本</string>
     <string name="file_size">檔案大小</string>
-    <string name="min_sdk">最低SDK</string>
-    <string name="target_sdk">目標SDK</string>
+    <string name="min_sdk">最低SDK：</string>
+    <string name="target_sdk">目標SDK：</string>
     <string name="version_comparison">版本對比</string>
-    <string name="current_version">當前版本</string>
+    <string name="current_version">當前版本：</string>
     <string name="new_version">新版本</string>
     <string name="not_installed">未安裝</string>
     <string name="default_file_size">10.24 MB</string>
@@ -175,10 +180,8 @@
     <string name="shizuku_version_too_low">Shizuku 版本過低.</string>
     <string name="permission_granted">已授予</string>
     <string name="shizuku_connected_and_authorized">Shizuku 已連接並授權.</string>
-    <string name="dhizuku_connected_and_authorized">Dhizuku 已連接並授權.</string>
     <string name="not_authorized">未授予</string>
     <string name="shizuku_connected_but_not_authorized">Shizuku 已連接但未授權.</string>
-    <string name="dhizuku_connected_but_not_authorized">Dhizuku 已連接但未授權.</string>
     <string name="status_unknown">狀態未知</string>
     <string name="check_shizuku_version_permission_failed">檢查 Shizuku 版本/權限失敗: %s</string>
     <string name="unavailable">不可用</string>
@@ -272,11 +275,11 @@
     <string name="command_history_management">命令歷史記錄管理</string>
 
     <!-- Session and terminal management -->
-    <string name="session_error">Session error: %s</string>
-    <string name="trying_to_recreate_session">Trying to recreate session...</string>
+    <string name="session_error">會話錯誤: %s</string>
+    <string name="trying_to_recreate_session">嘗試重新建立會話...</string>
     <string name="retry_once">重試一次</string>
-    <string name="shizuku_session_creation_failed">Shizuku session creation failed: %s</string>
-    <string name="failed_to_create_persistent_shell_session">Failed to create persistent shell session</string>
+    <string name="shizuku_session_creation_failed">Shizuku 會話建立失敗: %s</string>
+    <string name="failed_to_create_persistent_shell_session">建立持久化 Shell 會話失敗</string>
     <string name="non_interactive_mode">非互動式模式</string>
     <string name="disable_job_control_avoid_tty_error">禁用作業控制，避免TTY錯誤</string>
     <string name="unknown_file_format_chinese">未知格式</string>
@@ -286,9 +289,9 @@
     <string name="copy_file_failed_log">複製檔案到臨時目錄失敗 Exit code: %d</string>
     <string name="copy_file_failed">複製檔案失敗</string>
     <string name="file_copy_success_start_install">檔案複製成功，開始安裝...</string>
-    <string name="executing_install_command">Executing install command: %s</string>
-    <string name="install_stdout">Install (stdout): %s</string>
-    <string name="install_stderr">Install (stderr): %s</string>
+    <string name="executing_install_command">執行安裝命令: %s</string>
+    <string name="install_stdout">安裝 (標準輸出): %s</string>
+    <string name="install_stderr">安裝 (標準錯誤): %s</string>
     <string name="read_install_output_error">讀取安裝進程輸出出錯: %s</string>
     <string name="install_success_log" formatted="false">安裝成功: %s 輸出: %s</string>
     <string name="install_success">安裝成功！</string>
@@ -324,11 +327,11 @@
     <string name="processed_home_install_request">已處理HomeActivity傳遞的安裝請求，檔案已複製到 cache: %s</string>
     <string name="process_home_install_uri_failed">處理HomeActivity傳遞的安裝URI失敗: %s</string>
     <string name="log_cleared">日誌已清空</string>
-    <string name="log_export_header">=== Installer Log Export ===</string>
-    <string name="export_time">Export Time: %s</string>
-    <string name="total_logs">Total Logs: %d</string>
-    <string name="log_content_header">=== Log Content ===</string>
-    <string name="log_file_subject">Installer Log</string>
+    <string name="log_export_header">=== Installer 日誌匯出 ===</string>
+    <string name="export_time">匯出時間: %s</string>
+    <string name="total_logs">總日誌數: %d</string>
+    <string name="log_content_header">=== 日誌內容 ===</string>
+    <string name="log_file_subject">Installer 日誌</string>
     <string name="log_file_generated">日誌檔案已生成: %s</string>
     <string name="export_log">匯出日誌</string>
     <string name="log_exported">日誌已匯出: %s</string>
@@ -405,7 +408,6 @@
     <string name="request_read_storage">請求 READ_EXTERNAL_STORAGE 權限.</string>
     <string name="open_file_picker">開啟檔案選擇器...</string>
     <string name="file_picker_not_found">檔案選擇器未找到.</string>
-    <string name="request_shizuku_permission">嘗試請求 Shizuku 權限...</string>
     <string name="shizuku_not_started">Shizuku沒啟動。</string>
     <string name="shizuku_version_low">Shizuku 版本過低或不相容。</string>
     <string name="shizuku_authorized">Shizuku 已授權.</string>
@@ -566,7 +568,16 @@
     <string name="current_app">當前應用</string>
     <string name="installer_package_changed">安裝器包已變更</string>
 
-    <!-- Easter egg -->
-    <string name="easter_egg_found">恭喜發現彩蛋！</string>
+    <string name="previous_step">上一步</string>
+    <string name="next_step">下一步</string>
+    <string name="select_privilege_mode">選擇授權方式</string>
+    <string name="upgrade_version">升級版本：</string>
+    <string name="arrow_down">向下箭頭</string>
+
+
+    <!-- Missing strings from default -->
+    <string name="request_authorization">請求授權</string>
+    <string name="privilege_settings_hint">選擇用於安裝應用的授權方式。確保所選服務正在運行並已授權。</string>
+    <string name="dhizuku_required">需要Dhizuku授權才能安裝應用</string>
 
 </resources>

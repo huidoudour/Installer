@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 安装对话布局 - Material Design 3 精美风格 -->
+<!-- 安装对话框 - 纯安装UI -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_root"
@@ -14,10 +14,10 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="6dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
         app:cardBackgroundColor="?attr/colorSurface"
         app:strokeWidth="0dp">
 
@@ -25,359 +25,203 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="16dp">
 
-            <!-- 应用图标和名称区域 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="20dp">
-
-                <!-- 应用图标（直接展示） -->
-                <ImageView
-                    android:id="@+id/iv_app_icon"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:src="@android:drawable/sym_def_app_icon"
-                    android:scaleType="centerInside"
-                    android:layout_marginEnd="16dp"
-                    android:contentDescription="@string/app_icon_description" />
-
-                <!-- 应用名称 -->
-                <TextView
-                    android:id="@+id/tv_app_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/app_name_label"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface"
-                    android:maxLines="2"
-                    android:ellipsize="end" />
-            </LinearLayout>
-
-            <!-- 应用信息卡片（美化版） -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <!-- 包名信息 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/package_name"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:layout_marginEnd="16dp" />
-
-                        <TextView
-                            android:id="@+id/tv_package_name"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="com.example.app"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textAlignment="textEnd"
-                            android:maxLines="2"
-                            android:ellipsize="end" />
-                    </LinearLayout>
-
-                    <!-- 版本信息 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/version"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:layout_marginEnd="16dp" />
-
-                        <TextView
-                            android:id="@+id/tv_version"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="1.0.0"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textAlignment="textEnd" />
-                    </LinearLayout>
-
-                    <!-- 文件大小 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/file_size"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:layout_marginEnd="16dp" />
-
-                        <TextView
-                            android:id="@+id/tv_file_size"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="10.5 MB"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textAlignment="textEnd" />
-                    </LinearLayout>
-
-                    <!-- 最小SDK版本 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/min_sdk"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:layout_marginEnd="16dp" />
-
-                        <TextView
-                            android:id="@+id/tv_min_sdk"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/unknown"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textAlignment="textEnd" />
-                    </LinearLayout>
-
-                    <!-- 目标SDK版本 -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/target_sdk"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:layout_marginEnd="16dp" />
-
-                        <TextView
-                            android:id="@+id/tv_target_sdk"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/unknown"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textAlignment="textEnd" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 授权方式选择区域 -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/authorization_method"
-                        android:textSize="14sp"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:layout_marginBottom="12dp" />
-
-                    <!-- Shizuku 选项 -->
-                    <LinearLayout
-                        android:id="@+id/layout_shizuku_option"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingVertical="8dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <RadioButton
-                            android:id="@+id/rb_shizuku"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            android:clickable="false" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="12dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/shizuku"
-                                android:textSize="16sp"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tv_shizuku_status"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/checking"
-                                android:textSize="12sp"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_shizuku_grant"
-                            android:layout_width="wrap_content"
-                            android:layout_height="36dp"
-                            android:text="@string/grant"
-                            android:textSize="12sp"
-                            android:visibility="gone"
-                            style="@style/Widget.Material3.Button.TonalButton" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?attr/colorOutlineVariant"
-                        android:layout_marginVertical="4dp" />
-
-                    <!-- Dhizuku 选项 -->
-                    <LinearLayout
-                        android:id="@+id/layout_dhizuku_option"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingVertical="8dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <RadioButton
-                            android:id="@+id/rb_dhizuku"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:clickable="false" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="12dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/dhizuku"
-                                android:textSize="16sp"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tv_dhizuku_status"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/checking"
-                                android:textSize="12sp"
-                                android:textColor="?attr/colorOnSurfaceVariant" />
-                        </LinearLayout>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_dhizuku_grant"
-                            android:layout_width="wrap_content"
-                            android:layout_height="36dp"
-                            android:text="@string/grant"
-                            android:textSize="12sp"
-                            android:visibility="gone"
-                            style="@style/Widget.Material3.Button.TonalButton" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- 按钮区域 -->
+            <!-- ===== STEP 1: 安装确认界面 ===== -->
             <LinearLayout
                 android:id="@+id/layout_install_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:orientation="vertical">
 
-                <!-- 安装按钮 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_install"
+                <!-- 应用图标和名称区域 -->
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="@string/install"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="16dp"
-                    app:elevation="4dp"
-                    app:backgroundTint="@color/button_primary"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
 
-                <!-- 取消按钮 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_cancel"
+                    <ImageView
+                        android:id="@+id/iv_app_icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@android:drawable/sym_def_app_icon"
+                        android:scaleType="centerInside"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="@string/app_icon_description" />
+
+                    <TextView
+                        android:id="@+id/tv_app_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/app_name_label"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+                </LinearLayout>
+
+                <!-- 应用信息区域 - 居中显示 -->
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="@string/cancel"
-                    android:textSize="16sp"
-                    app:cornerRadius="16dp"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="2dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp">
+
+                    <!-- 包名 -->
+                    <TextView
+                        android:id="@+id/tv_package_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="包名：com.example.app"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:gravity="center"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- 当前版本 -->
+                    <TextView
+                        android:id="@+id/tv_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="当前版本：1.0.0"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:gravity="center" />
+
+                    <!-- 下箭头 -->
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_arrow_down"
+                        android:contentDescription="@string/arrow_down"
+                        android:layout_marginVertical="4dp" />
+
+                    <!-- 升级版本 -->
+                    <TextView
+                        android:id="@+id/tv_upgrade_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="升级版本：1.1.0"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:gravity="center"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- 最低SDK -->
+                    <TextView
+                        android:id="@+id/tv_min_sdk"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="最低SDK：21"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:gravity="center"
+                        android:layout_marginBottom="4dp" />
+
+                    <!-- 目标SDK -->
+                    <TextView
+                        android:id="@+id/tv_target_sdk"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="目标SDK：34"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:gravity="center" />
+
+                </LinearLayout>
+
+                <!-- 按钮区域：安装时切换为进度显示 -->
+                <LinearLayout
+                    android:id="@+id/layout_buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- 安装按钮 -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_install"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="@string/install"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="16dp"
+                        app:elevation="4dp"
+                        app:backgroundTint="@color/button_secondary"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- 按钮行：权限和取消 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_privilege"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="@string/privilege"
+                            android:textSize="14sp"
+                            app:cornerRadius="12dp"
+                            app:backgroundTint="@color/button_primary"
+                            android:layout_marginEnd="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_cancel"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="@string/cancel"
+                            android:textSize="14sp"
+                            app:cornerRadius="12dp"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            app:strokeColor="?attr/colorOutline"
+                            app:strokeWidth="2dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 进度区域：安装时显示 -->
+                <LinearLayout
+                    android:id="@+id/layout_installing_progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <!-- 线性进度条 -->
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/progress_install"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:trackThickness="8dp"
+                        app:trackCornerRadius="4dp"
+                        app:indicatorColor="@color/button_primary"
+                        app:trackColor="?attr/colorSurfaceContainerHighest"
+                        android:indeterminate="true" />
+
+                    <!-- 取消按钮 -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_cancel_progress"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="@string/cancel"
+                        android:textSize="14sp"
+                        app:cornerRadius="16dp"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        app:strokeColor="?attr/colorOutline"
+                        app:strokeWidth="2dp" />
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- 安装完成布局 -->
+            <!-- ===== STEP 2: 安装完成界面 ===== -->
             <LinearLayout
                 android:id="@+id/layout_completion"
                 android:layout_width="match_parent"
@@ -390,71 +234,46 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_open_app"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="48dp"
                     android:text="@string/open_app"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     app:cornerRadius="16dp"
                     app:elevation="4dp"
                     app:backgroundTint="@color/button_primary"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="8dp" />
 
-                <!-- 完成按钮 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_finish"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="@string/finish"
-                    android:textSize="16sp"
-                    app:cornerRadius="16dp"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="2dp" />
-            </LinearLayout>
-
-            <!-- 安装中状态布局 -->
-            <LinearLayout
-                android:id="@+id/layout_progress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <!-- 线性进度条 -->
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/progress_install"
+                <!-- 按钮行：返回和完成 -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:trackThickness="8dp"
-                    app:trackCornerRadius="4dp"
-                    app:indicatorColor="@color/button_primary"
-                    app:trackColor="?attr/colorSurfaceContainerHighest"
-                    android:indeterminate="false"
-                    android:progress="0" />
+                    android:orientation="horizontal"
+                    android:gravity="center">
 
-                <!-- 进度详情文本 -->
-                <TextView
-                    android:id="@+id/tv_progress_detail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/preparing"
-                    android:textSize="14sp"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:layout_marginBottom="20dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_completion_back"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/back"
+                        android:textSize="14sp"
+                        app:cornerRadius="12dp"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        app:strokeColor="?attr/colorOutline"
+                        app:strokeWidth="2dp"
+                        android:layout_marginEnd="8dp" />
 
-                <!-- 取消按钮 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_cancel_progress"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="@string/cancel"
-                    android:textSize="16sp"
-                    app:cornerRadius="16dp"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    app:strokeColor="?attr/colorOutline"
-                    app:strokeWidth="2dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_finish"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/finish"
+                        android:textSize="14sp"
+                        app:cornerRadius="12dp" />
+                </LinearLayout>
             </LinearLayout>
+
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

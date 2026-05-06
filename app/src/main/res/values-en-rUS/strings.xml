@@ -13,16 +13,16 @@
     <string name="dhizuku">Dhizuku</string>
     <string name="grant">Grant</string>
 <string name="install_dialog_title">Installation Dialog</string>
-    <string name="authorization_method">Authorization Method</string>
-    <string name="shizuku">Shizuku</string>
-    <string name="dhizuku">Dhizuku</string>
-    <string name="grant">Grant</string>
-<string name="install_dialog_title">Installation Dialog</string>
 <string name="select_apk">Select APK</string>
 <string name="install">Install</string>
 <string name="reinstall">Reinstall</string>
 <string name="upgrade_app">Upgrade App</string>
 <string name="cancel">Cancel</string>
+<string name="privilege">Privilege</string>
+<string name="back">Back</string>
+<string name="switched_to_shizuku">Switched to Shizuku</string>
+<string name="switched_to_dhizuku">Switched to Dhizuku</string>
+<string name="close">Close</string>
 <string name="copied_to_clipboard">Copied to clipboard</string>
 <string name="copy_failed">Copy failed</string>
 <string name="installing">Installing...</string>
@@ -118,14 +118,14 @@
 <string name="real_time_logs">Real-time log display</string>
 <string name="waiting_operation">Waiting...</string>
 <string name="app_name_label">App name</string>
-<string name="package_name">Package name</string>
+<string name="package_name_label">Package Name: </string>
 <string name="default_package_name">com.example.app</string>
 <string name="version">Version</string>
 <string name="file_size">File Size</string>
-<string name="min_sdk">Min SDK</string>
-<string name="target_sdk">Target SDK</string>
+<string name="min_sdk">Min SDK: </string>
+<string name="target_sdk">Target SDK: </string>
 <string name="version_comparison">Version Comparison</string>
-<string name="current_version">Current Version</string>
+<string name="current_version">Current Version: </string>
 <string name="new_version">New Version</string>
 <string name="not_installed">Not Installed</string>
 <string name="default_file_size">10.24 MB</string>
@@ -396,7 +396,6 @@ Please try installing Chrome, Firefox or other browser apps.</string>
 <string name="request_read_storage">Requesting READ_EXTERNAL_STORAGE permission.</string>
 <string name="open_file_picker">Opening file picker...</string>
 <string name="file_picker_not_found">File picker not found.</string>
-<string name="request_shizuku_permission">Attempting to request Shizuku permission...</string>
 <string name="shizuku_not_started">Shizuku not started.</string>
 <string name="shizuku_version_low">Shizuku version too low or incompatible.</string>
 <string name="shizuku_authorized">Shizuku authorized.</string>
@@ -552,7 +551,15 @@ Please try installing Chrome, Firefox or other browser apps.</string>
 <string name="current_app">Current App</string>
 <string name="installer_package_changed">Installer package changed</string>
 
-<!-- Easter egg -->
-<string name="easter_egg_found">Congratulations! You found the easter egg!</string>
+
+<!-- Missing strings from default -->
+<string name="request_authorization">Request Authorization</string>
+<string name="privilege_settings_hint">Select the authorization method for installing apps. Make sure the selected service is running and authorized.</string>
+<string name="dhizuku_required">Dhizuku authorization required to install app</string>
+<string name="previous_step">Previous</string>
+<string name="next_step">Next</string>
+<string name="select_privilege_mode">Select Authorization</string>
+<string name="upgrade_version">Upgrade Version: </string>
+<string name="arrow_down">Down Arrow</string>
 
 </resources>

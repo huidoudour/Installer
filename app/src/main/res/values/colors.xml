@@ -90,6 +90,7 @@
     <color name="success_green">#FF4CAF50</color>
     <color name="success_green_light">#FF81C784</color>
     <color name="success_green_dark">#FF388E3C</color>
+    <color name="little_green">#CAECA3</color>
 
     <color name="warning_orange">#FFFF9800</color>
     <color name="warning_orange_light">#FFFFB74D</color>

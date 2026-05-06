@@ -18,6 +18,11 @@
     <string name="reinstall">Переустановить</string>
     <string name="upgrade_app">Обновить приложение</string>
     <string name="cancel">Отмена</string>
+    <string name="privilege">Привилегия</string>
+    <string name="back">Назад</string>
+    <string name="switched_to_shizuku">Переключено на Shizuku</string>
+    <string name="switched_to_dhizuku">Переключено на Dhizuku</string>
+    <string name="close">Закрыть</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
     <string name="copy_failed">Копирование не удалось</string>
     <string name="installing">Установка...</string>
@@ -119,14 +124,14 @@
     <string name="real_time_logs">Отображать все журналы операций в реальном времени</string>
     <string name="waiting_operation">Ожидание операции……</string>
     <string name="app_name_label">Имя приложения</string>
-    <string name="package_name">Имя пакета</string>
+    <string name="package_name_label">Имя пакета: </string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">Версия</string>
     <string name="file_size">Размер файла</string>
-    <string name="min_sdk">Минимальный SDK</string>
-    <string name="target_sdk">Целевой SDK</string>
+    <string name="min_sdk">Минимальный SDK: </string>
+    <string name="target_sdk">Целевой SDK: </string>
     <string name="version_comparison">Сравнение версий</string>
-    <string name="current_version">Текущая версия</string>
+    <string name="current_version">Текущая версия: </string>
     <string name="new_version">Новая версия</string>
     <string name="not_installed">Не установлено</string>
     <string name="default_file_size">10.24 МБ</string>
@@ -175,10 +180,8 @@
     <string name="shizuku_version_too_low">Версия Shizuku слишком низкая.</string>
     <string name="permission_granted">Разрешение предоставлено</string>
     <string name="shizuku_connected_and_authorized">Shizuku подключен и авторизован.</string>
-    <string name="dhizuku_connected_and_authorized">Dhizuku подключен и авторизован.</string>
     <string name="not_authorized">Не авторизован</string>
     <string name="shizuku_connected_but_not_authorized">Shizuku подключен, но не авторизован.</string>
-    <string name="dhizuku_connected_but_not_authorized">Dhizuku подключен, но не авторизован.</string>
     <string name="status_unknown">Статус неизвестен</string>
     <string name="check_shizuku_version_permission_failed">Не удалось проверить версию/разрешения Shizuku: %s</string>
     <string name="unavailable">Недоступен</string>
@@ -405,7 +408,6 @@
     <string name="request_read_storage">Запрос разрешения READ_EXTERNAL_STORAGE.</string>
     <string name="open_file_picker">Открытие выбора файлов...</string>
     <string name="file_picker_not_found">Выбор файлов не найден.</string>
-    <string name="request_shizuku_permission">Попытка запросить разрешение Shizuku...</string>
     <string name="shizuku_not_started">Shizuku не запущен.</string>
     <string name="shizuku_version_low">Версия Shizuku слишком низкая или несовместима.</string>
     <string name="shizuku_authorized">Shizuku авторизован.</string>
@@ -566,7 +568,15 @@
     <string name="current_app">Текущее приложение</string>
     <string name="installer_package_changed">Пакет установщика изменен</string>
 
-    <!-- Easter egg -->
-    <string name="easter_egg_found">Поздравляем! Вы нашли пасхалку!</string>
+
+    <!-- Missing strings from default -->
+    <string name="request_authorization">Запросить авторизацию</string>
+    <string name="privilege_settings_hint">Выберите способ авторизации для установки приложений. Убедитесь, что выбранный сервис запущен и авторизован.</string>
+    <string name="dhizuku_required">Требуется авторизация Dhizuku для установки приложения</string>
+    <string name="previous_step">Предыдущий</string>
+    <string name="next_step">Следующий</string>
+    <string name="select_privilege_mode">Выбрать авторизацию</string>
+    <string name="upgrade_version">Версия обновления: </string>
+    <string name="arrow_down">Стрелка вниз</string>
 
 </resources>

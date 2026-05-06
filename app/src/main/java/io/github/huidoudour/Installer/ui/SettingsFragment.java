@@ -44,7 +44,7 @@ public class SettingsFragment extends Fragment {
     // 彩蛋相关
     private int versionClickCount = 0;
     private long lastClickTime = 0;
-    private static final int EASTER_EGG_CLICK_COUNT = 9; // 菜单点击次数
+    private static final int EASTER_EGG_CLICK_COUNT = 6; // 菜单点击次数
     private static final long CLICK_TIME_WINDOW = 2000; // 2秒内完成点击
     
     // 预制的安装请求者包名列表
@@ -612,7 +612,27 @@ public class SettingsFragment extends Fragment {
      * 处理版本号点击事件
      */
     private void handleVersionClick() {
-        showNotification("啥也没有呀");
+        long currentTime = System.currentTimeMillis();
+        
+        // 检查是否在时间窗口内
+        if (currentTime - lastClickTime > CLICK_TIME_WINDOW) {
+            // 超出时间窗口，重置计数
+            versionClickCount = 1;
+        } else {
+            // 在时间窗口内，增加计数
+            versionClickCount++;
+        }
+        
+        // 更新最后点击时间
+        lastClickTime = currentTime;
+        
+        // 检查是否达到触发条件
+        if (versionClickCount >= EASTER_EGG_CLICK_COUNT) {
+            // 触发彩蛋
+            showNotification("啥也没有呀");
+            // 重置计数
+            versionClickCount = 0;
+        }
     }
     
     @Override

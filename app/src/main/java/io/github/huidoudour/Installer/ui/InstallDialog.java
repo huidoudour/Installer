@@ -16,8 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -39,33 +38,37 @@ public class InstallDialog extends AppCompatActivity {
 
     private static final String TAG = "InstallDialog";
 
+    // 安装对话框视图
     private LinearLayout layoutInstallInfo;
-    private LinearLayout layoutProgress;
     private LinearLayout layoutCompletion;
+    private LinearLayout layoutButtons;
+    private LinearLayout layoutInstallingProgress;
     private ImageView ivAppIcon;
     private TextView tvAppName;
     private TextView tvPackageName;
     private TextView tvVersion;
-    private TextView tvFileSize;
     private TextView tvMinSdk;
     private TextView tvTargetSdk;
+    private TextView tvUpgradeVersion;  // 升级版本显示
     private Button btnInstall;
     private Button btnCancel;
     private Button btnCancelProgress;
     private Button btnOpenApp;
     private Button btnFinish;
+    private Button btnPrivilege;
+    private Button btnCompletionBack;
     private com.google.android.material.progressindicator.LinearProgressIndicator progressInstall;
-    private TextView tvProgressDetail;
 
-    // 授权方式选择相关视图
+    // 权限对话框
+    private AlertDialog privilegeDialog;
     private RadioButton rbShizuku;
     private RadioButton rbDhizuku;
-    private LinearLayout layoutShizukuOption;
-    private LinearLayout layoutDhizukuOption;
     private TextView tvShizukuStatus;
     private TextView tvDhizukuStatus;
     private Button btnShizukuGrant;
     private Button btnDhizukuGrant;
+    private com.google.android.material.card.MaterialCardView cardShizuku;
+    private com.google.android.material.card.MaterialCardView cardDhizuku;
 
     private Uri installUri;
     private String filePath;
@@ -102,32 +105,24 @@ public class InstallDialog extends AppCompatActivity {
 
     private void initViews() {
         layoutInstallInfo = findViewById(R.id.layout_install_info);
-        layoutProgress = findViewById(R.id.layout_progress);
         layoutCompletion = findViewById(R.id.layout_completion);
+        layoutButtons = findViewById(R.id.layout_buttons);
+        layoutInstallingProgress = findViewById(R.id.layout_installing_progress);
         ivAppIcon = findViewById(R.id.iv_app_icon);
         tvAppName = findViewById(R.id.tv_app_name);
         tvPackageName = findViewById(R.id.tv_package_name);
         tvVersion = findViewById(R.id.tv_version);
-        tvFileSize = findViewById(R.id.tv_file_size);
         tvMinSdk = findViewById(R.id.tv_min_sdk);
         tvTargetSdk = findViewById(R.id.tv_target_sdk);
+        tvUpgradeVersion = findViewById(R.id.tv_upgrade_version);
         btnInstall = findViewById(R.id.btn_install);
         btnCancel = findViewById(R.id.btn_cancel);
         btnCancelProgress = findViewById(R.id.btn_cancel_progress);
         btnOpenApp = findViewById(R.id.btn_open_app);
         btnFinish = findViewById(R.id.btn_finish);
+        btnPrivilege = findViewById(R.id.btn_privilege);
+        btnCompletionBack = findViewById(R.id.btn_completion_back);
         progressInstall = findViewById(R.id.progress_install);
-        tvProgressDetail = findViewById(R.id.tv_progress_detail);
-
-        // 初始化授权方式选择视图
-        rbShizuku = findViewById(R.id.rb_shizuku);
-        rbDhizuku = findViewById(R.id.rb_dhizuku);
-        layoutShizukuOption = findViewById(R.id.layout_shizuku_option);
-        layoutDhizukuOption = findViewById(R.id.layout_dhizuku_option);
-        tvShizukuStatus = findViewById(R.id.tv_shizuku_status);
-        tvDhizukuStatus = findViewById(R.id.tv_dhizuku_status);
-        btnShizukuGrant = findViewById(R.id.btn_shizuku_grant);
-        btnDhizukuGrant = findViewById(R.id.btn_dhizuku_grant);
 
         // 从保存的设置中读取当前授权方式
         currentMode = PrivilegeHelper.getCurrentMode(this);
@@ -138,17 +133,54 @@ public class InstallDialog extends AppCompatActivity {
         btnCancelProgress.setOnClickListener(v -> onCancelInstallation());
         btnOpenApp.setOnClickListener(v -> onOpenInstalledApp());
         btnFinish.setOnClickListener(v -> finish());
+        btnPrivilege.setOnClickListener(v -> showPrivilegeDialog());
+        btnCompletionBack.setOnClickListener(v -> backToInstallInfoFromCompletion());
+    }
 
-        // 设置授权方式选择事件
-        layoutShizukuOption.setOnClickListener(v -> selectPrivilegeMode(PrivilegeHelper.PrivilegeMode.SHIZUKU));
-        layoutDhizukuOption.setOnClickListener(v -> selectPrivilegeMode(PrivilegeHelper.PrivilegeMode.DHIZUKU));
+    /**
+     * 显示权限选择对话框
+     */
+    private void showPrivilegeDialog() {
+        // 创建权限对话框视图
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_privilege, null);
 
-        // 设置授权按钮事件
-        btnShizukuGrant.setOnClickListener(v -> requestShizukuPermission());
-        btnDhizukuGrant.setOnClickListener(v -> requestDhizukuPermission());
+        // 初始化权限对话框视图
+        rbShizuku = dialogView.findViewById(R.id.rb_shizuku);
+        rbDhizuku = dialogView.findViewById(R.id.rb_dhizuku);
+        tvShizukuStatus = dialogView.findViewById(R.id.tv_shizuku_status);
+        tvDhizukuStatus = dialogView.findViewById(R.id.tv_dhizuku_status);
+        btnShizukuGrant = dialogView.findViewById(R.id.btn_shizuku_grant);
+        btnDhizukuGrant = dialogView.findViewById(R.id.btn_dhizuku_grant);
+        cardShizuku = dialogView.findViewById(R.id.card_shizuku);
+        cardDhizuku = dialogView.findViewById(R.id.card_dhizuku);
+        Button btnPrivilegeCancel = dialogView.findViewById(R.id.btn_privilege_cancel);
+        Button btnPrivilegeNext = dialogView.findViewById(R.id.btn_privilege_next);
 
-        // 更新UI以反映当前选择
+        // 更新授权方式 UI
         updatePrivilegeModeUI();
+
+        // 设置权限选择事件（点击整个卡片）
+        cardShizuku.setOnClickListener(v -> selectPrivilegeMode(PrivilegeHelper.PrivilegeMode.SHIZUKU));
+        cardDhizuku.setOnClickListener(v -> selectPrivilegeMode(PrivilegeHelper.PrivilegeMode.DHIZUKU));
+
+        // 设置按钮点击事件
+        btnPrivilegeCancel.setOnClickListener(v -> privilegeDialog.dismiss());
+        btnPrivilegeNext.setOnClickListener(v -> {
+            privilegeDialog.dismiss();
+            // 返回安装对话框后更新安装按钮状态
+            updateInstallButtonState();
+        });
+
+        // 创建并显示对话框
+        privilegeDialog = new MaterialAlertDialogBuilder(this)
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        privilegeDialog.show();
+
+        // 检查权限状态
+        checkPrivilegeStatus();
     }
 
     /**
@@ -158,7 +190,13 @@ public class InstallDialog extends AppCompatActivity {
         currentMode = mode;
         PrivilegeHelper.saveCurrentMode(this, mode);
         updatePrivilegeModeUI();
-        updateInstallButtonState();
+
+        // 显示切换提示
+        if (mode == PrivilegeHelper.PrivilegeMode.SHIZUKU) {
+            Toast.makeText(this, R.string.switched_to_shizuku, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.switched_to_dhizuku, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -166,11 +204,11 @@ public class InstallDialog extends AppCompatActivity {
      */
     private void updatePrivilegeModeUI() {
         if (currentMode == PrivilegeHelper.PrivilegeMode.SHIZUKU) {
-            rbShizuku.setChecked(true);
-            rbDhizuku.setChecked(false);
+            if (rbShizuku != null) rbShizuku.setChecked(true);
+            if (rbDhizuku != null) rbDhizuku.setChecked(false);
         } else {
-            rbShizuku.setChecked(false);
-            rbDhizuku.setChecked(true);
+            if (rbShizuku != null) rbShizuku.setChecked(false);
+            if (rbDhizuku != null) rbDhizuku.setChecked(true);
         }
     }
 
@@ -260,36 +298,28 @@ public class InstallDialog extends AppCompatActivity {
             } else {
                 // XAPK文件：保留数量统计与默认图标
                 tvAppName.setText(R.string.xapk_package);
-                tvPackageName.setText(R.string.xapk);
+                tvPackageName.setText(getString(R.string.package_name_label) + getString(R.string.xapk));
                 int apkCount = XapkInstaller.getApkCount(this, filePath);
-                tvVersion.setText(apkCount > 0 ? getString(R.string.apk_files_count, apkCount) : getString(R.string.unknown));
-
-                // 获取文件大小
-                File file = new File(filePath);
-                if (file.exists()) {
-                    long fileSizeInBytes = file.length();
-                    String fileSize = formatFileSize(fileSizeInBytes);
-                    tvFileSize.setText(fileSize);
-                } else {
-                    tvFileSize.setText(getString(R.string.unknown));
-                }
+                tvVersion.setText(getString(R.string.current_version) + (apkCount > 0 ? getString(R.string.apk_files_count, apkCount) : getString(R.string.unknown)));
 
                 // XAPK文件显示未知SDK信息
-                tvMinSdk.setText(getString(R.string.unknown));
-                tvTargetSdk.setText(getString(R.string.unknown));
+                tvMinSdk.setText(getString(R.string.min_sdk) + getString(R.string.unknown));
+                tvTargetSdk.setText(getString(R.string.target_sdk) + getString(R.string.unknown));
 
                 ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
 
             // 显示安装信息界面
             layoutInstallInfo.setVisibility(View.VISIBLE);
-            layoutProgress.setVisibility(View.GONE);
+            layoutCompletion.setVisibility(View.GONE);
+            layoutButtons.setVisibility(View.VISIBLE);
+            layoutInstallingProgress.setVisibility(View.GONE);
 
             // 检查并显示版本比对信息
             checkAndDisplayVersionComparison();
 
             // 检查 Shizuku 和 Dhizuku 状态
-            checkPrivilegeStatus();
+            checkInstallButtonState();
 
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.display_install_info_failed), e);
@@ -317,33 +347,23 @@ public class InstallDialog extends AppCompatActivity {
                 tvAppName.setText(appName != null ? appName.toString() : getString(R.string.unknown_app));
 
                 // 获取包名
-                tvPackageName.setText(packageInfo.packageName);
+                tvPackageName.setText(getString(R.string.package_name_label) + packageInfo.packageName);
 
                 // 获取版本信息
                 String versionName = packageInfo.versionName != null ? packageInfo.versionName : "";
                 long versionCode = packageInfo.getLongVersionCode();
-                tvVersion.setText(String.format("%s (%d)", versionName, versionCode));
+                tvVersion.setText(getString(R.string.current_version) + String.format("%s (%d)", versionName, versionCode));
 
                 // 获取SDK信息
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     int minSdk = packageInfo.applicationInfo.minSdkVersion;
-                    tvMinSdk.setText(String.valueOf(minSdk));
+                    tvMinSdk.setText(getString(R.string.min_sdk) + minSdk);
                 } else {
-                    tvMinSdk.setText(getString(R.string.unknown));
+                    tvMinSdk.setText(getString(R.string.min_sdk) + getString(R.string.unknown));
                 }
 
                 int targetSdk = packageInfo.applicationInfo.targetSdkVersion;
-                tvTargetSdk.setText(String.valueOf(targetSdk));
-
-                // 获取文件大小
-                File file = new File(apkPath);
-                if (file.exists()) {
-                    long fileSizeInBytes = file.length();
-                    String fileSize = formatFileSize(fileSizeInBytes);
-                    tvFileSize.setText(fileSize);
-                } else {
-                    tvFileSize.setText(getString(R.string.unknown));
-                }
+                tvTargetSdk.setText(getString(R.string.target_sdk) + targetSdk);
 
                 // 获取应用图标
                 try {
@@ -372,11 +392,10 @@ public class InstallDialog extends AppCompatActivity {
      */
     private void setDefaultInfo() {
         tvAppName.setText(getString(R.string.unknown_app));
-        tvPackageName.setText(getString(R.string.unknown));
-        tvVersion.setText(getString(R.string.unknown));
-        tvFileSize.setText(getString(R.string.unknown));
-        tvMinSdk.setText(getString(R.string.unknown));
-        tvTargetSdk.setText(getString(R.string.unknown));
+        tvPackageName.setText(getString(R.string.package_name_label) + getString(R.string.unknown));
+        tvVersion.setText(getString(R.string.current_version) + getString(R.string.unknown));
+        tvMinSdk.setText(getString(R.string.min_sdk) + getString(R.string.unknown));
+        tvTargetSdk.setText(getString(R.string.target_sdk) + getString(R.string.unknown));
         ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
     }
 
@@ -403,22 +422,7 @@ public class InstallDialog extends AppCompatActivity {
     }
 
     /**
-     * 格式化文件大小
-     */
-    private String formatFileSize(long sizeInBytes) {
-        if (sizeInBytes < 1024) {
-            return sizeInBytes + " B";
-        } else if (sizeInBytes < 1024 * 1024) {
-            return String.format("%.2f KB", sizeInBytes / 1024.0);
-        } else if (sizeInBytes < 1024 * 1024 * 1024) {
-            return String.format("%.2f MB", sizeInBytes / (1024.0 * 1024.0));
-        } else {
-            return String.format("%.2f GB", sizeInBytes / (1024.0 * 1024.0 * 1024.0));
-        }
-    }
-
-    /**
-     * 检查 Shizuku 和 Dhizuku 权限状态
+     * 检查权限状态（用于权限对话框）
      */
     private void checkPrivilegeStatus() {
         // 检查 Shizuku 状态
@@ -429,15 +433,23 @@ public class InstallDialog extends AppCompatActivity {
             runOnUiThread(() -> {
                 updateShizukuStatusUI(shizukuStatus);
                 updateDhizukuStatusUI(dhizukuStatus);
-                updateInstallButtonState();
             });
         }).start();
+    }
+
+    /**
+     * 检查安装按钮状态（用于安装对话框）
+     */
+    private void checkInstallButtonState() {
+        updateInstallButtonState();
     }
 
     /**
      * 更新 Shizuku 状态UI
      */
     private void updateShizukuStatusUI(PrivilegeHelper.PrivilegeStatus status) {
+        if (tvShizukuStatus == null) return;
+
         switch (status) {
             case NOT_INSTALLED:
                 tvShizukuStatus.setText(R.string.shizuku_not_running);
@@ -453,6 +465,7 @@ public class InstallDialog extends AppCompatActivity {
                 tvShizukuStatus.setText(R.string.shizuku_connected_but_not_authorized);
                 tvShizukuStatus.setTextColor(getColor(R.color.status_warning));
                 btnShizukuGrant.setVisibility(View.VISIBLE);
+                btnShizukuGrant.setOnClickListener(v -> requestShizukuPermission());
                 break;
             case AUTHORIZED:
                 tvShizukuStatus.setText(R.string.shizuku_connected_and_authorized);
@@ -476,6 +489,8 @@ public class InstallDialog extends AppCompatActivity {
      * 更新 Dhizuku 状态UI
      */
     private void updateDhizukuStatusUI(PrivilegeHelper.PrivilegeStatus status) {
+        if (tvDhizukuStatus == null) return;
+
         switch (status) {
             case NOT_INSTALLED:
                 tvDhizukuStatus.setText(R.string.dhizuku_not_running);
@@ -491,6 +506,7 @@ public class InstallDialog extends AppCompatActivity {
                 tvDhizukuStatus.setText(R.string.dhizuku_connected_but_not_authorized);
                 tvDhizukuStatus.setTextColor(getColor(R.color.status_warning));
                 btnDhizukuGrant.setVisibility(View.VISIBLE);
+                btnDhizukuGrant.setOnClickListener(v -> requestDhizukuPermission());
                 break;
             case AUTHORIZED:
                 tvDhizukuStatus.setText(R.string.dhizuku_connected_and_authorized);
@@ -525,14 +541,6 @@ public class InstallDialog extends AppCompatActivity {
         }
 
         btnInstall.setEnabled(canInstall);
-
-        if (!canInstall) {
-            if (currentMode == PrivilegeHelper.PrivilegeMode.SHIZUKU) {
-                Toast.makeText(this, R.string.shizuku_required, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, R.string.dhizuku_required, Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     private void startInstallation() {
@@ -541,10 +549,9 @@ public class InstallDialog extends AppCompatActivity {
         try {
             isInstalling = true;
 
-            // 显示进度界面
-            layoutInstallInfo.setVisibility(View.GONE);
-            layoutProgress.setVisibility(View.VISIBLE);
-            layoutCompletion.setVisibility(View.GONE);
+            // 显示进度界面（保持在当前对话框，只切换按钮区域）
+            layoutButtons.setVisibility(View.GONE);
+            layoutInstallingProgress.setVisibility(View.VISIBLE);
 
             // 根据当前选择的授权方式选择安装助手
             if (currentMode == PrivilegeHelper.PrivilegeMode.SHIZUKU) {
@@ -557,8 +564,8 @@ public class InstallDialog extends AppCompatActivity {
             Log.e(TAG, getString(R.string.start_installation_failed), e);
             isInstalling = false;
             Toast.makeText(this, getString(R.string.install_process_failed, e.getMessage()), Toast.LENGTH_LONG).show();
-            layoutProgress.setVisibility(View.GONE);
-            layoutInstallInfo.setVisibility(View.VISIBLE);
+            layoutInstallingProgress.setVisibility(View.GONE);
+            layoutButtons.setVisibility(View.VISIBLE);
         }
     }
 
@@ -571,18 +578,12 @@ public class InstallDialog extends AppCompatActivity {
             ShizukuInstallHelper.installXapk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                 @Override
                 public void onProgress(String message) {
-                    runOnUiThread(() -> {
-                        if (tvProgressDetail != null && message != null) {
-                            tvProgressDetail.setText(message);
-                        }
-                    });
+                    // 不显示进度文字，只保留循环进度条
                 }
 
                 @Override
                 public void onSuccess(String message) {
-                    runOnUiThread(() -> {
-                        showCompletionUI();
-                    });
+                    runOnUiThread(() -> showCompletionUI());
                 }
 
                 @Override
@@ -590,9 +591,9 @@ public class InstallDialog extends AppCompatActivity {
                     runOnUiThread(() -> {
                         isInstalling = false;
                         Toast.makeText(InstallDialog.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
-                        layoutProgress.setVisibility(View.GONE);
-                        layoutInstallInfo.setVisibility(View.VISIBLE);
-                        checkPrivilegeStatus(); // 重新检查状态
+                        layoutInstallingProgress.setVisibility(View.GONE);
+                        layoutButtons.setVisibility(View.VISIBLE);
+                        updateInstallButtonState();
                     });
                 }
             });
@@ -601,18 +602,12 @@ public class InstallDialog extends AppCompatActivity {
             ShizukuInstallHelper.installApk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                 @Override
                 public void onProgress(String message) {
-                    runOnUiThread(() -> {
-                        if (tvProgressDetail != null && message != null) {
-                            tvProgressDetail.setText(message);
-                        }
-                    });
+                    // 不显示进度文字，只保留循环进度条
                 }
 
                 @Override
                 public void onSuccess(String message) {
-                    runOnUiThread(() -> {
-                        showCompletionUI();
-                    });
+                    runOnUiThread(() -> showCompletionUI());
                 }
 
                 @Override
@@ -620,9 +615,9 @@ public class InstallDialog extends AppCompatActivity {
                     runOnUiThread(() -> {
                         isInstalling = false;
                         Toast.makeText(InstallDialog.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
-                        layoutProgress.setVisibility(View.GONE);
-                        layoutInstallInfo.setVisibility(View.VISIBLE);
-                        checkPrivilegeStatus(); // 重新检查状态
+                        layoutInstallingProgress.setVisibility(View.GONE);
+                        layoutButtons.setVisibility(View.VISIBLE);
+                        updateInstallButtonState();
                     });
                 }
             });
@@ -638,18 +633,12 @@ public class InstallDialog extends AppCompatActivity {
             DhizukuInstallHelper.installXapk(this, filePath, true, true, new DhizukuInstallHelper.InstallCallback() {
                 @Override
                 public void onProgress(String message) {
-                    runOnUiThread(() -> {
-                        if (tvProgressDetail != null && message != null) {
-                            tvProgressDetail.setText(message);
-                        }
-                    });
+                    // 不显示进度文字，只保留循环进度条
                 }
 
                 @Override
                 public void onSuccess(String message) {
-                    runOnUiThread(() -> {
-                        showCompletionUI();
-                    });
+                    runOnUiThread(() -> showCompletionUI());
                 }
 
                 @Override
@@ -657,9 +646,9 @@ public class InstallDialog extends AppCompatActivity {
                     runOnUiThread(() -> {
                         isInstalling = false;
                         Toast.makeText(InstallDialog.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
-                        layoutProgress.setVisibility(View.GONE);
-                        layoutInstallInfo.setVisibility(View.VISIBLE);
-                        checkPrivilegeStatus(); // 重新检查状态
+                        layoutInstallingProgress.setVisibility(View.GONE);
+                        layoutButtons.setVisibility(View.VISIBLE);
+                        updateInstallButtonState();
                     });
                 }
             });
@@ -668,18 +657,12 @@ public class InstallDialog extends AppCompatActivity {
             DhizukuInstallHelper.installApk(this, filePath, true, true, new DhizukuInstallHelper.InstallCallback() {
                 @Override
                 public void onProgress(String message) {
-                    runOnUiThread(() -> {
-                        if (tvProgressDetail != null && message != null) {
-                            tvProgressDetail.setText(message);
-                        }
-                    });
+                    // 不显示进度文字，只保留循环进度条
                 }
 
                 @Override
                 public void onSuccess(String message) {
-                    runOnUiThread(() -> {
-                        showCompletionUI();
-                    });
+                    runOnUiThread(() -> showCompletionUI());
                 }
 
                 @Override
@@ -687,9 +670,9 @@ public class InstallDialog extends AppCompatActivity {
                     runOnUiThread(() -> {
                         isInstalling = false;
                         Toast.makeText(InstallDialog.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
-                        layoutProgress.setVisibility(View.GONE);
-                        layoutInstallInfo.setVisibility(View.VISIBLE);
-                        checkPrivilegeStatus(); // 重新检查状态
+                        layoutInstallingProgress.setVisibility(View.GONE);
+                        layoutButtons.setVisibility(View.VISIBLE);
+                        updateInstallButtonState();
                     });
                 }
             });
@@ -807,8 +790,8 @@ public class InstallDialog extends AppCompatActivity {
      */
     private void showCompletionUI() {
         isInstalling = false;
-        layoutProgress.setVisibility(View.GONE);
-        layoutInstallInfo.setVisibility(View.GONE);
+        layoutInstallingProgress.setVisibility(View.GONE);
+        layoutButtons.setVisibility(View.GONE);
         layoutCompletion.setVisibility(View.VISIBLE);
 
         // 保存安装的包名用于打开应用
@@ -818,6 +801,15 @@ public class InstallDialog extends AppCompatActivity {
         // 检查已安装的应用信息并更新按钮和版本显示
         Log.d(TAG, getString(R.string.checking_installed_app_info));
         checkAndDisplayVersionComparison();
+    }
+
+    /**
+     * 从安装完成页面回到安装确认步骤
+     */
+    private void backToInstallInfoFromCompletion() {
+        layoutCompletion.setVisibility(View.GONE);
+        layoutButtons.setVisibility(View.VISIBLE);
+        isInstalling = false;
     }
 
     /**
@@ -866,24 +858,24 @@ public class InstallDialog extends AppCompatActivity {
                 String installedVersionName = installedInfo.versionName != null ? installedInfo.versionName : "Unknown";
                 long installedVersionCode = installedInfo.getLongVersionCode();
 
-                // 在主版本字段中显示版本对比：当前版本 → 新版本
-                String versionDisplay = String.format("%s (%d) → %s (%d)",
-                    installedVersionName, installedVersionCode,
-                    apkVersionName, apkVersionCode);
-                tvVersion.setText(versionDisplay);
+                // 显示当前版本（已安装版本）
+                tvVersion.setText(getString(R.string.current_version) + String.format("%s (%d)", installedVersionName, installedVersionCode));
 
-                // 显示SDK信息对比
+                // 显示升级版本（待安装版本）
+                if (tvUpgradeVersion != null) {
+                    tvUpgradeVersion.setText(getString(R.string.upgrade_version) + String.format("%s (%d)", apkVersionName, apkVersionCode));
+                }
+
+                // 显示SDK信息
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     int apkMinSdk = apkInfo.applicationInfo.minSdkVersion;
-                    int installedMinSdk = installedInfo.applicationInfo.minSdkVersion;
-                    tvMinSdk.setText(String.format("%d → %d", installedMinSdk, apkMinSdk));
+                    tvMinSdk.setText(getString(R.string.min_sdk) + apkMinSdk);
                 } else {
-                    tvMinSdk.setText("N/A → N/A");
+                    tvMinSdk.setText(getString(R.string.min_sdk) + "N/A");
                 }
 
                 int apkTargetSdk = apkInfo.applicationInfo.targetSdkVersion;
-                int installedTargetSdk = installedInfo.applicationInfo.targetSdkVersion;
-                tvTargetSdk.setText(String.format("%d → %d", installedTargetSdk, apkTargetSdk));
+                tvTargetSdk.setText(getString(R.string.target_sdk) + apkTargetSdk);
 
                 // 根据版本差异调整按钮文本
                 int versionComparison = PackageInfoHelper.compareVersions(apkVersionName, installedVersionName);
@@ -912,30 +904,26 @@ public class InstallDialog extends AppCompatActivity {
             if (apkInfo != null) {
                 String versionName = apkInfo.versionName != null ? apkInfo.versionName : "Unknown";
                 long versionCode = apkInfo.getLongVersionCode();
-                tvVersion.setText(String.format("%s (%d)", versionName, versionCode));
+                // 新安装时，当前版本显示为"未安装"，升级版本显示APK版本
+                tvVersion.setText(getString(R.string.current_version) + getString(R.string.not_installed));
+                if (tvUpgradeVersion != null) {
+                    tvUpgradeVersion.setText(getString(R.string.upgrade_version) + String.format("%s (%d)", versionName, versionCode));
+                }
+
+                // 显示SDK信息
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    int minSdk = apkInfo.applicationInfo.minSdkVersion;
+                    tvMinSdk.setText(getString(R.string.min_sdk) + minSdk);
+                } else {
+                    tvMinSdk.setText(getString(R.string.min_sdk) + "N/A");
+                }
+                int targetSdk = apkInfo.applicationInfo.targetSdkVersion;
+                tvTargetSdk.setText(getString(R.string.target_sdk) + targetSdk);
             }
             btnInstall.setText(R.string.install);
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.updating_version_info_new_install) + ": " + e.getMessage());
             tvVersion.setText(R.string.unknown);
-        }
-    }
-
-    /**
-     * 更新新安装的版本信息
-     */
-    private void updateVersionInfoForNewInstall() {
-        try {
-            PackageManager pm = getPackageManager();
-            PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
-
-            if (apkInfo != null) {
-                String versionName = apkInfo.versionName != null ? apkInfo.versionName : "";
-                long versionCode = apkInfo.getLongVersionCode();
-                tvVersion.setText(String.format("%s (%d)", versionName, versionCode));
-            }
-        } catch (Exception e) {
-            Log.e(TAG, getString(R.string.updating_version_info_new_install) + ": " + e.getMessage());
         }
     }
 
@@ -979,8 +967,8 @@ public class InstallDialog extends AppCompatActivity {
      */
     private void onCancelInstallation() {
         isInstalling = false;
-        layoutProgress.setVisibility(View.GONE);
-        layoutInstallInfo.setVisibility(View.VISIBLE);
+        layoutInstallingProgress.setVisibility(View.GONE);
+        layoutButtons.setVisibility(View.VISIBLE);
         Toast.makeText(this, R.string.install_cancelled, Toast.LENGTH_SHORT).show();
     }
 
@@ -1002,6 +990,10 @@ public class InstallDialog extends AppCompatActivity {
         super.onResume();
         // 每次回到前台时重新检查权限状态
         if (layoutInstallInfo.getVisibility() == View.VISIBLE) {
+            updateInstallButtonState();
+        }
+        // 如果权限对话框正在显示，也更新其状态
+        if (privilegeDialog != null && privilegeDialog.isShowing()) {
             checkPrivilegeStatus();
         }
     }
@@ -1009,6 +1001,10 @@ public class InstallDialog extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // 销毁权限对话框避免内存泄漏
+        if (privilegeDialog != null && privilegeDialog.isShowing()) {
+            privilegeDialog.dismiss();
+        }
     }
 
     /**

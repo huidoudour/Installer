@@ -8,12 +8,23 @@
 
     <!-- Install page -->
     <string name="install_title">安装应用</string>
+    <string name="authorization_method">授权方式</string>
+    <string name="shizuku">Shizuku</string>
+    <string name="dhizuku">Dhizuku</string>
+    <string name="grant">授予</string>
     <string name="install_dialog_title">安装对话框</string>
     <string name="select_apk">选择 APK</string>
     <string name="install">安装</string>
     <string name="reinstall">重新安装</string>
     <string name="upgrade_app">升级应用</string>
-    <string name="cancel">算了</string>
+    <string name="cancel">不喵</string>
+    <string name="privilege">权限</string>
+    <string name="back">返回</string>
+    <string name="close">关闭</string>
+    <string name="switched_to_shizuku">已切换到 Shizuku</string>
+    <string name="switched_to_dhizuku">已切换到 Dhizuku</string>
+    <string name="request_authorization">请求授权</string>
+    <string name="privilege_settings_hint">选择用于安装应用的授权方式。确保所选服务正在运行并已授权。</string>
     <string name="copied_to_clipboard">已复制到剪贴板</string>
     <string name="copy_failed">复制失败</string>
     <string name="installing">安装中...</string>
@@ -115,14 +126,14 @@
     <string name="real_time_logs">实时显示所有操作日志</string>
     <string name="waiting_operation">等待操作……</string>
     <string name="app_name_label">应用名称</string>
-    <string name="package_name">包名</string>
+    <string name="package_name_label">包名：</string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">版本</string>
     <string name="file_size">文件大小</string>
-    <string name="min_sdk">最低SDK</string>
-    <string name="target_sdk">目标SDK</string>
+    <string name="min_sdk">最低SDK：</string>
+    <string name="target_sdk">目标SDK：</string>
     <string name="version_comparison">版本对比</string>
-    <string name="current_version">当前版本</string>
+    <string name="current_version">当前版本：</string>
     <string name="new_version">新版本</string>
     <string name="not_installed">未安装</string>
     <string name="default_file_size">10.24 MB</string>
@@ -137,6 +148,7 @@
     <string name="parse_file_failed">无法解析安装文件信息</string>
     <string name="set_app_icon_failed">设置应用图标失败</string>
     <string name="shizuku_required">需要Shizuku授权才能安装应用</string>
+    <string name="dhizuku_required">需要Dhizuku授权才能安装应用</string>
     <string name="xapk_install_success">XAPK安装成功</string>
     <string name="xapk_install_failed">XAPK安装失败: %s</string>
     <string name="apk_install_success">APK安装成功</string>
@@ -171,10 +183,8 @@
     <string name="shizuku_version_too_low">Shizuku 版本过低喵.</string>
     <string name="permission_granted">已授予喵</string>
     <string name="shizuku_connected_and_authorized">Shizuku 已连接并授权喵.</string>
-    <string name="dhizuku_connected_and_authorized">Dhizuku 已连接并授权喵.</string>
     <string name="not_authorized">未授予喵</string>
     <string name="shizuku_connected_but_not_authorized">Shizuku 已连接但未授权喵.</string>
-    <string name="dhizuku_connected_but_not_authorized">Dhizuku 已连接但未授权喵.</string>
     <string name="status_unknown">状态未知</string>
     <string name="check_shizuku_version_permission_failed">检查 Shizuku 版本/权限失败喵: %s</string>
     <string name="unavailable">不可用喵</string>
@@ -264,15 +274,15 @@
     <string name="native_library_info">Native库信息</string>
     <string name="performance_test">性能测试</string>
     <string name="copy_text_to_clipboard">复制文本到剪贴板</string>
-    <string name="terminal_output">Terminal Output</string>
+    <string name="terminal_output">终端输出</string>
     <string name="command_history_management">命令历史记录管理</string>
 
     <!-- Session and terminal management -->
-    <string name="session_error">Session error: %s</string>
-    <string name="trying_to_recreate_session">Trying to recreate session...</string>
+    <string name="session_error">会话错误: %s</string>
+    <string name="trying_to_recreate_session">尝试重新创建会话...</string>
     <string name="retry_once">重试一次</string>
-    <string name="shizuku_session_creation_failed">Shizuku session creation failed: %s</string>
-    <string name="failed_to_create_persistent_shell_session">Failed to create persistent shell session</string>
+    <string name="shizuku_session_creation_failed">Shizuku 会话创建失败: %s</string>
+    <string name="failed_to_create_persistent_shell_session">创建持久化 Shell 会话失败</string>
     <string name="non_interactive_mode">非交互式模式</string>
     <string name="disable_job_control_avoid_tty_error">禁用作业控制，避免TTY错误</string>
     <string name="unknown_file_format_chinese">未知格式</string>
@@ -282,9 +292,9 @@
     <string name="copy_file_failed_log">复制文件到临时目录失败喵 Exit code: %d</string>
     <string name="copy_file_failed">复制文件失败喵</string>
     <string name="file_copy_success_start_install">文件复制成功，开始安装...</string>
-    <string name="executing_install_command">Executing install command: %s</string>
-    <string name="install_stdout">Install (stdout): %s</string>
-    <string name="install_stderr">Install (stderr): %s</string>
+    <string name="executing_install_command">执行安装命令: %s</string>
+    <string name="install_stdout">安装 (标准输出): %s</string>
+    <string name="install_stderr">安装 (标准错误): %s</string>
     <string name="read_install_output_error">读取安装进程输出出错喵: %s</string>
     <string name="install_success_log" formatted="false">安装成功喵: %s 输出: %s</string>
     <string name="install_success">安装成功！</string>
@@ -320,11 +330,11 @@
     <string name="processed_home_install_request">已处理HomeActivity传递的安装请求，文件已复制到 cache: %s</string>
     <string name="process_home_install_uri_failed">处理HomeActivity传递的安装URI失败: %s</string>
     <string name="log_cleared">日志已清空</string>
-    <string name="log_export_header">=== Installer Log Export ===</string>
-    <string name="export_time">Export Time: %s</string>
-    <string name="total_logs">Total Logs: %d</string>
-    <string name="log_content_header">=== Log Content ===</string>
-    <string name="log_file_subject">Installer Log</string>
+    <string name="log_export_header">=== Installer 日志导出 ===</string>
+    <string name="export_time">导出时间: %s</string>
+    <string name="total_logs">总日志数: %d</string>
+    <string name="log_content_header">=== 日志内容 ===</string>
+    <string name="log_file_subject">Installer 日志</string>
     <string name="log_file_generated">日志文件已生成: %s</string>
     <string name="export_log">导出日志</string>
     <string name="log_exported">日志已导出: %s</string>
@@ -401,7 +411,6 @@
     <string name="request_read_storage">请求 READ_EXTERNAL_STORAGE 权限喵.</string>
     <string name="open_file_picker">打开文件选择器喵~...</string>
     <string name="file_picker_not_found">文件选择器未找到喵.</string>
-    <string name="request_shizuku_permission">尝试请求 Shizuku 权限喵~...</string>
     <string name="shizuku_not_started">Shizuku没启动喵~。</string>
     <string name="shizuku_version_low">Shizuku 版本过低或不兼容喵。</string>
     <string name="shizuku_authorized">Shizuku 已授权喵.</string>
@@ -458,7 +467,7 @@
     <string name="privilege_authorized">已授权</string>
     <string name="privilege_version_too_low">版本过低</string>
     <string name="grant_permission">授予权限</string>
-    <string name="open_app">打开应用</string>
+    <string name="open_app">打开</string>
     <string name="download_from_github">从 GitHub 下载</string>
     <string name="switch_privilege">切换</string>
     <string name="current_privilege">当前授权器</string>
@@ -560,7 +569,11 @@
     <string name="current_app">当前应用</string>
     <string name="installer_package_changed">安装器包已变更</string>
 
-    <!-- Easter egg -->
-    <string name="easter_egg_found">恭喜发现彩蛋！</string>
+    <string name="previous_step">返回</string>
+    <string name="next_step">确认</string>
+    <string name="select_privilege_mode">选择授权方式</string>
+    <string name="upgrade_version">升级版本：</string>
+    <string name="arrow_down">向下箭头</string>
+
 
 </resources>

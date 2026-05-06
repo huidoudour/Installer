@@ -254,8 +254,11 @@ public class DhizukuInstallHelper {
             flagsField.setAccessible(true);
             int installFlags = flagsField.getInt(params);
             installFlags |= 0x00000002; // INSTALL_REPLACE_EXISTING
+            // 注意：GRANT_ALL_REQUESTED_PERMISSIONS (0x00000100) 需要 INSTALL_GRANT_RUNTIME_PERMISSIONS 权限
+            // 这个权限只有系统应用或拥有特殊权限的应用才能使用
+            // 在 Dhizuku 环境下，我们不设置这个标志，由系统在安装完成后处理权限授予
             if (grantPermissions) {
-                installFlags |= 0x00000100; // GRANT_ALL_REQUESTED_PERMISSIONS
+                android.util.Log.w(TAG, "Grant permissions flag skipped - requires system permission");
             }
             flagsField.setInt(params, installFlags);
         } catch (Exception e) {
