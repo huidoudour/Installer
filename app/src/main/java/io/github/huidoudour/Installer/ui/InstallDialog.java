@@ -195,7 +195,8 @@ public class InstallDialog extends AppCompatActivity {
                 .setView(dialogView)
                 .setCancelable(false)
                 .create();
-
+        
+        privilegeDialog.setCanceledOnTouchOutside(true); // 点击外部区域关闭
         privilegeDialog.show();
 
         // 检查权限状态

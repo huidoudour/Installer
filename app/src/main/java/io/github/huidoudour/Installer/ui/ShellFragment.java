@@ -208,9 +208,9 @@ public class ShellFragment extends Fragment {
             getString(R.string.quick_path_home)
         };
         
-        new MaterialAlertDialogBuilder(requireContext())
+        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.quick_path_title))
-            .setItems(pathNames, (dialog, which) -> {
+            .setItems(pathNames, (dialog1, which) -> {
                 String currentText = etCommandInput.getText().toString();
                 String path = commonPaths[which];
                 
@@ -223,7 +223,9 @@ public class ShellFragment extends Fragment {
                 etCommandInput.setSelection(etCommandInput.getText().length());
             })
             .setNegativeButton(getString(R.string.cancel), null)
-            .show();
+            .create();
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
     
     /**
@@ -390,9 +392,9 @@ public class ShellFragment extends Fragment {
      * 显示快捷命令对话框
      */
     private void showQuickCommands() {
-        new MaterialAlertDialogBuilder(requireContext())
+        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
             .setTitle("⚡ Quick Commands")
-            .setItems(ShellExecutor.QuickCommands.COMMAND_NAMES, (dialog, which) -> {
+            .setItems(ShellExecutor.QuickCommands.COMMAND_NAMES, (dialog1, which) -> {
                 String command = ShellExecutor.QuickCommands.COMMANDS[which];
                 
                 // 处理Native命令
@@ -405,7 +407,9 @@ public class ShellFragment extends Fragment {
                 }
             })
             .setNegativeButton(getString(R.string.cancel), null)
-            .show();
+            .create();
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
 
     /**

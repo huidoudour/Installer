@@ -285,6 +285,7 @@ public class SettingsFragment extends Fragment {
         
         androidx.appcompat.app.AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.setCanceledOnTouchOutside(true); // 点击外部区域关闭
         dialog.show();
         
         // 设置按钮点击事件
@@ -372,7 +373,9 @@ public class SettingsFragment extends Fragment {
                     .setNegativeButton(R.string.cancel, null);
         }
         
-        alertBuilder.show();
+        androidx.appcompat.app.AlertDialog dialog = alertBuilder.create();
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
     
     /**
@@ -500,6 +503,7 @@ public class SettingsFragment extends Fragment {
             
         androidx.appcompat.app.AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.setCanceledOnTouchOutside(true); // 点击外部区域关闭
         dialog.show();
             
         // 设置按钮点击事件
@@ -582,7 +586,9 @@ public class SettingsFragment extends Fragment {
                 })
                 .setNegativeButton(R.string.cancel, null);
         
-        alertBuilder.show();
+        androidx.appcompat.app.AlertDialog dialog = alertBuilder.create();
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
     
     /**
@@ -796,7 +802,9 @@ public class SettingsFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, null);
         
         if (activity != null && !activity.isFinishing()) {
-            alertBuilder.show();
+            androidx.appcompat.app.AlertDialog dialog = alertBuilder.create();
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
         }
     }
     
@@ -859,6 +867,8 @@ public class SettingsFragment extends Fragment {
                 })
                 .setNegativeButton(R.string.cancel, null);
         
-        alertBuilder.show();
+        androidx.appcompat.app.AlertDialog dialog = alertBuilder.create();
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
 }
