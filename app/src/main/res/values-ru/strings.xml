@@ -8,6 +8,10 @@
 
     <!-- Install page -->
     <string name="install_title">Установить приложение</string>
+    <string name="authorization_method">Способ авторизации</string>
+    <string name="shizuku">Shizuku</string>
+    <string name="dhizuku">Dhizuku</string>
+    <string name="grant">Предоставить</string>
     <string name="install_dialog_title">Диалог установки</string>
     <string name="select_apk">Выбрать APK</string>
     <string name="install">Установить</string>
@@ -78,8 +82,19 @@
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Статус Shizuku</string>
+    <string name="dhizuku_status">Статус Dhizuku</string>
     <string name="checking">Проверка...</string>
     <string name="grant_shizuku_permission">Предоставить разрешение Shizuku</string>
+    <string name="grant_dhizuku_permission">Предоставить разрешение Dhizuku</string>
+    <string name="request_shizuku_permission">Попытка запросить разрешение Shizuku...</string>
+    <string name="request_dhizuku_permission">Попытка запросить разрешение Dhizuku...</string>
+    <string name="dhizuku_not_running">Не запущен/не установлен</string>
+    <string name="dhizuku_not_connected">Dhizuku не подключен.</string>
+    <string name="dhizuku_version_too_low">Версия Dhizuku слишком низкая.</string>
+    <string name="dhizuku_connected_and_authorized">Dhizuku подключен и авторизован.</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizuku подключен, но не авторизован.</string>
+    <string name="check_dhizuku_version_permission_failed">Не удалось проверить версию/разрешения Dhizuku: %s</string>
+    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUi поймал исключение: %s</string>
     <string name="no_file_selected">Файл не выбран</string>
     <string name="select_apk_file">Выбрать APK файл</string>
     <string name="install_options">Параметры установки</string>
@@ -160,8 +175,10 @@
     <string name="shizuku_version_too_low">Версия Shizuku слишком низкая.</string>
     <string name="permission_granted">Разрешение предоставлено</string>
     <string name="shizuku_connected_and_authorized">Shizuku подключен и авторизован.</string>
+    <string name="dhizuku_connected_and_authorized">Dhizuku подключен и авторизован.</string>
     <string name="not_authorized">Не авторизован</string>
     <string name="shizuku_connected_but_not_authorized">Shizuku подключен, но не авторизован.</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizuku подключен, но не авторизован.</string>
     <string name="status_unknown">Статус неизвестен</string>
     <string name="check_shizuku_version_permission_failed">Не удалось проверить версию/разрешения Shizuku: %s</string>
     <string name="unavailable">Недоступен</string>
@@ -206,6 +223,7 @@
     <string name="callback_param">Обратный вызов установки</string>
     <string name="install_all_apks">Установить все APK</string>
     <string name="use_shizuku_install_single_apk">Использовать ShizukuInstallHelper для установки одного APK</string>
+    <string name="use_dhizuku_install_single_apk">Использовать DhizukuInstallHelper для установки одного APK</string>
     <string name="install_progress">Прогресс установки: %s</string>
     <string name="apk_install_success_log">APK успешно установлен: %s</string>
     <string name="apk_install_failed_log">Ошибка установки APK: %s</string>
@@ -222,6 +240,7 @@
     <string name="initialize_environment_clear_prompt_disable_job_control">Инициализация среды - очистить приглашение и отключить управление задачами</string>
     <string name="switch_to_user_accessible_directory">Переключиться на доступную пользователю директорию</string>
     <string name="shizuku_mode_access_any_directory">Режим Shizuku может получить доступ к любой директории, используется /data/local/tmp</string>
+    <string name="dhizuku_mode_access_any_directory">Режим Dhizuku может получить доступ к любой директории, используется /data/local/tmp</string>
     <string name="normal_mode_use_sdcard">Обычный режим использует /sdcard</string>
     <string name="wait_for_initialization">Ожидание завершения инициализации</string>
     <string name="clear_initial_output">Очистить начальный вывод</string>
@@ -335,6 +354,9 @@
     <string name="extracting_apk_log">Извлечение APK: %s</string>
     <string name="shizuku_permission_granted">Разрешение Shizuku предоставлено.</string>
     <string name="shizuku_permission_denied">Разрешение Shizuku отклонено.</string>
+    <string name="dhizuku_permission_granted">Разрешение Dhizuku предоставлено.</string>
+    <string name="dhizuku_permission_denied">Разрешение Dhizuku отклонено.</string>
+    <string name="dhizuku_permission_requested">Запрошено разрешение Dhizuku.</string>
     <string name="file_selected_and_cached">Файл выбран и скопирован в cache: %s</string>
     <string name="file_selected_uri_fail">Файл выбран (URI), но не удалось скопировать в cache, URI: %s</string>
     <string name="file_selection_failed">Выбор файла не удался или отменен.</string>
@@ -343,6 +365,7 @@
     <string name="read_storage_permission_granted">Разрешение READ_EXTERNAL_STORAGE предоставлено.</string>
     <string name="read_storage_permission_denied">Разрешение READ_EXTERNAL_STORAGE отклонено.</string>
     <string name="shizuku_unavailable">Shizuku недоступен: %s</string>
+    <string name="dhizuku_unavailable">Dhizuku недоступен: %s</string>
     <string name="shizuku_binder_listener_error">Не удалось добавить слушатель binder Shizuku: %s</string>
     <string name="installer_started">Installer запущен, ожидание операции……</string>
     <string name="get_file_path_uri_error">getFilePathFromUri имеет проблемы: %s</string>
@@ -488,6 +511,7 @@
     <string name="privilege_not_installed_log">%s не установлен, открывается страница загрузки GitHub...</string>
     <string name="opening_privilege_app">Открытие приложения %s...</string>
     <string name="shizuku_unavailable_meow">Shizuku недоступен: %s</string>
+    <string name="dhizuku_unavailable_meow">Dhizuku недоступен: %s</string>
     <string name="privilege_not_connected_install_log">%s не подключен или не авторизован, невозможно установить.</string>
     <string name="requesting_shizuku_auth">Запрос авторизации Shizuku...</string>
     <string name="privilege_not_installed_notification">%s не установлен, открывается страница загрузки GitHub...</string>

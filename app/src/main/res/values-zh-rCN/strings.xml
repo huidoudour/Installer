@@ -78,8 +78,19 @@
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku 状态</string>
+    <string name="dhizuku_status">Dhizuku 状态</string>
     <string name="checking">正在检查...</string>
     <string name="grant_shizuku_permission">授予 Shizuku 权限</string>
+    <string name="grant_dhizuku_permission">授予 Dhizuku 权限</string>
+    <string name="request_shizuku_permission">尝试请求 Shizuku 权限喵~...</string>
+    <string name="request_dhizuku_permission">尝试请求 Dhizuku 权限喵~...</string>
+    <string name="dhizuku_not_running">未运行/未安装</string>
+    <string name="dhizuku_not_connected">Dhizuku 未连接喵.</string>
+    <string name="dhizuku_version_too_low">Dhizuku 版本过低喵.</string>
+    <string name="dhizuku_connected_and_authorized">Dhizuku 已连接并授权喵.</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizuku 已连接但未授权喵.</string>
+    <string name="check_dhizuku_version_permission_failed">检查 Dhizuku 版本/权限失败喵: %s</string>
+    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUi 捕获异常喵: %s</string>
     <string name="no_file_selected">未选择文件</string>
     <string name="select_apk_file">选择 APK 文件</string>
     <string name="install_options">安装选项</string>
@@ -160,8 +171,10 @@
     <string name="shizuku_version_too_low">Shizuku 版本过低喵.</string>
     <string name="permission_granted">已授予喵</string>
     <string name="shizuku_connected_and_authorized">Shizuku 已连接并授权喵.</string>
+    <string name="dhizuku_connected_and_authorized">Dhizuku 已连接并授权喵.</string>
     <string name="not_authorized">未授予喵</string>
     <string name="shizuku_connected_but_not_authorized">Shizuku 已连接但未授权喵.</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizuku 已连接但未授权喵.</string>
     <string name="status_unknown">状态未知</string>
     <string name="check_shizuku_version_permission_failed">检查 Shizuku 版本/权限失败喵: %s</string>
     <string name="unavailable">不可用喵</string>
@@ -206,6 +219,7 @@
     <string name="callback_param">安装回调</string>
     <string name="install_all_apks">安装所有 APK</string>
     <string name="use_shizuku_install_single_apk">使用 ShizukuInstallHelper 安装单个 APK</string>
+    <string name="use_dhizuku_install_single_apk">使用 DhizukuInstallHelper 安装单个 APK</string>
     <string name="install_progress">安装进度: %s</string>
     <string name="apk_install_success_log">APK 安装成功: %s</string>
     <string name="apk_install_failed_log">APK 安装失败: %s</string>
@@ -222,6 +236,7 @@
     <string name="initialize_environment_clear_prompt_disable_job_control">初始化环境 - 清除提示符并禁用作业控制</string>
     <string name="switch_to_user_accessible_directory">切换到用户可访问的目录</string>
     <string name="shizuku_mode_access_any_directory">Shizuku模式下可以访问任何目录，使用/data/local/tmp</string>
+    <string name="dhizuku_mode_access_any_directory">Dhizuku模式下可以访问任何目录，使用/data/local/tmp</string>
     <string name="normal_mode_use_sdcard">普通模式使用/sdcard</string>
     <string name="wait_for_initialization">等待初始化完成</string>
     <string name="clear_initial_output">清空初始输出</string>
@@ -335,6 +350,9 @@
     <string name="extracting_apk_log">正在解压 APK: %s</string>
     <string name="shizuku_permission_granted">已授予 Shizuku 权限.</string>
     <string name="shizuku_permission_denied">Shizuku 权限被拒绝.</string>
+    <string name="dhizuku_permission_granted">已授予 Dhizuku 权限.</string>
+    <string name="dhizuku_permission_denied">Dhizuku 权限被拒绝.</string>
+    <string name="dhizuku_permission_requested">已请求 Dhizuku 权限.</string>
     <string name="file_selected_and_cached">已选择文件并复制到 cache: %s</string>
     <string name="file_selected_uri_fail">已选择文件 (URI)，但复制到 cache 失败，URI: %s</string>
     <string name="file_selection_failed">文件选择失败或被取消.</string>
@@ -343,6 +361,7 @@
     <string name="read_storage_permission_granted">READ_EXTERNAL_STORAGE 权限已授予.</string>
     <string name="read_storage_permission_denied">READ_EXTERNAL_STORAGE 权限被拒绝.</string>
     <string name="shizuku_unavailable">Shizuku 不可用喵: %s</string>
+    <string name="dhizuku_unavailable">Dhizuku 不可用喵: %s</string>
     <string name="shizuku_binder_listener_error">不能添加 Shizuku binder listener 喵: %s</string>
     <string name="installer_started">Installer 已启动，等待操作喵……</string>
     <string name="get_file_path_uri_error">getFilePathFromUri 有问题喵: %s</string>
@@ -487,6 +506,7 @@
     <string name="privilege_not_installed_log">%s 未安装，正在打开 GitHub 下载页面...</string>
     <string name="opening_privilege_app">正在打开 %s 应用...</string>
     <string name="shizuku_unavailable_meow">Shizuku 不可用喵：%s</string>
+    <string name="dhizuku_unavailable_meow">Dhizuku 不可用喵：%s</string>
     <string name="privilege_not_connected_install_log">%s 未连接或未授权，无法安装喵。</string>
     <string name="requesting_shizuku_auth">正在请求 Shizuku 授权...</string>
     <string name="privilege_not_installed_notification">%s 未安装，正在打开 GitHub 下载页面...</string>
@@ -528,9 +548,7 @@
     <string name="install_cancelled">安装被取消</string>
     <string name="cannot_open_app">无法打开应用</string>
     <string name="app_no_launcher">应用 %s 没有启动活动</string>
-
-    <!-- 版本比对和升级相关 -->
-    <string name="open_app_failed">打开应用 %s 失败</string>
+    <string name="open_app_failed">打开应用失败: %s</string>
     <!-- 版本比对和升级相关 -->
     <string name="upgrade">升级</string>
     <string name="downgrade">降级</string>

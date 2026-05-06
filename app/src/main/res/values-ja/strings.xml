@@ -8,6 +8,10 @@
 
     <!-- Install page -->
     <string name="install_title">アプリをインストール</string>
+    <string name="authorization_method">認証方式</string>
+    <string name="shizuku">Shizuku</string>
+    <string name="dhizuku">Dhizuku</string>
+    <string name="grant">付与</string>
     <string name="install_dialog_title">インストールダイアログ</string>
     <string name="select_apk">APKを選択</string>
     <string name="install">インストール</string>
@@ -78,8 +82,19 @@
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizukuの状態</string>
+    <string name="dhizuku_status">Dhizukuの状態</string>
     <string name="checking">確認中...</string>
     <string name="grant_shizuku_permission">Shizuku権限を付与</string>
+    <string name="grant_dhizuku_permission">Dhizuku権限を付与</string>
+    <string name="request_shizuku_permission">Shizuku権限をリクエストしようとしています...</string>
+    <string name="request_dhizuku_permission">Dhizuku権限をリクエストしようとしています...</string>
+    <string name="dhizuku_not_running">未実行/未インストール</string>
+    <string name="dhizuku_not_connected">Dhizukuが接続されていません。</string>
+    <string name="dhizuku_version_too_low">Dhizukuのバージョンが低すぎます。</string>
+    <string name="dhizuku_connected_and_authorized">Dhizukuが接続され、認証されました。</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizukuは接続されていますが、認証されていません。</string>
+    <string name="check_dhizuku_version_permission_failed">Dhizukuのバージョン/権限の確認に失敗しました: %s</string>
+    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUiが例外をキャッチ: %s</string>
     <string name="no_file_selected">ファイルが選択されていません</string>
     <string name="select_apk_file">APKファイルを選択</string>
     <string name="install_options">インストールオプション</string>
@@ -160,8 +175,10 @@
     <string name="shizuku_version_too_low">Shizukuのバージョンが低すぎます。</string>
     <string name="permission_granted">許可されました</string>
     <string name="shizuku_connected_and_authorized">Shizukuが接続され、認証されました。</string>
+    <string name="dhizuku_connected_and_authorized">Dhizukuが接続され、認証されました。</string>
     <string name="not_authorized">未認証</string>
     <string name="shizuku_connected_but_not_authorized">Shizukuは接続されていますが、認証されていません。</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizukuは接続されていますが、認証されていません。</string>
     <string name="status_unknown">状態不明</string>
     <string name="check_shizuku_version_permission_failed">Shizukuのバージョン/権限の確認に失敗しました: %s</string>
     <string name="unavailable">利用不可</string>
@@ -206,6 +223,7 @@
     <string name="callback_param">インストールコールバック</string>
     <string name="install_all_apks">すべてのAPKをインストール</string>
     <string name="use_shizuku_install_single_apk">ShizukuInstallHelperを使用して単一のAPKをインストール</string>
+    <string name="use_dhizuku_install_single_apk">DhizukuInstallHelperを使用して単一のAPKをインストール</string>
     <string name="install_progress">インストール進捗: %s</string>
     <string name="apk_install_success_log">APKのインストールに成功しました: %s</string>
     <string name="apk_install_failed_log">APKのインストールに失敗しました: %s</string>
@@ -222,6 +240,7 @@
     <string name="initialize_environment_clear_prompt_disable_job_control">環境を初期化 - プロンプトをクリアし、ジョブ制御を無効化</string>
     <string name="switch_to_user_accessible_directory">ユーザーがアクセス可能なディレクトリに切り替え</string>
     <string name="shizuku_mode_access_any_directory">Shizukuモードでは任意のディレクトリにアクセス可能、/data/local/tmpを使用</string>
+    <string name="dhizuku_mode_access_any_directory">Dhizukuモードでは任意のディレクトリにアクセス可能、/data/local/tmpを使用</string>
     <string name="normal_mode_use_sdcard">通常モードは/sdcardを使用</string>
     <string name="wait_for_initialization">初期化の完了を待機</string>
     <string name="clear_initial_output">初期出力をクリア</string>
@@ -335,6 +354,9 @@
     <string name="extracting_apk_log">APKを解凍中: %s</string>
     <string name="shizuku_permission_granted">Shizuku権限が付与されました。</string>
     <string name="shizuku_permission_denied">Shizuku権限が拒否されました。</string>
+    <string name="dhizuku_permission_granted">Dhizuku権限が付与されました。</string>
+    <string name="dhizuku_permission_denied">Dhizuku権限が拒否されました。</string>
+    <string name="dhizuku_permission_requested">Dhizuku権限をリクエストしました。</string>
     <string name="file_selected_and_cached">ファイルが選択され、cacheにコピーされました: %s</string>
     <string name="file_selected_uri_fail">ファイルが選択されました（URI）が、cacheへのコピーに失敗しました。URI: %s</string>
     <string name="file_selection_failed">ファイルの選択に失敗したか、キャンセルされました。</string>
@@ -343,6 +365,7 @@
     <string name="read_storage_permission_granted">READ_EXTERNAL_STORAGE権限が付与されました。</string>
     <string name="read_storage_permission_denied">READ_EXTERNAL_STORAGE権限が拒否されました。</string>
     <string name="shizuku_unavailable">Shizukuは利用できません: %s</string>
+    <string name="dhizuku_unavailable">Dhizukuは利用できません: %s</string>
     <string name="shizuku_binder_listener_error">Shizuku binder listenerを追加できません: %s</string>
     <string name="installer_started">Installerが開始されました。操作を待機中……</string>
     <string name="get_file_path_uri_error">getFilePathFromUriに問題があります: %s</string>
@@ -488,6 +511,7 @@
     <string name="privilege_not_installed_log">%s は未インストールです。GitHubダウンロードページを開いています...</string>
     <string name="opening_privilege_app">%s アプリを開いています...</string>
     <string name="shizuku_unavailable_meow">Shizukuは利用できません: %s</string>
+    <string name="dhizuku_unavailable_meow">Dhizukuは利用できません: %s</string>
     <string name="privilege_not_connected_install_log">%s は接続されていないか、認証されていないため、インストールできません。</string>
     <string name="requesting_shizuku_auth">Shizuku認証をリクエスト中...</string>
     <string name="privilege_not_installed_notification">%s は未インストールです。GitHubダウンロードページを開いています...</string>

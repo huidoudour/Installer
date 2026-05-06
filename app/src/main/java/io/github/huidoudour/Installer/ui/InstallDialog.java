@@ -13,9 +13,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -25,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import io.github.huidoudour.Installer.R;
+import io.github.huidoudour.Installer.util.DhizukuInstallHelper;
 import io.github.huidoudour.Installer.util.LanguageManager;
 import io.github.huidoudour.Installer.util.PackageInfoHelper;
 import io.github.huidoudour.Installer.util.PrivilegeHelper;
@@ -35,7 +38,7 @@ import rikka.shizuku.Shizuku;
 public class InstallDialog extends AppCompatActivity {
 
     private static final String TAG = "InstallDialog";
-    
+
     private LinearLayout layoutInstallInfo;
     private LinearLayout layoutProgress;
     private LinearLayout layoutCompletion;
@@ -53,27 +56,40 @@ public class InstallDialog extends AppCompatActivity {
     private Button btnFinish;
     private com.google.android.material.progressindicator.LinearProgressIndicator progressInstall;
     private TextView tvProgressDetail;
-    
+
+    // 授权方式选择相关视图
+    private RadioButton rbShizuku;
+    private RadioButton rbDhizuku;
+    private LinearLayout layoutShizukuOption;
+    private LinearLayout layoutDhizukuOption;
+    private TextView tvShizukuStatus;
+    private TextView tvDhizukuStatus;
+    private Button btnShizukuGrant;
+    private Button btnDhizukuGrant;
+
     private Uri installUri;
     private String filePath;
     private boolean isXapkFile = false;
-    
+
     // 安装状态管理
     private boolean isInstalling = false;
     private String installedPackageName = null;
-    
+
+    // 当前选择的授权方式
+    private PrivilegeHelper.PrivilegeMode currentMode = PrivilegeHelper.PrivilegeMode.SHIZUKU;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // 应用用户选择的语言
         LanguageManager.applyUserLanguagePreference(this);
-        
+
         super.onCreate(savedInstanceState);
-        
+
         setContentView(R.layout.dialog_install);
-        
+
         // 初始化视图
         initViews();
-        
+
         // 处理安装意图
         handleInstallIntent(getIntent());
     }
@@ -83,7 +99,7 @@ public class InstallDialog extends AppCompatActivity {
         super.onNewIntent(intent);
         handleInstallIntent(intent);
     }
-    
+
     private void initViews() {
         layoutInstallInfo = findViewById(R.id.layout_install_info);
         layoutProgress = findViewById(R.id.layout_progress);
@@ -102,20 +118,84 @@ public class InstallDialog extends AppCompatActivity {
         btnFinish = findViewById(R.id.btn_finish);
         progressInstall = findViewById(R.id.progress_install);
         tvProgressDetail = findViewById(R.id.tv_progress_detail);
-        
+
+        // 初始化授权方式选择视图
+        rbShizuku = findViewById(R.id.rb_shizuku);
+        rbDhizuku = findViewById(R.id.rb_dhizuku);
+        layoutShizukuOption = findViewById(R.id.layout_shizuku_option);
+        layoutDhizukuOption = findViewById(R.id.layout_dhizuku_option);
+        tvShizukuStatus = findViewById(R.id.tv_shizuku_status);
+        tvDhizukuStatus = findViewById(R.id.tv_dhizuku_status);
+        btnShizukuGrant = findViewById(R.id.btn_shizuku_grant);
+        btnDhizukuGrant = findViewById(R.id.btn_dhizuku_grant);
+
+        // 从保存的设置中读取当前授权方式
+        currentMode = PrivilegeHelper.getCurrentMode(this);
+
+        // 设置按钮点击事件
         btnInstall.setOnClickListener(v -> startInstallation());
         btnCancel.setOnClickListener(v -> finish());
         btnCancelProgress.setOnClickListener(v -> onCancelInstallation());
         btnOpenApp.setOnClickListener(v -> onOpenInstalledApp());
         btnFinish.setOnClickListener(v -> finish());
+
+        // 设置授权方式选择事件
+        layoutShizukuOption.setOnClickListener(v -> selectPrivilegeMode(PrivilegeHelper.PrivilegeMode.SHIZUKU));
+        layoutDhizukuOption.setOnClickListener(v -> selectPrivilegeMode(PrivilegeHelper.PrivilegeMode.DHIZUKU));
+
+        // 设置授权按钮事件
+        btnShizukuGrant.setOnClickListener(v -> requestShizukuPermission());
+        btnDhizukuGrant.setOnClickListener(v -> requestDhizukuPermission());
+
+        // 更新UI以反映当前选择
+        updatePrivilegeModeUI();
     }
-    
+
+    /**
+     * 选择授权方式
+     */
+    private void selectPrivilegeMode(PrivilegeHelper.PrivilegeMode mode) {
+        currentMode = mode;
+        PrivilegeHelper.saveCurrentMode(this, mode);
+        updatePrivilegeModeUI();
+        updateInstallButtonState();
+    }
+
+    /**
+     * 更新授权方式UI
+     */
+    private void updatePrivilegeModeUI() {
+        if (currentMode == PrivilegeHelper.PrivilegeMode.SHIZUKU) {
+            rbShizuku.setChecked(true);
+            rbDhizuku.setChecked(false);
+        } else {
+            rbShizuku.setChecked(false);
+            rbDhizuku.setChecked(true);
+        }
+    }
+
+    /**
+     * 请求 Shizuku 权限
+     */
+    private void requestShizukuPermission() {
+        Toast.makeText(this, R.string.requesting_shizuku_auth, Toast.LENGTH_SHORT).show();
+        PrivilegeHelper.requestShizukuPermission(1001);
+    }
+
+    /**
+     * 请求 Dhizuku 权限
+     */
+    private void requestDhizukuPermission() {
+        Toast.makeText(this, R.string.request_dhizuku_permission, Toast.LENGTH_SHORT).show();
+        PrivilegeHelper.requestDhizukuPermission(this);
+    }
+
     private void handleInstallIntent(Intent intent) {
         if (intent == null) return;
-        
+
         String action = intent.getAction();
         Uri data = intent.getData();
-        
+
         // 处理 VIEW 或 INSTALL_PACKAGE 动作
         if ((Intent.ACTION_VIEW.equals(action) || Intent.ACTION_INSTALL_PACKAGE.equals(action)) && data != null) {
             installUri = data;
@@ -129,7 +209,7 @@ public class InstallDialog extends AppCompatActivity {
             showErrorAndExit(getString(R.string.invalid_install_request));
         }
     }
-    
+
     /**
      * 处理分享意图
      */
@@ -137,7 +217,7 @@ public class InstallDialog extends AppCompatActivity {
         try {
             // 获取分享的 URI
             Uri sharedUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            
+
             if (sharedUri != null) {
                 Log.d(TAG, "Received shared file: " + sharedUri.toString());
                 installUri = sharedUri;
@@ -150,7 +230,7 @@ public class InstallDialog extends AppCompatActivity {
             showErrorAndExit(getString(R.string.error_processing_install_file));
         }
     }
-    
+
     private void processInstallFile() {
         try {
             // 获取文件路径
@@ -159,19 +239,19 @@ public class InstallDialog extends AppCompatActivity {
                 showErrorAndExit(getString(R.string.cannot_access_install_file));
                 return;
             }
-            
+
             // 检测文件类型
             isXapkFile = XapkInstaller.isXapkFile(filePath);
-            
+
             // 显示安装信息
             displayInstallInfo();
-            
+
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.process_install_file_failed), e);
             showErrorAndExit(getString(R.string.error_processing_install_file));
         }
     }
-    
+
     private void displayInstallInfo() {
         try {
             if (!isXapkFile) {
@@ -183,7 +263,7 @@ public class InstallDialog extends AppCompatActivity {
                 tvPackageName.setText(R.string.xapk);
                 int apkCount = XapkInstaller.getApkCount(this, filePath);
                 tvVersion.setText(apkCount > 0 ? getString(R.string.apk_files_count, apkCount) : getString(R.string.unknown));
-                
+
                 // 获取文件大小
                 File file = new File(filePath);
                 if (file.exists()) {
@@ -193,11 +273,11 @@ public class InstallDialog extends AppCompatActivity {
                 } else {
                     tvFileSize.setText(getString(R.string.unknown));
                 }
-                
+
                 // XAPK文件显示未知SDK信息
                 tvMinSdk.setText(getString(R.string.unknown));
                 tvTargetSdk.setText(getString(R.string.unknown));
-                
+
                 ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
             }
 
@@ -208,41 +288,42 @@ public class InstallDialog extends AppCompatActivity {
             // 检查并显示版本比对信息
             checkAndDisplayVersionComparison();
 
-            // 检查Shizuku状态
-            checkShizukuStatus();
+            // 检查 Shizuku 和 Dhizuku 状态
+            checkPrivilegeStatus();
+
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.display_install_info_failed), e);
             showErrorAndExit(getString(R.string.parse_file_failed));
         }
     }
-    
+
     /**
      * 解析APK信息
      */
     private void parseApkInfo(String apkPath) {
         try {
             PackageManager pm = getPackageManager();
-            PackageInfo packageInfo = pm.getPackageArchiveInfo(apkPath, 
+            PackageInfo packageInfo = pm.getPackageArchiveInfo(apkPath,
                 PackageManager.GET_ACTIVITIES | PackageManager.GET_PERMISSIONS);
-            
+
             if (packageInfo != null) {
                 // 设置应用源路径，以便能够加载图标和标签
                 ApplicationInfo appInfo = packageInfo.applicationInfo;
                 appInfo.sourceDir = apkPath;
                 appInfo.publicSourceDir = apkPath;
-                
+
                 // 获取应用名称
                 CharSequence appName = appInfo.loadLabel(pm);
                 tvAppName.setText(appName != null ? appName.toString() : getString(R.string.unknown_app));
-                
+
                 // 获取包名
                 tvPackageName.setText(packageInfo.packageName);
-                
+
                 // 获取版本信息
                 String versionName = packageInfo.versionName != null ? packageInfo.versionName : "";
                 long versionCode = packageInfo.getLongVersionCode();
                 tvVersion.setText(String.format("%s (%d)", versionName, versionCode));
-                
+
                 // 获取SDK信息
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     int minSdk = packageInfo.applicationInfo.minSdkVersion;
@@ -250,10 +331,10 @@ public class InstallDialog extends AppCompatActivity {
                 } else {
                     tvMinSdk.setText(getString(R.string.unknown));
                 }
-                
+
                 int targetSdk = packageInfo.applicationInfo.targetSdkVersion;
                 tvTargetSdk.setText(String.valueOf(targetSdk));
-                
+
                 // 获取文件大小
                 File file = new File(apkPath);
                 if (file.exists()) {
@@ -263,7 +344,7 @@ public class InstallDialog extends AppCompatActivity {
                 } else {
                     tvFileSize.setText(getString(R.string.unknown));
                 }
-                
+
                 // 获取应用图标
                 try {
                     Drawable icon = appInfo.loadIcon(pm);
@@ -285,7 +366,7 @@ public class InstallDialog extends AppCompatActivity {
             setDefaultInfo();
         }
     }
-    
+
     /**
      * 设置默认信息
      */
@@ -298,14 +379,14 @@ public class InstallDialog extends AppCompatActivity {
         tvTargetSdk.setText(getString(R.string.unknown));
         ivAppIcon.setImageResource(android.R.drawable.sym_def_app_icon);
     }
-    
+
     /**
      * 获取已安装应用的信息
      */
     private PackageInfo getInstalledAppInfo(String packageName) {
         try {
             Log.d(TAG, getString(R.string.checking_app_installed, packageName));
-            
+
             // 使用增强版包信息检查工具
             PackageInfo info = PackageInfoHelper.getInstalledAppInfo(this, packageName);
             if (info != null) {
@@ -314,13 +395,13 @@ public class InstallDialog extends AppCompatActivity {
                 Log.d(TAG, getString(R.string.app_not_installed, packageName));
             }
             return info;
-            
+
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.check_app_install_error, e.getMessage()));
             return null;
         }
     }
-    
+
     /**
      * 格式化文件大小
      */
@@ -335,102 +416,143 @@ public class InstallDialog extends AppCompatActivity {
             return String.format("%.2f GB", sizeInBytes / (1024.0 * 1024.0 * 1024.0));
         }
     }
-    
-    private void checkShizukuStatus() {
-        boolean shizukuReady = false;
-        try {
-            shizukuReady = Shizuku.pingBinder() &&
-                    Shizuku.checkSelfPermission() == android.content.pm.PackageManager.PERMISSION_GRANTED &&
-                    !(Shizuku.isPreV11() || Shizuku.getVersion() < 10);
-        } catch (Throwable t) {
-            shizukuReady = false;
-        }
-        
-        if (shizukuReady) {
-            btnInstall.setEnabled(true);
-        } else {
-            btnInstall.setEnabled(false);
-            // 显示Shizuku状态说明
-            Toast.makeText(this, R.string.shizuku_required, Toast.LENGTH_LONG).show();
+
+    /**
+     * 检查 Shizuku 和 Dhizuku 权限状态
+     */
+    private void checkPrivilegeStatus() {
+        // 检查 Shizuku 状态
+        new Thread(() -> {
+            PrivilegeHelper.PrivilegeStatus shizukuStatus = PrivilegeHelper.checkShizukuStatus();
+            PrivilegeHelper.PrivilegeStatus dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(this);
+
+            runOnUiThread(() -> {
+                updateShizukuStatusUI(shizukuStatus);
+                updateDhizukuStatusUI(dhizukuStatus);
+                updateInstallButtonState();
+            });
+        }).start();
+    }
+
+    /**
+     * 更新 Shizuku 状态UI
+     */
+    private void updateShizukuStatusUI(PrivilegeHelper.PrivilegeStatus status) {
+        switch (status) {
+            case NOT_INSTALLED:
+                tvShizukuStatus.setText(R.string.shizuku_not_running);
+                tvShizukuStatus.setTextColor(getColor(R.color.status_error));
+                btnShizukuGrant.setVisibility(View.GONE);
+                break;
+            case NOT_RUNNING:
+                tvShizukuStatus.setText(R.string.shizuku_not_running);
+                tvShizukuStatus.setTextColor(getColor(R.color.status_error));
+                btnShizukuGrant.setVisibility(View.GONE);
+                break;
+            case NOT_AUTHORIZED:
+                tvShizukuStatus.setText(R.string.shizuku_connected_but_not_authorized);
+                tvShizukuStatus.setTextColor(getColor(R.color.status_warning));
+                btnShizukuGrant.setVisibility(View.VISIBLE);
+                break;
+            case AUTHORIZED:
+                tvShizukuStatus.setText(R.string.shizuku_connected_and_authorized);
+                tvShizukuStatus.setTextColor(getColor(R.color.status_success));
+                btnShizukuGrant.setVisibility(View.GONE);
+                break;
+            case VERSION_TOO_LOW:
+                tvShizukuStatus.setText(R.string.shizuku_version_too_low);
+                tvShizukuStatus.setTextColor(getColor(R.color.status_error));
+                btnShizukuGrant.setVisibility(View.GONE);
+                break;
+            default:
+                tvShizukuStatus.setText(R.string.status_unknown);
+                tvShizukuStatus.setTextColor(getColor(R.color.status_warning));
+                btnShizukuGrant.setVisibility(View.GONE);
+                break;
         }
     }
-    
+
+    /**
+     * 更新 Dhizuku 状态UI
+     */
+    private void updateDhizukuStatusUI(PrivilegeHelper.PrivilegeStatus status) {
+        switch (status) {
+            case NOT_INSTALLED:
+                tvDhizukuStatus.setText(R.string.dhizuku_not_running);
+                tvDhizukuStatus.setTextColor(getColor(R.color.status_error));
+                btnDhizukuGrant.setVisibility(View.GONE);
+                break;
+            case NOT_RUNNING:
+                tvDhizukuStatus.setText(R.string.dhizuku_not_running);
+                tvDhizukuStatus.setTextColor(getColor(R.color.status_error));
+                btnDhizukuGrant.setVisibility(View.GONE);
+                break;
+            case NOT_AUTHORIZED:
+                tvDhizukuStatus.setText(R.string.dhizuku_connected_but_not_authorized);
+                tvDhizukuStatus.setTextColor(getColor(R.color.status_warning));
+                btnDhizukuGrant.setVisibility(View.VISIBLE);
+                break;
+            case AUTHORIZED:
+                tvDhizukuStatus.setText(R.string.dhizuku_connected_and_authorized);
+                tvDhizukuStatus.setTextColor(getColor(R.color.status_success));
+                btnDhizukuGrant.setVisibility(View.GONE);
+                break;
+            case VERSION_TOO_LOW:
+                tvDhizukuStatus.setText(R.string.dhizuku_version_too_low);
+                tvDhizukuStatus.setTextColor(getColor(R.color.status_error));
+                btnDhizukuGrant.setVisibility(View.GONE);
+                break;
+            default:
+                tvDhizukuStatus.setText(R.string.status_unknown);
+                tvDhizukuStatus.setTextColor(getColor(R.color.status_warning));
+                btnDhizukuGrant.setVisibility(View.GONE);
+                break;
+        }
+    }
+
+    /**
+     * 更新安装按钮状态
+     */
+    private void updateInstallButtonState() {
+        boolean canInstall = false;
+
+        if (currentMode == PrivilegeHelper.PrivilegeMode.SHIZUKU) {
+            PrivilegeHelper.PrivilegeStatus status = PrivilegeHelper.checkShizukuStatus();
+            canInstall = (status == PrivilegeHelper.PrivilegeStatus.AUTHORIZED);
+        } else {
+            PrivilegeHelper.PrivilegeStatus status = PrivilegeHelper.checkDhizukuStatus(this);
+            canInstall = (status == PrivilegeHelper.PrivilegeStatus.AUTHORIZED);
+        }
+
+        btnInstall.setEnabled(canInstall);
+
+        if (!canInstall) {
+            if (currentMode == PrivilegeHelper.PrivilegeMode.SHIZUKU) {
+                Toast.makeText(this, R.string.shizuku_required, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, R.string.dhizuku_required, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     private void startInstallation() {
         if (isInstalling) return;
-        
+
         try {
             isInstalling = true;
-            
+
             // 显示进度界面
             layoutInstallInfo.setVisibility(View.GONE);
             layoutProgress.setVisibility(View.VISIBLE);
             layoutCompletion.setVisibility(View.GONE);
-            
-            // 循环进度条自动运行动画
-            
-            // 获取当前授权器 - 现在只支持Shizuku
-            PrivilegeHelper.PrivilegeMode currentMode = PrivilegeHelper.PrivilegeMode.SHIZUKU;
-            
-            // 开始安装过程
-            if (isXapkFile) {
-                // XAPK/APKS 安装
-                ShizukuInstallHelper.installXapk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
-                @Override
-                public void onProgress(String message) {
-                    runOnUiThread(() -> {
-                        // 更新进度详情文本
-                        if (tvProgressDetail != null && message != null) {
-                            tvProgressDetail.setText(message);
-                        }
-                    });
-                }
-                @Override
-                public void onSuccess(String message) {
-                    runOnUiThread(() -> {
-                        showCompletionUI();
-                    });
-                }
-                @Override
-                public void onError(String error) {
-                    runOnUiThread(() -> {
-                        isInstalling = false;
-                        Toast.makeText(InstallDialog.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
-                        layoutProgress.setVisibility(View.GONE);
-                        layoutInstallInfo.setVisibility(View.VISIBLE);
-                    });
-                }
-            });
+
+            // 根据当前选择的授权方式选择安装助手
+            if (currentMode == PrivilegeHelper.PrivilegeMode.SHIZUKU) {
+                startShizukuInstallation();
             } else {
-                // APK安装
-                ShizukuInstallHelper.installApk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
-                    @Override
-                    public void onProgress(String message) {
-                        runOnUiThread(() -> {
-                            // 更新进度详情文本
-                            if (tvProgressDetail != null && message != null) {
-                                tvProgressDetail.setText(message);
-                            }
-                        });
-                    }
-                    
-                    @Override
-                    public void onSuccess(String message) {
-                        runOnUiThread(() -> {
-                            showCompletionUI();
-                        });
-                    }
-                    
-                    @Override
-                    public void onError(String error) {
-                        runOnUiThread(() -> {
-                            isInstalling = false;
-                            Toast.makeText(InstallDialog.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
-                            layoutProgress.setVisibility(View.GONE);
-                            layoutInstallInfo.setVisibility(View.VISIBLE);
-                        });
-                    }
-                });
+                startDhizukuInstallation();
             }
+
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.start_installation_failed), e);
             isInstalling = false;
@@ -439,7 +561,141 @@ public class InstallDialog extends AppCompatActivity {
             layoutInstallInfo.setVisibility(View.VISIBLE);
         }
     }
-    
+
+    /**
+     * 使用 Shizuku 安装
+     */
+    private void startShizukuInstallation() {
+        if (isXapkFile) {
+            // XAPK/APKS 安装
+            ShizukuInstallHelper.installXapk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
+                @Override
+                public void onProgress(String message) {
+                    runOnUiThread(() -> {
+                        if (tvProgressDetail != null && message != null) {
+                            tvProgressDetail.setText(message);
+                        }
+                    });
+                }
+
+                @Override
+                public void onSuccess(String message) {
+                    runOnUiThread(() -> {
+                        showCompletionUI();
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    runOnUiThread(() -> {
+                        isInstalling = false;
+                        Toast.makeText(InstallDialog.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
+                        layoutProgress.setVisibility(View.GONE);
+                        layoutInstallInfo.setVisibility(View.VISIBLE);
+                        checkPrivilegeStatus(); // 重新检查状态
+                    });
+                }
+            });
+        } else {
+            // APK安装
+            ShizukuInstallHelper.installApk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
+                @Override
+                public void onProgress(String message) {
+                    runOnUiThread(() -> {
+                        if (tvProgressDetail != null && message != null) {
+                            tvProgressDetail.setText(message);
+                        }
+                    });
+                }
+
+                @Override
+                public void onSuccess(String message) {
+                    runOnUiThread(() -> {
+                        showCompletionUI();
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    runOnUiThread(() -> {
+                        isInstalling = false;
+                        Toast.makeText(InstallDialog.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
+                        layoutProgress.setVisibility(View.GONE);
+                        layoutInstallInfo.setVisibility(View.VISIBLE);
+                        checkPrivilegeStatus(); // 重新检查状态
+                    });
+                }
+            });
+        }
+    }
+
+    /**
+     * 使用 Dhizuku 安装
+     */
+    private void startDhizukuInstallation() {
+        if (isXapkFile) {
+            // XAPK/APKS 安装
+            DhizukuInstallHelper.installXapk(this, filePath, true, true, new DhizukuInstallHelper.InstallCallback() {
+                @Override
+                public void onProgress(String message) {
+                    runOnUiThread(() -> {
+                        if (tvProgressDetail != null && message != null) {
+                            tvProgressDetail.setText(message);
+                        }
+                    });
+                }
+
+                @Override
+                public void onSuccess(String message) {
+                    runOnUiThread(() -> {
+                        showCompletionUI();
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    runOnUiThread(() -> {
+                        isInstalling = false;
+                        Toast.makeText(InstallDialog.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
+                        layoutProgress.setVisibility(View.GONE);
+                        layoutInstallInfo.setVisibility(View.VISIBLE);
+                        checkPrivilegeStatus(); // 重新检查状态
+                    });
+                }
+            });
+        } else {
+            // APK安装
+            DhizukuInstallHelper.installApk(this, filePath, true, true, new DhizukuInstallHelper.InstallCallback() {
+                @Override
+                public void onProgress(String message) {
+                    runOnUiThread(() -> {
+                        if (tvProgressDetail != null && message != null) {
+                            tvProgressDetail.setText(message);
+                        }
+                    });
+                }
+
+                @Override
+                public void onSuccess(String message) {
+                    runOnUiThread(() -> {
+                        showCompletionUI();
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    runOnUiThread(() -> {
+                        isInstalling = false;
+                        Toast.makeText(InstallDialog.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
+                        layoutProgress.setVisibility(View.GONE);
+                        layoutInstallInfo.setVisibility(View.VISIBLE);
+                        checkPrivilegeStatus(); // 重新检查状态
+                    });
+                }
+            });
+        }
+    }
+
     private String getFilePathFromUri(Uri uri) {
         try {
             if ("file".equals(uri.getScheme())) {
@@ -448,11 +704,11 @@ public class InstallDialog extends AppCompatActivity {
                 // 复制内容到临时文件
                 InputStream inputStream = getContentResolver().openInputStream(uri);
                 if (inputStream == null) return null;
-                
+
                 // 获取文件名，用于确定正确的扩展名
                 String fileName = getFileNameFromUri(uri);
                 String extension = getFileExtension(fileName);
-                
+
                 // 根据文件类型创建临时文件
                 File tempFile;
                 if (".xapk".equals(extension) || ".apks".equals(extension) || ".apkm".equals(extension)) {
@@ -460,19 +716,19 @@ public class InstallDialog extends AppCompatActivity {
                 } else {
                     tempFile = new File(getCacheDir(), "temp_install.apk");
                 }
-                
+
                 FileOutputStream outputStream = new FileOutputStream(tempFile);
-                
+
                 byte[] buffer = new byte[8192]; // 增加缓冲区大小以提高性能
                 int length;
                 while ((length = inputStream.read(buffer)) > 0) {
                     outputStream.write(buffer, 0, length);
                 }
-                
+
                 inputStream.close();
                 outputStream.flush();
                 outputStream.close();
-                
+
                 Log.d(TAG, "Temp file created: " + tempFile.getAbsolutePath());
                 return tempFile.getAbsolutePath();
             }
@@ -481,13 +737,13 @@ public class InstallDialog extends AppCompatActivity {
         }
         return null;
     }
-    
+
     /**
      * 从 URI 获取文件名
      */
     private String getFileNameFromUri(Uri uri) {
         String fileName = null;
-        
+
         // 尝试从 URI 路径中提取文件名
         if (uri.getPath() != null) {
             String path = uri.getPath();
@@ -496,7 +752,7 @@ public class InstallDialog extends AppCompatActivity {
                 fileName = path.substring(lastSlash + 1);
             }
         }
-        
+
         // 如果无法从路径中获取，尝试查询 ContentResolver
         if (fileName == null || fileName.isEmpty()) {
             try {
@@ -517,10 +773,10 @@ public class InstallDialog extends AppCompatActivity {
                 Log.w(TAG, "Cannot get filename from ContentResolver", e);
             }
         }
-        
+
         return fileName != null ? fileName : "temp.apk";
     }
-    
+
     /**
      * 获取文件扩展名
      */
@@ -528,15 +784,15 @@ public class InstallDialog extends AppCompatActivity {
         if (fileName == null || fileName.isEmpty()) {
             return ".apk";
         }
-        
+
         int lastDot = fileName.lastIndexOf('.');
         if (lastDot != -1 && lastDot < fileName.length() - 1) {
             return fileName.substring(lastDot).toLowerCase();
         }
-        
+
         return ".apk";
     }
-    
+
     private void showErrorAndExit(String message) {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.install_error)
@@ -545,7 +801,7 @@ public class InstallDialog extends AppCompatActivity {
                 .setCancelable(false)
                 .show();
     }
-    
+
     /**
      * 显示安装完成界面
      */
@@ -554,28 +810,28 @@ public class InstallDialog extends AppCompatActivity {
         layoutProgress.setVisibility(View.GONE);
         layoutInstallInfo.setVisibility(View.GONE);
         layoutCompletion.setVisibility(View.VISIBLE);
-        
+
         // 保存安装的包名用于打开应用
         Log.d(TAG, getString(R.string.save_installed_package_name));
         installedPackageName = tvPackageName.getText().toString();
-        
+
         // 检查已安装的应用信息并更新按钮和版本显示
         Log.d(TAG, getString(R.string.checking_installed_app_info));
         checkAndDisplayVersionComparison();
     }
-    
+
     /**
      * 检查并显示版本比对信息
      */
     private void checkAndDisplayVersionComparison() {
         String packageName = tvPackageName.getText().toString();
         if (packageName == null || packageName.isEmpty()) return;
-        
+
         new Thread(() -> {
             try {
                 // 获取已安装应用的信息
                 PackageInfo installedInfo = getInstalledAppInfo(packageName);
-                
+
                 runOnUiThread(() -> {
                     if (installedInfo != null) {
                         // 应用已安装，显示版本比对
@@ -593,7 +849,7 @@ public class InstallDialog extends AppCompatActivity {
             }
         }).start();
     }
-    
+
     /**
      * 在主版本字段中显示版本对比信息
      */
@@ -602,20 +858,20 @@ public class InstallDialog extends AppCompatActivity {
             // 获取待安装APK的信息
             PackageManager pm = getPackageManager();
             PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
-            
+
             if (apkInfo != null) {
                 String apkVersionName = apkInfo.versionName != null ? apkInfo.versionName : "Unknown";
                 long apkVersionCode = apkInfo.getLongVersionCode();
-                
+
                 String installedVersionName = installedInfo.versionName != null ? installedInfo.versionName : "Unknown";
                 long installedVersionCode = installedInfo.getLongVersionCode();
-                
+
                 // 在主版本字段中显示版本对比：当前版本 → 新版本
-                String versionDisplay = String.format("%s (%d) → %s (%d)", 
-                    installedVersionName, installedVersionCode, 
+                String versionDisplay = String.format("%s (%d) → %s (%d)",
+                    installedVersionName, installedVersionCode,
                     apkVersionName, apkVersionCode);
                 tvVersion.setText(versionDisplay);
-                
+
                 // 显示SDK信息对比
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     int apkMinSdk = apkInfo.applicationInfo.minSdkVersion;
@@ -624,11 +880,11 @@ public class InstallDialog extends AppCompatActivity {
                 } else {
                     tvMinSdk.setText("N/A → N/A");
                 }
-                
+
                 int apkTargetSdk = apkInfo.applicationInfo.targetSdkVersion;
                 int installedTargetSdk = installedInfo.applicationInfo.targetSdkVersion;
                 tvTargetSdk.setText(String.format("%d → %d", installedTargetSdk, apkTargetSdk));
-                
+
                 // 根据版本差异调整按钮文本
                 int versionComparison = PackageInfoHelper.compareVersions(apkVersionName, installedVersionName);
                 if (versionComparison > 0) {
@@ -644,7 +900,7 @@ public class InstallDialog extends AppCompatActivity {
             displayBasicVersionInfo();
         }
     }
-    
+
     /**
      * 显示基础版本信息（新安装情况）
      */
@@ -652,7 +908,7 @@ public class InstallDialog extends AppCompatActivity {
         try {
             PackageManager pm = getPackageManager();
             PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
-            
+
             if (apkInfo != null) {
                 String versionName = apkInfo.versionName != null ? apkInfo.versionName : "Unknown";
                 long versionCode = apkInfo.getLongVersionCode();
@@ -665,8 +921,6 @@ public class InstallDialog extends AppCompatActivity {
         }
     }
 
-
-    
     /**
      * 更新新安装的版本信息
      */
@@ -674,7 +928,7 @@ public class InstallDialog extends AppCompatActivity {
         try {
             PackageManager pm = getPackageManager();
             PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
-            
+
             if (apkInfo != null) {
                 String versionName = apkInfo.versionName != null ? apkInfo.versionName : "";
                 long versionCode = apkInfo.getLongVersionCode();
@@ -684,7 +938,7 @@ public class InstallDialog extends AppCompatActivity {
             Log.e(TAG, getString(R.string.updating_version_info_new_install) + ": " + e.getMessage());
         }
     }
-    
+
     /**
      * 为已安装应用更新安装按钮
      */
@@ -692,11 +946,11 @@ public class InstallDialog extends AppCompatActivity {
         try {
             PackageManager pm = getPackageManager();
             PackageInfo apkInfo = pm.getPackageArchiveInfo(filePath, 0);
-            
+
             if (apkInfo != null) {
                 long apkVersionCode = apkInfo.getLongVersionCode();
                 long installedVersionCode = installedInfo.getLongVersionCode();
-                
+
                 if (apkVersionCode == installedVersionCode) {
                     // 版本相同，显示重新安装
                     btnInstall.setText(R.string.reinstall);
@@ -712,14 +966,14 @@ public class InstallDialog extends AppCompatActivity {
             Log.e(TAG, getString(R.string.updating_install_button_installed_app) + ": " + e.getMessage());
         }
     }
-    
+
     /**
      * 为新安装更新安装按钮
      */
     private void updateInstallButtonForNewInstall() {
         btnInstall.setText(R.string.install);
     }
-    
+
     /**
      * 取消安装
      */
@@ -729,7 +983,7 @@ public class InstallDialog extends AppCompatActivity {
         layoutInstallInfo.setVisibility(View.VISIBLE);
         Toast.makeText(this, R.string.install_cancelled, Toast.LENGTH_SHORT).show();
     }
-    
+
     /**
      * 打开已安装的应用
      */
@@ -738,40 +992,49 @@ public class InstallDialog extends AppCompatActivity {
             Toast.makeText(this, R.string.cannot_open_app, Toast.LENGTH_SHORT).show();
             return;
         }
-        
-        // 使用Shizuku Shell命令启动应用
+
+        // 使用 Shizuku Shell 命令启动应用
         launchAppViaShizukuShell(installedPackageName);
     }
-    
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 每次回到前台时重新检查权限状态
+        if (layoutInstallInfo.getVisibility() == View.VISIBLE) {
+            checkPrivilegeStatus();
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
     }
-    
+
     /**
-     * 使用Shizuku Shell命令启动应用
+     * 使用 Shizuku Shell 命令启动应用
      */
     private void launchAppViaShizukuShell(String packageName) {
         try {
             Log.d(TAG, getString(R.string.launching_app_via_shizuku_shell, packageName));
-            
+
             // 异步执行Shell命令
             new Thread(() -> {
                 try {
-                    // 使用am start命令
+                    // 使用 am start 命令
                     String command = "am start -n " + packageName + "/.MainActivity";
-                    
+
                     // 执行命令
                     Process process = Runtime.getRuntime().exec(new String[]{
                         "sh", "-c", command
                     });
-                    
+
                     int exitCode = process.waitFor();
                     Log.d(TAG, getString(R.string.shell_command_result, exitCode));
-                    
+
                     runOnUiThread(() -> {
                         if (exitCode == 0) {
-                            Toast.makeText(this, getString(R.string.app_launched_success, packageName), 
+                            Toast.makeText(this, getString(R.string.app_launched_success, packageName),
                                 Toast.LENGTH_SHORT).show();
                             finish();
                         } else {
@@ -787,14 +1050,14 @@ public class InstallDialog extends AppCompatActivity {
                     });
                 }
             }).start();
-            
+
         } catch (Exception e) {
             Log.e(TAG, getString(R.string.launch_app_via_shizuku_failed, e.getMessage()), e);
             // 回退到传统启动方式
             launchAppTraditional(packageName);
         }
     }
-    
+
     /**
      * 传统的应用启动方式（回退方案）
      */
