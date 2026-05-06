@@ -173,7 +173,14 @@ public class SettingsFragment extends Fragment {
      * 更新当前语言显示
      */
     private void updateCurrentLanguageDisplay() {
-        // 已简化UI，不再显示当前语言文本
+        TextView tvCurrentLanguage = binding.getRoot().findViewById(R.id.tv_current_language);
+        
+        if (tvCurrentLanguage != null) {
+            String currentLang = LanguageManager.getUserLanguage(requireContext());
+            String langName = LanguageManager.getLanguageDisplayName(requireContext(), currentLang);
+            tvCurrentLanguage.setText(langName);
+            Log.d("SettingsFragment", "Updated language display to: " + langName);
+        }
     }
 
     private void showLanguageSelectionDialog() {
@@ -245,24 +252,31 @@ public class SettingsFragment extends Fragment {
             if (v == cardSystem) {
                 radioSystem.setChecked(true);
                 selectedLanguage[0] = "system";
+                Log.d("SettingsFragment", "Language selected: system");
             } else if (v == cardSimplified) {
                 radioSimplified.setChecked(true);
                 selectedLanguage[0] = "zh";
+                Log.d("SettingsFragment", "Language selected: zh");
             } else if (v == cardTraditional) {
                 radioTraditional.setChecked(true);
                 selectedLanguage[0] = "zh-TW";
+                Log.d("SettingsFragment", "Language selected: zh-TW");
             } else if (v == cardEnglish) {
                 radioEnglish.setChecked(true);
                 selectedLanguage[0] = "en";
+                Log.d("SettingsFragment", "Language selected: en");
             } else if (v == cardRussian) {
                 radioRussian.setChecked(true);
                 selectedLanguage[0] = "ru";
+                Log.d("SettingsFragment", "Language selected: ru");
             } else if (v == cardJapanese) {
                 radioJapanese.setChecked(true);
                 selectedLanguage[0] = "ja";
+                Log.d("SettingsFragment", "Language selected: ja");
             } else if (v == cardMeow) {
                 radioMeow.setChecked(true);
                 selectedLanguage[0] = "zh-HK";
+                Log.d("SettingsFragment", "Language selected: zh-HK");
             }
         };
         
@@ -293,28 +307,31 @@ public class SettingsFragment extends Fragment {
         dialogView.findViewById(R.id.btn_language_confirm).setOnClickListener(v -> {
             try {
                 String langCode = selectedLanguage[0];
-                
-                // 如果选择的是跟随系统，且当前已经是system，直接关闭
-                if (langCode.equals(currentLang)) {
-                    dialog.dismiss();
-                    return;
-                }
+                Log.d("SettingsFragment", "Language confirm clicked, selected: " + langCode + ", current: " + currentLang);
                 
                 // 保存语言设置
                 LanguageManager.saveUserLanguage(requireContext(), langCode);
+                Log.d("SettingsFragment", "Language saved: " + langCode);
                 
                 // 更新应用语言（无需重启）
                 LanguageManager.applyUserLanguagePreference(requireContext());
+                Log.d("SettingsFragment", "Language applied");
+                
+                // 立即更新界面上的语言显示（在 recreate 之前）
+                updateCurrentLanguageDisplay();
+                Log.d("SettingsFragment", "Language display updated before recreate");
                 
                 // 显示提示信息
                 String langName = LanguageManager.getLanguageDisplayName(requireContext(), langCode);
                 showNotification(getString(R.string.language_changed_tip, langName));
+                Log.d("SettingsFragment", "Showing notification for language change to: " + langName);
                 
                 // 重新创建Activity以应用语言更改（比完全重启更轻量）
                 dialog.dismiss();
+                Log.d("SettingsFragment", "Recreating activity...");
                 requireActivity().recreate();
             } catch (Exception e) {
-                Log.e("SettingsFragment", "Language selection failed: " + e.getMessage());
+                Log.e("SettingsFragment", "Language selection failed: " + e.getMessage(), e);
                 showNotification(R.string.language_change_failed);
             }
         });
@@ -511,26 +528,31 @@ public class SettingsFragment extends Fragment {
         dialogView.findViewById(R.id.btn_theme_confirm).setOnClickListener(v -> {
             try {
                 int themeMode = selectedTheme[0];
+                Log.d("SettingsFragment", "Theme confirm clicked, selected: " + themeMode + ", current: " + currentTheme);
                     
                 // 如果选择的与当前相同，直接关闭
                 if (themeMode == currentTheme) {
+                    Log.d("SettingsFragment", "Theme unchanged, dismissing dialog");
                     dialog.dismiss();
                     return;
                 }
                     
                 // 保存主题设置
                 ThemeManager.saveUserTheme(requireContext(), themeMode);
+                Log.d("SettingsFragment", "Theme saved: " + themeMode);
                     
                 // 应用主题（无需重启）
                 ThemeManager.applyTheme(themeMode);
+                Log.d("SettingsFragment", "Theme applied");
                     
                 // 显示提示信息
                 String themeName = ThemeManager.getThemeDisplayName(requireContext(), themeMode);
                 showNotification(getString(R.string.theme_changed_tip, themeName));
+                Log.d("SettingsFragment", "Showing notification for theme change to: " + themeName);
                     
                 dialog.dismiss();
             } catch (Exception e) {
-                Log.e("SettingsFragment", "Theme selection failed: " + e.getMessage());
+                Log.e("SettingsFragment", "Theme selection failed: " + e.getMessage(), e);
                 showNotification(R.string.feature_developing);
             }
         });

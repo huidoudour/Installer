@@ -59,6 +59,15 @@
     <string name="russian">Русский</string>
     <string name="japanese">日本語</string>
     <string name="meow_language">喵语中文</string>
+    
+    <!-- Static language names (not translated) -->
+    <string name="lang_name_system">Follow System</string>
+    <string name="lang_name_simplified">简体中文</string>
+    <string name="lang_name_traditional">繁體中文</string>
+    <string name="lang_name_english">English</string>
+    <string name="lang_name_russian">Русский</string>
+    <string name="lang_name_japanese">日本語</string>
+    <string name="lang_name_meow">喵语中文</string>
     <string name="confirm">Confirm</string>
     <string name="language_changed_tip">Language switched to %s</string>
     <string name="language_change_failed">Language switch failed</string>

@@ -53,9 +53,9 @@
     <string name="follow_system">跟随系统喵</string>
     <string name="simplified_chinese">简体中文喵</string>
     <string name="traditional_chinese">繁体中文喵</string>
-    <string name="english">English 喵</string>
-    <string name="russian">Русский 喵</string>
-    <string name="japanese">日本語 喵</string>
+    <string name="english">英语喵</string>
+    <string name="russian">俄语喵</string>
+    <string name="japanese">日语喵</string>
     <string name="meow_language">喵语中文</string>
     <string name="confirm">确认喵</string>
     <string name="language_changed_tip">语言已切换为%s 喵~</string>

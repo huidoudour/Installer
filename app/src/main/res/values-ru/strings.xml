@@ -51,9 +51,10 @@
     <string name="follow_system">Как в системе</string>
     <string name="simplified_chinese">Упрощенный китайский</string>
     <string name="traditional_chinese">Традиционный китайский</string>
-    <string name="english">English</string>
+    <string name="english">Английский</string>
     <string name="russian">Русский</string>
-    <string name="japanese">日本語</string>
+    <string name="japanese">Японский</string>
+    <string name="meow_language">Мяу Китайский</string>
     <string name="confirm">Подтвердить</string>
     <string name="language_changed_tip">Язык изменен на %s</string>
     <string name="language_change_failed">Не удалось изменить язык</string>

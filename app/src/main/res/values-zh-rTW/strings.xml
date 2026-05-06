@@ -51,9 +51,10 @@
     <string name="follow_system">跟隨系統</string>
     <string name="simplified_chinese">簡體中文</string>
     <string name="traditional_chinese">繁體中文</string>
-    <string name="english">English</string>
-    <string name="russian">Русский</string>
-    <string name="japanese">日本語</string>
+    <string name="english">英語</string>
+    <string name="russian">俄語</string>
+    <string name="japanese">日語</string>
+    <string name="meow_language">喵語中文</string>
     <string name="confirm">確認</string>
     <string name="language_changed_tip">語言已切換為%s</string>
     <string name="language_change_failed">語言切換失敗</string>

@@ -153,4 +153,7 @@ dependencies {
 
     // Bypass Android hidden API restrictions
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
+    
+    // ACRA - Crash reporting
+    implementation("ch.acra:acra-core:5.11.3")
 }
