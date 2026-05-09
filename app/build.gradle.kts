@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("org.jetbrains.kotlin.android")
+    // id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -63,9 +63,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = "21"
-    }
+
+    // kotlinOptions {
+    //    jvmTarget = "21"
+    // }
     
     // 启用 ViewBinding
     buildFeatures {
@@ -130,30 +131,29 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    
-    // Shizuku dependencies
+
+    // ====== 必要依赖开始 ======
+    // Hidden API for Dhizuku binder wrapper
+    // (compileOnly - uses system framework at runtime)
+    compileOnly(project(":hidden-api"))
+    // Shizuku api/provider
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
-    
+    // Dhizuku
+    implementation("io.github.iamr0s:Dhizuku-API:2.5.4")
+    // Compression/Decompression native library - 使用最新版本兼容 NDK 27
+    implementation("com.github.luben:zstd-jni:1.5.6-6")
+    // 绕过隐式 API
+    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
+    // ACRA - 崩溃捕获
+    implementation("ch.acra:acra-core:5.11.3")
+    // Kotlin support
+    // implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
+    // implementation("androidx.core:core-ktx:1.15.0")
+    // ====== 必要依赖结束 ======
+
     // MTDataFilesProvider
     debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
-
-    // Kotlin support
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
-    implementation("androidx.core:core-ktx:1.15.0")
-    
-    // Compression/Decompression native library
-    implementation("com.github.luben:zstd-jni:1.5.6-5")
-
-    // Dhizuku
-    implementation(libs.iamr0s.dhizuku.api)
-
-    // Hidden API for Dhizuku binder wrapper (compileOnly - uses system framework at runtime)
-    compileOnly(project(":hidden-api"))
-
-    // Bypass Android hidden API restrictions
-    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
-    
-    // ACRA - Crash reporting
-    implementation("ch.acra:acra-core:5.11.3")
+    // SQLite - Database
+    debugImplementation("com.github.requery:sqlite-android:3.49.0")
 }

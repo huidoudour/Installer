@@ -4,11 +4,13 @@ plugins {
 
 android {
     namespace = "io.github.huidoudour.Installer.demo"
+    //noinspection GradleDependency
     compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer.demo"
         minSdk = 28
+        //noinspection OldTargetApi
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -34,7 +36,4 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
-
-    // 同模块内的 hidden-api，用 implementation
-    implementation(project(":hidden-api"))
 }

@@ -4,6 +4,7 @@ plugins {
 
 android {
     namespace = "io.github.huidoudour.hidden_api"
+    //noinspection GradleDependency
     compileSdk = 36
 
     defaultConfig {

@@ -2,6 +2,7 @@ package io.github.huidoudour.Installer.demo;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,20 +36,68 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        
+        // 应用主题颜色（从 themes.xml 整合）
+        getWindow().setStatusBarColor(0xFFFFFFFF);  // 白色状态栏
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR  // 深色状态栏图标
+            );
+        }
+        
+        // 创建根布局
+        LinearLayout rootLayout = new LinearLayout(this);
+        rootLayout.setOrientation(LinearLayout.VERTICAL);
+        rootLayout.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        ));
+        
+        // 创建工具栏
+        MaterialToolbar toolbar = new MaterialToolbar(this);
+        toolbar.setId(View.generateViewId());
+        toolbar.setTitle("Hidden API Demo");
+        toolbar.setBackgroundColor(Color.parseColor("#e2e2e2"));
+        toolbar.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            (int) (48 * getResources().getDisplayMetrics().density + 0.5f) // actionBarSize
+        ));
+        rootLayout.addView(toolbar);
+        
+        // 创建滚动视图
+        NestedScrollView scrollView = new NestedScrollView(this);
+        scrollView.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            0,
+            1.0f
+        ));
+        
+        // 创建内容容器
+        LinearLayout container = new LinearLayout(this);
+        container.setId(View.generateViewId());
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(dp(16), dp(16), dp(16), dp(16));
+        container.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+        
+        scrollView.addView(container);
+        rootLayout.addView(scrollView);
+        
+        setContentView(rootLayout);
 
         // Initialize colors
-        colorPrimary = ContextCompat.getColor(this, android.R.color.holo_purple);
-        colorSecondary = ContextCompat.getColor(this, android.R.color.holo_blue_dark);
-        colorTextSecondary = ContextCompat.getColor(this, android.R.color.darker_gray);
-        colorCodeBg = ContextCompat.getColor(this, android.R.color.white);
-        colorAidl = ContextCompat.getColor(this, R.color.chip_aidl);
-        colorInterface = ContextCompat.getColor(this, R.color.chip_interface);
-        colorClass = ContextCompat.getColor(this, R.color.chip_class);
-        colorCardBg = ContextCompat.getColor(this, R.color.card_bg);
-        colorDivider = ContextCompat.getColor(this, R.color.divider);
+        colorPrimary = 0xFF6200EE;  // 主色调 Purple
+        colorSecondary = 0xFF03DAC5;  // 次要色 Teal
+        colorTextSecondary = 0xFF757575;  // 次要文本灰色
+        colorCodeBg = 0xFFF5F5F5;  // 代码背景浅灰
+        colorAidl = 0xFF2196F3;  // Blue
+        colorInterface = 0xFF4CAF50;  // Green
+        colorClass = 0xFFFF9800;  // Orange
+        colorCardBg = 0xFFFFFFFF;  // White
+        colorDivider = 0xFFE0E0E0;  // Light Gray
 
-        LinearLayout container = findViewById(R.id.container);
         buildApiCards(container);
     }
 

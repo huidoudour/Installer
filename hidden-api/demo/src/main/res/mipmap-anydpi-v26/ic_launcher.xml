@@ -1,9 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/toolbar_background" />
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MonochromeLauncherIcon">
+
+    <background>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+            tools:ignore="RedundantNamespace">
+            <solid android:color="#D8F5C5"/>
+        </shape>
+    </background>
+
     <foreground>
-        <inset
-            android:drawable="@drawable/ic_launcher_foreground"
-            android:inset="25%" />
+        <vector xmlns:android="http://schemas.android.com/apk/res/android"
+            android:width="108dp"
+            android:height="108dp"
+            android:viewportWidth="108"
+            android:viewportHeight="108"
+            tools:ignore="RedundantNamespace">
+
+            <group
+                android:translateX="16"
+                android:translateY="15"
+                android:scaleX="0.7"
+                android:scaleY="0.7">
+
+                <!-- Document body -->
+                <path
+                    android:fillColor="#577539"
+                    android:pathData="M30,20 L78,20 L78,90 L30,90 Z" />
+                <!-- Folded corner -->
+                <path
+                    android:fillColor="#2A4020"
+                    android:pathData="M68,20 L78,20 L78,30 L68,30 Z" />
+                <!-- Text lines -->
+                <path
+                    android:fillColor="#2A4020"
+                    android:pathData="M36,40 L72,40 L72,42 L36,42 Z" />
+                <path
+                    android:fillColor="#2A4020"
+                    android:pathData="M36,50 L72,50 L72,52 L36,52 Z" />
+                <path
+                    android:fillColor="#2A4020"
+                    android:pathData="M36,60 L72,60 L72,62 L36,62 Z" />
+                <path
+                    android:fillColor="#2A4020"
+                    android:pathData="M36,70 L60,70 L60,72 L36,72 Z" />
+            </group>
+        </vector>
     </foreground>
 </adaptive-icon>
