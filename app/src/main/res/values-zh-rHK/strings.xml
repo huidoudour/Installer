@@ -75,19 +75,19 @@
     <!-- Shell and tools -->
     <string name="shell_hint">输入命令喵...</string>
     <string name="clear_log">清空日志喵</string>
-    <string name="shell_txt">"@termux 喵"</string>
+    <string name="shell_txt">"@termux "</string>
     <string name="title_dashboard">工具喵</string>
-    <string name="hello_world">Hello World 喵!</string>
-    <string name="dollar_sign">$ 喵</string>
-    <string name="up_arrow">↑ 喵</string>
-    <string name="down_arrow">↓ 喵</string>
-    <string name="tab">TAB 喵</string>
-    <string name="ctrl_c">^C 喵</string>
-    <string name="esc">ESC 喵</string>
-    <string name="root">root 喵</string>
-    <string name="letter_c">C 喵</string>
-    <string name="clipboard">P 喵</string>
-    <string name="lightning">Q 喵</string>
+    <string name="hello_world">Hello World !</string>
+    <string name="dollar_sign">$</string>
+    <string name="up_arrow">↑</string>
+    <string name="down_arrow">↓</string>
+    <string name="tab">TAB</string>
+    <string name="ctrl_c">^C</string>
+    <string name="esc">ESC</string>
+    <string name="root">root</string>
+    <string name="letter_c">C</string>
+    <string name="clipboard">P</string>
+    <string name="lightning">Q</string>
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku 状态喵</string>

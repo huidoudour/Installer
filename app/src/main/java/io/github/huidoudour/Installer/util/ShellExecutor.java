@@ -507,25 +507,31 @@ public class ShellExecutor {
             "free -h",
             "ps aux",
             "pm list packages",
+            "pm list packages -3",
             "getprop",
-            "logcat -d -v time",
-            "native:info",
-            "native:test"
+            "logcat -d -v time | tail -50",
+            "dumpsys battery",
+            "netstat",
+            "top -n1",
+            "service list"
         };
         
         public static final String[] COMMAND_NAMES = {
-            "List files",           // R.string.list_files
-            "Current directory",    // R.string.current_directory
-            "Current user",         // R.string.current_user
-            "System information",   // R.string.system_info
-            "Disk space",           // R.string.disk_space
-            "Memory information",   // R.string.memory_info
-            "Process list",         // R.string.process_list
-            "Installed apps",       // R.string.installed_apps
-            "System properties",    // R.string.system_properties
-            "System logs",          // R.string.system_logs
-            "🔧 Native library info", // R.string.native_library_info
-            "🚀 Performance test"     // R.string.performance_test
+            "List files (detailed)",
+            "Current directory",
+            "Current user",
+            "System information",
+            "Disk space",
+            "Memory information",
+            "Process list",
+            "All packages",
+            "Third-party packages",
+            "System properties",
+            "Recent logs",
+            "Battery status",
+            "Network connections",
+            "Top processes",
+            "System services"
         };
     }
 

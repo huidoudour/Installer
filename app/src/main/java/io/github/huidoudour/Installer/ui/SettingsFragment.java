@@ -211,6 +211,9 @@ public class SettingsFragment extends Fragment {
             case "system":
                 radioSystem.setChecked(true);
                 break;
+            case "zh":
+                radioSimplified.setChecked(true);
+                break;
             case "zh-TW":
                 radioTraditional.setChecked(true);
                 break;
@@ -226,19 +229,34 @@ public class SettingsFragment extends Fragment {
             case "zh-HK":
                 radioMeow.setChecked(true);
                 break;
-            case "zh":
-                radioSimplified.setChecked(true);
-                break;
             default:
                 // 未知语言，默认跟随系统
                 radioSystem.setChecked(true);
                 break;
         }
         
+        // 禁用所有RadioButton的点击和焦点，让CardView完全控制
+        radioSystem.setClickable(false);
+        radioSystem.setFocusable(false);
+        radioSimplified.setClickable(false);
+        radioSimplified.setFocusable(false);
+        radioTraditional.setClickable(false);
+        radioTraditional.setFocusable(false);
+        radioEnglish.setClickable(false);
+        radioEnglish.setFocusable(false);
+        radioRussian.setClickable(false);
+        radioRussian.setFocusable(false);
+        radioJapanese.setClickable(false);
+        radioJapanese.setFocusable(false);
+        radioMeow.setClickable(false);
+        radioMeow.setFocusable(false);
+        
         // 为每个卡片设置点击事件 (手动实现单选逻辑)
         final String[] selectedLanguage = {currentLang};
         
         View.OnClickListener languageClickListener = v -> {
+            Log.d("SettingsFragment", "Card clicked: " + v.getId());
+            
             // 清除所有RadioButton的选中状态
             radioSystem.setChecked(false);
             radioSimplified.setChecked(false);
@@ -278,6 +296,8 @@ public class SettingsFragment extends Fragment {
                 selectedLanguage[0] = "zh-HK";
                 Log.d("SettingsFragment", "Language selected: zh-HK");
             }
+            
+            Log.d("SettingsFragment", "selectedLanguage updated to: " + selectedLanguage[0]);
         };
         
         cardSystem.setOnClickListener(languageClickListener);
@@ -307,6 +327,9 @@ public class SettingsFragment extends Fragment {
         dialogView.findViewById(R.id.btn_language_confirm).setOnClickListener(v -> {
             try {
                 String langCode = selectedLanguage[0];
+                Log.d("SettingsFragment", "=== Confirm Button Clicked ===");
+                Log.d("SettingsFragment", "selectedLanguage[0]: " + langCode);
+                Log.d("SettingsFragment", "currentLang (initial): " + currentLang);
                 Log.d("SettingsFragment", "Language confirm clicked, selected: " + langCode + ", current: " + currentLang);
                 
                 // 保存语言设置

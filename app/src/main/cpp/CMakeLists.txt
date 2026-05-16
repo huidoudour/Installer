@@ -44,24 +44,24 @@ message(STATUS "✅ 库1: crash-handler (独立信号处理器) - 已启用")
 # ============================================================
 # 如需启用，请取消以下所有注释
 #
-# add_library(
-#     installer-native
-#     SHARED
-#     native-lib.cpp
-# )
-#
-# target_link_libraries(installer-native
-#     ${log-lib}
-# )
-#
-# target_compile_options(installer-native PRIVATE
-#     -Wall -Wextra -O2 -fvisibility=hidden
-# )
-#
-# set_target_properties(installer-native PROPERTIES
-#     CXX_STANDARD 17
-#     CXX_STANDARD_REQUIRED ON
-# )
+ add_library(
+     installer-native
+     SHARED
+     native-lib.cpp
+ )
+
+ target_link_libraries(installer-native
+     ${log-lib}
+ )
+
+ target_compile_options(installer-native PRIVATE
+     -Wall -Wextra -O2 -fvisibility=hidden
+ )
+
+ set_target_properties(installer-native PROPERTIES
+     CXX_STANDARD 17
+     CXX_STANDARD_REQUIRED ON
+ )
 #
 # message(STATUS "❌ 库2: installer-native (Dhizuku JNI) - 已禁用")
 message(STATUS "=== 构建配置 ===")
