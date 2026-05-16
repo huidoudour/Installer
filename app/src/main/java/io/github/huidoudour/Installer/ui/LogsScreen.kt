@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
+import io.github.huidoudour.Installer.ui.theme.CardShape
+import io.github.huidoudour.Installer.ui.theme.SmallShape
 
 @Composable
 fun LogsScreen(
@@ -35,35 +38,62 @@ fun LogsScreen(
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
+        // 页面标题
+        Text(
+            text = stringResource(R.string.full_log),
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+
         // 日志卡片
         Card(
             modifier = Modifier.fillMaxSize(),
-            shape = MaterialTheme.shapes.extraLarge,
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            shape = CardShape,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            )
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(20.dp)
             ) {
-                // 标题栏：标题 + 清空 + 导出
+                // 标题栏：副标题 + 清空 + 导出
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 8.dp),
+                        .padding(bottom = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = stringResource(R.string.full_log),
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                    Column {
+                        Text(
+                            text = stringResource(R.string.real_time_logs),
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            color = MaterialTheme.colorScheme.primary
                         )
-                    )
+                        Text(
+                            text = if (logs.isNotEmpty()) "$logCount entries" else "",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
 
                     Row {
-                        TextButton(onClick = { viewModel.clearLogs() }) {
+                        OutlinedButton(
+                            onClick = { viewModel.clearLogs() },
+                            shape = SmallShape,
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = null,
@@ -73,7 +103,13 @@ fun LogsScreen(
                             Text(stringResource(R.string.clear))
                         }
 
-                        TextButton(onClick = { /* 导出日志 */ }) {
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        OutlinedButton(
+                            onClick = { /* 导出日志 */ },
+                            shape = SmallShape,
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.Share,
                                 contentDescription = null,
@@ -85,32 +121,6 @@ fun LogsScreen(
                     }
                 }
 
-                // 副标题 + 条数统计
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.real_time_logs),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 14.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Text(
-                        text = if (logs.isNotEmpty()) "$logCount entries" else "",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontSize = 12.sp,
-                            fontFamily = FontFamily.Monospace
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
                 // 日志列表
                 if (logs.isEmpty()) {
                     Box(
@@ -119,20 +129,31 @@ fun LogsScreen(
                             .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = stringResource(R.string.no_logs_available),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = stringResource(R.string.no_logs_available),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 } else {
                     Card(
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f),
-                        shape = MaterialTheme.shapes.large,
+                        shape = SmallShape,
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                         )
                     ) {
                         LazyColumn(

@@ -74,17 +74,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        
-        <!-- 安装对话 -->
-        <activity
-            android:name=".ui.InstallDialog"
-            android:exported="true"
-            android:theme="@style/Theme.Installer.Dialog"
-            android:launchMode="singleTask"
-            android:taskAffinity="io.github.huidoudour.Installer.INSTALL_DIALOG"
-            android:excludeFromRecents="true"
-            android:noHistory="true">
+            
             <!-- 注册为安装器，处理APK安装请求 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -94,6 +84,7 @@
                 <data android:scheme="content" />
                 <data android:mimeType="application/vnd.android.package-archive" />
             </intent-filter>
+            
             <!-- 支持 XAPK/APKS/APKM 格式 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -104,6 +95,7 @@
                 <data android:mimeType="application/x-xapk" />
                 <data android:mimeType="application/octet-stream" />
             </intent-filter>
+            
             <!-- 支持分享功能 (SEND action) -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -116,19 +108,6 @@
             </intent-filter>
         </activity>
 
-        <!-- 关于我的页面 Activity-->
-        <activity
-            android:name=".ui.MeActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Installer" />
-        
-
-        <!-- 原生库测试 Activity -->
-        <activity
-            android:name=".ui.NativeTestActivity"
-            android:exported="false"
-            android:label="C++ 原生库测试"
-            android:theme="@style/Theme.Installer" />
 
         <!-- 颜色选择 Activity -->
         <activity

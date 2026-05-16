@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -267,7 +268,7 @@ fun PrivilegeStatusCard(
             Icon(
                 imageVector = when (status) {
                     PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> Icons.Default.CheckCircle
-                    else -> Icons.Default.Lock
+                    else -> androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_lock)
                 },
                 contentDescription = null,
                 modifier = Modifier.size(18.dp)

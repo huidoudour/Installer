@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
+import io.github.huidoudour.Installer.ui.theme.SmallShape
 
 @Composable
 fun ShellScreen(
@@ -46,6 +48,16 @@ fun ShellScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        // 页面标题
+        Text(
+            text = stringResource(R.string.title_shell),
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+        )
+
         // 顶部工具栏
         TopToolbar(
             onHistoryClick = { /* 显示历史 */ },
@@ -68,14 +80,13 @@ fun ShellScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f)
-                .padding(8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Card(
                 modifier = Modifier.fillMaxSize(),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                shape = SmallShape,
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                 )
             ) {
                 Text(
@@ -139,22 +150,22 @@ fun TopToolbar(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             ToolbarButton(
-                icon = Icons.Default.Refresh,
+                icon = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_shell_history),
                 contentDescription = stringResource(R.string.content_description_history),
                 onClick = onHistoryClick
             )
             ToolbarButton(
-                icon = Icons.Default.Star,
+                icon = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_shell_bookmark),
                 contentDescription = stringResource(R.string.content_description_bookmarks),
                 onClick = onBookmarksClick
             )
             ToolbarButton(
-                icon = Icons.Default.Search,
+                icon = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_shell_search),
                 contentDescription = stringResource(R.string.content_description_search),
                 onClick = onSearchClick
             )
             ToolbarButton(
-                icon = Icons.Default.Create,
+                icon = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_shell_save),
                 contentDescription = stringResource(R.string.content_description_save),
                 onClick = onSaveClick
             )

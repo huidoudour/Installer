@@ -148,12 +148,12 @@ private fun generateColorScheme(
 }
 
 /**
- * 动画颜色方案过渡 - 使用 remember 缓存以获得更好的性能
+ * 动画颜色方案过渡 - 直接使用原始颜色方案
+ * 注意：Material3 的 MaterialTheme 已经内置了颜色过渡动画
  */
 @Composable
 private fun animateColorSchemeWithTransition(colorScheme: ColorScheme): ColorScheme {
-    // 使用 remember 确保颜色方案只在必要时重新计算
-    return remember(colorScheme) {
-        colorScheme
-    }
+    // Material3 的 MaterialTheme 组件会自动处理颜色过渡
+    // 不需要手动为每个颜色添加动画
+    return colorScheme
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -85,35 +86,35 @@ private fun AppSettingsCard(onThemeClick: () -> Unit) {
         // 分段列表项
         val items = listOf(
             SettingItemData(
-                icon = Icons.Default.Settings,
+                icon = ImageVector.vectorResource(R.drawable.ic_settings),
                 title = stringResource(R.string.theme_settings),
                 subtitle = null,
                 colorPreview = null,
                 onClick = onThemeClick
             ),
             SettingItemData(
-                icon = Icons.Default.Settings,
+                icon = ImageVector.vectorResource(R.drawable.ic_palette),
                 title = stringResource(R.string.theme_color),
                 subtitle = stringResource(R.string.follow_wallpaper),
                 colorPreview = MaterialTheme.colorScheme.primary,
                 onClick = { }
             ),
             SettingItemData(
-                icon = Icons.Default.Info,
+                icon = ImageVector.vectorResource(R.drawable.ic_language),
                 title = stringResource(R.string.language_settings),
                 subtitle = stringResource(R.string.follow_system),
                 colorPreview = null,
                 onClick = { }
             ),
             SettingItemData(
-                icon = Icons.Default.Notifications,
+                icon = ImageVector.vectorResource(R.drawable.ic_notifications_outline),
                 title = stringResource(R.string.notification_settings),
                 subtitle = null,
                 colorPreview = null,
                 onClick = { }
             ),
             SettingItemData(
-                icon = Icons.Default.Build,
+                icon = ImageVector.vectorResource(R.drawable.ic_package),
                 title = stringResource(R.string.current_installer_package),
                 subtitle = null,
                 colorPreview = null,
@@ -153,7 +154,7 @@ private fun PrivilegeSettingsCard() {
 
         SettingListItem(
             item = SettingItemData(
-                icon = Icons.Default.Lock,
+                icon = ImageVector.vectorResource(R.drawable.ic_lock),
                 title = stringResource(R.string.privilege_settings),
                 subtitle = stringResource(R.string.checking),
                 colorPreview = null,
@@ -221,7 +222,7 @@ private fun AboutAppCard() {
         // 版本信息
         SettingListItem(
             item = SettingItemData(
-                icon = Icons.Default.Info,
+                icon = ImageVector.vectorResource(R.drawable.ic_version),
                 title = stringResource(R.string.app_version),
                 subtitle = "v1.0.0",
                 colorPreview = null,

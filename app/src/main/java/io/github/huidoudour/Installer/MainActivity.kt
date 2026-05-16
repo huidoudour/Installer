@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -107,10 +108,10 @@ fun MainScreen(
     }
 
     val bottomNavItems = listOf(
-        BottomNavItemData(Screen.Home.route, R.string.title_home, Icons.Default.Home),
-        BottomNavItemData(Screen.Shell.route, R.string.title_shell, Icons.Default.Build),
-        BottomNavItemData(Screen.Logs.route, R.string.title_notifications, Icons.Default.List),
-        BottomNavItemData(Screen.Settings.route, R.string.title_settings, Icons.Default.Settings)
+        BottomNavItemData(Screen.Home.route, R.string.title_home, ImageVector.vectorResource(R.drawable.ic_home_black)),
+        BottomNavItemData(Screen.Shell.route, R.string.title_shell, ImageVector.vectorResource(R.drawable.ic_terminal)),
+        BottomNavItemData(Screen.Logs.route, R.string.title_notifications, ImageVector.vectorResource(R.drawable.ic_list)),
+        BottomNavItemData(Screen.Settings.route, R.string.title_settings, ImageVector.vectorResource(R.drawable.ic_settings))
     )
 
     Scaffold(

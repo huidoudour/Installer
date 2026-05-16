@@ -29,6 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -227,7 +228,7 @@ fun InstallInfoContent(
                 )
             } else {
                 Icon(
-                    imageVector = Icons.Default.Build,
+                    imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_terminal),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
