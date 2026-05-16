@@ -132,6 +132,8 @@
     <string name="clear">Clear</string>
     <string name="export">Export</string>
     <string name="real_time_logs">Display all operation logs in real time</string>
+    <string name="no_logs_available">No logs available</string>
+    <string name="upgrade_version">Upgrade Version: </string>
     <string name="waiting_operation">Waiting for operation……</string>
     <string name="app_name_label">App Name</string>
     <string name="package_name_label">Package Name: </string>
@@ -593,7 +595,6 @@
     <string name="previous_step">Previous</string>
     <string name="next_step">Next</string>
     <string name="select_privilege_mode">Select Authorization</string>
-    <string name="upgrade_version">Upgrade Version: </string>
     <string name="arrow_down">Down Arrow</string>
 
 

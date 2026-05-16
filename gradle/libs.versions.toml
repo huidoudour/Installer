@@ -18,9 +18,13 @@ composeBom = "2024.12.01"
 composeRuntime = "1.7.6"
 composeUi = "1.7.6"
 composeMaterial3 = "1.3.1"
+# Navigation
+navigationCompose = "2.8.6"
+# Accompanist
+accompanist = "0.36.0"
 # Material Kolor - 主题配色生成
-# 正确坐标: io.github.quincyqiang:material-kolor
-materialKolor = "1.0.0"
+# 正确坐标: com.materialkolor:material-kolor-android
+materialKolor = "1.2.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -44,8 +48,12 @@ compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", ver
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "composeUi" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "composeMaterial3" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
+# Navigation
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+# Accompanist
+accompanist-drawablepainter = { group = "com.google.accompanist", name = "accompanist-drawablepainter", version.ref = "accompanist" }
 # Material Kolor
-material-kolor = { group = "com.materialkolor", name = "material-kolor", version.ref = "materialKolor" }
+material-kolor = { group = "com.materialkolor", name = "material-kolor-android", version.ref = "materialKolor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

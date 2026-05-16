@@ -13,7 +13,7 @@ android {
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
         versionCode = 557 //版本代码
-        versionName = "5.5.7" //版本名称
+        versionName = "5.5.7-alpha" //版本名称
         
         // 启用NDK - 配置C++共享库编译
         externalNativeBuild {
@@ -52,6 +52,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -143,6 +147,13 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)
+    implementation(libs.navigation.compose)
+    implementation(libs.accompanist.drawablepainter)
+    implementation("androidx.palette:palette:1.0.0")
+
+    // Material Kolor - 动态主题颜色生成
+    implementation(libs.material.kolor)
+
     debugImplementation(libs.compose.ui.tooling.preview)
 
     // ====== 必要依赖开始 ======
@@ -165,8 +176,11 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     // ====== 必要依赖结束 ======
 
+    // 测试依赖
+    // Jetpack Graphics 原生库 - 用于高性能图形渲染
+    debugImplementation("androidx.graphics:graphics-path:1.0.1")
+    debugImplementation("androidx.graphics:graphics-core:1.0.1")
+
     // MTDataFilesProvider
     debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
-    // SQLite - Database
-    debugImplementation("com.github.requery:sqlite-android:3.49.0")
 }

@@ -1,195 +1,122 @@
-package io.github.huidoudour.Installer.util;
+package io.github.huidoudour.Installer.util
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.util.Log;
-
-import java.util.Locale;
-
-import io.github.huidoudour.Installer.R;
+import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.os.Build
+import android.util.Log
+import java.util.Locale
 
 /**
  * 语言管理工具类
- * 用于管理应用的语言设置
  */
-public class LanguageManager {
-    private static final String PREFS_NAME = "app_settings";
-    private static final String KEY_APP_LANGUAGE = "app_language";
-    private static final String KEY_SYSTEM_DEFAULT_LANGUAGE = "system_default_language";
-    private static final String KEY_SYSTEM_DEFAULT_COUNTRY = "system_default_country";
-    private static final String TAG = "LanguageManager";
+object LanguageManager {
 
-    /**
-     * 保存系统原始语言（在应用首次启动时调用）
-     * @param context 上下文
-     */
-    public static void saveSystemDefaultLanguage(Context context) {
-        try {
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            String savedSystemLang = prefs.getString(KEY_SYSTEM_DEFAULT_LANGUAGE, null);
-            
-            // 只在首次保存（如果没有保存过系统语言）
-            if (savedSystemLang == null) {
-                Locale systemLocale = Locale.getDefault();
-                prefs.edit()
-                    .putString(KEY_SYSTEM_DEFAULT_LANGUAGE, systemLocale.getLanguage())
-                    .putString(KEY_SYSTEM_DEFAULT_COUNTRY, systemLocale.getCountry())
-                    .apply();
-                Log.d(TAG, "已保存系统原始语言: " + systemLocale.getLanguage() + "_" + systemLocale.getCountry());
-            } else {
-                Log.d(TAG, "系统原始语言已保存: " + savedSystemLang + "_" + prefs.getString(KEY_SYSTEM_DEFAULT_COUNTRY, ""));
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "保存系统语言失败: " + e.getMessage());
-        }
-    }
+    private const val PREFS_NAME = "app_settings"
+    private const val KEY_APP_LANGUAGE = "app_language"
+    private const val TAG = "LanguageManager"
 
-    /**
-     * 获取保存的系统原始语言
-     * @param context 上下文
-     * @return 系统原始语言，如果没有则返回当前 Locale.getDefault()
-     */
-    public static Locale getSavedSystemLocale(Context context) {
-        try {
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            String lang = prefs.getString(KEY_SYSTEM_DEFAULT_LANGUAGE, null);
-            String country = prefs.getString(KEY_SYSTEM_DEFAULT_COUNTRY, "");
-            
-            if (lang != null) {
-                Locale savedLocale = country.isEmpty() ? new Locale(lang) : new Locale(lang, country);
-                Log.d(TAG, "获取保存的系统语言: " + lang + "_" + country);
-                return savedLocale;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "获取系统语言失败: " + e.getMessage());
-        }
-        return Locale.getDefault();
-    }
-    
+    const val LANGUAGE_FOLLOW_SYSTEM = "system"
+    const val LANGUAGE_SIMPLIFIED_CHINESE = "zh-rCN"
+    const val LANGUAGE_TRADITIONAL_CHINESE = "zh-rTW"
+    const val LANGUAGE_HONGKONG_CHINESE = "zh-rHK"
+    const val LANGUAGE_ENGLISH = "en"
+    const val LANGUAGE_JAPANESE = "ja"
+    const val LANGUAGE_RUSSIAN = "ru"
+
     /**
      * 应用用户选择的语言偏好
-     * @param context 上下文
      */
-    public static void applyUserLanguagePreference(Context context) {
+    fun applyUserLanguagePreference(context: Context) {
         try {
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            String languageCode = prefs.getString(KEY_APP_LANGUAGE, "system");
-            
-            Log.d(TAG, "applyUserLanguagePreference: languageCode=" + languageCode);
-            
-            Locale locale;
-            if ("system".equals(languageCode)) {
-                // 跟随系统：使用保存的系统原始语言（而不是可能被修改的 Locale.getDefault()）
-                Log.d(TAG, "跟随系统模式，恢复系统原始语言");
-                Resources resources = context.getResources();
-                Configuration config = resources.getConfiguration();
-                
-                // 获取保存的系统原始语言
-                Locale systemLocale = getSavedSystemLocale(context);
-                Log.d(TAG, "系统原始语言: " + systemLocale.getLanguage() + "_" + systemLocale.getCountry());
-                
-                // 恢复系统原始语言
-                Locale.setDefault(systemLocale);
-                config.setLocale(null); // null 表示使用系统默认
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    config.setLocales(new android.os.LocaleList(systemLocale));
-                }
-                resources.updateConfiguration(config, resources.getDisplayMetrics());
-                
-                Log.d(TAG, "已恢复系统原始语言配置");
-                return;
-            }
-            
-            switch (languageCode) {
-                case "en":
-                    locale = Locale.ENGLISH;
-                    break;
-                case "zh-TW":
-                    locale = Locale.TRADITIONAL_CHINESE;
-                    break;
-                case "ru":
-                    locale = new Locale("ru");
-                    break;
-                case "ja":
-                    locale = Locale.JAPANESE;
-                    break;
-                case "zh-HK":
-                    // 喵语言 - 使用香港中文地区
-                    locale = new Locale("zh", "HK");
-                    break;
-                case "zh":
-                default:
-                    locale = Locale.SIMPLIFIED_CHINESE;
-                    break;
-            }
-            
-            Locale.setDefault(locale);
-            
-            Resources resources = context.getResources();
-            Configuration config = resources.getConfiguration();
-            config.setLocale(locale);
-            resources.updateConfiguration(config, resources.getDisplayMetrics());
-        } catch (Exception e) {
-            Log.e(TAG, context.getString(R.string.apply_language_preference_failed_simple, e.getMessage()));
+            val language = getUserLanguage(context)
+            applyLanguage(context, language)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to apply language preference: ${e.message}")
         }
     }
-    
+
+    /**
+     * 应用指定语言
+     */
+    fun applyLanguage(context: Context, languageCode: String) {
+        try {
+            val locale = when (languageCode) {
+                LANGUAGE_FOLLOW_SYSTEM -> Locale.getDefault()
+                LANGUAGE_SIMPLIFIED_CHINESE -> Locale.SIMPLIFIED_CHINESE
+                LANGUAGE_TRADITIONAL_CHINESE -> Locale.TRADITIONAL_CHINESE
+                LANGUAGE_HONGKONG_CHINESE -> Locale("zh", "HK")
+                LANGUAGE_ENGLISH -> Locale.ENGLISH
+                LANGUAGE_JAPANESE -> Locale.JAPANESE
+                LANGUAGE_RUSSIAN -> Locale("ru")
+                else -> Locale.getDefault()
+            }
+
+            Locale.setDefault(locale)
+
+            val config = Configuration(context.resources.configuration)
+            config.setLocale(locale)
+
+            @Suppress("DEPRECATION")
+            context.resources.updateConfiguration(config, context.resources.displayMetrics)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to apply language: ${e.message}")
+        }
+    }
+
     /**
      * 保存用户选择的语言
-     * @param context 上下文
-     * @param languageCode 语言代码 ("system", "zh", "zh-TW", "zh-HK", "en", "ru", "ja")
      */
-    public static void saveUserLanguage(Context context, String languageCode) {
+    fun saveUserLanguage(context: Context, languageCode: String) {
         try {
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            prefs.edit().putString(KEY_APP_LANGUAGE, languageCode).apply();
-        } catch (Exception e) {
-            Log.e(TAG, context.getString(R.string.save_language_setting_failed, e.getMessage()));
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit().putString(KEY_APP_LANGUAGE, languageCode).apply()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save language setting: ${e.message}")
         }
     }
-    
+
     /**
      * 获取用户选择的语言
-     * @param context 上下文
-     * @return 语言代码 ("system", "zh", "zh-TW", "zh-HK", "en", "ru", "ja")
      */
-    public static String getUserLanguage(Context context) {
-        try {
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            return prefs.getString(KEY_APP_LANGUAGE, "system");
-        } catch (Exception e) {
-            Log.e(TAG, context.getString(R.string.get_language_setting_failed, e.getMessage()));
-            return "system";
+    fun getUserLanguage(context: Context): String {
+        return try {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.getString(KEY_APP_LANGUAGE, LANGUAGE_FOLLOW_SYSTEM) ?: LANGUAGE_FOLLOW_SYSTEM
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get language setting: ${e.message}")
+            LANGUAGE_FOLLOW_SYSTEM
         }
     }
-    
+
     /**
      * 获取语言显示名称
-     * @param context 上下文
-     * @param languageCode 语言代码
-     * @return 语言显示名称
      */
-    public static String getLanguageDisplayName(Context context, String languageCode) {
-        if ("system".equals(languageCode)) {
-            return context.getString(R.string.follow_system);
+    fun getLanguageDisplayName(context: Context, languageCode: String): String {
+        return when (languageCode) {
+            LANGUAGE_FOLLOW_SYSTEM -> context.getString(io.github.huidoudour.Installer.R.string.follow_system)
+            LANGUAGE_SIMPLIFIED_CHINESE -> context.getString(io.github.huidoudour.Installer.R.string.simplified_chinese)
+            LANGUAGE_TRADITIONAL_CHINESE -> "繁體中文"
+            LANGUAGE_HONGKONG_CHINESE -> "繁體中文（香港）"
+            LANGUAGE_ENGLISH -> "English"
+            LANGUAGE_JAPANESE -> "日本語"
+            LANGUAGE_RUSSIAN -> "Русский"
+            else -> context.getString(io.github.huidoudour.Installer.R.string.follow_system)
         }
-        
-        switch (languageCode) {
-            case "en":
-                return "English";
-            case "zh-TW":
-                return context.getString(R.string.traditional_chinese);
-            case "ru":
-                return context.getString(R.string.russian);
-            case "ja":
-                return context.getString(R.string.japanese);
-            case "zh-HK":
-                return context.getString(R.string.meow_language);
-            case "zh":
-            default:
-                return context.getString(R.string.simplified_chinese);
-        }
+    }
+
+    /**
+     * 获取所有支持的语言列表
+     */
+    fun getSupportedLanguages(): List<Pair<String, String>> {
+        return listOf(
+            LANGUAGE_FOLLOW_SYSTEM to "System Default",
+            LANGUAGE_SIMPLIFIED_CHINESE to "简体中文",
+            LANGUAGE_TRADITIONAL_CHINESE to "繁體中文",
+            LANGUAGE_HONGKONG_CHINESE to "繁體中文（香港）",
+            LANGUAGE_ENGLISH to "English",
+            LANGUAGE_JAPANESE to "日本語",
+            LANGUAGE_RUSSIAN to "Русский"
+        )
     }
 }

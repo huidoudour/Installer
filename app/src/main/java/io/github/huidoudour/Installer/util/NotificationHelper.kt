@@ -1,131 +1,107 @@
-package io.github.huidoudour.Installer.util;
+package io.github.huidoudour.Installer.util
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.os.Build;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-
-import io.github.huidoudour.Installer.R;
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import io.github.huidoudour.Installer.MainActivity
+import io.github.huidoudour.Installer.R
 
 /**
- * 系统通知工具类
- * 用于发送系统级通知,替代Snackbar
+ * 通知助手类
  */
-public class NotificationHelper {
-    
-    private static final String CHANNEL_ID_GENERAL = "installer_general";
-    private static final String CHANNEL_ID_INSTALL = "installer_install";
-    private static final int NOTIFICATION_ID_GENERAL = 1001;
-    
+object NotificationHelper {
+
+    private const val CHANNEL_ID = "installer_channel"
+    private const val CHANNEL_NAME = "Installer Notifications"
+    private const val NOTIFICATION_ID = 1001
+
     /**
-     * 创建通知渠道 (Android 8.0+)
+     * 创建通知渠道
      */
-    public static void createNotificationChannels(Context context) {
+    fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = 
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            
-            // 通用通知渠道
-            NotificationChannel generalChannel = new NotificationChannel(
-                CHANNEL_ID_GENERAL,
-                context.getString(R.string.notification_channel_general),
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_DEFAULT
-            );
-            generalChannel.setDescription(context.getString(R.string.notification_channel_general_desc));
-            generalChannel.enableVibration(true);
-            notificationManager.createNotificationChannel(generalChannel);
-            
-            // 安装通知渠道
-            NotificationChannel installChannel = new NotificationChannel(
-                CHANNEL_ID_INSTALL,
-                context.getString(R.string.notification_channel_install),
-                NotificationManager.IMPORTANCE_HIGH
-            );
-            installChannel.setDescription(context.getString(R.string.notification_channel_install_desc));
-            installChannel.enableVibration(true);
-            notificationManager.createNotificationChannel(installChannel);
+            ).apply {
+                description = "Installation notifications"
+                enableLights(true)
+                enableVibration(true)
+            }
+
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
         }
     }
-    
+
     /**
-     * 显示通用通知
-     * @param context 上下文
-     * @param title 标题
-     * @param message 消息内容
+     * 显示安装进度通知
      */
-    public static void showNotification(Context context, String title, String message) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID_GENERAL)
-            .setSmallIcon(R.drawable.ic_notifications)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-            .setStyle(new NotificationCompat.BigTextStyle().bigText(message));
-        
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(NOTIFICATION_ID_GENERAL, builder.build());
+    fun showInstallProgressNotification(context: Context, appName: String, progress: Int) {
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setContentTitle(context.getString(R.string.installing_progress))
+            .setContentText(appName)
+            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setProgress(100, progress, false)
+            .setOngoing(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID, notification)
     }
-    
+
     /**
-     * 显示通用通知(仅消息内容)
-     * @param context 上下文
-     * @param message 消息内容
+     * 显示安装完成通知
      */
-    public static void showNotification(Context context, String message) {
-        showNotification(context, "Installer", message);
-    }
-    
-    /**
-     * 显示通用通知(使用字符串资源)
-     * @param context 上下文
-     * @param messageResId 消息字符串资源ID
-     */
-    public static void showNotification(Context context, int messageResId) {
-        showNotification(context, context.getString(messageResId));
-    }
-    
-    /**
-     * 显示安装相关通知
-     * @param context 上下文
-     * @param title 标题
-     * @param message 消息内容
-     * @param isSuccess 是否为成功消息
-     */
-    public static void showInstallNotification(Context context, String title, String message, boolean isSuccess) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID_INSTALL)
-            .setSmallIcon(isSuccess ? android.R.drawable.stat_sys_download_done : android.R.drawable.stat_notify_error)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .setStyle(new NotificationCompat.BigTextStyle().bigText(message));
-        
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(NOTIFICATION_ID_GENERAL + 1, builder.build());
-    }
-    
-    /**
-     * 检查通知权限是否已授予
-     * @param context 上下文
-     * @return 是否有通知权限
-     */
-    public static boolean isNotificationPermissionGranted(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-            return notificationManager.areNotificationsEnabled();
+    fun showInstallCompleteNotification(context: Context, appName: String, success: Boolean) {
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val title = if (success) {
+            context.getString(R.string.apk_install_success)
+        } else {
+            context.getString(R.string.apk_install_failed)
         }
-        return true; // Android 13以下默认已授权
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(appName)
+            .setSmallIcon(
+                if (success) android.R.drawable.stat_sys_download_done
+                else android.R.drawable.stat_notify_error
+            )
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID, notification)
     }
-    
+
     /**
-     * 取消所有通知
-     * @param context 上下文
+     * 取消通知
      */
-    public static void cancelAllNotifications(Context context) {
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.cancelAll();
+    fun cancelNotification(context: Context) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(NOTIFICATION_ID)
     }
 }

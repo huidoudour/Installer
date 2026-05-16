@@ -1,107 +1,74 @@
-package io.github.huidoudour.Installer.util;
+package io.github.huidoudour.Installer.util
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
+import java.lang.reflect.Method
 
 /**
- * 反射工具类
+ * 反射提供者工具类
  */
-public class ReflectionProvider {
-    private final ConcurrentHashMap<String, Field> fieldCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Method> methodCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Constructor<?>> constructorCache = new ConcurrentHashMap<>();
+object ReflectionProvider {
 
-    public Constructor<?> getDeclaredConstructor(Class<?> clazz, Class<?>... parameterTypes) {
-        String key = "decl:" + clazz.getName() + getParamTypesKey(parameterTypes);
-        return constructorCache.computeIfAbsent(key, k -> {
-            try {
-                Constructor<?> c = clazz.getDeclaredConstructor(parameterTypes);
-                c.setAccessible(true);
-                return c;
-            } catch (NoSuchMethodException e) {
-                android.util.Log.w("ReflectionProvider", "Declared Constructor not found: " + clazz.getName());
-                return null;
+    /**
+     * 查找类中的方法
+     */
+    fun findMethod(
+        className: String,
+        methodName: String,
+        vararg parameterTypes: Class<*>
+    ): Method? {
+        return try {
+            val clazz = Class.forName(className)
+            clazz.getDeclaredMethod(methodName, *parameterTypes).apply {
+                isAccessible = true
             }
-        });
-    }
-
-    public Field getDeclaredField(String name, Class<?> clazz) {
-        String key = "decl:" + clazz.getName() + "#" + name;
-        return fieldCache.computeIfAbsent(key, k -> {
-            try {
-                Field f = clazz.getDeclaredField(name);
-                f.setAccessible(true);
-                return f;
-            } catch (NoSuchFieldException e) {
-                android.util.Log.w("ReflectionProvider", "Declared Field not found: " + name + " in " + clazz.getName());
-                return null;
-            }
-        });
-    }
-
-    public Method getDeclaredMethod(String name, Class<?> clazz, Class<?>... parameterTypes) {
-        String key = "decl:" + clazz.getName() + "#" + name + getParamTypesKey(parameterTypes);
-        return methodCache.computeIfAbsent(key, k -> {
-            try {
-                Method m = clazz.getDeclaredMethod(name, parameterTypes);
-                m.setAccessible(true);
-                return m;
-            } catch (NoSuchMethodException e) {
-                android.util.Log.w("ReflectionProvider", "Declared Method not found: " + name + " in " + clazz.getName());
-                return null;
-            }
-        });
-    }
-
-    public Object getFieldValue(Object obj, String name, Class<?> clazz) {
-        Field field = getDeclaredField(name, clazz);
-        if (field != null) {
-            try {
-                return field.get(obj);
-            } catch (IllegalAccessException e) {
-                android.util.Log.e("ReflectionProvider", "Failed to get field: " + name, e);
-            }
-        }
-        return null;
-    }
-
-    public void setFieldValue(Object obj, String name, Class<?> clazz, Object value) {
-        Field field = getDeclaredField(name, clazz);
-        if (field != null) {
-            try {
-                field.set(obj, value);
-            } catch (IllegalAccessException e) {
-                android.util.Log.e("ReflectionProvider", "Failed to set field: " + name, e);
-            }
+        } catch (e: Exception) {
+            null
         }
     }
 
-    public Object invokeMethod(Object obj, String name, Class<?> clazz, Class<?>[] parameterTypes, Object... args) {
-        Method method = getDeclaredMethod(name, clazz, parameterTypes);
-        if (method != null) {
-            try {
-                return method.invoke(obj, args);
-            } catch (Exception e) {
-                android.util.Log.e("ReflectionProvider", "Failed to invoke method: " + name, e);
-            }
+    /**
+     * 查找类中的所有方法
+     */
+    fun findMethods(className: String, methodName: String): List<Method> {
+        return try {
+            val clazz = Class.forName(className)
+            clazz.declaredMethods.filter { it.name == methodName }
+        } catch (e: Exception) {
+            emptyList()
         }
-        return null;
     }
 
-    public Object invokeMethod(Object obj, String name, Class<?> clazz, Object... args) {
-        return invokeMethod(obj, name, clazz, new Class<?>[0], args);
+    /**
+     * 调用方法
+     */
+    fun invokeMethod(method: Method, instance: Any?, vararg args: Any?): Any? {
+        return try {
+            method.invoke(instance, *args)
+        } catch (e: Exception) {
+            null
+        }
     }
 
-    private String getParamTypesKey(Class<?>[] types) {
-        StringBuilder sb = new StringBuilder("(");
-        if (types != null) {
-            for (Class<?> t : types) {
-                sb.append(t != null ? t.getName() : "null").append(",");
-            }
+    /**
+     * 获取 Shizuku 版本
+     */
+    fun getShizukuVersion(): Int {
+        return try {
+            val method = findMethod("rikka.shizuku.Shizuku", "getVersion")
+            invokeMethod(method!!, null) as? Int ?: 0
+        } catch (e: Exception) {
+            0
         }
-        sb.append(")");
-        return sb.toString();
+    }
+
+    /**
+     * 检查 Shizuku 是否为 Pre V11
+     */
+    fun isShizukuPreV11(): Boolean {
+        return try {
+            val method = findMethod("rikka.shizuku.Shizuku", "isPreV11")
+            invokeMethod(method!!, null) as? Boolean ?: true
+        } catch (e: Exception) {
+            true
+        }
     }
 }

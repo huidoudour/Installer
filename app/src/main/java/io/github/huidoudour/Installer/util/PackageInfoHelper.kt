@@ -1,226 +1,123 @@
-package io.github.huidoudour.Installer.util;
+package io.github.huidoudour.Installer.util
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
+import android.os.Build
 
 /**
- * 增强版包信息检查工具类
- * 专门用于解决Android 11+包可见性限制和权限问题
+ * 包信息助手类
  */
-public class PackageInfoHelper {
-    private static final String TAG = "PackageInfoHelper";
-    
+object PackageInfoHelper {
+
     /**
-     * 获取已安装应用的详细信息
-     * @param context 上下文
-     * @param packageName 包名
-     * @return PackageInfo对象，如果未安装则返回null
+     * 获取应用信息
      */
-    public static PackageInfo getInstalledAppInfo(Context context, String packageName) {
-        if (context == null || packageName == null || packageName.isEmpty()) {
-            Log.w(TAG, "Invalid parameters: context=" + context + ", packageName=" + packageName);
-            return null;
-        }
-        
-        PackageManager pm = context.getPackageManager();
-        
-        try {
-            // 方法1: 直接查询（适用于有明确权限的情况）
-            PackageInfo info = pm.getPackageInfo(packageName, 
-                PackageManager.GET_ACTIVITIES | PackageManager.GET_SERVICES | PackageManager.GET_PERMISSIONS);
-            Log.d(TAG, "Successfully retrieved package info: " + packageName);
-            return info;
-            
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.d(TAG, "App not installed: " + packageName);
-            return null;
-        } catch (SecurityException e) {
-            Log.w(TAG, "Insufficient permissions, trying fallback: " + packageName + ", error: " + e.getMessage());
-            // 权限不足，尝试备用方案
-            return getInstalledAppInfoFallback(context, packageName);
-        } catch (Exception e) {
-            Log.e(TAG, "Unknown error getting package info: " + packageName, e);
-            return null;
+    fun getPackageInfo(context: Context, packageName: String): PackageInfo? {
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0)
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
         }
     }
-    
+
     /**
-     * 备用方案：通过查询所有已安装包来获取信息
-     * @param context 上下文
-     * @param packageName 包名
-     * @return PackageInfo对象
+     * 获取应用标签（名称）
      */
-    private static PackageInfo getInstalledAppInfoFallback(Context context, String packageName) {
-        PackageManager pm = context.getPackageManager();
-        
-        try {
-            // 方法2: 查询所有已安装包（需要QUERY_ALL_PACKAGES权限）
-            List<PackageInfo> packages = pm.getInstalledPackages(
-                PackageManager.GET_ACTIVITIES | PackageManager.GET_SERVICES | PackageManager.GET_PERMISSIONS);
-            
-            for (PackageInfo pkg : packages) {
-                if (packageName.equals(pkg.packageName)) {
-                    Log.d(TAG, "Found package via fallback: " + packageName);
-                    return pkg;
-                }
-            }
-            
-            Log.d(TAG, "Package not found via fallback: " + packageName);
-            return null;
-            
-        } catch (SecurityException e) {
-            Log.e(TAG, "Fallback insufficient permissions: " + packageName, e);
-            // 如果连备用方案都失败，尝试最基本的查询
-            return getMinimalPackageInfo(context, packageName);
-        } catch (Exception e) {
-            Log.e(TAG, "Fallback execution failed: " + packageName, e);
-            return null;
+    fun getAppLabel(context: Context, packageName: String): String {
+        return try {
+            val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
+            context.packageManager.getApplicationLabel(appInfo).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            packageName
         }
     }
-    
+
     /**
-     * 最简方案：只获取最基本的的应用信息
-     * @param context 上下文
-     * @param packageName 包名
-     * @return PackageInfo对象
+     * 获取应用图标
      */
-    private static PackageInfo getMinimalPackageInfo(Context context, String packageName) {
-        PackageManager pm = context.getPackageManager();
-        
-        try {
-            // 方法3: 最基本的查询，不带任何标志
-            PackageInfo info = pm.getPackageInfo(packageName, 0);
-            Log.d(TAG, "Retrieved package info via minimal approach: " + packageName);
-            return info;
-        } catch (Exception e) {
-            Log.e(TAG, "All approaches failed: " + packageName, e);
-            return null;
+    fun getAppIcon(context: Context, packageName: String): Drawable? {
+        return try {
+            context.packageManager.getApplicationIcon(packageName)
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
         }
     }
-    
-    /**
-     * 比较两个版本号
-     * @param version1 版本号1
-     * @param version2 版本号2
-     * @return 1 if version1 > version2, -1 if version1 < version2, 0 if equal
-     */
-    public static int compareVersions(String version1, String version2) {
-        if (version1 == null && version2 == null) return 0;
-        if (version1 == null) return -1;
-        if (version2 == null) return 1;
-        
-        try {
-            // 分割版本号
-            String[] parts1 = version1.split("[.-]");
-            String[] parts2 = version2.split("[.-]");
-            
-            int maxLength = Math.max(parts1.length, parts2.length);
-            
-            for (int i = 0; i < maxLength; i++) {
-                int v1 = i < parts1.length ? parseVersionPart(parts1[i]) : 0;
-                int v2 = i < parts2.length ? parseVersionPart(parts2[i]) : 0;
-                
-                if (v1 > v2) return 1;
-                if (v1 < v2) return -1;
-            }
-            
-            return 0;
-        } catch (Exception e) {
-            Log.e(TAG, "Version comparison failed: " + version1 + " vs " + version2, e);
-            // 字符串比较作为后备
-            return version1.compareTo(version2);
-        }
-    }
-    
-    /**
-     * 解析版本号部分
-     */
-    private static int parseVersionPart(String part) {
-        try {
-            return Integer.parseInt(part.replaceAll("[^0-9]", ""));
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-    
-    /**
-     * 获取应用的基本信息（名称、图标等）
-     */
-    public static ApplicationInfo getApplicationInfo(Context context, String packageName) {
-        try {
-            PackageManager pm = context.getPackageManager();
-            return pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to get application info: " + packageName, e);
-            return null;
-        }
-    }
-    
+
     /**
      * 检查应用是否已安装
      */
-    public static boolean isAppInstalled(Context context, String packageName) {
-        return getInstalledAppInfo(context, packageName) != null;
+    fun isAppInstalled(context: Context, packageName: String): Boolean {
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
     }
-    
+
     /**
-     * 获取所有已安装包的包名列表（用于调试）
+     * 获取已安装应用的包名列表
      */
-    public static List<String> getAllInstalledPackageNames(Context context) {
-        List<String> packageNames = new ArrayList<>();
-        try {
-            PackageManager pm = context.getPackageManager();
-            List<PackageInfo> packages = pm.getInstalledPackages(0);
-            for (PackageInfo pkg : packages) {
-                packageNames.add(pkg.packageName);
+    fun getInstalledPackages(context: Context): List<String> {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getInstalledPackages(0)
+            }.map { it.packageName }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    /**
+     * 获取第三方应用包名列表
+     */
+    fun getThirdPartyPackages(context: Context): List<String> {
+        return try {
+            val packages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getInstalledPackages(0)
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to get installed packages list", e);
+
+            packages
+                .filter { !isSystemApp(it.applicationInfo) }
+                .map { it.packageName }
+        } catch (e: Exception) {
+            emptyList()
         }
-        return packageNames;
     }
-    
+
     /**
-     * 格式化SDK版本信息显示
+     * 检查是否为系统应用
      */
-    public static String formatSdkInfo(int minSdk, int targetSdk) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Min SDK: ").append(minSdk);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            sb.append(" (Android ").append(getAndroidVersionName(minSdk)).append(")");
-        }
-        sb.append("\nTarget SDK: ").append(targetSdk);
-        sb.append(" (Android ").append(getAndroidVersionName(targetSdk)).append(")");
-        return sb.toString();
+    private fun isSystemApp(appInfo: ApplicationInfo?): Boolean {
+        if (appInfo == null) return false
+        return (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
     }
-    
+
     /**
-     * 获取Android版本名称
+     * 获取应用版本信息
      */
-    private static String getAndroidVersionName(int sdkVersion) {
-        switch (sdkVersion) {
-            case 21: return "5.0";
-            case 22: return "5.1";
-            case 23: return "6.0";
-            case 24: return "7.0";
-            case 25: return "7.1";
-            case 26: return "8.0";
-            case 27: return "8.1";
-            case 28: return "9.0";
-            case 29: return "10.0";
-            case 30: return "11.0";
-            case 31: return "12.0";
-            case 32: return "12L";
-            case 33: return "13.0";
-            case 34: return "14.0";
-            default: return String.valueOf(sdkVersion);
+    fun getVersionInfo(context: Context, packageName: String): Pair<String, Long>? {
+        return try {
+            val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
+            val versionName = packageInfo.versionName ?: "Unknown"
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode
+            } else {
+                @Suppress("DEPRECATION")
+                packageInfo.versionCode.toLong()
+            }
+            Pair(versionName, versionCode)
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
         }
     }
 }

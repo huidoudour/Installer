@@ -1,128 +1,175 @@
-package io.github.huidoudour.Installer;
+package io.github.huidoudour.Installer
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.core.view.WindowCompat
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import io.github.huidoudour.Installer.ui.*
+import io.github.huidoudour.Installer.ui.theme.AppTheme
+import io.github.huidoudour.Installer.util.LanguageManager
+import io.github.huidoudour.Installer.util.ThemeManager
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.WindowCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
+class MainActivity : ComponentActivity() {
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.color.DynamicColors;
+    private var _pendingInstallUri by mutableStateOf<Uri?>(null)
 
-import io.github.huidoudour.Installer.R;
-import io.github.huidoudour.Installer.databinding.ActivityMainBinding;
-import io.github.huidoudour.Installer.util.LanguageManager;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.applyUserThemePreference(this)
+        LanguageManager.applyUserLanguagePreference(this)
 
-public class MainActivity extends AppCompatActivity {
+        super.onCreate(savedInstanceState)
 
-    private ActivityMainBinding binding;
-    private SharedPreferences sharedPreferences;
-    private static final String PREFS_NAME = "app_settings";
-    private static final String KEY_BACKGROUND_DISPLAY = "background_display";
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        // 应用用户选择的主题
-        io.github.huidoudour.Installer.util.ThemeManager.applyUserThemePreference(this);
-        
-        // 应用用户选择的语言
-        LanguageManager.applyUserLanguagePreference(this);
-        
-        // 启用动态颜色（壁纸取色）- Android 12+
-        DynamicColors.applyToActivityIfAvailable(this);
-
-        super.onCreate(savedInstanceState);
-
-        // 初始化SharedPreferences
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        
-        // 检查是否是重启意图（避免无限循环）
-        boolean isRestartIntent = (getIntent().getFlags() & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) != 0;
-        
-        // 根据设置控制后台显示
-        boolean isBackgroundDisplayEnabled = sharedPreferences.getBoolean(KEY_BACKGROUND_DISPLAY, true);
-        if (!isBackgroundDisplayEnabled && !isRestartIntent) {
-            // 如果后台显示被禁用且不是重启意图，设置任务属性以排除从最近任务列表
-            setTaskExcludeFromRecents();
-            return; // 立即返回，避免继续执行下面的代码
+        setContent {
+            AppTheme {
+                MainScreen(
+                    installUri = _pendingInstallUri,
+                    onInstallUriConsumed = { _pendingInstallUri = null },
+                    onThemeClick = { /* Navigate to theme settings */ }
+                )
+            }
         }
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        // 隐藏 ActionBar
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
-        }
-
-        // 启用边到边显示
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-
-        // 处理从其他应用传递过来的安装意图
-        handleInstallIntent(getIntent());
+        handleInstallIntent(intent)
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        // 处理新的安装意图
-        handleInstallIntent(intent);
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleInstallIntent(intent)
     }
 
-    /**
-     * 处理安装意图
-     * 当其他应用选择本应用作为安装器时调用
-     */
-    private void handleInstallIntent(Intent intent) {
-        if (intent == null) return;
-        
-        String action = intent.getAction();
-        Uri data = intent.getData();
-        
-        // 检查是否是安装意图
-        if (Intent.ACTION_VIEW.equals(action) || Intent.ACTION_INSTALL_PACKAGE.equals(action)) {
+    private fun handleInstallIntent(intent: Intent?) {
+        if (intent == null) return
+
+        val action = intent.action
+        val data: Uri? = intent.data
+
+        if (Intent.ACTION_VIEW == action || Intent.ACTION_INSTALL_PACKAGE == action) {
             if (data != null) {
-                // 将APK文件URI传递给InstallerFragment
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("install_uri", data);
-                
-                // 导航到安装器页面
-                NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-                navController.navigate(R.id.navigation_home, bundle);
-                
-                Log.d("MainActivity", getString(R.string.receive_install_intent, data.toString()));
+                _pendingInstallUri = data
+                println("Received install intent: $data")
             }
         }
     }
+}
 
-    /**
-     * 设置任务排除在最近任务列表之外
-     */
-    private void setTaskExcludeFromRecents() {
-        // 最可靠的方法：重新启动应用，确保标志在Activity启动前设置
-        // 因为FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS必须在Activity启动前设置才有效
-        Intent restartIntent = new Intent(this, MainActivity.class);
-        restartIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        restartIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-        startActivity(restartIntent);
-        finish();
-        // 添加进程退出以确保完全重启
-        Runtime.getRuntime().exit(0);
+data class BottomNavItemData(
+    val route: String,
+    val titleResId: Int,
+    val icon: ImageVector
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen(
+    installUri: Uri? = null,
+    onInstallUriConsumed: () -> Unit = {},
+    onThemeClick: () -> Unit = {}
+) {
+    val navController = rememberNavController()
+    var installUriState by remember { mutableStateOf<Uri?>(null) }
+
+    LaunchedEffect(installUri) {
+        if (installUri != null) {
+            installUriState = installUri
+        }
     }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+
+    LaunchedEffect(installUriState) {
+        if (installUriState != null) {
+            navController.navigate(Screen.Install.createRoute(installUriState.toString())) {
+                launchSingleTop = true
+            }
+            installUriState = null
+            onInstallUriConsumed()
+        }
+    }
+
+    val bottomNavItems = listOf(
+        BottomNavItemData(Screen.Home.route, R.string.title_home, Icons.Default.Home),
+        BottomNavItemData(Screen.Shell.route, R.string.title_shell, Icons.Default.Build),
+        BottomNavItemData(Screen.Logs.route, R.string.title_notifications, Icons.Default.List),
+        BottomNavItemData(Screen.Settings.route, R.string.title_settings, Icons.Default.Settings)
+    )
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+
+            NavigationBar {
+                bottomNavItems.forEach { item ->
+                    NavigationBarItem(
+                        icon = { Icon(item.icon, contentDescription = null) },
+                        label = { Text(stringResource(item.titleResId)) },
+                        selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                        onClick = {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(Screen.Home.route) {
+                InstallerScreen(
+                    onThemeClick = { navController.navigate(Screen.Settings.route) }
+                )
+            }
+            composable(Screen.Shell.route) {
+                ShellScreen()
+            }
+            composable(Screen.Logs.route) {
+                LogsScreen()
+            }
+            composable(Screen.Settings.route) {
+                SettingsScreen(onThemeClick = onThemeClick)
+            }
+            composable(Screen.Install.route) { backStackEntry ->
+                val uri = backStackEntry.arguments?.getString("uri")
+                val decodedUri = uri?.let { Uri.decode(it) }?.let { Uri.parse(it) }
+                InstallDialogScreen(
+                    installUri = decodedUri,
+                    onDismiss = { navController.popBackStack() },
+                    onInstallComplete = { navController.popBackStack() },
+                    onOpenApp = { packageName ->
+                        // Open app implementation
+                    }
+                )
+            }
+        }
     }
 }
