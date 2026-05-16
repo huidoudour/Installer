@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    // id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -64,9 +65,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    // kotlinOptions {
-    //    jvmTarget = "21"
-    // }
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
+    }
     
     // 启用 ViewBinding
     buildFeatures {
@@ -132,6 +135,16 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
 
+    // Compose
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.activity.compose)
+    debugImplementation(libs.compose.ui.tooling.preview)
+
     // ====== 必要依赖开始 ======
     // Hidden API for Dhizuku binder wrapper
     // (compileOnly - uses system framework at runtime)
@@ -148,8 +161,8 @@ dependencies {
     // ACRA - 崩溃捕获
     implementation("ch.acra:acra-core:5.11.3")
     // Kotlin support
-    // implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
-    // implementation("androidx.core:core-ktx:1.15.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
+    implementation("androidx.core:core-ktx:1.15.0")
     // ====== 必要依赖结束 ======
 
     // MTDataFilesProvider

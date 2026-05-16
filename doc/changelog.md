@@ -1,3 +1,4 @@
+## 签出分支dev
 ### 05161453-实现日志管理功能并重构相关界面
  - 添加 LogManager 类用于全局日志管理，支持日志持久化到 SharedPreferences
  - 创建 LogAdapter 适配器用于 RecyclerView 高效显示大量日志条目

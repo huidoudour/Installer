@@ -35,6 +35,8 @@
     <string name="settings_subtitle">Customize Your App Experience</string>
     <string name="app_settings">App Settings</string>
     <string name="theme_settings">Theme</string>
+    <string name="theme_color">Theme Color</string>
+    <string name="follow_wallpaper">Follow Wallpaper</string>
     <string name="light_theme">Light Theme</string>
     <string name="dark_theme">Dark Theme</string>
     <string name="language_settings">Language</string>

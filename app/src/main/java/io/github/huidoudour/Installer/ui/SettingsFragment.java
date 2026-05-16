@@ -26,6 +26,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.databinding.FragmentSettingsBinding;
+import io.github.huidoudour.Installer.ui.theme.ColorPickerActivity;
+import io.github.huidoudour.Installer.ui.theme.ThemeColorManager;
 import io.github.huidoudour.Installer.util.LanguageManager;
 import io.github.huidoudour.Installer.util.NotificationHelper;
 import io.github.huidoudour.Installer.util.PrivilegeHelper;
@@ -33,6 +35,10 @@ import io.github.huidoudour.Installer.util.PrivilegeHelper.PrivilegeMode;
 import io.github.huidoudour.Installer.util.PrivilegeHelper.PrivilegeStatus;
 import io.github.huidoudour.Installer.util.ThemeManager;
 import rikka.shizuku.Shizuku;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
 
 public class SettingsFragment extends Fragment {
 
@@ -51,6 +57,7 @@ public class SettingsFragment extends Fragment {
     // 预制的安装请求者包名列表
     private static final String CURRENT_APP_PACKAGE = "io.github.huidoudour.Installer"; // 当前应用包名（独立定义）
     private static final int REQUEST_CODE_SHIZUKU_PERMISSION = 1001;
+    private static final int REQUEST_CODE_COLOR_PICKER = 2001;
     
     // Shizuku 权限监听器
     private final Shizuku.OnRequestPermissionResultListener shizukuPermissionListener = 
@@ -65,6 +72,9 @@ public class SettingsFragment extends Fragment {
     // 通知权限请求启动器
     private ActivityResultLauncher<String> notificationPermissionLauncher;
 
+    // 颜色选择 Activity 结果启动器
+    private ActivityResultLauncher<Intent> colorPickerLauncher;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
@@ -75,6 +85,9 @@ public class SettingsFragment extends Fragment {
         
         // 初始化通知权限启动器
         initNotificationPermissionLauncher();
+        
+        // 初始化颜色选择 Activity 结果启动器
+        initColorPickerLauncher();
         
         // 初始化通知渠道
         NotificationHelper.createNotificationChannels(requireContext());
@@ -126,6 +139,39 @@ public class SettingsFragment extends Fragment {
     }
     
     /**
+     * 初始化颜色选择 Activity 结果启动器
+     */
+    private void initColorPickerLauncher() {
+        colorPickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    int selectedColor = result.getData().getIntExtra(ColorPickerActivity.RESULT_COLOR, 0);
+                    boolean useDynamic = result.getData().getBooleanExtra(ColorPickerActivity.RESULT_USE_DYNAMIC, true);
+                    
+                    // 保存设置
+                    ThemeColorManager.saveSeedColor(requireContext(), selectedColor);
+                    ThemeColorManager.setUseDynamicColor(requireContext(), useDynamic);
+                    
+                    showNotification(getString(R.string.theme_changed_tip, "Custom"));
+                    Log.d("SettingsFragment", "Color saved: " + selectedColor + ", Dynamic: " + useDynamic);
+                }
+            }
+        );
+    }
+    
+    /**
+     * 打开颜色选择对话框
+     */
+    private void openColorPicker() {
+        int currentColor = ThemeColorManager.getSeedColor(requireContext());
+        boolean useDynamic = ThemeColorManager.isUseDynamicColor(requireContext());
+        
+        Intent intent = ColorPickerActivity.createIntent(requireActivity(), currentColor, useDynamic);
+        colorPickerLauncher.launch(intent);
+    }
+    
+    /**
      * 设置原生库测试按钮
      */
     private void setupNativeTestButton() {
@@ -142,10 +188,16 @@ public class SettingsFragment extends Fragment {
     }
 
     private void setupSettingsItems() {
-        // 主题设置点击事件
+        // 主题设置点击事件 - 弹出选择框
         View themeSetting = binding.getRoot().findViewById(R.id.theme_setting_layout);
         if (themeSetting != null) {
             themeSetting.setOnClickListener(v -> showThemeSelectionDialog());
+        }
+        
+        // 颜色设置点击事件 - 打开颜色选择对话框
+        View colorSetting = binding.getRoot().findViewById(R.id.color_setting_layout);
+        if (colorSetting != null) {
+            colorSetting.setOnClickListener(v -> openColorPicker());
         }
 
         // 语言设置点击事件 - 弹出选择框
@@ -702,6 +754,38 @@ public class SettingsFragment extends Fragment {
         // 页面恢复时更新状态
         updatePrivilegeStatus();
         updateVersionInfo();
+        updateColorPreview();
+    }
+    
+    /**
+     * 更新颜色预览显示
+     */
+    private void updateColorPreview() {
+        TextView tvColorStatus = binding.getRoot().findViewById(R.id.tv_current_color);
+        View colorPreview = binding.getRoot().findViewById(R.id.color_preview);
+        
+        if (tvColorStatus != null || colorPreview != null) {
+            boolean useDynamic = ThemeColorManager.isUseDynamicColor(requireContext());
+            int seedColor = ThemeColorManager.getSeedColor(requireContext());
+            
+            if (tvColorStatus != null) {
+                if (useDynamic) {
+                    tvColorStatus.setText(R.string.follow_wallpaper);
+                } else {
+                    tvColorStatus.setText("Custom");
+                }
+            }
+            
+            if (colorPreview != null) {
+                if (useDynamic) {
+                    colorPreview.setBackgroundResource(R.drawable.color_preview_circle);
+                    // 设置为默认颜色，表示跟随壁纸
+                    colorPreview.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF4A672D));
+                } else {
+                    colorPreview.setBackgroundTintList(android.content.res.ColorStateList.valueOf(seedColor));
+                }
+            }
+        }
     }
     
     /**

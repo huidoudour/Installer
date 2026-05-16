@@ -130,6 +130,12 @@
             android:label="C++ 原生库测试"
             android:theme="@style/Theme.Installer" />
 
+        <!-- 颜色选择 Activity -->
+        <activity
+            android:name=".ui.theme.ColorPickerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Installer.Dialog" />
+
         <!-- Shizuku provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"

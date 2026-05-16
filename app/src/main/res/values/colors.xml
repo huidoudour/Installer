@@ -133,4 +133,7 @@
     <color name="status_indicator_error">#FFD32F2F</color>
     <color name="status_indicator_warning">#FFF57C00</color>
     <color name="status_indicator_success">#FF388E3C</color>
+    
+    <!-- 颜色选择器预览 -->
+    <color name="preview_default">#FF4A672D</color>
 </resources>
