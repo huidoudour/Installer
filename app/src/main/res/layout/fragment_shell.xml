@@ -254,9 +254,11 @@
                 android:layout_weight="1"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="📜"
-                android:textSize="16sp"
                 android:layout_marginEnd="2dp"
+                android:contentDescription="@string/content_description_history"
+                app:icon="@drawable/ic_shell_history"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
                 app:cornerRadius="8dp"
                 style="@style/Widget.Material3.Button.TonalButton" />
 
@@ -268,10 +270,12 @@
                 android:layout_weight="1"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="⭐"
-                android:textSize="16sp"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
+                android:contentDescription="@string/content_description_bookmarks"
+                app:icon="@drawable/ic_shell_bookmark"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
                 app:cornerRadius="8dp"
                 style="@style/Widget.Material3.Button.TonalButton" />
 
@@ -283,10 +287,12 @@
                 android:layout_weight="1"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="🔍"
-                android:textSize="16sp"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
+                android:contentDescription="@string/content_description_search"
+                app:icon="@drawable/ic_shell_search"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
                 app:cornerRadius="8dp"
                 style="@style/Widget.Material3.Button.TonalButton" />
 
@@ -298,9 +304,11 @@
                 android:layout_weight="1"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="💾"
-                android:textSize="16sp"
                 android:layout_marginStart="2dp"
+                android:contentDescription="@string/content_description_save"
+                app:icon="@drawable/ic_shell_save"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
                 app:cornerRadius="8dp"
                 style="@style/Widget.Material3.Button.TonalButton" />
         </LinearLayout>

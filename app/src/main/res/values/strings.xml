@@ -462,6 +462,10 @@
     <string name="user_prompt">user@ashell:~$</string>
     <string name="command_cancelled_session_reset">[Command cancelled, session reset]</string>
     <string name="process_completed_with_exit_code">[Process completed with exit code %d]</string>
+    <string name="content_description_history">History</string>
+    <string name="content_description_bookmarks">Bookmarks</string>
+    <string name="content_description_search">Search</string>
+    <string name="content_description_save">Save</string>
     <string name="hash_sign">#</string>
     <string name="user">user</string>
 

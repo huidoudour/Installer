@@ -70,6 +70,16 @@
 <string name="about_description">Focused on Android app installation tool development</string>
 <string name="visit_github">Visit GitHub</string>
 
+<string name="light_theme">Light Theme</string>
+<string name="dark_theme">Dark Theme</string>
+<string name="lang_name_system">Follow System</string>
+<string name="lang_name_simplified">简体中文</string>
+<string name="lang_name_traditional">繁體中文</string>
+<string name="lang_name_english">English</string>
+<string name="lang_name_russian">Русский</string>
+<string name="lang_name_japanese">日本語</string>
+<string name="lang_name_meow">喵语中文</string>
+
 <!-- 引用的字符串 -->
 <string name="shell_hint">Enter command...</string>
 <string name="clear_log">Clear Log</string>
@@ -115,7 +125,7 @@
 <string name="preparing">Preparing...</string>
 <string name="progress_count">0/0</string>
 <string name="full_log">Full log</string>
-<string name="clear">Clear</string>
+    <string name="clear">Clear</string>
 <string name="export">Export</string>
 <string name="real_time_logs">Real-time log display</string>
 <string name="waiting_operation">Waiting...</string>
@@ -563,5 +573,9 @@ Please try installing Chrome, Firefox or other browser apps.</string>
 <string name="select_privilege_mode">Select Authorization</string>
 <string name="upgrade_version">Upgrade Version: </string>
 <string name="arrow_down">Down Arrow</string>
+<string name="content_description_history">History</string>
+<string name="content_description_bookmarks">Bookmarks</string>
+<string name="content_description_search">Search</string>
+<string name="content_description_save">Save</string>
 
 </resources>

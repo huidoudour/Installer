@@ -24,12 +24,13 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <!-- 标题栏：标题 + 清空 + 导出 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -60,32 +61,45 @@
                     style="@style/Widget.Material3.Button.TextButton" />
             </LinearLayout>
 
-            <TextView
+            <!-- 副标题 + 条数统计 -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/real_time_logs"
-                android:textSize="14sp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginBottom="12dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
 
-            <ScrollView
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/real_time_logs"
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/tvLogCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+
+            <!-- 日志列表（RecyclerView，支持大量日志流畅渲染） -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvLogs"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:background="?attr/colorSurfaceVariant"
-                android:padding="16dp"
-                android:fillViewport="true"
-                android:scrollbars="vertical">
+                android:padding="12dp"
+                android:clipToPadding="false"
+                android:scrollbars="vertical"
+                android:fadeScrollbars="false"
+                tools:listitem="@layout/item_log_entry" />
 
-                <TextView
-                    android:id="@+id/tvFullLog"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/waiting_operation"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:textColor="?attr/colorOnSurface" />
-            </ScrollView>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

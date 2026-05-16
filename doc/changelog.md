@@ -1,3 +1,12 @@
+### 05161453-实现日志管理功能并重构相关界面
+ - 添加 LogManager 类用于全局日志管理，支持日志持久化到 SharedPreferences
+ - 创建 LogAdapter 适配器用于 RecyclerView 高效显示大量日志条目
+ - 在 InstallDialog 中集成日志记录功能，记录安装过程的关键事件和错误信息
+ - 重构 LogsFragment 使用 RecyclerView 替代传统 TextView，提升大量日志下的性能
+ - 在 LogsFragment 中实现日志滚动跟随功能，支持手动滚动查看历史日志
+ - 为 ShellFragment 添加 SharedPreferences 记录首次启动状态并显示欢迎信息
+ - 更新 ShellFragment 界面按钮图标，使用标准 Material 图标替换文本标签
+ - 添加多个界面字符串资源的国际化支持，包括主题和语言选项名称
 ### 05161353-功能与UI
  - 集成输出搜索功能，支持关键词匹配和实时过滤
  - 实现保存输出功能，自动保存到Download目录

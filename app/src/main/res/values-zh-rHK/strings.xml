@@ -66,11 +66,21 @@
     <string name="background_display_enabled">后台显示已启用喵，应用将出现在最近任务列表中（重启应用后生效）</string>
     <string name="background_display_disabled">后台显示已禁用喵，应用将不会出现在最近任务列表中（重启应用后生效）</string>
     <string name="setting_change_failed">设置更改失败喵，请手动重启应用</string>
-    <string name="text1">你保护世界，我保护你喵~</string>
-    <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）喵~</string>
-    <string name="find_me">ω寻找我ω 喵~</string>
+    <string name="text1">你保护世界，我保护你</string>
+    <string name="about_me">亻尔女子，我是huidoudour（慧兜兜）</string>
+    <string name="find_me">ω寻找我ω</string>
     <string name="about_description">专注于 Android 应用安装工具开发喵~</string>
     <string name="visit_github">访问 GitHub 喵~</string>
+
+    <string name="light_theme">淺色主題喵</string>
+    <string name="dark_theme">深色主題喵</string>
+    <string name="lang_name_system">跟隨系統</string>
+    <string name="lang_name_simplified">简体中文</string>
+    <string name="lang_name_traditional">繁体中文</string>
+    <string name="lang_name_english">English</string>
+    <string name="lang_name_russian">Русский</string>
+    <string name="lang_name_japanese">日本語</string>
+    <string name="lang_name_meow">喵语中文</string>
 
     <!-- Shell and tools -->
     <string name="shell_hint">输入命令喵...</string>
@@ -121,7 +131,7 @@
     <string name="select_package_file">选择安装包 (APK/XAPK/APKS) 喵</string>
     <string name="installing_progress">正在安装喵...</string>
     <string name="preparing">准备中喵...</string>
-    <string name="progress_count">0/0 喵</string>
+    <string name="progress_count">0/0</string>
     <string name="full_log">完整日志喵</string>
     <string name="clear">清空喵</string>
     <string name="export">导出喵</string>
@@ -129,7 +139,7 @@
     <string name="waiting_operation">等待操作喵……</string>
     <string name="app_name_label">应用名称喵</string>
     <string name="package_name_label">包名喵：</string>
-    <string name="default_package_name">com.example.app 喵</string>
+    <string name="default_package_name">com.example.app</string>
     <string name="version">版本喵</string>
     <string name="file_size">文件大小喵</string>
     <string name="min_sdk">最低SDK喵：</string>
@@ -138,7 +148,7 @@
     <string name="current_version">当前版本喵：</string>
     <string name="new_version">新版本喵</string>
     <string name="not_installed">未安装喵</string>
-    <string name="default_file_size">10.24 MB 喵</string>
+    <string name="default_file_size">10.24 MB</string>
     <string name="unknown">未知喵</string>
     <string name="xapk_package">XAPK安装包喵</string>
     <string name="invalid_install_request">无效的安装请求喵</string>
@@ -160,7 +170,7 @@
     <string name="xapk">XAPK 喵</string>
     <string name="apk_files_count">%d 个APK文件喵</string>
     <string name="install_error">安装错误喵</string>
-    <string name="ok">确定喵</string>
+    <string name="ok">好的喵</string>
     <string name="open_link_failed">无法打开链接喵，请检查浏览器应用</string>
     <string name="link_open_failed">打开链接失败喵: %s</string>
     <string name="link_open_error">无法打开链接喵。
@@ -439,7 +449,7 @@
     <string name="quick_path_home">主目录 (~/) 喵</string>
 
     <!-- Shell welcome -->
-    <string name="welcome_shell_title">欢迎来到 aShell You - 风格终端喵</string>
+    <string name="welcome_shell_title">欢迎使用终端喵</string>
     <string name="welcome_shell_subtitle">Android Shell 环境 v2.0 喵</string>
     <string name="root_mode_enabled_via_shizuku">[*] 通过 Shizuku 启用 Root 模式喵</string>
     <string name="working_directory_tmp">[*] 工作目录喵: /data/local/tmp</string>
@@ -447,11 +457,11 @@
     <string name="working_directory_sdcard">[*] 工作目录喵: /sdcard</string>
     <string name="type_help_for_command_list">输入 help 获取命令列表喵</string>
     <string name="command_running">命令执行中喵...</string>
-    <string name="root_prompt">root@ashell:~# 喵</string>
-    <string name="user_prompt">user@ashell:~$ 喵</string>
+    <string name="root_prompt">root@ashell:~#</string>
+    <string name="user_prompt">user@ashell:~$</string>
     <string name="command_cancelled_session_reset">[命令已取消喵，会话已重置]</string>
     <string name="process_completed_with_exit_code">[进程完成喵，退出码 %d]</string>
-    <string name="hash_sign"># 喵</string>
+    <string name="hash_sign">#</string>
     <string name="user">用户喵</string>
 
     <!-- Notifications -->
@@ -473,7 +483,7 @@
     <string name="download_from_github">从 GitHub 下载喵</string>
     <string name="switch_privilege">切换喵</string>
     <string name="current_privilege">当前授权器喵</string>
-    <string name="privilege_mode_shizuku">Shizuku 喵</string>
+    <string name="privilege_mode_shizuku">Shizuku</string>
 
     <!-- 原生库测试相关字符串 -->
     <string name="execute_command_failed">执行命令失败喵</string>
@@ -576,6 +586,10 @@
     <string name="select_privilege_mode">选择授权方式喵</string>
     <string name="upgrade_version">升级版本喵：</string>
     <string name="arrow_down">向下箭头喵</string>
+    <string name="content_description_history">历史喵</string>
+    <string name="content_description_bookmarks">书签喵</string>
+    <string name="content_description_search">搜索喵</string>
+    <string name="content_description_save">保存喵</string>
 
 
 </resources>

@@ -71,6 +71,17 @@
     <string name="about_description">专注于 Android 应用安装工具开发</string>
     <string name="visit_github">访问 GitHub</string>
 
+    <string name="light_theme">浅色主题</string>
+    <string name="dark_theme">深色主题</string>
+    <string name="lang_name_system">跟随系统</string>
+    <string name="lang_name_simplified">简体中文</string>
+    <string name="lang_name_traditional">繁体中文</string>
+    <string name="lang_name_english">English</string>
+    <string name="lang_name_russian">Русский</string>
+    <string name="lang_name_japanese">日本語</string>
+    <string name="lang_name_meow">喵语中文</string>
+    <string name="meow_language">喵语中文</string>
+
     <!-- Shell and tools -->
     <string name="shell_hint">输入命令...</string>
     <string name="clear_log">清空日志</string>
@@ -450,6 +461,10 @@
     <string name="user_prompt">user@ashell:~$</string>
     <string name="command_cancelled_session_reset">[命令已取消，会话已重置]</string>
     <string name="process_completed_with_exit_code">[进程完成，退出码 %d]</string>
+    <string name="content_description_history">历史</string>
+    <string name="content_description_bookmarks">书签</string>
+    <string name="content_description_search">搜索</string>
+    <string name="content_description_save">保存</string>
     <string name="hash_sign">#</string>
     <string name="user">用户</string>
 

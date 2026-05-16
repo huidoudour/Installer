@@ -360,7 +360,7 @@
                     android:backgroundTint="@color/button_primary"
                     android:foreground="@drawable/ripple_effect"
                     app:cornerRadius="12dp"
-                    app:icon="@drawable/butterfly"
+                    app:icon="@drawable/ic_github"
                     app:iconGravity="textStart"
                     style="@style/Widget.Material3.Button" />
 

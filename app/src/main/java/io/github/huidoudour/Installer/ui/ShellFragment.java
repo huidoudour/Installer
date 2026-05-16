@@ -3,6 +3,7 @@ package io.github.huidoudour.Installer.ui;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,6 +47,9 @@ import io.github.huidoudour.Installer.util.CommandBookmarks;
 import io.github.huidoudour.Installer.util.ShellExecutor;
 
 public class ShellFragment extends Fragment {
+
+    private static final String PREFS_NAME = "ShellPrefs";
+    private static final String KEY_WELCOME_SHOWN = "welcome_shown";
 
     private FragmentShellBinding binding;
     private TextView tvTerminalOutput;
@@ -154,6 +158,13 @@ public class ShellFragment extends Fragment {
         
         // 移除自动重新获取焦点的逻辑
 
+        // 首次打开 Shell 时自动显示欢迎信息（仅一次，除非 app 被完全关闭再打开）
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (!prefs.getBoolean(KEY_WELCOME_SHOWN, false)) {
+            showWelcomeMessage();
+            prefs.edit().putBoolean(KEY_WELCOME_SHOWN, true).apply();
+        }
+
         return root;
     }
 
@@ -188,21 +199,16 @@ public class ShellFragment extends Fragment {
      * 显示欢迎信息
      */
     private void showWelcomeMessage() {
-        appendOutput(getString(R.string.welcome_shell_title), colorPrimary, true);
-        appendOutput(getString(R.string.welcome_shell_subtitle), colorOnSurfaceVariant, false);
-        appendOutput("", colorOnSurface, false);
-        
-        if (ShellExecutor.isShizukuAvailable()) {
-            appendOutput(getString(R.string.root_mode_enabled_via_shizuku), colorPrimary, false);
-            appendOutput(getString(R.string.working_directory_tmp), colorOnSurfaceVariant, false);
-        } else {
-            appendOutput(getString(R.string.user_mode_tip), colorTertiary, false);
-            appendOutput(getString(R.string.working_directory_sdcard), colorOnSurfaceVariant, false);
-        }
-        
-        appendOutput("", colorOnSurface, false);
         appendOutput(getString(R.string.type_help_for_command_list), colorOnSurfaceVariant, false);
-        appendOutput("", colorOnSurface, false);
+    }
+
+    /**
+     * 清除屏幕
+     */
+    private void clearScreen() {
+        tvTerminalOutput.setText("");
+        fullOutputText = "";
+        binding.scrollButtonsContainer.setVisibility(View.GONE);
     }
 
     /**
@@ -469,18 +475,6 @@ public class ShellFragment extends Fragment {
             .create();
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
-    }
-
-    /**
-     * 清除屏幕
-     */
-    private void clearScreen() {
-        tvTerminalOutput.setText("");
-        fullOutputText = "";
-        binding.scrollButtonsContainer.setVisibility(View.GONE);
-        
-        // 重新显示欢迎信息
-        showWelcomeMessage();
     }
 
     /**

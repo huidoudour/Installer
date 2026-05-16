@@ -28,6 +28,7 @@ import java.io.InputStream;
 import io.github.huidoudour.Installer.R;
 import io.github.huidoudour.Installer.util.DhizukuInstallHelper;
 import io.github.huidoudour.Installer.util.LanguageManager;
+import io.github.huidoudour.Installer.util.LogManager;
 import io.github.huidoudour.Installer.util.PackageInfoHelper;
 import io.github.huidoudour.Installer.util.PrivilegeHelper;
 import io.github.huidoudour.Installer.util.ShizukuInstallHelper;
@@ -86,6 +87,8 @@ public class InstallDialog extends AppCompatActivity {
     // 当前选择的授权方式
     private PrivilegeHelper.PrivilegeMode currentMode = PrivilegeHelper.PrivilegeMode.SHIZUKU;
 
+    private LogManager logManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // 应用用户选择的主题
@@ -102,6 +105,10 @@ public class InstallDialog extends AppCompatActivity {
         int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         int cacheSize = maxMemory / 8;
         iconCache = new android.util.LruCache<>(cacheSize);
+
+        // 初始化日志管理器
+        logManager = LogManager.getInstance();
+        logManager.setContext(this);
 
         // 初始化视图
         initViews();
@@ -613,6 +620,12 @@ public class InstallDialog extends AppCompatActivity {
         btnInstall.setEnabled(canInstall);
     }
 
+    private void log(String message) {
+        if (logManager != null) {
+            logManager.addLog("[Dialog] " + message);
+        }
+    }
+
     private void startInstallation() {
         if (isInstalling) return;
 
@@ -643,21 +656,24 @@ public class InstallDialog extends AppCompatActivity {
      * 使用 Shizuku 安装
      */
     private void startShizukuInstallation() {
+        log(getString(R.string.start_apk_install));
         if (isXapkFile) {
             // XAPK/APKS 安装
             ShizukuInstallHelper.installXapk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                 @Override
                 public void onProgress(String message) {
-                    // 不显示进度文字，只保留循环进度条
+                    log(message);
                 }
 
                 @Override
                 public void onSuccess(String message) {
+                    log(message);
                     runOnUiThread(() -> showCompletionUI());
                 }
 
                 @Override
                 public void onError(String error) {
+                    log(getString(R.string.error_prefix, error));
                     runOnUiThread(() -> {
                         isInstalling = false;
                         Toast.makeText(InstallDialog.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
@@ -672,16 +688,18 @@ public class InstallDialog extends AppCompatActivity {
             ShizukuInstallHelper.installApk(this, filePath, true, true, new ShizukuInstallHelper.InstallCallback() {
                 @Override
                 public void onProgress(String message) {
-                    // 不显示进度文字，只保留循环进度条
+                    log(message);
                 }
 
                 @Override
                 public void onSuccess(String message) {
+                    log(message);
                     runOnUiThread(() -> showCompletionUI());
                 }
 
                 @Override
                 public void onError(String error) {
+                    log(getString(R.string.error_prefix, error));
                     runOnUiThread(() -> {
                         isInstalling = false;
                         Toast.makeText(InstallDialog.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();
@@ -698,21 +716,24 @@ public class InstallDialog extends AppCompatActivity {
      * 使用 Dhizuku 安装
      */
     private void startDhizukuInstallation() {
+        log(getString(R.string.start_apk_install));
         if (isXapkFile) {
             // XAPK/APKS 安装
             DhizukuInstallHelper.installXapk(this, filePath, true, true, new DhizukuInstallHelper.InstallCallback() {
                 @Override
                 public void onProgress(String message) {
-                    // 不显示进度文字，只保留循环进度条
+                    log(message);
                 }
 
                 @Override
                 public void onSuccess(String message) {
+                    log(message);
                     runOnUiThread(() -> showCompletionUI());
                 }
 
                 @Override
                 public void onError(String error) {
+                    log(getString(R.string.error_prefix, error));
                     runOnUiThread(() -> {
                         isInstalling = false;
                         Toast.makeText(InstallDialog.this, getString(R.string.xapk_install_failed, error), Toast.LENGTH_LONG).show();
@@ -727,16 +748,18 @@ public class InstallDialog extends AppCompatActivity {
             DhizukuInstallHelper.installApk(this, filePath, true, true, new DhizukuInstallHelper.InstallCallback() {
                 @Override
                 public void onProgress(String message) {
-                    // 不显示进度文字，只保留循环进度条
+                    log(message);
                 }
 
                 @Override
                 public void onSuccess(String message) {
+                    log(message);
                     runOnUiThread(() -> showCompletionUI());
                 }
 
                 @Override
                 public void onError(String error) {
+                    log(getString(R.string.error_prefix, error));
                     runOnUiThread(() -> {
                         isInstalling = false;
                         Toast.makeText(InstallDialog.this, getString(R.string.apk_install_failed, error), Toast.LENGTH_LONG).show();

@@ -404,24 +404,20 @@ public class InstallerFragment extends Fragment {
     }
 
     private void openFilePicker() {
-        // 使用系统默认文件选择器
+        // 直接使用 Intent 打开系统文件选择器，不经过 createChooser
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // 优化文件选择器配置以支持 XAPK/APKS文件
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
-            "application/vnd.android.package-archive",  // APK
-            "application/zip",  // XAPK, APKS (ZIP 格式)
-            "application/octet-stream"  // 二进制流（用于兼容华为等设备将 APKS 识别为 bin 文件的情况）
+            "application/vnd.android.package-archive",
+            "application/zip",
+            "application/octet-stream"
         });
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        // 添加额外的标志以提高兼容性
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         try {
-            filePickerLauncher.launch(Intent.createChooser(intent, getString(R.string.select_package_file)));
+            filePickerLauncher.launch(intent);
             log(getString(R.string.open_file_picker));
-            // 注意：如果用户在系统选择器中看到"MT 管理器不可用"的错误，这是系统级别的问题
-            // 与应用的代码无关，用户可以选择其他文件管理器或直接使用系统文件选择器
         } catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(requireContext(), getString(R.string.file_picker_not_found), Toast.LENGTH_SHORT).show();
             log(getString(R.string.file_picker_not_found));

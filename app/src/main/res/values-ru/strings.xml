@@ -70,6 +70,16 @@
     <string name="about_description">Разработка инструментов установки Android приложений</string>
     <string name="visit_github">Посетить GitHub</string>
 
+    <string name="light_theme">Светлая тема</string>
+    <string name="dark_theme">Тёмная тема</string>
+    <string name="lang_name_system">Как в системе</string>
+    <string name="lang_name_simplified">简体中文</string>
+    <string name="lang_name_traditional">繁體中文</string>
+    <string name="lang_name_english">English</string>
+    <string name="lang_name_russian">Русский</string>
+    <string name="lang_name_japanese">日本語</string>
+    <string name="lang_name_meow">喵语中文</string>
+
     <!-- Shell and tools -->
     <string name="shell_hint">Введите команду...</string>
     <string name="clear_log">Очистить журнал</string>
@@ -580,5 +590,9 @@
     <string name="select_privilege_mode">Выбрать авторизацию</string>
     <string name="upgrade_version">Версия обновления: </string>
     <string name="arrow_down">Стрелка вниз</string>
+    <string name="content_description_history">История</string>
+    <string name="content_description_bookmarks">Закладки</string>
+    <string name="content_description_search">Поиск</string>
+    <string name="content_description_save">Сохранить</string>
 
 </resources>
