@@ -37,22 +37,12 @@ jobs:
           -Pandroid.injected.signing.key.password="${{ secrets.DEBUG_KEY_PASSWD }}" \
           --stacktrace
     
-    - name: Copy Debug APK to output
-      run: |
-        mkdir -p output/debug
-        # Copy only universal APK
-        cp app/build/outputs/apk/debug/app-universal-debug.apk output/debug/ 2>/dev/null || true
-        # List generated files
-        ls -lh output/debug/
-        # Show build output structure for debugging
-        echo "=== Debug APK files in build output ==="
-        find app/build/outputs/apk/debug -name "*.apk" -type f 2>/dev/null || true
-    
     - name: Upload Debug APK as artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-universal-debug
-        path: output/debug/app-universal-debug.apk
+        path: app/build/outputs/apk/debug/app-universal-debug.apk
+        if-no-files-found: error
     
     - name: Clean up debug keystore
       if: always()
@@ -93,22 +83,12 @@ jobs:
         echo "APK build completed. Files in output directory:"
         find app/build/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
     
-    - name: Copy Release APK to output
-      run: |
-        mkdir -p output/release
-        # Copy only universal APK
-        cp app/build/outputs/apk/release/app-universal-release.apk output/release/ 2>/dev/null || true
-        # List generated files
-        ls -lh output/release/
-        # Show build output structure for debugging
-        echo "=== Release APK files in build output ==="
-        find app/build/outputs/apk/release -name "*.apk" -type f 2>/dev/null || true
-    
     - name: Upload Release APK as artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-universal-release
-        path: output/release/app-universal-release.apk
+        path: app/build/outputs/apk/release/app-universal-release.apk
+        if-no-files-found: error
     
     - name: Clean up keystore
       if: always()
