@@ -1,7 +1,6 @@
 package io.github.huidoudour.Installer.util
 
 import android.content.Context
-import android.content.SharedPreferences
 
 /**
  * 命令书签管理类

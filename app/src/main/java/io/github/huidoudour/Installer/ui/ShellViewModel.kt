@@ -3,7 +3,6 @@ package io.github.huidoudour.Installer.ui
 import android.app.Application
 import android.content.Context
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.huidoudour.Installer.R

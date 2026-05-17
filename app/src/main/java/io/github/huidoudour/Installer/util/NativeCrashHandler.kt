@@ -59,6 +59,7 @@ class NativeCrashHandler(private val context: Context) : Thread.UncaughtExceptio
                 writer.println()
                 writer.println("=== Thread ===")
                 writer.println("Name: ${thread.name}")
+                @Suppress("DEPRECATION")
                 writer.println("ID: ${thread.id}")
                 writer.println("Priority: ${thread.priority}")
                 writer.println()

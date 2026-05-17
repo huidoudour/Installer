@@ -81,7 +81,10 @@
             android:name=".InstallDialogActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer.Dialog"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true">
             <!-- 注册为安装器，处理APK安装请求 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

@@ -2,8 +2,6 @@ package io.github.huidoudour.Installer.ui.theme
 
 import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme

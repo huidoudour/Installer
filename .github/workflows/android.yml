@@ -48,11 +48,11 @@ jobs:
         echo "=== Debug APK files in build output ==="
         find app/build/outputs/apk/debug -name "*.apk" -type f 2>/dev/null || true
     
-    - name: Upload Debug APKs as artifact
+    - name: Upload Debug APK as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: debug-apks
-        path: output/debug/
+        name: app-universal-debug
+        path: output/debug/app-universal-debug.apk
     
     - name: Clean up debug keystore
       if: always()
@@ -104,11 +104,11 @@ jobs:
         echo "=== Release APK files in build output ==="
         find app/build/outputs/apk/release -name "*.apk" -type f 2>/dev/null || true
     
-    - name: Upload Release APKs as artifact
+    - name: Upload Release APK as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: release-apks
-        path: output/release/
+        name: app-universal-release
+        path: output/release/app-universal-release.apk
     
     - name: Clean up keystore
       if: always()

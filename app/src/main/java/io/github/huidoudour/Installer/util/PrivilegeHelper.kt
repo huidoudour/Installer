@@ -2,7 +2,6 @@ package io.github.huidoudour.Installer.util
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import com.rosan.dhizuku.api.Dhizuku

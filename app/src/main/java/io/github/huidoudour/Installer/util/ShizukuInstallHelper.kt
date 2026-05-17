@@ -1,7 +1,6 @@
 package io.github.huidoudour.Installer.util
 
 import android.content.Context
-import android.content.SharedPreferences
 import io.github.huidoudour.Installer.R
 import java.io.BufferedReader
 import java.io.File

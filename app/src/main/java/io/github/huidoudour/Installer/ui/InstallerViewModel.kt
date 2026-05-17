@@ -2,23 +2,15 @@ package io.github.huidoudour.Installer.ui
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Environment
-import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.huidoudour.Installer.InstallerApplication
-import io.github.huidoudour.Installer.R
-import io.github.huidoudour.Installer.util.*
+import io.github.huidoudour.Installer.util.LogManager
+import io.github.huidoudour.Installer.util.PrivilegeHelper
+import io.github.huidoudour.Installer.util.ShizukuInstallHelper
+import io.github.huidoudour.Installer.util.XapkInstaller
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,9 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.FileDescriptor
 
 /**
  * InstallerScreen ViewModel

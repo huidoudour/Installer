@@ -2,11 +2,10 @@ package io.github.huidoudour.Installer.ui.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import com.materialkolor.dynamicColorScheme
 
 /**
  * 调色板风格枚举

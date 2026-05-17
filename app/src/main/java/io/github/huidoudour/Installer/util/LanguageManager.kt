@@ -1,9 +1,7 @@
 package io.github.huidoudour.Installer.util
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.os.Build
 import android.util.Log
 import java.util.Locale
 
@@ -45,10 +43,10 @@ object LanguageManager {
                 LANGUAGE_FOLLOW_SYSTEM -> Locale.getDefault()
                 LANGUAGE_SIMPLIFIED_CHINESE -> Locale.SIMPLIFIED_CHINESE
                 LANGUAGE_TRADITIONAL_CHINESE -> Locale.TRADITIONAL_CHINESE
-                LANGUAGE_HONGKONG_CHINESE -> Locale("zh", "HK")
+                LANGUAGE_HONGKONG_CHINESE -> Locale.Builder().setLanguage("zh").setRegion("HK").build()
                 LANGUAGE_ENGLISH -> Locale.ENGLISH
                 LANGUAGE_JAPANESE -> Locale.JAPANESE
-                LANGUAGE_RUSSIAN -> Locale("ru")
+                LANGUAGE_RUSSIAN -> Locale.Builder().setLanguage("ru").build()
                 else -> Locale.getDefault()
             }
 

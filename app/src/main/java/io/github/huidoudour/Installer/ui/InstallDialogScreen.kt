@@ -1,7 +1,6 @@
 package io.github.huidoudour.Installer.ui
 
 import android.content.Context
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -9,24 +8,56 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -58,6 +89,7 @@ data class InstallDialogState(
     val installProgress: Int = 0,
     val isComplete: Boolean = false,
     val errorMessage: String? = null,
+    val isInfoLoaded: Boolean = false, // 标记信息是否已加载完成
     // 动态颜色
     val primaryColor: Color = Color(0xFF6750A4),
     val onPrimaryColor: Color = Color.White
@@ -124,7 +156,8 @@ private fun InstallDialogContent(
                             isUpgrade = apkInfo.isUpgrade,
                             installedVersion = apkInfo.installedVersion,
                             primaryColor = colors.primary,
-                            onPrimaryColor = colors.onPrimary
+                            onPrimaryColor = colors.onPrimary,
+                            isInfoLoaded = true // 标记信息已加载
                         )
                     }
                 } catch (e: Exception) {
@@ -148,15 +181,15 @@ private fun InstallDialogContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 8.dp)
+            .padding(top = 12.dp, bottom = 12.dp)
     ) {
         // 圆角对话框容器 - 对应 MaterialCardView
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                .padding(horizontal = 8.dp),
+            shape = RoundedCornerShape(24.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
             )
@@ -165,13 +198,13 @@ private fun InstallDialogContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(20.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 // 应用信息区域 - 始终显示
                 InstallInfoHeader(state = state)
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 
                 // 根据状态显示不同的按钮区域
                 when {
@@ -228,122 +261,138 @@ private fun InstallDialogContent(
  */
 @Composable
 fun InstallInfoHeader(state: InstallDialogState) {
-    // 应用图标和名称区域
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        // 应用图标 - 48dp，scaleType=centerInside
-        Box(
+        // 应用图标和名称区域
+        Row(
             modifier = Modifier
-                .size(48.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if (state.appIcon != null) {
-                Image(
-                    painter = rememberDrawablePainter(drawable = state.appIcon),
-                    contentDescription = stringResource(R.string.app_icon_description),
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
+            // 应用图标 - 56dp，scaleType=centerInside
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(10.dp))
+            ) {
+                if (state.appIcon != null) {
+                    Image(
+                        painter = rememberDrawablePainter(drawable = state.appIcon),
+                        contentDescription = stringResource(R.string.app_icon_description),
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Icon(
+                        imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_package),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.width(20.dp))
+            
+            // 应用名称
+            Text(
+                text = state.appName.ifEmpty { stringResource(R.string.unknown_app) },
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        
+        // 应用信息区域 - 加载完成后展开显示
+        AnimatedVisibility(
+            visible = state.isInfoLoaded,
+            enter = expandVertically(
+                animationSpec = tween(durationMillis = 300),
+                expandFrom = Alignment.Top
+            ) + fadeIn(animationSpec = tween(durationMillis = 300)),
+            exit = shrinkVertically(
+                animationSpec = tween(durationMillis = 300),
+                shrinkTowards = Alignment.Top
+            ) + fadeOut(animationSpec = tween(durationMillis = 300))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // 包名
+                Text(
+                    text = stringResource(R.string.package_name_label) + state.packageName,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 15.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 10.dp)
                 )
-            } else {
+                
+                // 当前版本
+                Text(
+                    text = stringResource(R.string.current_version) + state.installedVersion.ifEmpty { stringResource(R.string.not_installed) },
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 15.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
+                )
+                
+                // 下箭头
                 Icon(
-                    imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_terminal),
-                    contentDescription = null,
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = stringResource(R.string.arrow_down),
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp),
+                        .size(28.dp)
+                        .padding(vertical = 6.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                // 升级版本
+                Text(
+                    text = stringResource(R.string.upgrade_version) + state.version,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 15.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+                
+                // 最低SDK
+                Text(
+                    text = stringResource(R.string.min_sdk) + state.minSdk,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 15.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+                
+                // 目标SDK
+                Text(
+                    text = stringResource(R.string.target_sdk) + state.targetSdk,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 15.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
                 )
             }
         }
-        
-        Spacer(modifier = Modifier.width(16.dp))
-        
-        // 应用名称
-        Text(
-            text = state.appName.ifEmpty { stringResource(R.string.unknown_app) },
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f)
-        )
-    }
-    
-    // 应用信息区域 - 居中显示
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // 包名
-        Text(
-            text = stringResource(R.string.package_name_label) + state.packageName,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 14.sp
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        // 当前版本
-        Text(
-            text = stringResource(R.string.current_version) + state.installedVersion.ifEmpty { stringResource(R.string.not_installed) },
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 14.sp
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
-        )
-        
-        // 下箭头
-        Icon(
-            imageVector = Icons.Default.ArrowDropDown,
-            contentDescription = stringResource(R.string.arrow_down),
-            modifier = Modifier
-                .size(24.dp)
-                .padding(vertical = 4.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        
-        // 升级版本
-        Text(
-            text = stringResource(R.string.upgrade_version) + state.version,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 14.sp
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        // 最低SDK
-        Text(
-            text = stringResource(R.string.min_sdk) + state.minSdk,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 14.sp
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        
-        // 目标SDK
-        Text(
-            text = stringResource(R.string.target_sdk) + state.targetSdk,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 14.sp
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
     }
 }
 
@@ -360,12 +409,12 @@ fun InstallButtons(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 安装按钮 - 单个按钮全宽显示，使用绿色（button_secondary），圆角16dp，高度48dp
+        // 安装按钮 - 单个按钮全宽显示，使用绿色（button_secondary），圆角16dp，高度52dp
         Button(
             onClick = onInstall,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
+                .height(52.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF4CAF50),  // button_secondary 绿色
@@ -376,14 +425,14 @@ fun InstallButtons(
         ) {
             Text(
                 text = if (state.isUpgrade) stringResource(R.string.upgrade) else stringResource(R.string.install),
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
         }
         
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         
-        // 按钮行：权限和取消 - 成对按钮，等高显示，高度48dp
+        // 按钮行：权限和取消 - 成对按钮，等高显示，高度52dp
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -393,7 +442,7 @@ fun InstallButtons(
                 onClick = onPrivilege,
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp),
+                    .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF2196F3),  // button_primary 蓝色
@@ -403,18 +452,18 @@ fun InstallButtons(
             ) {
                 Text(
                     text = stringResource(R.string.privilege),
-                    fontSize = 14.sp
+                    fontSize = 15.sp
                 )
             }
             
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             
             // 取消按钮 - OutlinedButton，圆角12dp，边框2dp
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp),
+                    .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = 2.dp,
@@ -424,7 +473,7 @@ fun InstallButtons(
             ) {
                 Text(
                     text = stringResource(R.string.cancel),
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -449,19 +498,19 @@ fun InstallingButtons(
         LinearProgressIndicator(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = 20.dp),
             color = animatedPrimary,
             trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
             strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
             gapSize = 0.dp
         )
         
-        // 取消按钮 - OutlinedButton，圆角16dp，边框2dp，高度48dp
+        // 取消按钮 - OutlinedButton，圆角16dp，边框2dp，高度52dp
         OutlinedButton(
             onClick = onCancel,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
+                .height(52.dp),
             shape = RoundedCornerShape(16.dp),
             border = BorderStroke(
                 width = 2.dp,
@@ -471,7 +520,7 @@ fun InstallingButtons(
         ) {
             Text(
                 text = stringResource(R.string.cancel),
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -491,12 +540,12 @@ fun CompletionButtons(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 打开应用按钮 - 单个按钮全宽显示，使用蓝色（button_primary），圆角16dp，高度48dp
+        // 打开应用按钮 - 单个按钮全宽显示，使用蓝色（button_primary），圆角16dp，高度52dp
         Button(
             onClick = onOpenApp,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
+                .height(52.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF2196F3),  // button_primary 蓝色
@@ -507,14 +556,14 @@ fun CompletionButtons(
         ) {
             Text(
                 text = stringResource(R.string.open_app),
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
         }
         
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         
-        // 按钮行：返回和完成 - 成对按钮，等高显示，高度48dp
+        // 按钮行：返回和完成 - 成对按钮，等高显示，高度52dp
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -524,7 +573,7 @@ fun CompletionButtons(
                 onClick = onBack,
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp),
+                    .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = 2.dp,
@@ -534,19 +583,19 @@ fun CompletionButtons(
             ) {
                 Text(
                     text = stringResource(R.string.back),
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
             
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             
             // 完成按钮 - 使用绿色（button_secondary），圆角12dp
             Button(
                 onClick = onFinish,
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp),
+                    .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF4CAF50),  // button_secondary 绿色
@@ -556,7 +605,7 @@ fun CompletionButtons(
             ) {
                 Text(
                     text = stringResource(R.string.finish),
-                    fontSize = 14.sp
+                    fontSize = 15.sp
                 )
             }
         }
@@ -654,7 +703,15 @@ private fun parseApkInfo(context: Context, uri: Uri): ApkInfo? {
             null
         }
         
-        val isUpgrade = installedPkg != null
+        // 根据 VersionCode 对比决定是否显示升级
+        val isUpgrade = if (installedPkg != null) {
+            val installedVersionCode = installedPkg.longVersionCode
+            // 只有当 APK 的 VersionCode 大于已安装版本时，才显示升级
+            versionCode > installedVersionCode
+        } else {
+            false
+        }
+        
         val installedVersion = installedPkg?.let {
             "${it.versionName ?: "Unknown"} (${it.longVersionCode})"
         } ?: ""
