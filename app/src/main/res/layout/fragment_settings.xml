@@ -75,7 +75,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_palette"
+                            android:src="@drawable/ic_panel_hollow"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -89,7 +89,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward"
+                            android:src="@drawable/ic_arrow_right"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -119,7 +119,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_colorize"
+                            android:src="@drawable/ic_panel_solid"
                             android:layout_marginEnd="12dp" />
 
                         <LinearLayout
@@ -155,7 +155,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward"
+                            android:src="@drawable/ic_arrow_right"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -185,7 +185,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_language"
+                            android:src="@drawable/ic_earth"
                             android:layout_marginEnd="12dp" />
 
                         <LinearLayout
@@ -214,7 +214,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward"
+                            android:src="@drawable/ic_arrow_right"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -244,7 +244,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_notifications_outline"
+                            android:src="@drawable/ic_notifications_hollow"
                             android:layout_marginEnd="12dp" />
 
                         <TextView
@@ -258,7 +258,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward"
+                            android:src="@drawable/ic_arrow_right"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -299,7 +299,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward"
+                            android:src="@drawable/ic_arrow_right"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -384,7 +384,7 @@
                         <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_forward"
+                            android:src="@drawable/ic_arrow_right"
                             android:tint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>

@@ -74,7 +74,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
+        </activity>
+
+        <!-- 独立的安装对话框 Activity -->
+        <activity
+            android:name=".InstallDialogActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Installer.Dialog"
+            android:windowSoftInputMode="adjustResize">
             <!-- 注册为安装器，处理APK安装请求 -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

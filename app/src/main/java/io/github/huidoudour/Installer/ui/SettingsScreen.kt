@@ -2,12 +2,10 @@ package io.github.huidoudour.Installer.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -35,7 +33,6 @@ import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.ui.dialogs.LanguageSelectionDialog
 import io.github.huidoudour.Installer.ui.dialogs.ThemeSelectionDialog
 import io.github.huidoudour.Installer.ui.theme.*
-import io.github.huidoudour.Installer.util.ThemeManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -164,21 +161,21 @@ private fun AppSettingsCard(
                 onClick = onThemeClick
             ),
             SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_palette),
+                icon = ImageVector.vectorResource(R.drawable.ic_panel_hollow),
                 title = stringResource(R.string.theme_color),
                 subtitle = stringResource(R.string.follow_wallpaper),
                 colorPreview = MaterialTheme.colorScheme.primary,
                 onClick = { /* TODO: 主题颜色选择器 */ }
             ),
             SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_language),
+                icon = ImageVector.vectorResource(R.drawable.ic_earth),
                 title = stringResource(R.string.language_settings),
                 subtitle = stringResource(R.string.follow_system),
                 colorPreview = null,
                 onClick = onLanguageClick
             ),
             SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_notifications_outline),
+                icon = ImageVector.vectorResource(R.drawable.ic_notifications_hollow),
                 title = stringResource(R.string.notification_settings),
                 subtitle = null,
                 colorPreview = null,

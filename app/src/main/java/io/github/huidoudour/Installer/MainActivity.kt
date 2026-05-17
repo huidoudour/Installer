@@ -1,7 +1,5 @@
 package io.github.huidoudour.Installer
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,8 +33,6 @@ import io.github.huidoudour.Installer.util.ThemeManager
 
 class MainActivity : ComponentActivity() {
 
-    private var _pendingInstallUri by mutableStateOf<Uri?>(null)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyUserThemePreference(this)
         LanguageManager.applyUserLanguagePreference(this)
@@ -49,31 +44,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 MainScreen(
-                    installUri = _pendingInstallUri,
-                    onInstallUriConsumed = { _pendingInstallUri = null },
                     onThemeClick = { /* Navigate to theme settings */ }
                 )
-            }
-        }
-
-        handleInstallIntent(intent)
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleInstallIntent(intent)
-    }
-
-    private fun handleInstallIntent(intent: Intent?) {
-        if (intent == null) return
-
-        val action = intent.action
-        val data: Uri? = intent.data
-
-        if (Intent.ACTION_VIEW == action || Intent.ACTION_INSTALL_PACKAGE == action) {
-            if (data != null) {
-                _pendingInstallUri = data
-                println("Received install intent: $data")
             }
         }
     }
@@ -88,21 +60,9 @@ data class BottomNavItemData(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    installUri: Uri? = null,
-    onInstallUriConsumed: () -> Unit = {},
     onThemeClick: () -> Unit = {}
 ) {
     val navController = rememberNavController()
-    var showDialog by remember { mutableStateOf(false) }
-    var dialogUri by remember { mutableStateOf<Uri?>(null) }
-
-    LaunchedEffect(installUri) {
-        if (installUri != null) {
-            dialogUri = installUri
-            showDialog = true
-            onInstallUriConsumed()
-        }
-    }
 
     val bottomNavItems = listOf(
         BottomNavItemData(Screen.Home.route, R.string.title_home, ImageVector.vectorResource(R.drawable.ic_home_black)),
@@ -157,24 +117,6 @@ fun MainScreen(
                 SettingsScreen(onThemeClick = onThemeClick)
             }
         }
-
-        // 安装对话框 - 作为Dialog显示，而不是路由页面
-        if (showDialog && dialogUri != null) {
-            InstallDialog(
-                installUri = dialogUri,
-                onDismiss = {
-                    showDialog = false
-                    dialogUri = null
-                },
-                onInstallComplete = {
-                    showDialog = false
-                    dialogUri = null
-                },
-                onOpenApp = { packageName ->
-                    // Open app implementation
-                }
-            )
-        }
     }
 }
 
@@ -185,8 +127,6 @@ fun MainScreen(
 fun MainScreenPreview() {
     AppTheme {
         MainScreen(
-            installUri = null,
-            onInstallUriConsumed = {},
             onThemeClick = {}
         )
     }
@@ -202,20 +142,6 @@ fun MainScreenDarkPreview() {
     }
     AppTheme(themeStateHolder) {
         MainScreen(
-            installUri = null,
-            onInstallUriConsumed = {},
-            onThemeClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "With Install URI")
-@Composable
-fun MainScreenWithInstallPreview() {
-    AppTheme {
-        MainScreen(
-            installUri = Uri.parse("file:///storage/emulated/0/Download/test.apk"),
-            onInstallUriConsumed = {},
             onThemeClick = {}
         )
     }
