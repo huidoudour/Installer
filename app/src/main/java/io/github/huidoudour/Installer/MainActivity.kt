@@ -16,8 +16,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -27,6 +29,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.huidoudour.Installer.ui.*
 import io.github.huidoudour.Installer.ui.theme.AppTheme
+import io.github.huidoudour.Installer.ui.theme.ThemeMode
+import io.github.huidoudour.Installer.ui.theme.ThemeStateHolder
 import io.github.huidoudour.Installer.util.LanguageManager
 import io.github.huidoudour.Installer.util.ThemeManager
 
@@ -89,20 +93,13 @@ fun MainScreen(
     onThemeClick: () -> Unit = {}
 ) {
     val navController = rememberNavController()
-    var installUriState by remember { mutableStateOf<Uri?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogUri by remember { mutableStateOf<Uri?>(null) }
 
     LaunchedEffect(installUri) {
         if (installUri != null) {
-            installUriState = installUri
-        }
-    }
-
-    LaunchedEffect(installUriState) {
-        if (installUriState != null) {
-            navController.navigate(Screen.Install.createRoute(installUriState.toString())) {
-                launchSingleTop = true
-            }
-            installUriState = null
+            dialogUri = installUri
+            showDialog = true
             onInstallUriConsumed()
         }
     }
@@ -159,18 +156,67 @@ fun MainScreen(
             composable(Screen.Settings.route) {
                 SettingsScreen(onThemeClick = onThemeClick)
             }
-            composable(Screen.Install.route) { backStackEntry ->
-                val uri = backStackEntry.arguments?.getString("uri")
-                val decodedUri = uri?.let { Uri.decode(it) }?.let { Uri.parse(it) }
-                InstallDialogScreen(
-                    installUri = decodedUri,
-                    onDismiss = { navController.popBackStack() },
-                    onInstallComplete = { navController.popBackStack() },
-                    onOpenApp = { packageName ->
-                        // Open app implementation
-                    }
-                )
-            }
         }
+
+        // 安装对话框 - 作为Dialog显示，而不是路由页面
+        if (showDialog && dialogUri != null) {
+            InstallDialog(
+                installUri = dialogUri,
+                onDismiss = {
+                    showDialog = false
+                    dialogUri = null
+                },
+                onInstallComplete = {
+                    showDialog = false
+                    dialogUri = null
+                },
+                onOpenApp = { packageName ->
+                    // Open app implementation
+                }
+            )
+        }
+    }
+}
+
+// ============ Compose 预览 ============
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun MainScreenPreview() {
+    AppTheme {
+        MainScreen(
+            installUri = null,
+            onInstallUriConsumed = {},
+            onThemeClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Dark Theme")
+@Composable
+fun MainScreenDarkPreview() {
+    val themeStateHolder = remember { 
+        ThemeStateHolder().apply {
+            setThemeMode(ThemeMode.DARK)
+        }
+    }
+    AppTheme(themeStateHolder) {
+        MainScreen(
+            installUri = null,
+            onInstallUriConsumed = {},
+            onThemeClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "With Install URI")
+@Composable
+fun MainScreenWithInstallPreview() {
+    AppTheme {
+        MainScreen(
+            installUri = Uri.parse("file:///storage/emulated/0/Download/test.apk"),
+            onInstallUriConsumed = {},
+            onThemeClick = {}
+        )
     }
 }

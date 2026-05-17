@@ -1,5 +1,7 @@
 package io.github.huidoudour.Installer.ui
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +18,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +35,7 @@ import io.github.huidoudour.Installer.ui.theme.SmallShape
 fun LogsScreen(
     viewModel: LogsViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val logs: List<String> by viewModel.logs.collectAsState()
     val logCount: Int by viewModel.logCount.collectAsState()
 
@@ -91,16 +97,24 @@ fun LogsScreen(
                     }
 
                     // 按钮行 - 使用 MD3 风格的包裹容器
-                    Column(
-                        modifier = Modifier.clip(RoundedCornerShape(12.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer
+                        )
                     ) {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.height(IntrinsicSize.Max)
+                            modifier = Modifier.padding(8.dp).height(IntrinsicSize.Max),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             OutlinedButton(
                                 onClick = { viewModel.clearLogs() },
-                                shape = RoundedCornerShape(4.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                border = BorderStroke(
+                                    width = 2.dp,
+                                    color = Color(0xFF64B5F6)  // 淡蓝色边框
+                                ),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                                 modifier = Modifier.weight(1f).fillMaxHeight()
                             ) {
@@ -114,8 +128,39 @@ fun LogsScreen(
                             }
 
                             OutlinedButton(
-                                onClick = { /* 导出日志 */ },
-                                shape = RoundedCornerShape(4.dp),
+                                onClick = {
+                                    val result = viewModel.exportLogs()
+                                    result.onSuccess { file ->
+                                        try {
+                                            val shareIntent = viewModel.shareLogFile(file)
+                                            context.startActivity(
+                                                Intent.createChooser(shareIntent, "Export Log")
+                                            )
+                                            Toast.makeText(
+                                                context,
+                                                "Log exported: ${file.name}",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        } catch (e: Exception) {
+                                            Toast.makeText(
+                                                context,
+                                                "Export failed: ${e.message}",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }.onFailure { error ->
+                                        Toast.makeText(
+                                            context,
+                                            "Export failed: ${error.message}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                                border = BorderStroke(
+                                    width = 2.dp,
+                                    color = Color(0xFF64B5F6)  // 淡蓝色边框
+                                ),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                                 modifier = Modifier.weight(1f).fillMaxHeight()
                             ) {

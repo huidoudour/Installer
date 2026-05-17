@@ -76,7 +76,27 @@ fun ShellScreen(
             )
         }
 
-        // 终端输出区域
+        // 命令输入区域 - 移到顶部
+        CommandInput(
+            commandText = commandText,
+            onCommandTextChange = { viewModel.updateCommandText(it) },
+            onSendCommand = { viewModel.executeCommand() },
+            isExecuting = isExecuting
+        )
+
+        // 功能键容器 - 移到顶部
+        FunctionKeysRow(
+            onHistoryUp = { viewModel.navigateHistoryUp() },
+            onHistoryDown = { viewModel.navigateHistoryDown() },
+            onTab = { viewModel.insertTab() },
+            onCtrlC = { viewModel.cancelCommand() },
+            onEsc = { viewModel.clearInput() },
+            onClearScreen = { viewModel.clearScreen() },
+            onCopy = { viewModel.copyOutput() },
+            onQuickCommands = { /* 快捷命令 */ }
+        )
+
+        // 终端输出区域 - 移到底部，占据剩余空间
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -104,26 +124,6 @@ fun ShellScreen(
                 )
             }
         }
-
-        // 功能键容器
-        FunctionKeysRow(
-            onHistoryUp = { viewModel.navigateHistoryUp() },
-            onHistoryDown = { viewModel.navigateHistoryDown() },
-            onTab = { viewModel.insertTab() },
-            onCtrlC = { viewModel.cancelCommand() },
-            onEsc = { viewModel.clearInput() },
-            onClearScreen = { viewModel.clearScreen() },
-            onCopy = { viewModel.copyOutput() },
-            onQuickCommands = { /* 快捷命令 */ }
-        )
-
-        // 命令输入区域
-        CommandInput(
-            commandText = commandText,
-            onCommandTextChange = { viewModel.updateCommandText(it) },
-            onSendCommand = { viewModel.executeCommand() },
-            isExecuting = isExecuting
-        )
     }
 }
 
@@ -134,20 +134,18 @@ fun TopToolbar(
     onSearchClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-    Card(
+    // 使用更轻量的包裹样式
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp),
+                .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             ToolbarButton(
@@ -194,20 +192,18 @@ fun SearchInput(
     onSearchTextChange: (String) -> Unit,
     onClose: () -> Unit
 ) {
-    Card(
+    // 使用更轻量的包裹样式
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-        )
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp),
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             BasicTextField(
@@ -261,37 +257,30 @@ fun FunctionKeysRow(
     onQuickCommands: () -> Unit
 ) {
     // 使用 MD3 风格的包裹容器
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Column(
-            modifier = Modifier.clip(RoundedCornerShape(12.dp)),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                FunctionKeyButton(text = "↑", onClick = onHistoryUp)
-                FunctionKeyButton(text = "↓", onClick = onHistoryDown)
-                FunctionKeyButton(text = "TAB", onClick = onTab)
-                FunctionKeyButton(text = "^C", onClick = onCtrlC, textColor = MaterialTheme.colorScheme.error)
-                FunctionKeyButton(text = "ESC", onClick = onEsc)
-                FunctionKeyButton(text = "C", onClick = onClearScreen)
-                FunctionKeyButton(text = stringResource(R.string.clipboard), onClick = onCopy)
-                FunctionKeyButton(text = stringResource(R.string.lightning), onClick = onQuickCommands)
-            }
+            FunctionKeyButton(text = "↑", onClick = onHistoryUp)
+            FunctionKeyButton(text = "↓", onClick = onHistoryDown)
+            FunctionKeyButton(text = "TAB", onClick = onTab)
+            FunctionKeyButton(text = "^C", onClick = onCtrlC, textColor = MaterialTheme.colorScheme.error)
+            FunctionKeyButton(text = "ESC", onClick = onEsc)
+            FunctionKeyButton(text = "C", onClick = onClearScreen)
+            FunctionKeyButton(text = stringResource(R.string.clipboard), onClick = onCopy)
+            FunctionKeyButton(text = stringResource(R.string.lightning), onClick = onQuickCommands)
         }
     }
 }
@@ -328,15 +317,13 @@ fun CommandInput(
     onSendCommand: () -> Unit,
     isExecuting: Boolean
 ) {
-    Card(
+    // 使用 MD3 风格的包裹容器
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-        )
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
     ) {
         BasicTextField(
             value = commandText,

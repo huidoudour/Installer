@@ -69,7 +69,34 @@ data class InstallDialogState(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InstallDialogScreen(
+fun InstallDialog(
+    installUri: Uri?,
+    onDismiss: () -> Unit,
+    onInstallComplete: () -> Unit,
+    onOpenApp: (String) -> Unit = {}
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.Transparent,
+        tonalElevation = 0.dp,
+        text = {
+            InstallDialogContent(
+                installUri = installUri,
+                onDismiss = onDismiss,
+                onInstallComplete = onInstallComplete,
+                onOpenApp = onOpenApp
+            )
+        },
+        confirmButton = {},
+        dismissButton = {}
+    )
+}
+
+/**
+ * 安装对话框内容（内部实现）
+ */
+@Composable
+private fun InstallDialogContent(
     installUri: Uri?,
     onDismiss: () -> Unit,
     onInstallComplete: () -> Unit,
@@ -328,20 +355,25 @@ fun InstallInfoContent(
     }
     
     // 按钮区域 - 使用 InstallerX-Revived 风格的包裹容器
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp)),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
     ) {
-        // 安装按钮 - 单个按钮全宽显示
+        Column(
+            modifier = Modifier.padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+        // 安装按钮 - 单个按钮全宽显示，使用绿色（button_secondary）
         Button(
             onClick = onInstall,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(4.dp),
+            shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = animatedPrimary,
-                contentColor = onPrimaryColor
+                containerColor = Color(0xFF4CAF50),  // button_secondary 绿色
+                contentColor = Color.White
             ),
             contentPadding = PaddingValues(16.dp)
         ) {
@@ -357,16 +389,16 @@ fun InstallInfoContent(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.height(IntrinsicSize.Max)
         ) {
-            // 权限按钮
+            // 权限按钮 - 使用蓝色（button_primary）
             Button(
                 onClick = onPrivilege,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                shape = RoundedCornerShape(4.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = animatedPrimary.copy(alpha = 0.8f),
-                    contentColor = onPrimaryColor
+                    containerColor = Color(0xFF2196F3),  // button_primary 蓝色
+                    contentColor = Color.White
                 ),
                 contentPadding = PaddingValues(16.dp)
             ) {
@@ -376,16 +408,16 @@ fun InstallInfoContent(
                 )
             }
             
-            // 取消按钮 - OutlinedButton
+            // 取消按钮 - OutlinedButton，使用淡蓝色边框
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                shape = RoundedCornerShape(4.dp),
+                shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline
+                    width = 2.dp,
+                    color = Color(0xFF64B5F6)  // 淡蓝色边框，避免紫色
                 ),
                 contentPadding = PaddingValues(16.dp)
             ) {
@@ -395,6 +427,7 @@ fun InstallInfoContent(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
+        }
         }
     }
 }
@@ -467,20 +500,25 @@ fun CompletionContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 按钮容器 - 12dp 圆角包裹
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp)),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            )
         ) {
-            // 打开应用按钮 - 单个按钮全宽显示
+            Column(
+                modifier = Modifier.padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+            // 打开应用按钮 - 单个按钮全宽显示，使用蓝色（button_primary）
             Button(
                 onClick = onOpenApp,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = animatedPrimary,
-                    contentColor = if (isColorDark(animatedPrimary)) Color.White else Color.Black
+                    containerColor = Color(0xFF2196F3),  // button_primary 蓝色
+                    contentColor = Color.White
                 ),
                 contentPadding = PaddingValues(16.dp)
             ) {
@@ -496,16 +534,16 @@ fun CompletionContent(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.height(IntrinsicSize.Max)
             ) {
-                // 返回按钮 - OutlinedButton
+                // 返回按钮 - OutlinedButton，使用淡蓝色边框
                 OutlinedButton(
                     onClick = onBack,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
-                    shape = RoundedCornerShape(4.dp),
+                    shape = RoundedCornerShape(8.dp),
                     border = BorderStroke(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline
+                        width = 2.dp,
+                        color = Color(0xFF64B5F6)  // 淡蓝色边框，避免紫色
                     ),
                     contentPadding = PaddingValues(16.dp)
                 ) {
@@ -516,16 +554,16 @@ fun CompletionContent(
                     )
                 }
                 
-                // 完成按钮
+                // 完成按钮 - 使用绿色（button_secondary）
                 Button(
                     onClick = onFinish,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
-                    shape = RoundedCornerShape(4.dp),
+                    shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = animatedPrimary.copy(alpha = 0.8f),
-                        contentColor = if (isColorDark(animatedPrimary)) Color.White else Color.Black
+                        containerColor = Color(0xFF4CAF50),  // button_secondary 绿色
+                        contentColor = Color.White
                     ),
                     contentPadding = PaddingValues(16.dp)
                 ) {
@@ -534,6 +572,7 @@ fun CompletionContent(
                         fontSize = 14.sp
                     )
                 }
+            }
             }
         }
     }

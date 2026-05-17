@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -95,7 +96,7 @@ fun InstallerScreen(
             onRequestPermission = { viewModel.requestPrivilegePermission() }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // 文件选择卡片
         FileSelectionCard(
@@ -117,7 +118,7 @@ fun InstallerScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // 安装操作卡片
         InstallOptionsCard(
@@ -254,19 +255,22 @@ fun PrivilegeStatusCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 请求权限按钮 - 使用包裹容器
-        Column(
+        // 请求权限按钮 - 使用包裹容器，使用绿色（button_secondary）
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            )
         ) {
             Button(
                 onClick = onRequestPermission,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp),
+                shape = RoundedCornerShape(8.dp),
                 enabled = status != PrivilegeHelper.PrivilegeStatus.AUTHORIZED,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = Color(0xFF4CAF50)  // button_secondary 绿色
                 ),
                 contentPadding = PaddingValues(16.dp)
             ) {
@@ -405,18 +409,21 @@ fun FileSelectionCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 选择文件按钮 - 使用包裹容器
-        Column(
+        // 选择文件按钮 - 使用包裹容器，使用蓝色（button_primary）
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            )
         ) {
             Button(
                 onClick = onSelectFile,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = Color(0xFF2196F3)  // button_primary 蓝色
                 ),
                 contentPadding = PaddingValues(16.dp)
             ) {
@@ -542,19 +549,22 @@ fun InstallOptionsCard(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 安装按钮 - 使用包裹容器
-        Column(
+        // 安装按钮 - 使用包裹容器，使用绿色（button_install）
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            )
         ) {
             Button(
                 onClick = onInstall,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = isInstallEnabled && !isInstalling,
-                shape = RoundedCornerShape(4.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = Color(0xFF009688),  // button_install 绿色
                     disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
                 contentPadding = PaddingValues(16.dp)
