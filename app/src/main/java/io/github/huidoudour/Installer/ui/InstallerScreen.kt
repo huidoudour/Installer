@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -253,37 +254,42 @@ fun PrivilegeStatusCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 请求权限按钮
-        Button(
-            onClick = onRequestPermission,
+        // 请求权限按钮 - 使用包裹容器
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            shape = SmallShape,
-            enabled = status != PrivilegeHelper.PrivilegeStatus.AUTHORIZED,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            )
+                .clip(RoundedCornerShape(12.dp))
         ) {
-            Icon(
-                imageVector = when (status) {
-                    PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> Icons.Default.CheckCircle
-                    else -> androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_lock)
-                },
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = when (status) {
-                    PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> context.getString(R.string.privilege_download_button, PrivilegeHelper.getModeName(privilegeMode))
-                    PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> context.getString(R.string.privilege_open_button, PrivilegeHelper.getModeName(privilegeMode))
-                    PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> context.getString(R.string.privilege_request_auth_button)
-                    PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> context.getString(R.string.privilege_authorized_button)
-                    PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> context.getString(R.string.privilege_update_button, PrivilegeHelper.getModeName(privilegeMode))
-                },
-                fontSize = 14.sp
-            )
+            Button(
+                onClick = onRequestPermission,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(4.dp),
+                enabled = status != PrivilegeHelper.PrivilegeStatus.AUTHORIZED,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                Icon(
+                    imageVector = when (status) {
+                        PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> Icons.Default.CheckCircle
+                        else -> androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_lock)
+                    },
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = when (status) {
+                        PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> context.getString(R.string.privilege_download_button, PrivilegeHelper.getModeName(privilegeMode))
+                        PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> context.getString(R.string.privilege_open_button, PrivilegeHelper.getModeName(privilegeMode))
+                        PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> context.getString(R.string.privilege_request_auth_button)
+                        PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> context.getString(R.string.privilege_authorized_button)
+                        PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> context.getString(R.string.privilege_update_button, PrivilegeHelper.getModeName(privilegeMode))
+                    },
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
@@ -399,27 +405,32 @@ fun FileSelectionCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 选择文件按钮
-        Button(
-            onClick = onSelectFile,
+        // 选择文件按钮 - 使用包裹容器
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            shape = SmallShape,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            )
+                .clip(RoundedCornerShape(12.dp))
         ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.select_package_file),
-                fontSize = 14.sp
-            )
+            Button(
+                onClick = onSelectFile,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(4.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.select_package_file),
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
@@ -531,38 +542,43 @@ fun InstallOptionsCard(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 安装按钮
-        Button(
-            onClick = onInstall,
+        // 安装按钮 - 使用包裹容器
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
-            enabled = isInstallEnabled && !isInstalling,
-            shape = SmallShape,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+                .clip(RoundedCornerShape(12.dp))
         ) {
-            if (isInstalling) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = 2.dp
-                )
-            } else {
-            Icon(
-                imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
+            Button(
+                onClick = onInstall,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isInstallEnabled && !isInstalling,
+                shape = RoundedCornerShape(4.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                if (isInstalling) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = if (isInstalling) stringResource(R.string.installing_progress) 
+                           else stringResource(R.string.install_apk),
+                    fontSize = 15.sp
                 )
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = if (isInstalling) stringResource(R.string.installing_progress) 
-                       else stringResource(R.string.install_apk),
-                fontSize = 15.sp
-            )
         }
     }
 }

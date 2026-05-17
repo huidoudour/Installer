@@ -327,24 +327,23 @@ fun InstallInfoContent(
         )
     }
     
-    // 按钮区域 - 完全按照原XML
+    // 按钮区域 - 使用 InstallerX-Revived 风格的包裹容器
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp)),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // 安装按钮 - match_parent，48dp，14sp粗体，cornerRadius=16dp
+        // 安装按钮 - 单个按钮全宽显示
         Button(
             onClick = onInstall,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(4.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = animatedPrimary,
                 contentColor = onPrimaryColor
             ),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 4.dp
-            )
+            contentPadding = PaddingValues(16.dp)
         ) {
             Text(
                 text = if (state.isUpgrade) stringResource(R.string.upgrade) else stringResource(R.string.install),
@@ -353,23 +352,23 @@ fun InstallInfoContent(
             )
         }
         
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // 按钮行：权限和取消 - 各占一半，权限按钮marginEnd=8dp
+        // 按钮行：权限和取消 - 成对按钮，等高显示
         Row(
-            modifier = Modifier.fillMaxWidth()
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.height(IntrinsicSize.Max)
         ) {
-            // 权限按钮 - weight(1f)，48dp，14sp，cornerRadius=12dp
+            // 权限按钮
             Button(
                 onClick = onPrivilege,
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
+                    .fillMaxHeight(),
+                shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = animatedPrimary.copy(alpha = 0.8f),
                     contentColor = onPrimaryColor
-                )
+                ),
+                contentPadding = PaddingValues(16.dp)
             ) {
                 Text(
                     text = stringResource(R.string.privilege),
@@ -377,19 +376,18 @@ fun InstallInfoContent(
                 )
             }
             
-            Spacer(modifier = Modifier.width(8.dp))
-            
-            // 取消按钮 - weight(1f)，48dp，14sp，cornerRadius=12dp，OutlinedButton
+            // 取消按钮 - OutlinedButton
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier
                     .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
+                    .fillMaxHeight(),
+                shape = RoundedCornerShape(4.dp),
                 border = BorderStroke(
-                    width = 2.dp,
+                    width = 1.dp,
                     color = MaterialTheme.colorScheme.outline
-                )
+                ),
+                contentPadding = PaddingValues(16.dp)
             ) {
                 Text(
                     text = stringResource(R.string.cancel),
@@ -402,7 +400,7 @@ fun InstallInfoContent(
 }
 
 /**
- * 安装进度内容 - 完全按照原XML布局实现
+ * 安装进度内容 - 使用 InstallerX-Revived 风格的包裹容器
  */
 @Composable
 fun InstallingContent(
@@ -427,29 +425,34 @@ fun InstallingContent(
             gapSize = 0.dp  // 对应 trackCornerRadius=4dp
         )
         
-        // 取消按钮 - match_parent, 48dp, 14sp, cornerRadius=16dp, OutlinedButton
-        OutlinedButton(
-            onClick = onCancel,
+        // 取消按钮 - 使用包裹容器
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.outline
-            )
+                .clip(RoundedCornerShape(12.dp))
         ) {
-            Text(
-                text = stringResource(R.string.cancel),
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(4.dp),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline
+                ),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.cancel),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
 
 /**
- * 安装完成内容 - 完全按照原XML布局实现
+ * 安装完成内容 - 使用 InstallerX-Revived 风格的包裹容器
  */
 @Composable
 fun CompletionContent(
@@ -463,71 +466,74 @@ fun CompletionContent(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 打开应用按钮 - match_parent, 48dp, 14sp粗体, cornerRadius=16dp
-        Button(
-            onClick = onOpenApp,
+        // 按钮容器 - 12dp 圆角包裹
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = animatedPrimary,
-                contentColor = if (isColorDark(animatedPrimary)) Color.White else Color.Black
-            ),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 4.dp
-            )
+                .clip(RoundedCornerShape(12.dp)),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = stringResource(R.string.open_app),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // 按钮行：返回和完成 - 各占一半
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // 返回按钮 - weight(1f), 48dp, 14sp, cornerRadius=12dp, OutlinedButton
-            OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(
-                    width = 2.dp,
-                    color = MaterialTheme.colorScheme.outline
-                )
+            // 打开应用按钮 - 单个按钮全宽显示
+            Button(
+                onClick = onOpenApp,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(4.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = animatedPrimary,
+                    contentColor = if (isColorDark(animatedPrimary)) Color.White else Color.Black
+                ),
+                contentPadding = PaddingValues(16.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.back),
+                    text = stringResource(R.string.open_app),
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurface
+                    fontWeight = FontWeight.Bold
                 )
             }
             
-            Spacer(modifier = Modifier.width(8.dp))
-            
-            // 完成按钮 - weight(1f), 48dp, 14sp, cornerRadius=12dp
-            Button(
-                onClick = onFinish,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = animatedPrimary.copy(alpha = 0.8f),
-                    contentColor = if (isColorDark(animatedPrimary)) Color.White else Color.Black
-                )
+            // 按钮行：返回和完成 - 成对按钮，等高显示
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.height(IntrinsicSize.Max)
             ) {
-                Text(
-                    text = stringResource(R.string.finish),
-                    fontSize = 14.sp
-                )
+                // 返回按钮 - OutlinedButton
+                OutlinedButton(
+                    onClick = onBack,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    shape = RoundedCornerShape(4.dp),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outline
+                    ),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.back),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                
+                // 完成按钮
+                Button(
+                    onClick = onFinish,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    shape = RoundedCornerShape(4.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = animatedPrimary.copy(alpha = 0.8f),
+                        contentColor = if (isColorDark(animatedPrimary)) Color.White else Color.Black
+                    ),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.finish),
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
     }

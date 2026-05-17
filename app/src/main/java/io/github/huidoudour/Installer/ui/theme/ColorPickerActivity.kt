@@ -242,22 +242,30 @@ fun ColorPickerDialog(
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // 按钮
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                // 按钮 - 使用 MD3 风格的包裹容器
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
                 ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.height(IntrinsicSize.Max)
                     ) {
-                        Text("Cancel")
-                    }
-                    Button(
-                        onClick = { onColorSelected(selectedColor) },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Apply")
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text("Cancel")
+                        }
+                        Button(
+                            onClick = { onColorSelected(selectedColor) },
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text("Apply")
+                        }
                     }
                 }
             }

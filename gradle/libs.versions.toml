@@ -46,6 +46,7 @@ compose-runtime = { group = "androidx.compose.runtime", name = "runtime", versio
 compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "composeUi" }
 compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "composeUi" }
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "composeUi" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "composeUi" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "composeMaterial3" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 # Navigation

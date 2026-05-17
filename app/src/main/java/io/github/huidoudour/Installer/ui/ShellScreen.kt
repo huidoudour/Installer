@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -259,6 +260,7 @@ fun FunctionKeysRow(
     onCopy: () -> Unit,
     onQuickCommands: () -> Unit
 ) {
+    // 使用 MD3 风格的包裹容器
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -269,22 +271,27 @@ fun FunctionKeysRow(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
         )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.clip(RoundedCornerShape(12.dp)),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            FunctionKeyButton(text = "↑", onClick = onHistoryUp)
-            FunctionKeyButton(text = "↓", onClick = onHistoryDown)
-            FunctionKeyButton(text = "TAB", onClick = onTab)
-            FunctionKeyButton(text = "^C", onClick = onCtrlC, textColor = MaterialTheme.colorScheme.error)
-            FunctionKeyButton(text = "ESC", onClick = onEsc)
-            FunctionKeyButton(text = "C", onClick = onClearScreen)
-            FunctionKeyButton(text = stringResource(R.string.clipboard), onClick = onCopy)
-            FunctionKeyButton(text = stringResource(R.string.lightning), onClick = onQuickCommands)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FunctionKeyButton(text = "↑", onClick = onHistoryUp)
+                FunctionKeyButton(text = "↓", onClick = onHistoryDown)
+                FunctionKeyButton(text = "TAB", onClick = onTab)
+                FunctionKeyButton(text = "^C", onClick = onCtrlC, textColor = MaterialTheme.colorScheme.error)
+                FunctionKeyButton(text = "ESC", onClick = onEsc)
+                FunctionKeyButton(text = "C", onClick = onClearScreen)
+                FunctionKeyButton(text = stringResource(R.string.clipboard), onClick = onCopy)
+                FunctionKeyButton(text = stringResource(R.string.lightning), onClick = onQuickCommands)
+            }
         }
     }
 }
@@ -300,7 +307,7 @@ fun FunctionKeyButton(
         modifier = Modifier
             .height(36.dp)
             .width(if (text.length > 2) 54.dp else 44.dp),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(4.dp),
         contentPadding = PaddingValues(0.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,

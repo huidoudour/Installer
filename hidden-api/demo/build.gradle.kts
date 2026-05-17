@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -27,13 +29,25 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
+    kotlinOptions {
+        jvmTarget = "21"
+    }
+
     buildFeatures {
-        viewBinding = true
+        compose = true
     }
 }
 
 dependencies {
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    implementation(libs.constraintlayout)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.activity.compose)
+
+    //noinspection UseTomlInstead,GradleDependency
+    implementation("androidx.graphics:graphics-core:1.0.1")
+    
+    debugImplementation(libs.compose.ui.tooling)
 }
