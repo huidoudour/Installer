@@ -1,6 +1,7 @@
 package io.github.huidoudour.Installer.ui
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -8,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -15,10 +17,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +47,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,6 +72,9 @@ import androidx.compose.ui.unit.sp
 import androidx.palette.graphics.Palette
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import io.github.huidoudour.Installer.R
+import io.github.huidoudour.Installer.util.DhizukuInstallHelper
+import io.github.huidoudour.Installer.util.PrivilegeHelper
+import io.github.huidoudour.Installer.util.ShizukuInstallHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -89,10 +95,7 @@ data class InstallDialogState(
     val installProgress: Int = 0,
     val isComplete: Boolean = false,
     val errorMessage: String? = null,
-    val isInfoLoaded: Boolean = false, // 标记信息是否已加载完成
-    // 动态颜色
-    val primaryColor: Color = Color(0xFF6750A4),
-    val onPrimaryColor: Color = Color.White
+    val isInfoLoaded: Boolean = false
 )
 
 /**
@@ -136,15 +139,18 @@ private fun InstallDialogContent(
 ) {
     val context = LocalContext.current
     var state by remember { mutableStateOf(InstallDialogState()) }
-    
-    // 从 APK 图标提取颜色
+
+    // 权限模式
+    var currentPrivilegeMode by remember { mutableStateOf(PrivilegeHelper.getCurrentMode(context)) }
+    var showPrivilegeDialog by remember { mutableStateOf(false) }
+
+    // 从 APK 解析信息
     LaunchedEffect(installUri) {
         if (installUri != null) {
             withContext(Dispatchers.IO) {
                 try {
                     val apkInfo = parseApkInfo(context, installUri)
                     if (apkInfo != null) {
-                        val colors = extractColorsFromIcon(context, apkInfo.appIcon)
                         state = state.copy(
                             appName = apkInfo.appName,
                             packageName = apkInfo.packageName,
@@ -155,9 +161,7 @@ private fun InstallDialogContent(
                             appIcon = apkInfo.appIcon,
                             isUpgrade = apkInfo.isUpgrade,
                             installedVersion = apkInfo.installedVersion,
-                            primaryColor = colors.primary,
-                            onPrimaryColor = colors.onPrimary,
-                            isInfoLoaded = true // 标记信息已加载
+                            isInfoLoaded = true
                         )
                     }
                 } catch (e: Exception) {
@@ -166,16 +170,13 @@ private fun InstallDialogContent(
             }
         }
     }
-    
-    // 动态颜色动画
-    val animatedPrimary by animateColorAsState(
-        targetValue = state.primaryColor,
-        label = "primaryColor"
-    )
-    val animatedOnPrimary by animateColorAsState(
-        targetValue = state.onPrimaryColor,
-        label = "onPrimaryColor"
-    )
+
+    // 检查安装按钮状态
+    fun isInstallEnabled(): Boolean {
+        if (state.isInstalling) return false
+        val status = PrivilegeHelper.getStatus(context, currentPrivilegeMode)
+        return status == PrivilegeHelper.PrivilegeStatus.AUTHORIZED
+    }
 
     // 最外层容器 - 对应原XML最外层LinearLayout (paddingTop=8dp, paddingBottom=8dp)
     Column(
@@ -222,7 +223,6 @@ private fun InstallDialogContent(
                         // 安装进度按钮
                         InstallingButtons(
                             progress = state.installProgress,
-                            animatedPrimary = animatedPrimary,
                             onCancel = {
                                 state = state.copy(isInstalling = false)
                             }
@@ -232,27 +232,53 @@ private fun InstallDialogContent(
                         // 安装确认按钮
                         InstallButtons(
                             state = state,
+                            isInstallEnabled = isInstallEnabled(),
                             onInstall = {
                                 state = state.copy(isInstalling = true)
-                                simulateInstallation { progress ->
-                                    if (progress >= 100) {
+                                performRealInstallation(
+                                    context = context,
+                                    filePath = getFilePathFromUri(context, installUri),
+                                    mode = currentPrivilegeMode,
+                                    onProgress = { progress ->
+                                        state = state.copy(installProgress = progress)
+                                    },
+                                    onSuccess = {
                                         state = state.copy(
                                             isInstalling = false,
                                             isComplete = true,
                                             installProgress = 100
                                         )
-                                    } else {
-                                        state = state.copy(installProgress = progress)
+                                    },
+                                    onError = { error ->
+                                        state = state.copy(
+                                            isInstalling = false,
+                                            errorMessage = error
+                                        )
+                                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
                                     }
-                                }
+                                )
                             },
                             onCancel = onDismiss,
-                            onPrivilege = { /* 显示权限选择 */ }
+                            onPrivilege = { showPrivilegeDialog = true }
                         )
                     }
                 }
             }
         }
+    }
+
+    // 权限选择对话框
+    if (showPrivilegeDialog) {
+        InstallPrivilegeDialog(
+            context = context,
+            currentMode = currentPrivilegeMode,
+            onDismiss = { showPrivilegeDialog = false },
+            onModeSelected = { mode ->
+                currentPrivilegeMode = mode
+                PrivilegeHelper.saveCurrentMode(context, mode)
+                showPrivilegeDialog = false
+            }
+        )
     }
 }
 
@@ -402,6 +428,7 @@ fun InstallInfoHeader(state: InstallDialogState) {
 @Composable
 fun InstallButtons(
     state: InstallDialogState,
+    isInstallEnabled: Boolean = true,
     onInstall: () -> Unit,
     onCancel: () -> Unit,
     onPrivilege: () -> Unit
@@ -409,16 +436,17 @@ fun InstallButtons(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 安装按钮 - 单个按钮全宽显示，使用绿色（button_secondary），圆角16dp，高度52dp
+        // 安装按钮
         Button(
             onClick = onInstall,
+            enabled = isInstallEnabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF4CAF50),  // button_secondary 绿色
-                contentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
             contentPadding = PaddingValues(16.dp)
@@ -445,7 +473,7 @@ fun InstallButtons(
                     .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2196F3),  // button_primary 蓝色
+                    containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 ),
                 contentPadding = PaddingValues(16.dp)
@@ -487,19 +515,18 @@ fun InstallButtons(
 @Composable
 fun InstallingButtons(
     progress: Int,
-    animatedPrimary: Color,
     onCancel: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 线性进度条 - indeterminate模式，trackThickness=8dp, trackCornerRadius=4dp
+        // 线性进度条
         LinearProgressIndicator(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 20.dp),
-            color = animatedPrimary,
+            color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
             strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
             gapSize = 0.dp
@@ -548,8 +575,8 @@ fun CompletionButtons(
                 .height(52.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF2196F3),  // button_primary 蓝色
-                contentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
             contentPadding = PaddingValues(16.dp)
@@ -598,7 +625,7 @@ fun CompletionButtons(
                     .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50),  // button_secondary 绿色
+                    containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 ),
                 contentPadding = PaddingValues(16.dp)
@@ -610,18 +637,6 @@ fun CompletionButtons(
             }
         }
     }
-}
-
-/**
- * 模拟安装过程
- */
-private fun simulateInstallation(onProgress: (Int) -> Unit) {
-    Thread {
-        for (i in 0..100 step 5) {
-            Thread.sleep(200)
-            onProgress(i)
-        }
-    }.start()
 }
 
 /**
@@ -637,14 +652,6 @@ data class ApkInfo(
     val appIcon: Drawable?,
     val isUpgrade: Boolean,
     val installedVersion: String
-)
-
-/**
- * 提取的颜色
- */
-data class ExtractedColors(
-    val primary: Color,
-    val onPrimary: Color
 )
 
 /**
@@ -734,63 +741,224 @@ private fun parseApkInfo(context: Context, uri: Uri): ApkInfo? {
 }
 
 /**
- * 从图标提取颜色
- * 使用 Palette 库从位图提取主色调
+ * 执行真实安装
  */
-private fun extractColorsFromIcon(context: Context, drawable: Drawable?): ExtractedColors {
-    if (drawable == null) {
-        return defaultColors()
+private fun performRealInstallation(
+    context: Context,
+    filePath: String?,
+    mode: PrivilegeHelper.PrivilegeMode,
+    onProgress: (Int) -> Unit,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit
+) {
+    if (filePath == null) {
+        onError("Cannot access install file")
+        return
     }
-    
-    return try {
-        val bitmap: Bitmap = when (drawable) {
-            is BitmapDrawable -> drawable.bitmap
-            else -> {
-                val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 100
-                val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 100
-                Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also {
-                    val canvas = android.graphics.Canvas(it)
-                    drawable.setBounds(0, 0, canvas.width, canvas.height)
-                    drawable.draw(canvas)
+
+    val isXapk = io.github.huidoudour.Installer.util.XapkInstaller.isXapkFile(filePath)
+
+    when (mode) {
+        PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
+            val callback = object : ShizukuInstallHelper.InstallCallback {
+                override fun onProgress(message: String) {
+                    Log.d("InstallDialog", message)
+                }
+                override fun onSuccess(message: String) {
+                    Log.d("InstallDialog", message)
+                    onSuccess()
+                }
+                override fun onError(error: String) {
+                    Log.e("InstallDialog", error)
+                    onError(error)
                 }
             }
+            if (isXapk) {
+                ShizukuInstallHelper.installXapk(context, filePath, true, true, callback)
+            } else {
+                ShizukuInstallHelper.installApk(context, filePath, true, true, callback)
+            }
         }
-        
-        val palette = Palette.from(bitmap).generate()
-        
-        val dominant = palette.dominantSwatch
-        val vibrant = palette.vibrantSwatch ?: palette.lightVibrantSwatch ?: palette.darkVibrantSwatch
-        
-        // 使用主色调作为主色
-        val primaryColor = dominant?.let { Color(it.rgb) } 
-            ?: vibrant?.let { Color(it.rgb) }
-            ?: Color(0xFF6750A4)
-        
-        // 计算适合的文本颜色
-        val onPrimary = if (isColorDark(primaryColor)) Color.White else Color.Black
-        
-        ExtractedColors(
-            primary = primaryColor,
-            onPrimary = onPrimary
-        )
-    } catch (e: Exception) {
-        Log.e("InstallDialog", "Failed to extract colors", e)
-        defaultColors()
+        PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
+            val callback = object : DhizukuInstallHelper.InstallCallback {
+                override fun onProgress(message: String) {
+                    Log.d("InstallDialog", message)
+                }
+                override fun onSuccess(message: String) {
+                    Log.d("InstallDialog", message)
+                    onSuccess()
+                }
+                override fun onError(error: String) {
+                    Log.e("InstallDialog", error)
+                    onError(error)
+                }
+            }
+            if (isXapk) {
+                DhizukuInstallHelper.installXapk(context, filePath, true, true, callback)
+            } else {
+                DhizukuInstallHelper.installSingleApk(context, java.io.File(filePath), true, true, callback)
+            }
+        }
     }
 }
 
 /**
- * 判断颜色是否为深色
+ * 从 URI 获取文件路径
  */
-private fun isColorDark(color: Color): Boolean {
-    val darkness = 1 - (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue)
-    return darkness >= 0.5
+private fun getFilePathFromUri(context: Context, uri: Uri?): String? {
+    if (uri == null) return null
+    return try {
+        if (uri.scheme == "file") {
+            uri.path
+        } else {
+            val cacheFile = java.io.File(context.cacheDir, "temp_install_${System.currentTimeMillis()}.apk")
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                cacheFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            cacheFile.absolutePath
+        }
+    } catch (e: Exception) {
+        Log.e("InstallDialog", "Failed to get file path from URI", e)
+        null
+    }
 }
 
 /**
- * 默认颜色
+ * 安装对话框内的权限选择对话框
+ * 匹配源项目 dialog_privilege.xml 布局
  */
-private fun defaultColors() = ExtractedColors(
-    primary = Color(0xFF6750A4),
-    onPrimary = Color.White
-)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InstallPrivilegeDialog(
+    context: Context,
+    currentMode: PrivilegeHelper.PrivilegeMode,
+    onDismiss: () -> Unit,
+    onModeSelected: (PrivilegeHelper.PrivilegeMode) -> Unit
+) {
+    var selectedMode by remember { mutableStateOf(currentMode) }
+
+    // 检查两个权限状态
+    var shizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
+    var dhizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            shizukuStatus = PrivilegeHelper.checkShizukuStatus()
+            dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.select_privilege_mode),
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column {
+                // Shizuku 卡片
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.SHIZUKU },
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    else MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
+                        BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    else null
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_warning),
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Shizuku",
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                            )
+                            Text(
+                                text = getPrivilegeStatusText(shizukuStatus),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Dhizuku 卡片
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.DHIZUKU },
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    else MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                        BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    else null
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_warning),
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Dhizuku",
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                            )
+                            Text(
+                                text = getPrivilegeStatusText(dhizukuStatus),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onModeSelected(selectedMode) }) {
+                Text(stringResource(R.string.next_step))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+private fun getPrivilegeStatusText(status: PrivilegeHelper.PrivilegeStatus?): String {
+    return when (status) {
+        PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> "Authorized"
+        PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> "Not Authorized"
+        PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> "Not Installed"
+        PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> "Not Running"
+        PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> "Version Too Low"
+        null -> "Checking..."
+    }
+}

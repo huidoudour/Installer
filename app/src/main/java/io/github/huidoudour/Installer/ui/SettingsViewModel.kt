@@ -7,10 +7,12 @@ import androidx.lifecycle.viewModelScope
 import io.github.huidoudour.Installer.util.LanguageManager
 import io.github.huidoudour.Installer.util.PrivilegeHelper
 import io.github.huidoudour.Installer.util.ThemeManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * SettingsScreen ViewModel
@@ -42,11 +44,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      * 刷新权限状态
      */
     fun refreshPrivilegeStatus() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val mode = PrivilegeHelper.getCurrentMode(context)
             val status = PrivilegeHelper.getStatus(context, mode)
-            _privilegeMode.value = mode
-            _privilegeStatus.value = status
+            withContext(Dispatchers.Main) {
+                _privilegeMode.value = mode
+                _privilegeStatus.value = status
+            }
         }
     }
 
@@ -54,7 +58,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      * 切换主题
      */
     fun setTheme(theme: Int) {
-        // TODO: 实现主题设置
+        ThemeManager.saveUserTheme(context, theme)
+        ThemeManager.applyTheme(theme)
         _currentTheme.value = theme
     }
 
@@ -78,22 +83,42 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      * 请求权限
      */
     fun requestPrivilegePermission() {
-        // TODO: 实现权限请求
-        refreshPrivilegeStatus()
+        viewModelScope.launch(Dispatchers.IO) {
+            when (_privilegeStatus.value) {
+                PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> {
+                    PrivilegeHelper.openGithubPage(context, _privilegeMode.value)
+                }
+                PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> {
+                    PrivilegeHelper.openPrivilegeApp(context, _privilegeMode.value)
+                }
+                PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED,
+                PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> {
+                    when (_privilegeMode.value) {
+                        PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
+                            PrivilegeHelper.requestShizukuPermission(123)
+                        }
+                        PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
+                            PrivilegeHelper.requestDhizukuPermission(context)
+                        }
+                    }
+                }
+                else -> {}
+            }
+        }
     }
 
     /**
      * 切换权限模式
      */
     fun switchPrivilegeMode() {
-        // TODO: 实现模式切换
-        val newMode = if (_privilegeMode.value == PrivilegeHelper.PrivilegeMode.SHIZUKU) {
-            PrivilegeHelper.PrivilegeMode.DHIZUKU
-        } else {
-            PrivilegeHelper.PrivilegeMode.SHIZUKU
+        viewModelScope.launch(Dispatchers.IO) {
+            val newMode = PrivilegeHelper.switchMode(context)
+            val status = PrivilegeHelper.getStatus(context, newMode)
+            withContext(Dispatchers.Main) {
+                _privilegeMode.value = newMode
+                _privilegeStatus.value = status
+            }
         }
-        // PrivilegeHelper.setCurrentMode(context, newMode)
-        refreshPrivilegeStatus()
     }
 
     /**

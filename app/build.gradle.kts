@@ -154,6 +154,7 @@ dependencies {
     // Material Kolor - 动态主题颜色生成
     implementation(libs.material.kolor)
 
+    debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.tooling.preview)
 
     // ====== 必要依赖开始 ======

@@ -10,6 +10,7 @@ sealed class Screen(val route: String) {
     data object Shell : Screen("shell")
     data object Logs : Screen("logs")
     data object Settings : Screen("settings")
+    data object Me : Screen("me")
     data object Install : Screen("install/{uri}") {
         fun createRoute(uri: String): String = "install/${Uri.encode(uri)}"
     }

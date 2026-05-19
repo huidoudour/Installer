@@ -43,22 +43,35 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
+import io.github.huidoudour.Installer.ui.dialogs.InstallerPackageDialog
+import io.github.huidoudour.Installer.ui.theme.AppTheme
 import io.github.huidoudour.Installer.ui.theme.CardShape
 import io.github.huidoudour.Installer.ui.theme.SegmentedGap
 import io.github.huidoudour.Installer.ui.theme.SmallShape
 import io.github.huidoudour.Installer.util.PrivilegeHelper
+
+// Brand colors matching source project button tints
+private val ButtonPrimaryBlue = Color(0xFF2196F3)
+private val ButtonSecondaryGreen = Color(0xFF4CAF50)
+private val ButtonInstallTeal = Color(0xFF00BCD4)
+private val ButtonAccentOrange = Color(0xFFFF9800)
 
 @Composable
 fun InstallerScreen(
@@ -68,7 +81,8 @@ fun InstallerScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    // 状态
+    var showInstallerPackageDialog by remember { mutableStateOf(false) }
+
     val privilegeStatus: PrivilegeHelper.PrivilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
     val selectedFileName by viewModel.selectedFileName.collectAsState()
@@ -80,14 +94,12 @@ fun InstallerScreen(
     val replaceExisting by viewModel.replaceExisting.collectAsState()
     val grantPermissions by viewModel.grantPermissions.collectAsState()
 
-    // 文件选择器
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         viewModel.onFileSelected(uri)
     }
 
-    // 存储权限Launcher
     val storagePermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -96,7 +108,6 @@ fun InstallerScreen(
         }
     }
 
-    // MANAGE_EXTERNAL_STORAGE Launcher
     val manageStorageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
@@ -111,7 +122,7 @@ fun InstallerScreen(
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
-        // 授权器状态卡片
+        // Card 1: Privilege Status
         PrivilegeStatusCard(
             privilegeMode = privilegeMode,
             status = privilegeStatus,
@@ -121,7 +132,7 @@ fun InstallerScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 文件选择卡片
+        // Card 2: File Selection
         FileSelectionCard(
             selectedFileName = selectedFileName,
             fileType = fileType,
@@ -143,30 +154,36 @@ fun InstallerScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 安装操作卡片
+        // Card 3: Install Options
         InstallOptionsCard(
             enableCustomPackageName = enableCustomPackageName,
-            onEnableCustomPackageNameChange = {
-                viewModel.setEnableCustomPackageName(it)
-                viewModel.saveSwitchStates()
-            },
+            onEnableCustomPackageNameChange = { viewModel.setEnableCustomPackageName(it); viewModel.saveSwitchStates() },
             replaceExisting = replaceExisting,
-            onReplaceExistingChange = {
-                viewModel.setReplaceExisting(it)
-                viewModel.saveSwitchStates()
-            },
+            onReplaceExistingChange = { viewModel.setReplaceExisting(it); viewModel.saveSwitchStates() },
             grantPermissions = grantPermissions,
-            onGrantPermissionsChange = {
-                viewModel.setGrantPermissions(it)
-                viewModel.saveSwitchStates()
-            },
+            onGrantPermissionsChange = { viewModel.setGrantPermissions(it); viewModel.saveSwitchStates() },
             onInstall = { viewModel.install() },
-            onSwitchInstallerPackage = { },
+            onSwitchInstallerPackage = { showInstallerPackageDialog = true },
             isInstallEnabled = isInstallEnabled,
             isInstalling = isInstalling
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
+    }
+
+    if (showInstallerPackageDialog) {
+        InstallerPackageDialog(
+            context = context,
+            onDismiss = { showInstallerPackageDialog = false },
+            onConfirmed = {
+                showInstallerPackageDialog = false
+                android.widget.Toast.makeText(
+                    context,
+                    context.getString(R.string.installer_package_changed),
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
     }
 }
 
@@ -178,15 +195,15 @@ fun PrivilegeStatusCard(
     onRequestPermission: () -> Unit
 ) {
     val context = LocalContext.current
-    
+
     val statusColor = when (status) {
-        PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> MaterialTheme.colorScheme.primary
-        PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> MaterialTheme.colorScheme.tertiary
-        else -> MaterialTheme.colorScheme.error
+        PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> Color(0xFF388E3C)      // success green
+        PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> Color(0xFFFF9800)   // warning orange
+        else -> Color(0xFFD32F2F)                                             // error red
     }
-    
+
     val statusBackgroundColor by animateColorAsState(
-        targetValue = statusColor.copy(alpha = 0.15f),
+        targetValue = statusColor.copy(alpha = 0.12f),
         label = "statusBg"
     )
 
@@ -197,7 +214,7 @@ fun PrivilegeStatusCard(
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .padding(20.dp)
     ) {
-        // 标题行
+        // Title row: "Shizuku Status" / "Dhizuku Status" + Switch button
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -207,11 +224,10 @@ fun PrivilegeStatusCard(
                 text = stringResource(R.string.privilege_status_title, PrivilegeHelper.getModeName(privilegeMode)),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold
-                ),
-                color = MaterialTheme.colorScheme.primary
+                )
             )
 
-            // 切换按钮
+            // Switch button - TonalButton style matching original
             Surface(
                 shape = SmallShape,
                 color = MaterialTheme.colorScheme.secondaryContainer,
@@ -239,7 +255,7 @@ fun PrivilegeStatusCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 状态指示器
+        // Status indicator row - colored dot + status text
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = SmallShape,
@@ -253,7 +269,7 @@ fun PrivilegeStatusCard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(10.dp)
+                        .size(12.dp)
                         .clip(CircleShape)
                         .background(statusColor)
                 )
@@ -268,9 +284,7 @@ fun PrivilegeStatusCard(
                         PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> context.getString(R.string.privilege_authorized_status)
                         PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> context.getString(R.string.privilege_version_low_status)
                     },
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 14.sp
-                    ),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -278,45 +292,41 @@ fun PrivilegeStatusCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 请求权限按钮 - 使用包裹容器，使用绿色（button_secondary）
-        Card(
+        // Grant/Download/Open/Authorized button - matching source project button_secondary (green)
+        Button(
+            onClick = onRequestPermission,
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(52.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
-            )
+            enabled = status != PrivilegeHelper.PrivilegeStatus.AUTHORIZED,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ButtonSecondaryGreen,
+                contentColor = Color.White,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            contentPadding = PaddingValues(16.dp)
         ) {
-            Button(
-                onClick = onRequestPermission,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                enabled = status != PrivilegeHelper.PrivilegeStatus.AUTHORIZED,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50)  // button_secondary 绿色
-                ),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                Icon(
-                    imageVector = when (status) {
-                        PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> Icons.Default.CheckCircle
-                        else -> androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_lock)
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = when (status) {
-                        PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> context.getString(R.string.privilege_download_button, PrivilegeHelper.getModeName(privilegeMode))
-                        PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> context.getString(R.string.privilege_open_button, PrivilegeHelper.getModeName(privilegeMode))
-                        PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> context.getString(R.string.privilege_request_auth_button)
-                        PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> context.getString(R.string.privilege_authorized_button)
-                        PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> context.getString(R.string.privilege_update_button, PrivilegeHelper.getModeName(privilegeMode))
-                    },
-                    fontSize = 14.sp
-                )
-            }
+            Icon(
+                imageVector = if (status == PrivilegeHelper.PrivilegeStatus.AUTHORIZED) {
+                    Icons.Default.CheckCircle
+                } else {
+                    ImageVector.vectorResource(R.drawable.ic_lock)
+                },
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = when (status) {
+                    PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> context.getString(R.string.privilege_download_button, PrivilegeHelper.getModeName(privilegeMode))
+                    PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> context.getString(R.string.privilege_open_button, PrivilegeHelper.getModeName(privilegeMode))
+                    PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> context.getString(R.string.privilege_request_auth_button)
+                    PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> context.getString(R.string.privilege_authorized_button)
+                    PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> context.getString(R.string.privilege_update_button, PrivilegeHelper.getModeName(privilegeMode))
+                },
+                fontSize = 14.sp
+            )
         }
     }
 }
@@ -337,7 +347,7 @@ fun FileSelectionCard(
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .padding(20.dp)
     ) {
-        // 标题行
+        // Title row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -347,11 +357,10 @@ fun FileSelectionCard(
                 text = stringResource(R.string.select_package),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold
-                ),
-                color = MaterialTheme.colorScheme.primary
+                )
             )
 
-            // 刷新按钮
+            // Refresh button - TonalButton style
             Surface(
                 shape = SmallShape,
                 color = MaterialTheme.colorScheme.secondaryContainer,
@@ -366,15 +375,15 @@ fun FileSelectionCard(
                         imageVector = Icons.Default.Refresh,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
-                        tint = if (hasFile) MaterialTheme.colorScheme.onSecondaryContainer 
-                               else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
+                        tint = if (hasFile) MaterialTheme.colorScheme.onSecondaryContainer
+                        else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = stringResource(R.string.refresh),
                         fontSize = 12.sp,
-                        color = if (hasFile) MaterialTheme.colorScheme.onSecondaryContainer 
-                                else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
+                        color = if (hasFile) MaterialTheme.colorScheme.onSecondaryContainer
+                        else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
                     )
                 }
             }
@@ -382,10 +391,10 @@ fun FileSelectionCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 文件信息容器
+        // File info container
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = SmallShape,
+            shape = RoundedCornerShape(12.dp),
             color = if (hasFile) {
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
             } else {
@@ -402,28 +411,28 @@ fun FileSelectionCard(
                     imageVector = if (hasFile) Icons.Default.Star else Icons.Default.Add,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
-                    tint = if (hasFile) MaterialTheme.colorScheme.primary 
-                           else MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = if (hasFile) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.width(12.dp))
-                
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = selectedFileName ?: stringResource(R.string.no_file_selected),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 14.sp
-                        ),
-                        color = if (hasFile) MaterialTheme.colorScheme.onSurface 
-                                else MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                        color = if (hasFile) MaterialTheme.colorScheme.onSurface
+                        else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     if (fileType != null && hasFile) {
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = fileType,
                             style = MaterialTheme.typography.bodySmall.copy(
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
                             ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -432,35 +441,29 @@ fun FileSelectionCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 选择文件按钮 - 使用包裹容器，使用蓝色（button_primary）
-        Card(
+        // Select file button - matching source project button_primary (blue)
+        Button(
+            onClick = onSelectFile,
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(52.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
-            )
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ButtonPrimaryBlue,
+                contentColor = Color.White
+            ),
+            contentPadding = PaddingValues(16.dp)
         ) {
-            Button(
-                onClick = onSelectFile,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2196F3)  // button_primary 蓝色
-                ),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.select_package_file),
-                    fontSize = 14.sp
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.select_package_file),
+                fontSize = 14.sp
+            )
         }
     }
 }
@@ -485,7 +488,7 @@ fun InstallOptionsCard(
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .padding(20.dp)
     ) {
-        // 标题行
+        // Title row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -495,11 +498,10 @@ fun InstallOptionsCard(
                 text = stringResource(R.string.install_options),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.SemiBold
-                ),
-                color = MaterialTheme.colorScheme.primary
+                )
             )
 
-            // 切换安装器按钮
+            // Switch installer button - TonalButton style
             Surface(
                 shape = SmallShape,
                 color = MaterialTheme.colorScheme.secondaryContainer,
@@ -527,23 +529,11 @@ fun InstallOptionsCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 开关选项 - 使用分段列表
+        // Switch options - segmented list
         val switchItems = listOf(
-            Triple(
-                stringResource(R.string.enable_custom_package_name),
-                null as String?,
-                enableCustomPackageName
-            ),
-            Triple(
-                stringResource(R.string.replace_existing_app),
-                null as String?,
-                replaceExisting
-            ),
-            Triple(
-                stringResource(R.string.auto_grant_permissions),
-                null as String?,
-                grantPermissions
-            )
+            Triple(stringResource(R.string.enable_custom_package_name), null as String?, enableCustomPackageName),
+            Triple(stringResource(R.string.replace_existing_app), null as String?, replaceExisting),
+            Triple(stringResource(R.string.auto_grant_permissions), null as String?, grantPermissions)
         )
 
         switchItems.forEachIndexed { index, (title, subtitle, checked) ->
@@ -572,46 +562,172 @@ fun InstallOptionsCard(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 安装按钮 - 使用包裹容器，使用绿色（button_install）
-        Card(
+        // Install button - matching source project button_install (teal)
+        Button(
+            onClick = onInstall,
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(56.dp),
+            enabled = isInstallEnabled && !isInstalling,
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
-            )
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ButtonInstallTeal,
+                contentColor = Color.White,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            contentPadding = PaddingValues(16.dp)
         ) {
-            Button(
-                onClick = onInstall,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isInstallEnabled && !isInstalling,
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF009688),  // button_install 绿色
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                if (isInstalling) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (isInstalling) stringResource(R.string.installing_progress) 
-                           else stringResource(R.string.install_apk),
-                    fontSize = 15.sp
+            if (isInstalling) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
                 )
             }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (isInstalling) stringResource(R.string.installing_progress)
+                else stringResource(R.string.install_apk),
+                fontSize = 15.sp
+            )
         }
+    }
+}
+
+// ============ Compose 预览 ============
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun InstallerScreenPreview() {
+    AppTheme {
+        // 使用模拟数据预览完整的 InstallerScreen UI
+        InstallerScreenContent(
+            privilegeMode = PrivilegeHelper.PrivilegeMode.SHIZUKU,
+            privilegeStatus = PrivilegeHelper.PrivilegeStatus.AUTHORIZED,
+            selectedFileName = "example_app.apk",
+            fileType = "APK 文件",
+            isXapkFile = false,
+            isInstallEnabled = true,
+            isInstalling = false,
+            enableCustomPackageName = true,
+            replaceExisting = true,
+            grantPermissions = false,
+            onSwitchPrivilege = {},
+            onRequestPermission = {},
+            onRefresh = {},
+            onSelectFile = {},
+            onEnableCustomPackageNameChange = {},
+            onReplaceExistingChange = {},
+            onGrantPermissionsChange = {},
+            onInstall = {},
+            onSwitchInstallerPackage = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "未授权状态")
+@Composable
+fun InstallerScreenNotAuthorizedPreview() {
+    AppTheme {
+        InstallerScreenContent(
+            privilegeMode = PrivilegeHelper.PrivilegeMode.DHIZUKU,
+            privilegeStatus = PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED,
+            selectedFileName = null,
+            fileType = null,
+            isXapkFile = false,
+            isInstallEnabled = false,
+            isInstalling = false,
+            enableCustomPackageName = true,
+            replaceExisting = true,
+            grantPermissions = false,
+            onSwitchPrivilege = {},
+            onRequestPermission = {},
+            onRefresh = {},
+            onSelectFile = {},
+            onEnableCustomPackageNameChange = {},
+            onReplaceExistingChange = {},
+            onGrantPermissionsChange = {},
+            onInstall = {},
+            onSwitchInstallerPackage = {}
+        )
+    }
+}
+
+/**
+ * 可预览的 InstallerScreen 内容组件
+ * 将 UI 逻辑与 ViewModel 解耦，支持预览
+ */
+@Composable
+fun InstallerScreenContent(
+    privilegeMode: PrivilegeHelper.PrivilegeMode,
+    privilegeStatus: PrivilegeHelper.PrivilegeStatus,
+    selectedFileName: String?,
+    fileType: String?,
+    isXapkFile: Boolean,
+    isInstallEnabled: Boolean,
+    isInstalling: Boolean,
+    enableCustomPackageName: Boolean,
+    replaceExisting: Boolean,
+    grantPermissions: Boolean,
+    onSwitchPrivilege: () -> Unit,
+    onRequestPermission: () -> Unit,
+    onRefresh: () -> Unit,
+    onSelectFile: () -> Unit,
+    onEnableCustomPackageNameChange: (Boolean) -> Unit,
+    onReplaceExistingChange: (Boolean) -> Unit,
+    onGrantPermissionsChange: (Boolean) -> Unit,
+    onInstall: () -> Unit,
+    onSwitchInstallerPackage: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+    var showInstallerPackageDialog by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+    ) {
+        // Card 1: Privilege Status
+        PrivilegeStatusCard(
+            privilegeMode = privilegeMode,
+            status = privilegeStatus,
+            onSwitchPrivilege = onSwitchPrivilege,
+            onRequestPermission = onRequestPermission
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Card 2: File Selection
+        FileSelectionCard(
+            selectedFileName = selectedFileName,
+            fileType = fileType,
+            onRefresh = onRefresh,
+            onSelectFile = onSelectFile
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Card 3: Install Options
+        InstallOptionsCard(
+            enableCustomPackageName = enableCustomPackageName,
+            onEnableCustomPackageNameChange = onEnableCustomPackageNameChange,
+            replaceExisting = replaceExisting,
+            onReplaceExistingChange = onReplaceExistingChange,
+            grantPermissions = grantPermissions,
+            onGrantPermissionsChange = onGrantPermissionsChange,
+            onInstall = onInstall,
+            onSwitchInstallerPackage = onSwitchInstallerPackage,
+            isInstallEnabled = isInstallEnabled,
+            isInstalling = isInstalling
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }

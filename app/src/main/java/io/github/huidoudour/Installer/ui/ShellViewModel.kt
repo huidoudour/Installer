@@ -2,7 +2,13 @@ package io.github.huidoudour.Installer.ui
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.huidoudour.Installer.R
@@ -15,15 +21,21 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-/**
- * ShellScreen ViewModel
- */
+data class OutputSegment(
+    val text: String,
+    val color: Color,
+    val isBold: Boolean = false
+)
+
 class ShellViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context: Context get() = getApplication()
 
     private val _outputText = MutableStateFlow("")
     val outputText: StateFlow<String> = _outputText.asStateFlow()
+
+    private val _outputSegments = MutableStateFlow<List<OutputSegment>>(emptyList())
+    val outputSegments: StateFlow<List<OutputSegment>> = _outputSegments.asStateFlow()
 
     private val _commandText = MutableStateFlow("")
     val commandText: StateFlow<String> = _commandText.asStateFlow()
@@ -37,13 +49,19 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText.asStateFlow()
 
+    private val _searchResult = MutableStateFlow("")
+    val searchResult: StateFlow<String> = _searchResult.asStateFlow()
+
     private var fullOutputText = ""
+    private var fullOutputSegments = mutableListOf<OutputSegment>()
+
+    var userScrolledAwayFromBottom by mutableStateOf(false)
+    var outputLineCount by mutableStateOf(0)
 
     private var historyIndex = -1
 
     private val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
-    // Material You 颜色
     private val colorPrimary = Color(0xFF6750A4)
     private val colorOnSurface = Color(0xFF1C1B1F)
     private val colorError = Color(0xFFB3261E)
@@ -51,7 +69,22 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
     private val colorOnSurfaceVariant = Color(0xFF49454F)
 
     init {
-        appendOutput(context.getString(R.string.shell_hint), colorOnSurfaceVariant, false)
+        val isShizuku = ShellExecutor.isShizukuAvailable()
+        val welcomeSegments = mutableListOf<OutputSegment>()
+
+        welcomeSegments.add(OutputSegment("欢迎来到~终端\n", colorPrimary, true))
+        welcomeSegments.add(OutputSegment("~v2.0\n", colorOnSurfaceVariant, false))
+
+        if (isShizuku) {
+            welcomeSegments.add(OutputSegment("[*] Root mode enabled via Shizuku\n", colorPrimary, false))
+            welcomeSegments.add(OutputSegment("[*] Working directory: /data/local/tmp\n", colorPrimary, false))
+        } else {
+            welcomeSegments.add(OutputSegment("[!] User mode (grant Shizuku for root)\n", colorTertiary, false))
+            welcomeSegments.add(OutputSegment("[*] Working directory: /sdcard\n", colorPrimary, false))
+        }
+
+        welcomeSegments.add(OutputSegment("Type help for command list\n", colorOnSurfaceVariant, false))
+        appendSegments(welcomeSegments)
     }
 
     fun updateCommandText(text: String) {
@@ -63,43 +96,38 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         val command = _commandText.value.trim()
         if (command.isEmpty() || _isExecuting.value) return
 
-        // 添加到历史
         ShellExecutor.CommandHistory.addCommand(command)
         historyIndex = -1
 
-        // 显示命令
-        val prompt = if (ShellExecutor.isShizukuAvailable()) {
-            "# "
-        } else {
-            "$ "
-        }
-        appendOutput(prompt + command, colorPrimary, true)
+        val prompt = if (ShellExecutor.isShizukuAvailable()) "# " else "$ "
+        val promptSegments = listOf(OutputSegment("$prompt$command\n", colorPrimary, true))
 
-        // 清空输入
         _commandText.value = ""
         _isExecuting.value = true
+        userScrolledAwayFromBottom = false
 
-        // 执行命令
+        appendSegments(promptSegments)
+
         viewModelScope.launch(Dispatchers.IO) {
             ShellExecutor.executeCommand(command, object : ShellExecutor.ExecuteCallback {
                 override fun onOutput(line: String) {
                     viewModelScope.launch(Dispatchers.Main) {
-                        appendOutput(line, colorOnSurface, false)
+                        appendSegments(listOf(OutputSegment("$line\n", colorOnSurface, false)))
                     }
                 }
 
                 override fun onError(error: String) {
                     viewModelScope.launch(Dispatchers.Main) {
-                        appendOutput(error, colorError, false)
+                        appendSegments(listOf(OutputSegment("$error\n", colorError, false)))
                     }
                 }
 
                 override fun onComplete(exitCode: Int) {
                     viewModelScope.launch(Dispatchers.Main) {
                         if (exitCode != 0) {
-                            appendOutput("Process completed with exit code $exitCode", colorTertiary, false)
+                            appendSegments(listOf(OutputSegment(
+                                "[Process completed with exit code $exitCode]\n", colorTertiary, false)))
                         }
-                        appendOutput("", colorOnSurface, false)
                         _isExecuting.value = false
                     }
                 }
@@ -110,6 +138,9 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
     fun clearScreen() {
         _outputText.value = ""
         fullOutputText = ""
+        fullOutputSegments.clear()
+        _outputSegments.value = emptyList()
+        outputLineCount = 0
     }
 
     fun copyOutput() {
@@ -145,15 +176,16 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun insertTab() {
-        _commandText.value += "  "
+        _commandText.value += "\t"
     }
 
     fun cancelCommand() {
         if (_isExecuting.value) {
             ShellExecutor.resetSession()
-            appendOutput("^C", colorError, true)
-            appendOutput("Command cancelled, session reset", colorTertiary, false)
-            appendOutput("", colorOnSurface, false)
+            appendSegments(listOf(
+                OutputSegment("^C\n", colorError, true),
+                OutputSegment("[Command cancelled, session reset]\n", colorTertiary, false)
+            ))
             _isExecuting.value = false
         } else {
             _commandText.value = ""
@@ -164,10 +196,26 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         _commandText.value = ""
     }
 
+    fun saveOutput(context: android.content.Context): Result<java.io.File> {
+        return try {
+            val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(java.util.Date())
+            val fileName = "shell_output_$timestamp.txt"
+            val outputFile = java.io.File(context.externalCacheDir, fileName)
+            java.io.FileWriter(outputFile).use { writer ->
+                writer.write(fullOutputText)
+            }
+            Result.success(outputFile)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun toggleSearch() {
         _isSearchVisible.value = !_isSearchVisible.value
         if (!_isSearchVisible.value) {
             _searchText.value = ""
+            _searchResult.value = ""
+            _outputText.value = fullOutputText
         }
     }
 
@@ -175,6 +223,7 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         _searchText.value = text
         if (text.isEmpty()) {
             _outputText.value = fullOutputText
+            _searchResult.value = ""
         } else {
             performSearch(text)
         }
@@ -182,15 +231,66 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun performSearch(query: String) {
         val lines = fullOutputText.split("\n")
-        val filtered = lines.filter { it.lowercase().contains(query.lowercase()) }
-        _outputText.value = filtered.joinToString("\n")
+        val matchingLines = mutableListOf<String>()
+        for (line in lines) {
+            if (line.contains(query, ignoreCase = true)) {
+                matchingLines.add(line)
+            }
+        }
+        val result = matchingLines.joinToString("\n")
+        _outputText.value = result
+        _searchResult.value = result
     }
 
-    private fun appendOutput(text: String, color: Color, bold: Boolean) {
-        val timestamp = timeFormat.format(java.util.Date())
-        val coloredText = "[$timestamp] $text"
+    private fun appendSegments(segments: List<OutputSegment>) {
+        fullOutputSegments.addAll(segments)
+        for (seg in segments) {
+            fullOutputText += seg.text
+        }
 
-        fullOutputText += "$coloredText\n"
-        _outputText.value = fullOutputText
+        if (!_isSearchVisible.value) {
+            _outputText.value = fullOutputText
+        }
+
+        _outputSegments.value = fullOutputSegments.toList()
+        outputLineCount = fullOutputText.count { it == '\n' }
+    }
+
+    fun getAnnotatedOutput(): androidx.compose.ui.text.AnnotatedString {
+        return buildAnnotatedString {
+            for (segment in fullOutputSegments) {
+                withStyle(SpanStyle(
+                    color = segment.color,
+                    fontWeight = if (segment.isBold) {
+                        androidx.compose.ui.text.font.FontWeight.Bold
+                    } else {
+                        androidx.compose.ui.text.font.FontWeight.Normal
+                    }
+                )) {
+                    append(segment.text)
+                }
+            }
+        }
+    }
+
+    fun getSearchAnnotatedOutput(query: String): androidx.compose.ui.text.AnnotatedString {
+        return buildAnnotatedString {
+            for (segment in fullOutputSegments) {
+                val text = segment.text
+                if (text.contains(query, ignoreCase = true)) {
+                    withStyle(SpanStyle(
+                        color = segment.color,
+                        fontWeight = if (segment.isBold) {
+                            androidx.compose.ui.text.font.FontWeight.Bold
+                        } else {
+                            androidx.compose.ui.text.font.FontWeight.Normal
+                        },
+                        background = Color(0x40FFEB3B)
+                    )) {
+                        append(text)
+                    }
+                }
+            }
+        }
     }
 }

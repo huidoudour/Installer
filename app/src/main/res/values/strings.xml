@@ -470,6 +470,7 @@
     <string name="content_description_bookmarks">Bookmarks</string>
     <string name="content_description_search">Search</string>
     <string name="content_description_save">Save</string>
+    <string name="quick_commands">Quick Commands</string>
     <string name="hash_sign">#</string>
     <string name="user">user</string>
 

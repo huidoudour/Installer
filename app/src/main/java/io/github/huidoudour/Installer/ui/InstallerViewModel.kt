@@ -3,10 +3,12 @@ package io.github.huidoudour.Installer.ui
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.huidoudour.Installer.util.DhizukuInstallHelper
 import io.github.huidoudour.Installer.util.LogManager
 import io.github.huidoudour.Installer.util.PrivilegeHelper
 import io.github.huidoudour.Installer.util.ShizukuInstallHelper
@@ -69,9 +71,42 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val logManager = LogManager.getInstance()
 
+    private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
+        refreshPrivilegeStatus()
+    }
+
+    private val binderDeadListener = Shizuku.OnBinderDeadListener {
+        refreshPrivilegeStatus()
+    }
+
+    private val shizukuPermissionListener = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
+        if (requestCode == 123) {
+            val msg = if (grantResult == PackageManager.PERMISSION_GRANTED) "Shizuku permission granted" else "Shizuku permission denied"
+            logManager.addLog(msg)
+            refreshPrivilegeStatus()
+        }
+    }
+
     init {
         loadSwitchStates()
         refreshPrivilegeStatus()
+
+        try {
+            Shizuku.addBinderReceivedListener(binderReceivedListener)
+            Shizuku.addBinderDeadListener(binderDeadListener)
+            Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
+        } catch (e: Exception) {
+            logManager.addLog("Shizuku listener registration failed: ${e.message}")
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        try {
+            Shizuku.removeBinderReceivedListener(binderReceivedListener)
+            Shizuku.removeBinderDeadListener(binderDeadListener)
+            Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener)
+        } catch (_: Exception) {}
     }
 
     fun refreshPrivilegeStatus() {
@@ -221,46 +256,59 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
         _isInstalling.value = true
         _installProgress.value = 0
 
-        val callback = object : ShizukuInstallHelper.InstallCallback {
-            override fun onProgress(message: String) {
-                logManager.addLog(message)
-            }
-
-            override fun onSuccess(message: String) {
-                logManager.addLog(message)
-                viewModelScope.launch(Dispatchers.Main) {
-                    _isInstalling.value = false
-                    clearSelection()
-                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                }
-            }
-
-            override fun onError(error: String) {
-                logManager.addLog("Error: $error")
-                viewModelScope.launch(Dispatchers.Main) {
-                    _isInstalling.value = false
-                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
         viewModelScope.launch(Dispatchers.IO) {
-            if (_isXapkFile.value) {
-                ShizukuInstallHelper.installXapk(
-                    context,
-                    path,
-                    _replaceExisting.value,
-                    _grantPermissions.value,
-                    callback
-                )
-            } else {
-                ShizukuInstallHelper.installSingleApk(
-                    context,
-                    java.io.File(path),
-                    _replaceExisting.value,
-                    _grantPermissions.value,
-                    callback
-                )
+            val mode = _privilegeMode.value
+            when (mode) {
+                PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
+                    val callback = object : DhizukuInstallHelper.InstallCallback {
+                        override fun onProgress(message: String) { logManager.addLog(message) }
+                        override fun onSuccess(message: String) {
+                            logManager.addLog(message)
+                            viewModelScope.launch(Dispatchers.Main) {
+                                _isInstalling.value = false
+                                clearSelection()
+                                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        override fun onError(error: String) {
+                            logManager.addLog("Error: $error")
+                            viewModelScope.launch(Dispatchers.Main) {
+                                _isInstalling.value = false
+                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                    if (_isXapkFile.value) {
+                        DhizukuInstallHelper.installXapk(context, path, _replaceExisting.value, _grantPermissions.value, callback)
+                    } else {
+                        DhizukuInstallHelper.installSingleApk(context, java.io.File(path), _replaceExisting.value, _grantPermissions.value, callback)
+                    }
+                }
+                PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
+                    val callback = object : ShizukuInstallHelper.InstallCallback {
+                        override fun onProgress(message: String) { logManager.addLog(message) }
+                        override fun onSuccess(message: String) {
+                            logManager.addLog(message)
+                            viewModelScope.launch(Dispatchers.Main) {
+                                _isInstalling.value = false
+                                clearSelection()
+                                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        override fun onError(error: String) {
+                            logManager.addLog("Error: $error")
+                            viewModelScope.launch(Dispatchers.Main) {
+                                _isInstalling.value = false
+                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                    if (_isXapkFile.value) {
+                        ShizukuInstallHelper.installXapk(context, path, _replaceExisting.value, _grantPermissions.value, callback)
+                    } else {
+                        ShizukuInstallHelper.installSingleApk(context, java.io.File(path), _replaceExisting.value, _grantPermissions.value, callback)
+                    }
+                }
             }
         }
     }

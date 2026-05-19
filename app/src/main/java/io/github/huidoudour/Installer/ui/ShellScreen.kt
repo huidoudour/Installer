@@ -1,39 +1,66 @@
 package io.github.huidoudour.Installer.ui
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -41,9 +68,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.ui.theme.SmallShape
+import io.github.huidoudour.Installer.util.CommandBookmarks
+import io.github.huidoudour.Installer.util.ShellExecutor
+import kotlinx.coroutines.launch
 
 @Composable
 fun ShellScreen(
@@ -57,48 +88,152 @@ fun ShellScreen(
     val isSearchVisible: Boolean by viewModel.isSearchVisible.collectAsState()
     val searchText: String by viewModel.searchText.collectAsState()
 
+    var showHistoryDialog by remember { mutableStateOf(false) }
+    var showBookmarksDialog by remember { mutableStateOf(false) }
+    var showQuickCommandsDialog by remember { mutableStateOf(false) }
+
     val scrollState = rememberScrollState()
-    val outputScrollState = rememberScrollState()
+
+    LaunchedEffect(viewModel.outputLineCount) {
+        if (!viewModel.userScrolledAwayFromBottom) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // 页面标题
-        Text(
-            text = stringResource(R.string.title_shell),
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-        )
-
-        // 顶部工具栏
+        // Top toolbar
         TopToolbar(
-            onHistoryClick = { /* 显示历史 */ },
-            onBookmarksClick = { /* 显示书签 */ },
+            onHistoryClick = { showHistoryDialog = true },
+            onBookmarksClick = { showBookmarksDialog = true },
             onSearchClick = { viewModel.toggleSearch() },
-            onSaveClick = { /* 保存输出 */ }
+            onSaveClick = {
+                val result = viewModel.saveOutput(context)
+                if (result.isSuccess) {
+                    val file = result.getOrNull()!!
+                    try {
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(
+                                context, "${context.packageName}.provider", file
+                            ))
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, "Share Output"))
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Share failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(context, "Save failed", Toast.LENGTH_SHORT).show()
+                }
+            }
         )
 
-        // 搜索框
+        // Search bar
         if (isSearchVisible) {
             SearchInput(
                 searchText = searchText,
                 onSearchTextChange = { viewModel.updateSearchText(it) },
                 onClose = { viewModel.toggleSearch() }
             )
+            Spacer(modifier = Modifier.height(8.dp))
         }
 
-        // 命令输入区域 - 移到顶部
-        CommandInput(
-            commandText = commandText,
-            onCommandTextChange = { viewModel.updateCommandText(it) },
-            onSendCommand = { viewModel.executeCommand() },
-            isExecuting = isExecuting
-        )
+        // Terminal output (fills remaining space)
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (isSearchVisible && searchText.isNotEmpty()) {
+                        val searchTextValue = viewModel.searchResult.value
+                        val displayStr = searchTextValue.ifEmpty { outputText }
+                        androidx.compose.material3.Text(
+                            text = displayStr,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp)
+                                .verticalScroll(scrollState),
+                            style = TextStyle(
+                                fontSize = 13.sp,
+                                fontFamily = FontFamily.Monospace,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        )
+                    } else {
+                        androidx.compose.material3.Text(
+                            text = viewModel.getAnnotatedOutput(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp)
+                                .verticalScroll(scrollState),
+                            style = TextStyle(
+                                fontSize = 13.sp,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        )
+                    }
 
-        // 功能键容器 - 移到顶部
+                    // Scroll buttons overlay
+                    if (scrollState.maxValue > 0) {
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            SmallFloatingActionButton(
+                                onClick = {
+                                    kotlinx.coroutines.MainScope().launch {
+                                        scrollState.animateScrollTo(0)
+                                    }
+                                },
+                                modifier = Modifier.size(32.dp),
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                shape = CircleShape
+                            ) {
+                                Icon(
+                                    Icons.Default.KeyboardArrowUp,
+                                    contentDescription = "Scroll to top",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            SmallFloatingActionButton(
+                                onClick = {
+                                    kotlinx.coroutines.MainScope().launch {
+                                        scrollState.animateScrollTo(scrollState.maxValue)
+                                    }
+                                    viewModel.userScrolledAwayFromBottom = false
+                                },
+                                modifier = Modifier.size(32.dp),
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                shape = CircleShape
+                            ) {
+                                Icon(
+                                    Icons.Default.KeyboardArrowDown,
+                                    contentDescription = "Scroll to bottom",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Function keys
         FunctionKeysRow(
             onHistoryUp = { viewModel.navigateHistoryUp() },
             onHistoryDown = { viewModel.navigateHistoryDown() },
@@ -107,37 +242,52 @@ fun ShellScreen(
             onEsc = { viewModel.clearInput() },
             onClearScreen = { viewModel.clearScreen() },
             onCopy = { viewModel.copyOutput() },
-            onQuickCommands = { /* 快捷命令 */ }
+            onQuickCommands = { showQuickCommandsDialog = true }
         )
 
-        // 终端输出区域 - 移到底部，占据剩余空间
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Card(
-                modifier = Modifier.fillMaxSize(),
-                shape = SmallShape,
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                )
-            ) {
-                Text(
-                    text = if (outputText.isEmpty()) "$ " else outputText,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                        .verticalScroll(outputScrollState),
-                    style = TextStyle(
-                        fontSize = 13.sp,
-                        fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Command input at bottom
+        CommandInput(
+            commandText = commandText,
+            onCommandTextChange = { viewModel.updateCommandText(it) },
+            onSendCommand = { viewModel.executeCommand() },
+            isExecuting = isExecuting
+        )
+    }
+
+    // History dialog
+    if (showHistoryDialog) {
+        ShellHistoryDialog(
+            onDismiss = { showHistoryDialog = false },
+            onSelectCommand = { cmd ->
+                viewModel.updateCommandText(cmd)
+                showHistoryDialog = false
             }
-        }
+        )
+    }
+
+    // Bookmarks dialog
+    if (showBookmarksDialog) {
+        ShellBookmarksDialog(
+            context = context,
+            onDismiss = { showBookmarksDialog = false },
+            onSelectCommand = { cmd ->
+                viewModel.updateCommandText(cmd)
+                showBookmarksDialog = false
+            }
+        )
+    }
+
+    // Quick commands dialog
+    if (showQuickCommandsDialog) {
+        QuickCommandsDialog(
+            onDismiss = { showQuickCommandsDialog = false },
+            onSelectCommand = { cmd ->
+                viewModel.updateCommandText(cmd)
+                showQuickCommandsDialog = false
+            }
+        )
     }
 }
 
@@ -148,37 +298,36 @@ fun TopToolbar(
     onSearchClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-    // 使用更轻量的包裹样式
-    Column(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(4.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             ToolbarButton(
-                icon = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_shell_history),
+                iconId = R.drawable.ic_shell_history,
                 contentDescription = stringResource(R.string.content_description_history),
                 onClick = onHistoryClick
             )
             ToolbarButton(
-                icon = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_shell_bookmark),
+                iconId = R.drawable.ic_shell_bookmark,
                 contentDescription = stringResource(R.string.content_description_bookmarks),
                 onClick = onBookmarksClick
             )
             ToolbarButton(
-                icon = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_shell_search),
+                iconId = R.drawable.ic_shell_search,
                 contentDescription = stringResource(R.string.content_description_search),
                 onClick = onSearchClick
             )
             ToolbarButton(
-                icon = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_shell_save),
+                iconId = R.drawable.ic_shell_save,
                 contentDescription = stringResource(R.string.content_description_save),
                 onClick = onSaveClick
             )
@@ -188,13 +337,13 @@ fun TopToolbar(
 
 @Composable
 fun ToolbarButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconId: Int,
     contentDescription: String,
     onClick: () -> Unit
 ) {
     IconButton(onClick = onClick) {
         Icon(
-            imageVector = icon,
+            imageVector = ImageVector.vectorResource(iconId),
             contentDescription = contentDescription
         )
     }
@@ -206,13 +355,12 @@ fun SearchInput(
     onSearchTextChange: (String) -> Unit,
     onClose: () -> Unit
 ) {
-    // 使用更轻量的包裹样式
-    Column(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            .padding(horizontal = 12.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest
     ) {
         Row(
             modifier = Modifier
@@ -270,14 +418,12 @@ fun FunctionKeysRow(
     onCopy: () -> Unit,
     onQuickCommands: () -> Unit
 ) {
-    // 使用 MD3 风格的包裹容器
-    Column(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .padding(horizontal = 12.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Row(
             modifier = Modifier
@@ -287,14 +433,15 @@ fun FunctionKeysRow(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FunctionKeyButton(text = "↑", onClick = onHistoryUp)
-            FunctionKeyButton(text = "↓", onClick = onHistoryDown)
-            FunctionKeyButton(text = "TAB", onClick = onTab)
-            FunctionKeyButton(text = "^C", onClick = onCtrlC, textColor = MaterialTheme.colorScheme.error)
-            FunctionKeyButton(text = "ESC", onClick = onEsc)
-            FunctionKeyButton(text = "C", onClick = onClearScreen)
-            FunctionKeyButton(text = stringResource(R.string.clipboard), onClick = onCopy)
-            FunctionKeyButton(text = stringResource(R.string.lightning), onClick = onQuickCommands)
+            FunctionKeyButton(text = "↑", contentDescription = "Up", onClick = onHistoryUp)
+            FunctionKeyButton(text = "↓", contentDescription = "Down", onClick = onHistoryDown)
+            FunctionKeyButton(text = "TAB", contentDescription = "Tab", onClick = onTab)
+            FunctionKeyButton(text = "^C", contentDescription = "Ctrl+C", onClick = onCtrlC,
+                textColor = MaterialTheme.colorScheme.error)
+            FunctionKeyButton(text = "ESC", contentDescription = "Escape", onClick = onEsc)
+            FunctionKeyButton(text = "C", contentDescription = "Clear", onClick = onClearScreen)
+            FunctionKeyButton(text = stringResource(R.string.clipboard), contentDescription = "Clipboard", onClick = onCopy)
+            FunctionKeyButton(text = stringResource(R.string.lightning), contentDescription = "Quick Commands", onClick = onQuickCommands)
         }
     }
 }
@@ -302,8 +449,9 @@ fun FunctionKeysRow(
 @Composable
 fun FunctionKeyButton(
     text: String,
+    contentDescription: String,
     onClick: () -> Unit,
-    textColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSecondaryContainer
+    textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer
 ) {
     Button(
         onClick = onClick,
@@ -331,20 +479,19 @@ fun CommandInput(
     onSendCommand: () -> Unit,
     isExecuting: Boolean
 ) {
-    // 使用 MD3 风格的包裹容器
-    Column(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest
     ) {
         BasicTextField(
             value = commandText,
             onValueChange = onCommandTextChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(14.dp),
             textStyle = TextStyle(
                 fontSize = 15.sp,
                 fontFamily = FontFamily.Monospace,
@@ -370,4 +517,253 @@ fun CommandInput(
             }
         )
     }
+}
+
+// ============ Dialogs ============
+
+@Composable
+fun ShellHistoryDialog(
+    onDismiss: () -> Unit,
+    onSelectCommand: (String) -> Unit
+) {
+    val history = remember { ShellExecutor.CommandHistory.getAll() }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(24.dp),
+        title = {
+            Text(
+                text = stringResource(R.string.content_description_history),
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        text = {
+            if (history.isEmpty()) {
+                Text(
+                    text = "No command history",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(history.reversed()) { cmd ->
+                        Text(
+                            text = cmd,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSelectCommand(cmd) }
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
+            }
+        }
+    )
+}
+
+@Composable
+fun ShellBookmarksDialog(
+    context: android.content.Context,
+    onDismiss: () -> Unit,
+    onSelectCommand: (String) -> Unit
+) {
+    var bookmarks by remember { mutableStateOf(CommandBookmarks.getBookmarks(context)) }
+    var showAddDialog by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(24.dp),
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.content_description_bookmarks),
+                    fontWeight = FontWeight.SemiBold
+                )
+                IconButton(onClick = { showAddDialog = true }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add bookmark")
+                }
+            }
+        },
+        text = {
+            if (bookmarks.isEmpty()) {
+                Text(
+                    text = "No bookmarks saved",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(bookmarks) { cmd ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSelectCommand(cmd) }
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = cmd,
+                                modifier = Modifier.weight(1f),
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            )
+                            IconButton(
+                                onClick = {
+                                    CommandBookmarks.removeBookmark(context, cmd)
+                                    bookmarks = CommandBookmarks.getBookmarks(context)
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Remove",
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
+            }
+        }
+    )
+
+    if (showAddDialog) {
+        var newBookmark by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { showAddDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            title = { Text("Add Bookmark", fontWeight = FontWeight.SemiBold) },
+            text = {
+                BasicTextField(
+                    value = newBookmark,
+                    onValueChange = { newBookmark = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .padding(12.dp),
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    decorationBox = { innerTextField ->
+                        Box {
+                            if (newBookmark.isEmpty()) {
+                                Text(
+                                    "Enter command to bookmark...",
+                                    style = TextStyle(
+                                        fontSize = 14.sp,
+                                        fontFamily = FontFamily.Monospace,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                )
+                            }
+                            innerTextField()
+                        }
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (newBookmark.isNotBlank()) {
+                        CommandBookmarks.addBookmark(context, newBookmark.trim())
+                        bookmarks = CommandBookmarks.getBookmarks(context)
+                    }
+                    showAddDialog = false
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun QuickCommandsDialog(
+    onDismiss: () -> Unit,
+    onSelectCommand: (String) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(24.dp),
+        title = {
+            Text(
+                text = stringResource(R.string.quick_commands),
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        text = {
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                val commands = ShellExecutor.QuickCommands.COMMANDS
+                val names = ShellExecutor.QuickCommands.COMMAND_NAMES
+                items(commands.indices.toList()) { index ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelectCommand(commands[index]) }
+                            .padding(vertical = 10.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = names[index],
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = commands[index],
+                                style = TextStyle(
+                                    fontSize = 12.sp,
+                                    fontFamily = FontFamily.Monospace
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
+            }
+        }
+    )
 }

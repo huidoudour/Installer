@@ -1,11 +1,16 @@
 package io.github.huidoudour.Installer.ui
 
-import android.app.Activity
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,10 +57,14 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
+import io.github.huidoudour.Installer.ui.dialogs.InstallerPackageDialog
 import io.github.huidoudour.Installer.ui.dialogs.LanguageSelectionDialog
 import io.github.huidoudour.Installer.ui.dialogs.ThemeSelectionDialog
+import io.github.huidoudour.Installer.ui.dialogs.getInstallerPackageDisplayName
+import io.github.huidoudour.Installer.util.PrivilegeHelper
 import io.github.huidoudour.Installer.ui.theme.CardShape
 import io.github.huidoudour.Installer.ui.theme.SegmentedGap
 import io.github.huidoudour.Installer.ui.theme.SmallShape
@@ -65,24 +75,43 @@ import io.github.huidoudour.Installer.ui.theme.singleShape
 @Composable
 fun SettingsScreen(
     onThemeClick: () -> Unit = {},
+    onNavigateToMe: () -> Unit = {},
     viewModel: SettingsViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val activity = context as? Activity
-    
-    // 主题选择对话框状态
+
     var showThemeDialog by remember { mutableStateOf(false) }
-    
-    // 语言选择对话框状态
     var showLanguageDialog by remember { mutableStateOf(false) }
-    
+    var showInstallerPackageDialog by remember { mutableStateOf(false) }
+    var showPrivilegeDialog by remember { mutableStateOf(false) }
+
+    // Notification permission launcher (Android 13+)
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(context, context.getString(R.string.notification_permission_granted), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, context.getString(R.string.notification_permission_denied), Toast.LENGTH_SHORT).show()
+        }
+        // Open system notification settings regardless
+        try {
+            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Unable to open notification settings", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
-        // 设置标题
+        // Settings title
         Text(
             text = stringResource(R.string.settings_title),
             style = MaterialTheme.typography.headlineLarge.copy(
@@ -92,37 +121,61 @@ fun SettingsScreen(
             modifier = Modifier.padding(bottom = 20.dp)
         )
 
-        // 应用设置卡片
+        // App Settings card
         AppSettingsCard(
             onThemeClick = { showThemeDialog = true },
             onLanguageClick = { showLanguageDialog = true },
             onNotificationClick = {
-                // 打开系统通知设置
-                try {
-                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                // Check notification permission on Android 13+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                        != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        try {
+                            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                            }
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Unable to open notification settings", Toast.LENGTH_SHORT).show()
+                        }
                     }
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    Toast.makeText(context, "无法打开通知设置", Toast.LENGTH_SHORT).show()
+                } else {
+                    try {
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        }
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Unable to open notification settings", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
+            },
+            onInstallerPackageClick = { showInstallerPackageDialog = true }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 权限授权设置入口
-        PrivilegeSettingsCard(viewModel = viewModel)
+        // Privilege settings
+        PrivilegeSettingsCard(
+            viewModel = viewModel,
+            onClick = { showPrivilegeDialog = true }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 关于应用卡片
-        AboutAppCard(context = context)
-        
+        // About App card - with Easter egg and Me navigation
+        AboutAppCard(
+            context = context,
+            onNavigateToMe = onNavigateToMe
+        )
+
         Spacer(modifier = Modifier.height(32.dp))
     }
-    
-    // 主题选择对话框
+
+    // Theme selection dialog
     if (showThemeDialog) {
         ThemeSelectionDialog(
             currentTheme = viewModel.currentTheme.value,
@@ -130,12 +183,24 @@ fun SettingsScreen(
             onConfirm = { newTheme ->
                 viewModel.setTheme(newTheme)
                 showThemeDialog = false
-                Toast.makeText(context, "主题已切换", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Theme changed", Toast.LENGTH_SHORT).show()
             }
         )
     }
-    
-    // 语言选择对话框
+
+    // Installer package dialog
+    if (showInstallerPackageDialog) {
+        InstallerPackageDialog(
+            context = context,
+            onDismiss = { showInstallerPackageDialog = false },
+            onConfirmed = {
+                showInstallerPackageDialog = false
+                Toast.makeText(context, context.getString(R.string.installer_package_changed), Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    // Language selection dialog
     if (showLanguageDialog) {
         LanguageSelectionDialog(
             currentLanguage = viewModel.currentLanguage.value,
@@ -143,15 +208,20 @@ fun SettingsScreen(
             onConfirm = { newLanguage ->
                 viewModel.setLanguage(newLanguage)
                 showLanguageDialog = false
-                Toast.makeText(context, "语言已切换，需要重启应用", Toast.LENGTH_LONG).show()
-                // 延迟重启 Activity
-                activity?.runOnUiThread {
-                    activity.recreate()
-                }
+                Toast.makeText(context, "Language changed, restart required", Toast.LENGTH_LONG).show()
+                (context as? android.app.Activity)?.recreate()
             },
             getDisplayName = { langCode ->
                 viewModel.getLanguageDisplayName(langCode)
             }
+        )
+    }
+
+    // Privilege selection dialog
+    if (showPrivilegeDialog) {
+        PrivilegeSelectionDialog(
+            viewModel = viewModel,
+            onDismiss = { showPrivilegeDialog = false }
         )
     }
 }
@@ -160,15 +230,16 @@ fun SettingsScreen(
 private fun AppSettingsCard(
     onThemeClick: () -> Unit,
     onLanguageClick: () -> Unit,
-    onNotificationClick: () -> Unit
+    onNotificationClick: () -> Unit,
+    onInstallerPackageClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(CardShape)
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
-        // 卡片标题
         Text(
             text = stringResource(R.string.app_settings),
             style = MaterialTheme.typography.titleMedium.copy(
@@ -178,24 +249,16 @@ private fun AppSettingsCard(
             modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 12.dp)
         )
 
-        // 分段列表项
         val items = listOf(
             SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_settings),
+                icon = ImageVector.vectorResource(R.drawable.ic_palette),
                 title = stringResource(R.string.theme_settings),
                 subtitle = null,
                 colorPreview = null,
                 onClick = onThemeClick
             ),
             SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_panel_hollow),
-                title = stringResource(R.string.theme_color),
-                subtitle = stringResource(R.string.follow_wallpaper),
-                colorPreview = MaterialTheme.colorScheme.primary,
-                onClick = { /* TODO: 主题颜色选择器 */ }
-            ),
-            SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_earth),
+                icon = ImageVector.vectorResource(R.drawable.ic_language),
                 title = stringResource(R.string.language_settings),
                 subtitle = stringResource(R.string.follow_system),
                 colorPreview = null,
@@ -211,9 +274,9 @@ private fun AppSettingsCard(
             SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_package),
                 title = stringResource(R.string.current_installer_package),
-                subtitle = null,
+                subtitle = getInstallerPackageDisplayName(context),
                 colorPreview = null,
-                onClick = { /* TODO: 安装器包名设置 */ }
+                onClick = onInstallerPackageClick
             )
         )
 
@@ -225,24 +288,26 @@ private fun AppSettingsCard(
                 isLast = index == items.lastIndex
             )
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
 @Composable
-private fun PrivilegeSettingsCard(viewModel: SettingsViewModel) {
+private fun PrivilegeSettingsCard(
+    viewModel: SettingsViewModel,
+    onClick: () -> Unit
+) {
     val privilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
-    
-    // 刷新权限状态
+
     LaunchedEffect(Unit) {
         viewModel.refreshPrivilegeStatus()
     }
-    
+
     val statusText = viewModel.getStatusText(privilegeStatus)
-    val modeName = io.github.huidoudour.Installer.util.PrivilegeHelper.getModeName(privilegeMode)
-    
+    val modeName = PrivilegeHelper.getModeName(privilegeMode)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -264,31 +329,34 @@ private fun PrivilegeSettingsCard(viewModel: SettingsViewModel) {
                 title = stringResource(R.string.privilege_settings),
                 subtitle = "$modeName: $statusText",
                 colorPreview = null,
-                onClick = {
-                    // TODO: 显示权限选择对话框
-                }
+                onClick = onClick
             ),
             shape = singleShape,
             isFirst = true,
             isLast = true
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
 @Composable
-private fun AboutAppCard(context: android.content.Context) {
-    // 获取版本号
+private fun AboutAppCard(
+    context: android.content.Context,
+    onNavigateToMe: () -> Unit
+) {
     val versionName = try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         packageInfo.versionName ?: "1.0.0"
     } catch (e: Exception) {
         "1.0.0"
     }
-    
-    var showAboutDialog by remember { mutableStateOf(false) }
-    
+
+    // Easter egg: tap version 6 times within 2 seconds
+    var tapCount by remember { mutableIntStateOf(0) }
+    var lastTapTime by remember { mutableStateOf(0L) }
+    var showEasterEgg by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -304,14 +372,14 @@ private fun AboutAppCard(context: android.content.Context) {
             modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 12.dp)
         )
 
-        // 关于开发者按钮
+        // About Developer button - navigates to MeScreen
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp),
             shape = SmallShape,
             color = MaterialTheme.colorScheme.secondaryContainer,
-            onClick = { showAboutDialog = true }
+            onClick = onNavigateToMe
         ) {
             Row(
                 modifier = Modifier
@@ -337,49 +405,42 @@ private fun AboutAppCard(context: android.content.Context) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 版本信息
+        // Version info - with Easter egg
         SettingListItem(
             item = SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_version),
                 title = stringResource(R.string.app_version),
                 subtitle = versionName,
                 colorPreview = null,
-                onClick = { }
+                onClick = {
+                    val now = System.currentTimeMillis()
+                    if (now - lastTapTime < 2000) {
+                        tapCount++
+                        if (tapCount >= 6) {
+                            showEasterEgg = true
+                            tapCount = 0
+                        }
+                    } else {
+                        tapCount = 1
+                    }
+                    lastTapTime = now
+                }
             ),
             shape = singleShape,
             isFirst = true,
             isLast = true,
             showArrow = true
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
     }
-    
-    // 关于开发者对话框
-    if (showAboutDialog) {
-        AlertDialog(
-            onDismissRequest = { showAboutDialog = false },
-            title = {
-                Text(
-                    text = "关于开发者",
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Column {
-                    Text("开发者：灰豆儿")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("GitHub: github.com/huidoudour")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("感谢使用 Installer！")
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showAboutDialog = false }) {
-                    Text("确定")
-                }
-            }
-        )
+
+    // Easter egg toast
+    if (showEasterEgg) {
+        LaunchedEffect(Unit) {
+            Toast.makeText(context, "啥也没有呀", Toast.LENGTH_SHORT).show()
+            showEasterEgg = false
+        }
     }
 }
 
@@ -401,7 +462,7 @@ private fun SettingListItem(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
     val backgroundColor by animateColorAsState(
         targetValue = if (isPressed) {
             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
@@ -426,7 +487,6 @@ private fun SettingListItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 图标
             Icon(
                 imageVector = item.icon,
                 contentDescription = null,
@@ -436,26 +496,20 @@ private fun SettingListItem(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // 标题和副标题
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.title,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 15.sp
-                    )
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp)
                 )
                 if (item.subtitle != null) {
                     Text(
                         text = item.subtitle,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 13.sp
-                        ),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            // 颜色预览
             if (item.colorPreview != null) {
                 Box(
                     modifier = Modifier
@@ -466,7 +520,6 @@ private fun SettingListItem(
                 Spacer(modifier = Modifier.width(8.dp))
             }
 
-            // 箭头
             if (showArrow) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -477,11 +530,166 @@ private fun SettingListItem(
             }
         }
     }
-    
-    // 分段间隙
+
     if (!isLast) {
         Spacer(modifier = Modifier.height(SegmentedGap))
     }
+}
+
+@Composable
+private fun PrivilegeSelectionDialog(
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val privilegeStatus by viewModel.privilegeStatus.collectAsState()
+    val privilegeMode by viewModel.privilegeMode.collectAsState()
+
+    var selectedMode by remember { mutableStateOf(privilegeMode) }
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshPrivilegeStatus()
+    }
+
+    var shizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
+    var dhizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
+
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            shizukuStatus = PrivilegeHelper.checkShizukuStatus()
+            dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.select_privilege_mode),
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column {
+                // Shizuku card
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.SHIZUKU },
+                    shape = SmallShape,
+                    color = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    else MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
+                        androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    else null
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_warning),
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Shizuku", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
+                            Text(
+                                text = when (shizukuStatus) {
+                                    PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> stringResource(R.string.shizuku_connected_and_authorized)
+                                    PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> stringResource(R.string.shizuku_connected_but_not_authorized)
+                                    PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> stringResource(R.string.shizuku_not_running)
+                                    PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> stringResource(R.string.shizuku_version_too_low)
+                                    else -> stringResource(R.string.checking)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (shizukuStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
+                            TextButton(onClick = {
+                                PrivilegeHelper.requestShizukuPermission(456)
+                            }) {
+                                Text(stringResource(R.string.request_authorization))
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Dhizuku card
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.DHIZUKU },
+                    shape = SmallShape,
+                    color = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    else MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                        androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    else null
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_warning),
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Dhizuku", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
+                            Text(
+                                text = when (dhizukuStatus) {
+                                    PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> stringResource(R.string.dhizuku_connected_and_authorized)
+                                    PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> stringResource(R.string.dhizuku_connected_but_not_authorized)
+                                    PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> stringResource(R.string.dhizuku_not_running)
+                                    PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> stringResource(R.string.dhizuku_version_too_low)
+                                    else -> stringResource(R.string.checking)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (dhizukuStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
+                            TextButton(onClick = {
+                                PrivilegeHelper.requestDhizukuPermission(context)
+                            }) {
+                                Text(stringResource(R.string.request_authorization))
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                if (selectedMode != privilegeMode) {
+                    viewModel.switchPrivilegeMode()
+                }
+                onDismiss()
+            }) {
+                Text(stringResource(R.string.next_step))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable
@@ -494,7 +702,7 @@ fun SettingsSwitchItem(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
     val backgroundColor by animateColorAsState(
         targetValue = if (isPressed) {
             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
@@ -520,23 +728,19 @@ fun SettingsSwitchItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 15.sp
-                    )
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp)
                 )
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 13.sp
-                        ),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Switch(
                 checked = checked,
                 onCheckedChange = onCheckedChange
