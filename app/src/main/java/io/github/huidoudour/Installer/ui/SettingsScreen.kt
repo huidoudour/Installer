@@ -3,14 +3,18 @@ package io.github.huidoudour.Installer.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +33,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -50,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -84,6 +88,7 @@ fun SettingsScreen(
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showInstallerPackageDialog by remember { mutableStateOf(false) }
     var showPrivilegeDialog by remember { mutableStateOf(false) }
+    var showNotificationDialog by remember { mutableStateOf(false) }
 
     // Notification permission launcher (Android 13+)
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -125,34 +130,7 @@ fun SettingsScreen(
         AppSettingsCard(
             onThemeClick = { showThemeDialog = true },
             onLanguageClick = { showLanguageDialog = true },
-            onNotificationClick = {
-                // Check notification permission on Android 13+
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-                        != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    } else {
-                        try {
-                            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                            }
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Unable to open notification settings", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                } else {
-                    try {
-                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                        }
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        Toast.makeText(context, "Unable to open notification settings", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            },
+            onNotificationClick = { showNotificationDialog = true },
             onInstallerPackageClick = { showInstallerPackageDialog = true }
         )
 
@@ -172,7 +150,7 @@ fun SettingsScreen(
             onNavigateToMe = onNavigateToMe
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
     }
 
     // Theme selection dialog
@@ -184,6 +162,7 @@ fun SettingsScreen(
                 viewModel.setTheme(newTheme)
                 showThemeDialog = false
                 Toast.makeText(context, "Theme changed", Toast.LENGTH_SHORT).show()
+                (context as? android.app.Activity)?.recreate()
             }
         )
     }
@@ -224,6 +203,14 @@ fun SettingsScreen(
             onDismiss = { showPrivilegeDialog = false }
         )
     }
+
+    // Notification permission dialog
+    if (showNotificationDialog) {
+        NotificationPermissionDialog(
+            onDismiss = { showNotificationDialog = false },
+            notificationPermissionLauncher = notificationPermissionLauncher
+        )
+    }
 }
 
 @Composable
@@ -246,7 +233,7 @@ private fun AppSettingsCard(
                 fontWeight = FontWeight.SemiBold
             ),
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 12.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
         )
 
         val items = listOf(
@@ -260,7 +247,7 @@ private fun AppSettingsCard(
             SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_language),
                 title = stringResource(R.string.language_settings),
-                subtitle = stringResource(R.string.follow_system),
+                subtitle = null,
                 colorPreview = null,
                 onClick = onLanguageClick
             ),
@@ -274,7 +261,7 @@ private fun AppSettingsCard(
             SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_package),
                 title = stringResource(R.string.current_installer_package),
-                subtitle = getInstallerPackageDisplayName(context),
+                subtitle = null,
                 colorPreview = null,
                 onClick = onInstallerPackageClick
             )
@@ -289,7 +276,7 @@ private fun AppSettingsCard(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
@@ -320,7 +307,7 @@ private fun PrivilegeSettingsCard(
                 fontWeight = FontWeight.SemiBold
             ),
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 12.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
         )
 
         SettingListItem(
@@ -336,7 +323,7 @@ private fun PrivilegeSettingsCard(
             isLast = true
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
@@ -369,10 +356,10 @@ private fun AboutAppCard(
                 fontWeight = FontWeight.SemiBold
             ),
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 12.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
         )
 
-        // About Developer button - navigates to MeScreen
+        // About Developer button - click→Me, long press→DeveloperTest
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -384,12 +371,18 @@ private fun AboutAppCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = onNavigateToMe,
+                        onLongClick = {
+                            Toast.makeText(context, "啥也没有呀", Toast.LENGTH_SHORT).show()
+                        }
+                    )
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Person,
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_github),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer
@@ -432,7 +425,7 @@ private fun AboutAppCard(
             showArrow = true
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
     }
 
     // Easter egg toast
@@ -475,16 +468,18 @@ private fun SettingListItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp),
+            .padding(horizontal = 12.dp)
+            .height(56.dp),
         shape = shape,
         color = backgroundColor,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         onClick = item.onClick,
         interactionSource = interactionSource
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -499,12 +494,12 @@ private fun SettingListItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.title,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp)
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
                 )
                 if (item.subtitle != null) {
                     Text(
                         text = item.subtitle,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -535,7 +530,6 @@ private fun SettingListItem(
         Spacer(modifier = Modifier.height(SegmentedGap))
     }
 }
-
 @Composable
 private fun PrivilegeSelectionDialog(
     viewModel: SettingsViewModel,
@@ -563,6 +557,7 @@ private fun PrivilegeSelectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Text(
                 text = stringResource(R.string.select_privilege_mode),
@@ -582,7 +577,7 @@ private fun PrivilegeSelectionDialog(
                     else MaterialTheme.colorScheme.surfaceContainerLow,
                     border = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
                         androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    else null
+                    else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Row(
                         modifier = Modifier
@@ -591,10 +586,12 @@ private fun PrivilegeSelectionDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_warning),
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_shizuku),
                             contentDescription = null,
                             modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
+                                MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -634,7 +631,7 @@ private fun PrivilegeSelectionDialog(
                     else MaterialTheme.colorScheme.surfaceContainerLow,
                     border = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
                         androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    else null
+                    else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Row(
                         modifier = Modifier
@@ -642,11 +639,12 @@ private fun PrivilegeSelectionDialog(
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_warning),
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        AppIcon(
+                            packageName = "com.rosan.dhizuku",
+                            size = 40,
+                            tint = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                                MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -713,27 +711,30 @@ fun SettingsSwitchItem(
     )
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp),
         shape = SmallShape,
         color = backgroundColor,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         onClick = { onCheckedChange(!checked) },
         interactionSource = interactionSource
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp)
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
                 )
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -746,5 +747,90 @@ fun SettingsSwitchItem(
                 onCheckedChange = onCheckedChange
             )
         }
+    }
+}
+
+@Composable
+private fun NotificationPermissionDialog(
+    onDismiss: () -> Unit,
+    notificationPermissionLauncher: androidx.activity.result.ActivityResultLauncher<String>
+) {
+    val context = LocalContext.current
+    val isGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    } else {
+        true
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = {
+            Text(stringResource(R.string.notification_settings), fontWeight = FontWeight.SemiBold)
+        },
+        text = {
+            Text(
+                if (isGranted) stringResource(R.string.notification_permission_granted)
+                else stringResource(R.string.notification_permission_denied)
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                onDismiss()
+            }) {
+                Text(if (isGranted) stringResource(R.string.ok) else stringResource(R.string.grant_permission))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+/**
+ * 动态加载已安装应用的图标
+ * 优先从 PackageManager 获取真实图标，如果获取失败则显示默认图标
+ */
+@Composable
+fun AppIcon(
+    packageName: String,
+    size: Int,
+    tint: Color = Color.Unspecified
+) {
+    val context = LocalContext.current
+    val iconBitmap = remember(packageName) {
+        try {
+            val drawable = context.packageManager.getApplicationIcon(packageName)
+            val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bmp)
+            drawable.setBounds(0, 0, size, size)
+            drawable.draw(canvas)
+            bmp.asImageBitmap()
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    if (iconBitmap != null) {
+        Image(
+            bitmap = iconBitmap!!,
+            contentDescription = null,
+            modifier = Modifier.size(size.dp),
+            colorFilter = if (tint != Color.Unspecified)
+                androidx.compose.ui.graphics.ColorFilter.tint(tint)
+            else null
+        )
+    } else {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_warning),
+            contentDescription = null,
+            modifier = Modifier.size(size.dp),
+            tint = tint
+        )
     }
 }

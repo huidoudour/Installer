@@ -124,6 +124,11 @@
     <color name="button_install">#FF009688</color>
     <color name="button_install_dark">#FF00796B</color>
 
+    <!-- 按钮Tint颜色选择器 (用于MaterialButton) -->
+    <color name="button_primary_tint">@color/button_primary</color>
+    <color name="button_secondary_tint">@color/button_secondary</color>
+    <color name="button_install_tint">@color/button_install</color>
+
     <!-- 状态颜色 -->
     <color name="status_success">#FF4CAF50</color>
     <color name="status_warning">#FFFF9800</color>

@@ -46,8 +46,5 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)
 
-    //noinspection UseTomlInstead,GradleDependency
-    implementation("androidx.graphics:graphics-core:1.0.1")
-    
     debugImplementation(libs.compose.ui.tooling)
 }

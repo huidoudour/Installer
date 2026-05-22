@@ -182,15 +182,15 @@ private fun InstallDialogContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp, bottom = 12.dp)
+            .padding(top = 8.dp, bottom = 8.dp)
     ) {
-        // 圆角对话框容器 - 对应 MaterialCardView
+        // 圆角对话框容器 - 对应 MaterialCardView (cardCornerRadius=20dp, cardElevation=4dp)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            shape = RoundedCornerShape(24.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
             )
@@ -199,8 +199,7 @@ private fun InstallDialogContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
-                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
             ) {
                 // 应用信息区域 - 始终显示
                 InstallInfoHeader(state = state)
@@ -283,7 +282,7 @@ private fun InstallDialogContent(
 }
 
 /**
- * 安装信息头部 - 图标、名称、版本等信息（始终显示）
+ * 安装信息头部 - 完全匹配 dialog_install.xml 布局
  */
 @Composable
 fun InstallInfoHeader(state: InstallDialogState) {
@@ -294,43 +293,31 @@ fun InstallInfoHeader(state: InstallDialogState) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 应用图标 - 56dp，scaleType=centerInside
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(10.dp))
-            ) {
-                if (state.appIcon != null) {
-                    Image(
-                        painter = rememberDrawablePainter(drawable = state.appIcon),
-                        contentDescription = stringResource(R.string.app_icon_description),
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
+            // 应用图标 - 48dp，与原XML一致
+            Image(
+                painter = if (state.appIcon != null) {
+                    rememberDrawablePainter(drawable = state.appIcon)
                 } else {
-                    Icon(
-                        imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_package),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+                    rememberDrawablePainter(drawable = androidx.core.content.ContextCompat.getDrawable(
+                        androidx.compose.ui.platform.LocalContext.current,
+                        android.R.drawable.sym_def_app_icon
+                    ))
+                },
+                contentDescription = stringResource(R.string.app_icon_description),
+                modifier = Modifier
+                    .size(48.dp)
+                    .padding(end = 16.dp),
+                contentScale = ContentScale.Fit
+            )
             
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            // 应用名称
+            // 应用名称 - 22sp, bold
             Text(
                 text = state.appName.ifEmpty { stringResource(R.string.unknown_app) },
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                ),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -338,92 +325,71 @@ fun InstallInfoHeader(state: InstallDialogState) {
             )
         }
         
-        // 应用信息区域 - 加载完成后展开显示
-        AnimatedVisibility(
-            visible = state.isInfoLoaded,
-            enter = expandVertically(
-                animationSpec = tween(durationMillis = 300),
-                expandFrom = Alignment.Top
-            ) + fadeIn(animationSpec = tween(durationMillis = 300)),
-            exit = shrinkVertically(
-                animationSpec = tween(durationMillis = 300),
-                shrinkTowards = Alignment.Top
-            ) + fadeOut(animationSpec = tween(durationMillis = 300))
+        // 应用信息区域 - 居中显示
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
+            // 包名 - 14sp
+            Text(
+                text = "包名：${state.packageName.ifEmpty { "com.example.app" }}",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            // 当前版本 - 14sp
+            Text(
+                text = "当前版本：${state.installedVersion.ifEmpty { "1.0.0" }}",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+            
+            // 下箭头
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = stringResource(R.string.arrow_down),
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // 包名
-                Text(
-                    text = stringResource(R.string.package_name_label) + state.packageName,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 15.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
-                
-                // 当前版本
-                Text(
-                    text = stringResource(R.string.current_version) + state.installedVersion.ifEmpty { stringResource(R.string.not_installed) },
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 15.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center
-                )
-                
-                // 下箭头
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = stringResource(R.string.arrow_down),
-                    modifier = Modifier
-                        .size(28.dp)
-                        .padding(vertical = 6.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                
-                // 升级版本
-                Text(
-                    text = stringResource(R.string.upgrade_version) + state.version,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 15.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
-                
-                // 最低SDK
-                Text(
-                    text = stringResource(R.string.min_sdk) + state.minSdk,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 15.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 6.dp)
-                )
-                
-                // 目标SDK
-                Text(
-                    text = stringResource(R.string.target_sdk) + state.targetSdk,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 15.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
+                    .size(24.dp)
+                    .padding(vertical = 4.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            // 升级版本 - 14sp
+            Text(
+                text = "升级版本：${state.version.ifEmpty { "1.1.0" }}",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            // 最低SDK - 14sp
+            Text(
+                text = "最低SDK：${state.minSdk.ifEmpty { "21" }}",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            
+            // 目标SDK - 14sp
+            Text(
+                text = "目标SDK：${state.targetSdk.ifEmpty { "34" }}",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
 
 /**
- * 安装确认按钮区域
+ * 安装确认按钮区域 - 完全匹配 dialog_install.xml 布局
  */
 @Composable
 fun InstallButtons(
@@ -436,72 +402,72 @@ fun InstallButtons(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 安装按钮
+        // 安装按钮 - 48dp高度，圆角16dp
         Button(
             onClick = onInstall,
             enabled = isInstallEnabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
+                .height(48.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                containerColor = Color(0xFF4CAF50),  // button_secondary green
+                contentColor = Color.White
             ),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-            contentPadding = PaddingValues(16.dp)
+            contentPadding = PaddingValues(0.dp)
         ) {
             Text(
-                text = if (state.isUpgrade) stringResource(R.string.upgrade) else stringResource(R.string.install),
-                fontSize = 15.sp,
+                text = stringResource(R.string.install),
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
         }
         
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
-        // 按钮行：权限和取消 - 成对按钮，等高显示，高度52dp
+        // 按钮行：权限和取消 - 等高48dp
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            // 权限按钮 - 使用蓝色（button_primary），圆角12dp
+            // 权限按钮 - 圆角12dp
             Button(
                 onClick = onPrivilege,
                 modifier = Modifier
                     .weight(1f)
-                    .height(52.dp),
+                    .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = Color(0xFF2196F3),  // button_primary blue
                     contentColor = Color.White
                 ),
-                contentPadding = PaddingValues(16.dp)
+                contentPadding = PaddingValues(0.dp)
             ) {
                 Text(
                     text = stringResource(R.string.privilege),
-                    fontSize = 15.sp
+                    fontSize = 14.sp
                 )
             }
             
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             
             // 取消按钮 - OutlinedButton，圆角12dp，边框2dp
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier
                     .weight(1f)
-                    .height(52.dp),
+                    .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = 2.dp,
                     color = MaterialTheme.colorScheme.outline
                 ),
-                contentPadding = PaddingValues(16.dp)
+                contentPadding = PaddingValues(0.dp)
             ) {
                 Text(
                     text = stringResource(R.string.cancel),
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -510,7 +476,7 @@ fun InstallButtons(
 }
 
 /**
- * 安装进度按钮区域
+ * 安装进度按钮区域 - 完全匹配 dialog_install.xml 布局
  */
 @Composable
 fun InstallingButtons(
@@ -518,36 +484,35 @@ fun InstallingButtons(
     onCancel: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxWidth()
     ) {
-        // 线性进度条
+        // 线性进度条 - trackThickness=8dp, trackCornerRadius=4dp
         LinearProgressIndicator(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 20.dp),
+                .padding(bottom = 16.dp),
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
             strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
             gapSize = 0.dp
         )
         
-        // 取消按钮 - OutlinedButton，圆角16dp，边框2dp，高度52dp
+        // 取消按钮 - OutlinedButton，圆角16dp，边框2dp，高度48dp
         OutlinedButton(
             onClick = onCancel,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
+                .height(48.dp),
             shape = RoundedCornerShape(16.dp),
             border = BorderStroke(
                 width = 2.dp,
                 color = MaterialTheme.colorScheme.outline
             ),
-            contentPadding = PaddingValues(16.dp)
+            contentPadding = PaddingValues(0.dp)
         ) {
             Text(
                 text = stringResource(R.string.cancel),
-                fontSize = 15.sp,
+                fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -555,7 +520,7 @@ fun InstallingButtons(
 }
 
 /**
- * 安装完成按钮区域
+ * 安装完成按钮区域 - 完全匹配 dialog_install.xml 布局
  */
 @Composable
 fun CompletionButtons(
@@ -564,33 +529,32 @@ fun CompletionButtons(
     onBack: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxWidth()
     ) {
-        // 打开应用按钮 - 单个按钮全宽显示，使用蓝色（button_primary），圆角16dp，高度52dp
+        // 打开应用按钮 - 48dp高度，圆角16dp
         Button(
             onClick = onOpenApp,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
+                .height(48.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                containerColor = Color(0xFF2196F3),  // button_primary_tint blue
+                contentColor = Color.White
             ),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-            contentPadding = PaddingValues(16.dp)
+            contentPadding = PaddingValues(0.dp)
         ) {
             Text(
                 text = stringResource(R.string.open_app),
-                fontSize = 15.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
         }
         
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
-        // 按钮行：返回和完成 - 成对按钮，等高显示，高度52dp
+        // 按钮行：返回和完成 - 等高48dp
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -600,39 +564,39 @@ fun CompletionButtons(
                 onClick = onBack,
                 modifier = Modifier
                     .weight(1f)
-                    .height(52.dp),
+                    .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     width = 2.dp,
                     color = MaterialTheme.colorScheme.outline
                 ),
-                contentPadding = PaddingValues(16.dp)
+                contentPadding = PaddingValues(0.dp)
             ) {
                 Text(
                     text = stringResource(R.string.back),
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
             
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             
-            // 完成按钮 - 使用绿色（button_secondary），圆角12dp
+            // 完成按钮 - 圆角12dp
             Button(
                 onClick = onFinish,
                 modifier = Modifier
                     .weight(1f)
-                    .height(52.dp),
+                    .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = Color(0xFF4CAF50),  // button_secondary_tint green
                     contentColor = Color.White
                 ),
-                contentPadding = PaddingValues(16.dp)
+                contentPadding = PaddingValues(0.dp)
             ) {
                 Text(
                     text = stringResource(R.string.finish),
-                    fontSize = 15.sp
+                    fontSize = 14.sp
                 )
             }
         }
@@ -839,116 +803,195 @@ private fun InstallPrivilegeDialog(
 ) {
     var selectedMode by remember { mutableStateOf(currentMode) }
 
-    // 检查两个权限状态
+    // 检查两个权限状态和获取图标
     var shizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
     var dhizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
+    var shizukuIcon by remember { mutableStateOf<Drawable?>(null) }
+    var dhizukuIcon by remember { mutableStateOf<Drawable?>(null) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             shizukuStatus = PrivilegeHelper.checkShizukuStatus()
             dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
+            
+            // 动态获取已安装授权器的图标
+            try {
+                val pm = context.packageManager
+                val shizukuInfo = pm.getPackageInfo("moe.shizuku.privileged.api", 0)
+                shizukuIcon = shizukuInfo.applicationInfo?.loadIcon(pm)
+            } catch (e: Exception) {
+                shizukuIcon = null
+            }
+            
+            try {
+                val pm = context.packageManager
+                val dhizukuInfo = pm.getPackageInfo("com.rosan.dhizuku", 0)
+                dhizukuIcon = dhizukuInfo.applicationInfo?.loadIcon(pm)
+            } catch (e: Exception) {
+                dhizukuIcon = null
+            }
         }
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = stringResource(R.string.select_privilege_mode),
-                fontWeight = FontWeight.Bold
-            )
-        },
+        containerColor = Color.Transparent,
+        tonalElevation = 0.dp,
         text = {
-            Column {
-                // Shizuku 卡片
-                Surface(
+            // 最外层容器 - 与InstallDialogContent一致
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 8.dp)
+            ) {
+                // 圆角对话框容器 - 与InstallDialogContent一致
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.SHIZUKU },
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                    else MaterialTheme.colorScheme.surfaceContainerLow,
-                    border = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
-                        BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    else null
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    // Card内部容器 - 与InstallDialogContent一致
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
                     ) {
-                        Icon(
-                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_warning),
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        // 标题
+                        Text(
+                            text = stringResource(R.string.select_privilege_mode),
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(bottom = 16.dp)
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Shizuku",
-                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-                            )
-                            Text(
-                                text = getPrivilegeStatusText(shizukuStatus),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                        
+                        // Shizuku 卡片
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.SHIZUKU },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            else MaterialTheme.colorScheme.surfaceContainerLow,
+                            border = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
+                                BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                            else null
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // 动态显示图标或使用默认图标
+                                Image(
+                                    painter = if (shizukuIcon != null) {
+                                        rememberDrawablePainter(drawable = shizukuIcon!!)
+                                    } else {
+                                        rememberDrawablePainter(drawable = androidx.core.content.ContextCompat.getDrawable(
+                                            context,
+                                            R.drawable.ic_warning
+                                        ))
+                                    },
+                                    contentDescription = "Shizuku",
+                                    modifier = Modifier.size(40.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Shizuku",
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                    Text(
+                                        text = getPrivilegeStatusText(shizukuStatus),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                         }
-                    }
-                }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                // Dhizuku 卡片
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.DHIZUKU },
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                    else MaterialTheme.colorScheme.surfaceContainerLow,
-                    border = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
-                        BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    else null
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = androidx.compose.ui.graphics.vector.ImageVector.vectorResource(R.drawable.ic_warning),
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Dhizuku",
-                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-                            )
-                            Text(
-                                text = getPrivilegeStatusText(dhizukuStatus),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                        // Dhizuku 卡片
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.DHIZUKU },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            else MaterialTheme.colorScheme.surfaceContainerLow,
+                            border = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                                BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                            else null
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // 动态显示图标或使用默认图标
+                                Image(
+                                    painter = if (dhizukuIcon != null) {
+                                        rememberDrawablePainter(drawable = dhizukuIcon!!)
+                                    } else {
+                                        rememberDrawablePainter(drawable = androidx.core.content.ContextCompat.getDrawable(
+                                            context,
+                                            R.drawable.ic_warning
+                                        ))
+                                    },
+                                    contentDescription = "Dhizuku",
+                                    modifier = Modifier.size(40.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Dhizuku",
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                    Text(
+                                        text = getPrivilegeStatusText(dhizukuStatus),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // 按钮行
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(onClick = onDismiss) {
+                                Text(stringResource(R.string.cancel))
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = { onModeSelected(selectedMode) },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF2196F3),
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text(stringResource(R.string.next_step))
+                            }
                         }
                     }
                 }
             }
         },
-        confirmButton = {
-            TextButton(onClick = { onModeSelected(selectedMode) }) {
-                Text(stringResource(R.string.next_step))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
+        confirmButton = {},
+        dismissButton = {}
     )
 }
 

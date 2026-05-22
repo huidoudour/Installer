@@ -33,8 +33,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -57,12 +55,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.ui.dialogs.InstallerPackageDialog
 import io.github.huidoudour.Installer.ui.theme.AppTheme
-import io.github.huidoudour.Installer.ui.theme.CardShape
 import io.github.huidoudour.Installer.ui.theme.SegmentedGap
 import io.github.huidoudour.Installer.ui.theme.SmallShape
 import io.github.huidoudour.Installer.util.PrivilegeHelper
@@ -73,6 +69,10 @@ private val ButtonSecondaryGreen = Color(0xFF4CAF50)
 private val ButtonInstallTeal = Color(0xFF00BCD4)
 private val ButtonAccentOrange = Color(0xFFFF9800)
 
+/**
+ * InstallerScreen - 主安装界面
+ * 包含三张卡片：权限状态、文件选择、安装选项
+ */
 @Composable
 fun InstallerScreen(
     onThemeClick: () -> Unit = {},
@@ -116,59 +116,65 @@ fun InstallerScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(horizontal = 16.dp, vertical = 16.dp)
+    // MD3 背景包裹，恢复原有样式
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        // Card 1: Privilege Status
-        PrivilegeStatusCard(
-            privilegeMode = privilegeMode,
-            status = privilegeStatus,
-            onSwitchPrivilege = { viewModel.switchPrivilegeMode() },
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(16.dp)
+        ) {
+            // Card 1: Privilege Status
+            PrivilegeStatusCard(
+                privilegeMode = privilegeMode,
+                status = privilegeStatus,
+                onSwitchPrivilege = { viewModel.switchPrivilegeMode() },
             onRequestPermission = { viewModel.requestPrivilegePermission() }
-        )
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Card 2: File Selection
-        FileSelectionCard(
-            selectedFileName = selectedFileName,
-            fileType = fileType,
-            onRefresh = { viewModel.refreshFileInfo() },
-            onSelectFile = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    if (Environment.isExternalStorageManager()) {
-                        filePickerLauncher.launch("*/*")
+            // Card 2: File Selection
+            FileSelectionCard(
+                selectedFileName = selectedFileName,
+                fileType = fileType,
+                onSelectFile = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        if (Environment.isExternalStorageManager()) {
+                            filePickerLauncher.launch("*/*")
+                        } else {
+                            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                            intent.data = Uri.parse("package:${context.packageName}")
+                            manageStorageLauncher.launch(intent)
+                        }
                     } else {
-                        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                        intent.data = Uri.parse("package:${context.packageName}")
-                        manageStorageLauncher.launch(intent)
+                        storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                     }
-                } else {
-                    storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-            }
-        )
+                },
+                onRefreshFileInfo = { viewModel.refreshFileInfo() }
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Card 3: Install Options
-        InstallOptionsCard(
-            enableCustomPackageName = enableCustomPackageName,
-            onEnableCustomPackageNameChange = { viewModel.setEnableCustomPackageName(it); viewModel.saveSwitchStates() },
-            replaceExisting = replaceExisting,
-            onReplaceExistingChange = { viewModel.setReplaceExisting(it); viewModel.saveSwitchStates() },
-            grantPermissions = grantPermissions,
-            onGrantPermissionsChange = { viewModel.setGrantPermissions(it); viewModel.saveSwitchStates() },
-            onInstall = { viewModel.install() },
-            onSwitchInstallerPackage = { showInstallerPackageDialog = true },
-            isInstallEnabled = isInstallEnabled,
-            isInstalling = isInstalling
-        )
+            // Card 3: Install Options
+            InstallOptionsCard(
+                enableCustomPackageName = enableCustomPackageName,
+                onEnableCustomPackageNameChange = { viewModel.setEnableCustomPackageName(it); viewModel.saveSwitchStates() },
+                replaceExisting = replaceExisting,
+                onReplaceExistingChange = { viewModel.setReplaceExisting(it); viewModel.saveSwitchStates() },
+                grantPermissions = grantPermissions,
+                onGrantPermissionsChange = { viewModel.setGrantPermissions(it); viewModel.saveSwitchStates() },
+                onInstall = { viewModel.install() },
+                onSwitchInstallerPackage = { showInstallerPackageDialog = true },
+                isInstallEnabled = isInstallEnabled,
+                isInstalling = isInstalling
+            )
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 
     if (showInstallerPackageDialog) {
@@ -210,11 +216,9 @@ fun PrivilegeStatusCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(CardShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .padding(20.dp)
+            .padding(horizontal = 16.dp)
     ) {
-        // Title row: "Shizuku Status" / "Dhizuku Status" + Switch button
+        // Title row: "%s Status" / "%s Status" + Switch button
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -253,7 +257,7 @@ fun PrivilegeStatusCard(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Status indicator row - colored dot + status text
         Surface(
@@ -290,7 +294,7 @@ fun PrivilegeStatusCard(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Grant/Download/Open/Authorized button - matching source project button_secondary (green)
         Button(
@@ -335,61 +339,59 @@ fun PrivilegeStatusCard(
 fun FileSelectionCard(
     selectedFileName: String?,
     fileType: String?,
-    onRefresh: () -> Unit,
-    onSelectFile: () -> Unit
+    onSelectFile: () -> Unit,
+    onRefreshFileInfo: () -> Unit
 ) {
     val hasFile = selectedFileName != null
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(CardShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .padding(20.dp)
+            .padding(horizontal = 16.dp)
     ) {
-        // Title row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.select_package),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            // Refresh button - TonalButton style
-            Surface(
-                shape = SmallShape,
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                onClick = onRefresh,
-                enabled = hasFile
+        // Title row with refresh button (matching original btnRefreshFile)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Text(
+                    text = stringResource(R.string.select_package),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+
+                // Refresh button - TonalButton style matching original
+                Surface(
+                    shape = SmallShape,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    onClick = onRefreshFileInfo,
+                    enabled = hasFile
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = if (hasFile) MaterialTheme.colorScheme.onSecondaryContainer
-                        else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(R.string.refresh),
-                        fontSize = 12.sp,
-                        color = if (hasFile) MaterialTheme.colorScheme.onSecondaryContainer
-                        else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = if (hasFile) MaterialTheme.colorScheme.onSecondaryContainer
+                            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.refresh),
+                            fontSize = 12.sp,
+                            color = if (hasFile) MaterialTheme.colorScheme.onSecondaryContainer
+                            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                        )
+                    }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
         // File info container
         Surface(
@@ -439,7 +441,7 @@ fun FileSelectionCard(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Select file button - matching source project button_primary (blue)
         Button(
@@ -484,9 +486,7 @@ fun InstallOptionsCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(CardShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .padding(20.dp)
+            .padding(horizontal = 16.dp)
     ) {
         // Title row
         Row(
@@ -527,7 +527,7 @@ fun InstallOptionsCard(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Switch options - segmented list
         val switchItems = listOf(
@@ -560,7 +560,7 @@ fun InstallOptionsCard(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Install button - matching source project button_install (teal)
         Button(
@@ -597,137 +597,5 @@ fun InstallOptionsCard(
                 fontSize = 15.sp
             )
         }
-    }
-}
-
-// ============ Compose 预览 ============
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun InstallerScreenPreview() {
-    AppTheme {
-        // 使用模拟数据预览完整的 InstallerScreen UI
-        InstallerScreenContent(
-            privilegeMode = PrivilegeHelper.PrivilegeMode.SHIZUKU,
-            privilegeStatus = PrivilegeHelper.PrivilegeStatus.AUTHORIZED,
-            selectedFileName = "example_app.apk",
-            fileType = "APK 文件",
-            isXapkFile = false,
-            isInstallEnabled = true,
-            isInstalling = false,
-            enableCustomPackageName = true,
-            replaceExisting = true,
-            grantPermissions = false,
-            onSwitchPrivilege = {},
-            onRequestPermission = {},
-            onRefresh = {},
-            onSelectFile = {},
-            onEnableCustomPackageNameChange = {},
-            onReplaceExistingChange = {},
-            onGrantPermissionsChange = {},
-            onInstall = {},
-            onSwitchInstallerPackage = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "未授权状态")
-@Composable
-fun InstallerScreenNotAuthorizedPreview() {
-    AppTheme {
-        InstallerScreenContent(
-            privilegeMode = PrivilegeHelper.PrivilegeMode.DHIZUKU,
-            privilegeStatus = PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED,
-            selectedFileName = null,
-            fileType = null,
-            isXapkFile = false,
-            isInstallEnabled = false,
-            isInstalling = false,
-            enableCustomPackageName = true,
-            replaceExisting = true,
-            grantPermissions = false,
-            onSwitchPrivilege = {},
-            onRequestPermission = {},
-            onRefresh = {},
-            onSelectFile = {},
-            onEnableCustomPackageNameChange = {},
-            onReplaceExistingChange = {},
-            onGrantPermissionsChange = {},
-            onInstall = {},
-            onSwitchInstallerPackage = {}
-        )
-    }
-}
-
-/**
- * 可预览的 InstallerScreen 内容组件
- * 将 UI 逻辑与 ViewModel 解耦，支持预览
- */
-@Composable
-fun InstallerScreenContent(
-    privilegeMode: PrivilegeHelper.PrivilegeMode,
-    privilegeStatus: PrivilegeHelper.PrivilegeStatus,
-    selectedFileName: String?,
-    fileType: String?,
-    isXapkFile: Boolean,
-    isInstallEnabled: Boolean,
-    isInstalling: Boolean,
-    enableCustomPackageName: Boolean,
-    replaceExisting: Boolean,
-    grantPermissions: Boolean,
-    onSwitchPrivilege: () -> Unit,
-    onRequestPermission: () -> Unit,
-    onRefresh: () -> Unit,
-    onSelectFile: () -> Unit,
-    onEnableCustomPackageNameChange: (Boolean) -> Unit,
-    onReplaceExistingChange: (Boolean) -> Unit,
-    onGrantPermissionsChange: (Boolean) -> Unit,
-    onInstall: () -> Unit,
-    onSwitchInstallerPackage: () -> Unit
-) {
-    val scrollState = rememberScrollState()
-    var showInstallerPackageDialog by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(horizontal = 16.dp, vertical = 16.dp)
-    ) {
-        // Card 1: Privilege Status
-        PrivilegeStatusCard(
-            privilegeMode = privilegeMode,
-            status = privilegeStatus,
-            onSwitchPrivilege = onSwitchPrivilege,
-            onRequestPermission = onRequestPermission
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Card 2: File Selection
-        FileSelectionCard(
-            selectedFileName = selectedFileName,
-            fileType = fileType,
-            onRefresh = onRefresh,
-            onSelectFile = onSelectFile
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Card 3: Install Options
-        InstallOptionsCard(
-            enableCustomPackageName = enableCustomPackageName,
-            onEnableCustomPackageNameChange = onEnableCustomPackageNameChange,
-            replaceExisting = replaceExisting,
-            onReplaceExistingChange = onReplaceExistingChange,
-            grantPermissions = grantPermissions,
-            onGrantPermissionsChange = onGrantPermissionsChange,
-            onInstall = onInstall,
-            onSwitchInstallerPackage = onSwitchInstallerPackage,
-            isInstallEnabled = isInstallEnabled,
-            isInstalling = isInstalling
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }

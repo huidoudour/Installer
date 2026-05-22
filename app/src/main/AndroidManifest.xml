@@ -84,9 +84,10 @@
             android:windowSoftInputMode="adjustResize"
             android:noHistory="true"
             android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true">
-            <!-- 注册为安装器，处理APK安装请求 -->
-            <intent-filter>
+            android:finishOnTaskLaunch="true"
+            android:taskAffinity="">
+            <!-- 注册为安装器，处理APK安装请求 - 设置高优先级 -->
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -96,7 +97,7 @@
             </intent-filter>
             
             <!-- 支持 XAPK/APKS/APKM 格式 -->
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="file" />
@@ -107,7 +108,7 @@
             </intent-filter>
             
             <!-- 支持分享功能 (SEND action) -->
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/vnd.android.package-archive" />
@@ -124,6 +125,12 @@
             android:name=".ui.theme.ColorPickerActivity"
             android:exported="false"
             android:theme="@style/Theme.Installer.Dialog" />
+
+        <!-- 我页面 Activity -->
+        <activity
+            android:name=".ui.MeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Installer" />
 
         <!-- Shizuku provider -->
         <provider
@@ -145,21 +152,15 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!--
-        <meta-data
-                android:name="io.github.huidoudour.zjs"
-                android:value="true" />
-        <meta-data
-                android:name="me.huidoudour.core"
-                android:value="true" />
-        -->
-
         <meta-data
                 android:name="io.github.huidoudour.zjs.version"
                 android:value="26" />
         <meta-data
                 android:name="me.huidoudour.core.version"
                 android:value="27" />
+        <meta-data
+                android:name="Release"
+                android:value="true" />
     </application>
 
 </manifest>

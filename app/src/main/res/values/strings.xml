@@ -36,6 +36,9 @@
     <string name="app_settings">App Settings</string>
     <string name="theme_settings">Theme</string>
     <string name="theme_color">Theme Color</string>
+    <string name="theme_follow_system">Follow System</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="theme_dark">Dark Theme</string>
     <string name="follow_wallpaper">Follow Wallpaper</string>
     <string name="light_theme">Light Theme</string>
     <string name="dark_theme">Dark Theme</string>

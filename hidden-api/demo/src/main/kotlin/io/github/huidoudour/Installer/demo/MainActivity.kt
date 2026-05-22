@@ -365,16 +365,3 @@ fun getApiEntries(): List<ApiEntry> {
         )
     )
 }
-
-@Preview(showBackground = true)
-@Composable
-fun HiddenApiDemoPreview() {
-    MaterialTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.surface
-        ) {
-            HiddenApiDemoScreen()
-        }
-    }
-}

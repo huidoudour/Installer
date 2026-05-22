@@ -6,16 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import io.github.huidoudour.Installer.R
 
 data class InstallerPackageOption(
@@ -67,18 +66,23 @@ fun InstallerPackageDialog(
     val currentPackage = getCurrentInstallerPackage(context)
     var selectedPackage by remember { mutableStateOf(currentPackage) }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(24.dp),
-        title = {
-            Text(
-                text = stringResource(R.string.installer_package_settings),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp
-            )
-        },
-        text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 6.dp
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = stringResource(R.string.installer_package_settings),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
                 installerOptions.forEachIndexed { index, option ->
                     Row(
                         modifier = Modifier
@@ -113,20 +117,25 @@ fun InstallerPackageDialog(
                         )
                     }
                 }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                saveInstallerPackage(context, selectedPackage)
-                onConfirmed(selectedPackage)
-            }) {
-                Text(stringResource(R.string.ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(onClick = {
+                        saveInstallerPackage(context, selectedPackage)
+                        onConfirmed(selectedPackage)
+                    }) {
+                        Text(stringResource(R.string.ok))
+                    }
+                }
             }
         }
-    )
+    }
 }

@@ -12,7 +12,7 @@ android {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
-        versionCode = 557 //版本代码
+        versionCode = 657 //版本代码
         versionName = "6.5.7-alpha" //版本名称
         
         // 启用NDK - 配置C++共享库编译
