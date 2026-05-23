@@ -58,12 +58,31 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     private val _isInstalling = MutableStateFlow(false)
     val isInstalling: StateFlow<Boolean> = _isInstalling.asStateFlow()
 
+    private val _installCompleted = MutableStateFlow(false)
+    val installCompleted: StateFlow<Boolean> = _installCompleted.asStateFlow()
+
     private val _installProgress = MutableStateFlow(0)
     val installProgress: StateFlow<Int> = _installProgress.asStateFlow()
 
     private val _enableCustomPackageName = MutableStateFlow(true)
     val enableCustomPackageName: StateFlow<Boolean> = _enableCustomPackageName.asStateFlow()
 
+    // 安装器包名选项
+    data class InstallerPackageOption(
+        val packageName: String,
+        val displayName: String
+    )
+
+    val installerPackageOptions = listOf(
+        InstallerPackageOption("io.github.huidoudour.Installer", "Installer"),
+        InstallerPackageOption("me.huidoudour.core", "Huidoudour Core"),
+        InstallerPackageOption("io.github.huidoudour.zjs", "ZJS")
+    )
+
+    private val _selectedInstallerPackage = MutableStateFlow("io.github.huidoudour.Installer")
+    val selectedInstallerPackage: StateFlow<String> = _selectedInstallerPackage.asStateFlow()
+
+    // replaceExisting 固定为 true，grantPermissions 固定为 false
     private val _replaceExisting = MutableStateFlow(true)
     val replaceExisting: StateFlow<Boolean> = _replaceExisting.asStateFlow()
 
@@ -175,6 +194,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                 val fileName = getFileNameFromUri(uri)
                 withContext(Dispatchers.Main) {
                     _selectedFileName.value = fileName
+                    _installCompleted.value = false
                 }
 
                 val path = getFilePathFromUri(uri)
@@ -267,6 +287,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                             logManager.addLog(message)
                             viewModelScope.launch(Dispatchers.Main) {
                                 _isInstalling.value = false
+                                _installCompleted.value = true
                                 clearSelection()
                                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                             }
@@ -292,6 +313,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                             logManager.addLog(message)
                             viewModelScope.launch(Dispatchers.Main) {
                                 _isInstalling.value = false
+                                _installCompleted.value = true
                                 clearSelection()
                                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                             }
@@ -331,27 +353,31 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun loadSwitchStates() {
         _enableCustomPackageName.value = prefs.getBoolean("enable_custom_package_name", true)
-        _replaceExisting.value = prefs.getBoolean("replace_existing_app", true)
-        _grantPermissions.value = prefs.getBoolean("auto_grant_permissions", false)
+        // replaceExisting 和 grantPermissions 固定值，不从 prefs 加载
+        _replaceExisting.value = true
+        _grantPermissions.value = false
+        // 加载安装器包名选择
+        val savedPackage = prefs.getString("installer_package", "")?.ifEmpty { "io.github.huidoudour.Installer" } ?: "io.github.huidoudour.Installer"
+        _selectedInstallerPackage.value = savedPackage
     }
 
     fun saveSwitchStates() {
         prefs.edit()
             .putBoolean("enable_custom_package_name", _enableCustomPackageName.value)
-            .putBoolean("replace_existing_app", _replaceExisting.value)
-            .putBoolean("auto_grant_permissions", _grantPermissions.value)
+            .putString("installer_package", _selectedInstallerPackage.value)
             .apply()
     }
 
     fun setEnableCustomPackageName(value: Boolean) {
         _enableCustomPackageName.value = value
+        if (!value) {
+            // 关闭时固定为 com.android.shell（install helper 中已处理）
+        }
+        saveSwitchStates()
     }
 
-    fun setReplaceExisting(value: Boolean) {
-        _replaceExisting.value = value
-    }
-
-    fun setGrantPermissions(value: Boolean) {
-        _grantPermissions.value = value
+    fun setSelectedInstallerPackage(packageName: String) {
+        _selectedInstallerPackage.value = packageName
+        saveSwitchStates()
     }
 }

@@ -9,7 +9,10 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,15 +31,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -90,9 +95,9 @@ fun InstallerScreen(
     val isXapkFile by viewModel.isXapkFile.collectAsState()
     val isInstallEnabled by viewModel.isInstallEnabled.collectAsState()
     val isInstalling by viewModel.isInstalling.collectAsState()
+    val installCompleted by viewModel.installCompleted.collectAsState()
     val enableCustomPackageName by viewModel.enableCustomPackageName.collectAsState()
-    val replaceExisting by viewModel.replaceExisting.collectAsState()
-    val grantPermissions by viewModel.grantPermissions.collectAsState()
+    val selectedInstallerPackage by viewModel.selectedInstallerPackage.collectAsState()
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -154,7 +159,11 @@ fun InstallerScreen(
                         storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                     }
                 },
-                onRefreshFileInfo = { viewModel.refreshFileInfo() }
+                onRefreshFileInfo = { viewModel.refreshFileInfo() },
+                onInstall = { viewModel.install() },
+                isInstallEnabled = isInstallEnabled,
+                isInstalling = isInstalling,
+                installCompleted = installCompleted
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -162,15 +171,16 @@ fun InstallerScreen(
             // Card 3: Install Options
             InstallOptionsCard(
                 enableCustomPackageName = enableCustomPackageName,
-                onEnableCustomPackageNameChange = { viewModel.setEnableCustomPackageName(it); viewModel.saveSwitchStates() },
-                replaceExisting = replaceExisting,
-                onReplaceExistingChange = { viewModel.setReplaceExisting(it); viewModel.saveSwitchStates() },
-                grantPermissions = grantPermissions,
-                onGrantPermissionsChange = { viewModel.setGrantPermissions(it); viewModel.saveSwitchStates() },
-                onInstall = { viewModel.install() },
-                onSwitchInstallerPackage = { showInstallerPackageDialog = true },
-                isInstallEnabled = isInstallEnabled,
-                isInstalling = isInstalling
+                onEnableCustomPackageNameChange = { enabled ->
+                    viewModel.setEnableCustomPackageName(enabled)
+                    val pkg = if (enabled) selectedInstallerPackage else "com.android.shell"
+                    android.widget.Toast.makeText(
+                        context,
+                        context.getString(R.string.custom_package_name_setting_changed, pkg),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                },
+                onSwitchInstallerPackage = { showInstallerPackageDialog = true }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -183,6 +193,7 @@ fun InstallerScreen(
             onDismiss = { showInstallerPackageDialog = false },
             onConfirmed = {
                 showInstallerPackageDialog = false
+                viewModel.setSelectedInstallerPackage(it)
                 android.widget.Toast.makeText(
                     context,
                     context.getString(R.string.installer_package_changed),
@@ -241,13 +252,6 @@ fun PrivilegeStatusCard(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = stringResource(R.string.switch_privilege),
                         fontSize = 12.sp,
@@ -263,6 +267,7 @@ fun PrivilegeStatusCard(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = SmallShape,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             color = statusBackgroundColor
         ) {
             Row(
@@ -311,16 +316,6 @@ fun PrivilegeStatusCard(
             ),
             contentPadding = PaddingValues(16.dp)
         ) {
-            Icon(
-                imageVector = if (status == PrivilegeHelper.PrivilegeStatus.AUTHORIZED) {
-                    Icons.Default.CheckCircle
-                } else {
-                    ImageVector.vectorResource(R.drawable.ic_lock)
-                },
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = when (status) {
                     PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> context.getString(R.string.privilege_download_button, PrivilegeHelper.getModeName(privilegeMode))
@@ -340,7 +335,11 @@ fun FileSelectionCard(
     selectedFileName: String?,
     fileType: String?,
     onSelectFile: () -> Unit,
-    onRefreshFileInfo: () -> Unit
+    onRefreshFileInfo: () -> Unit,
+    onInstall: () -> Unit,
+    isInstallEnabled: Boolean,
+    isInstalling: Boolean,
+    installCompleted: Boolean = false
 ) {
     val hasFile = selectedFileName != null
 
@@ -373,14 +372,6 @@ fun FileSelectionCard(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = if (hasFile) MaterialTheme.colorScheme.onSecondaryContainer
-                            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = stringResource(R.string.refresh),
                             fontSize = 12.sp,
@@ -395,8 +386,11 @@ fun FileSelectionCard(
 
         // File info container
         Surface(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             color = if (hasFile) {
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
             } else {
@@ -456,15 +450,49 @@ fun FileSelectionCard(
             ),
             contentPadding = PaddingValues(16.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = stringResource(R.string.select_package_file),
                 fontSize = 14.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Install button - green when ready, blue after complete
+        val installButtonColor = when {
+            installCompleted -> ButtonPrimaryBlue
+            isInstallEnabled -> ButtonSecondaryGreen
+            else -> MaterialTheme.colorScheme.surfaceVariant
+        }
+        Button(
+            onClick = onInstall,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            enabled = isInstallEnabled && !isInstalling,
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = installButtonColor,
+                contentColor = Color.White,
+                disabledContainerColor = if (installCompleted) ButtonPrimaryBlue.copy(alpha = 0.5f)
+                    else MaterialTheme.colorScheme.surfaceVariant,
+                disabledContentColor = if (installCompleted) Color.White.copy(alpha = 0.7f)
+                    else MaterialTheme.colorScheme.onSurfaceVariant
+            ),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            if (isInstalling) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Text(
+                text = if (isInstalling) stringResource(R.string.installing_progress)
+                else stringResource(R.string.install_apk),
+                fontSize = 15.sp
             )
         }
     }
@@ -474,14 +502,7 @@ fun FileSelectionCard(
 fun InstallOptionsCard(
     enableCustomPackageName: Boolean,
     onEnableCustomPackageNameChange: (Boolean) -> Unit,
-    replaceExisting: Boolean,
-    onReplaceExistingChange: (Boolean) -> Unit,
-    grantPermissions: Boolean,
-    onGrantPermissionsChange: (Boolean) -> Unit,
-    onInstall: () -> Unit,
-    onSwitchInstallerPackage: () -> Unit,
-    isInstallEnabled: Boolean,
-    isInstalling: Boolean
+    onSwitchInstallerPackage: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -511,13 +532,6 @@ fun InstallOptionsCard(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = stringResource(R.string.switch_installer_package),
                         fontSize = 12.sp,
@@ -529,72 +543,96 @@ fun InstallOptionsCard(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Switch options - segmented list
-        val switchItems = listOf(
-            Triple(stringResource(R.string.enable_custom_package_name), null as String?, enableCustomPackageName),
-            Triple(stringResource(R.string.replace_existing_app), null as String?, replaceExisting),
-            Triple(stringResource(R.string.auto_grant_permissions), null as String?, grantPermissions)
-        )
-
-        switchItems.forEachIndexed { index, (title, subtitle, checked) ->
-            val isChecked = when (title) {
-                stringResource(R.string.enable_custom_package_name) -> enableCustomPackageName
-                stringResource(R.string.replace_existing_app) -> replaceExisting
-                else -> grantPermissions
-            }
-            val onCheckedChange: (Boolean) -> Unit = when (title) {
-                stringResource(R.string.enable_custom_package_name) -> onEnableCustomPackageNameChange
-                stringResource(R.string.replace_existing_app) -> onReplaceExistingChange
-                else -> onGrantPermissionsChange
-            }
-
-            SettingsSwitchItem(
-                title = title,
-                subtitle = subtitle,
-                checked = isChecked,
-                onCheckedChange = onCheckedChange
-            )
-
-            if (index < switchItems.lastIndex) {
-                Spacer(modifier = Modifier.height(SegmentedGap))
+        // Switch options - bordered container with horizontal dividers
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column {
+                SwitchRow(
+                    title = stringResource(R.string.enable_custom_package_name),
+                    checked = enableCustomPackageName,
+                    onCheckedChange = onEnableCustomPackageNameChange
+                )
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline
+                )
+                // 替换现有应用 — 锁定开启
+                SwitchRow(
+                    title = stringResource(R.string.replace_existing_app),
+                    checked = true,
+                    onCheckedChange = {},
+                    enabled = false
+                )
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline
+                )
+                // 自动授予权限 — 锁定关闭
+                SwitchRow(
+                    title = stringResource(R.string.auto_grant_permissions),
+                    checked = false,
+                    onCheckedChange = {},
+                    enabled = false
+                )
             }
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(16.dp))
+/**
+ * SwitchRow - 单个开关行，用于 InstallOptionsCard 的分段容器内
+ */
+@Composable
+private fun SwitchRow(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
 
-        // Install button - matching source project button_install (teal)
-        Button(
-            onClick = onInstall,
+    val backgroundColor by animateColorAsState(
+        targetValue = if (!enabled) {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        } else if (isPressed) {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        label = "switchRowBg"
+    )
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        shape = RoundedCornerShape(0.dp),
+        color = backgroundColor,
+        onClick = { if (enabled) onCheckedChange(!checked) }
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
-            enabled = isInstallEnabled && !isInstalling,
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = ButtonInstallTeal,
-                contentColor = Color.White,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
-            contentPadding = PaddingValues(16.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isInstalling) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = if (isInstalling) stringResource(R.string.installing_progress)
-                else stringResource(R.string.install_apk),
-                fontSize = 15.sp
+                text = title,
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                color = if (enabled) MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Switch(
+                checked = checked,
+                onCheckedChange = { if (enabled) onCheckedChange(it) },
+                enabled = enabled
             )
         }
     }

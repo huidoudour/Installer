@@ -2,6 +2,7 @@ package io.github.huidoudour.Installer.ui
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -15,8 +16,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -103,160 +109,169 @@ fun ShellScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Top toolbar
-        TopToolbar(
-            onHistoryClick = { showHistoryDialog = true },
-            onBookmarksClick = { showBookmarksDialog = true },
-            onSearchClick = { viewModel.toggleSearch() },
-            onSaveClick = {
-                val result = viewModel.saveOutput(context)
-                if (result.isSuccess) {
-                    val file = result.getOrNull()!!
-                    try {
-                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(
-                                context, "${context.packageName}.provider", file
-                            ))
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-                        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share_output_title)))
-                    } catch (e: Exception) {
-                        Toast.makeText(context, context.getString(R.string.share_failed, e.message), Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(context, context.getString(R.string.save_failed), Toast.LENGTH_SHORT).show()
-                }
-            }
-        )
-
-        // Search bar
-        if (isSearchVisible) {
-            SearchInput(
-                searchText = searchText,
-                onSearchTextChange = { viewModel.updateSearchText(it) },
-                onClose = { viewModel.toggleSearch() }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(
+                WindowInsets.ime.exclude(WindowInsets.navigationBars)
             )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        // Terminal output (fills remaining space)
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            ) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    if (isSearchVisible && searchText.isNotEmpty()) {
-                        val searchTextValue = viewModel.searchResult.value
-                        val displayStr = searchTextValue.ifEmpty { outputText }
-                        androidx.compose.material3.Text(
-                            text = displayStr,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(12.dp)
-                                .verticalScroll(scrollState),
-                            style = TextStyle(
-                                fontSize = 13.sp,
-                                fontFamily = FontFamily.Monospace,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
-                    } else {
-                        androidx.compose.material3.Text(
-                            text = viewModel.getAnnotatedOutput(),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(12.dp)
-                                .verticalScroll(scrollState),
-                            style = TextStyle(
-                                fontSize = 13.sp,
-                                fontFamily = FontFamily.Monospace
-                            )
-                        )
-                    }
-
-                    // Scroll buttons overlay
-                    if (scrollState.maxValue > 0) {
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            SmallFloatingActionButton(
-                                onClick = {
-                                    kotlinx.coroutines.MainScope().launch {
-                                        scrollState.animateScrollTo(0)
-                                    }
-                                },
-                                modifier = Modifier.size(32.dp),
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                shape = CircleShape
-                            ) {
-                                Icon(
-                                    Icons.Default.KeyboardArrowUp,
-                                    contentDescription = stringResource(R.string.scroll_to_top),
-                                    modifier = Modifier.size(18.dp)
-                                )
+            // Top toolbar
+            TopToolbar(
+                onHistoryClick = { showHistoryDialog = true },
+                onBookmarksClick = { showBookmarksDialog = true },
+                onSearchClick = { viewModel.toggleSearch() },
+                onSaveClick = {
+                    val result = viewModel.saveOutput(context)
+                    if (result.isSuccess) {
+                        val file = result.getOrNull()!!
+                        try {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(
+                                    context, "${context.packageName}.provider", file
+                                ))
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             }
-                            SmallFloatingActionButton(
-                                onClick = {
-                                    kotlinx.coroutines.MainScope().launch {
-                                        scrollState.animateScrollTo(scrollState.maxValue)
-                                    }
-                                    viewModel.userScrolledAwayFromBottom = false
-                                },
-                                modifier = Modifier.size(32.dp),
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                shape = CircleShape
-                            ) {
-                                Icon(
-                                    Icons.Default.KeyboardArrowDown,
-                                    contentDescription = stringResource(R.string.scroll_to_bottom),
-                                    modifier = Modifier.size(18.dp)
+                            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share_output_title)))
+                        } catch (e: Exception) {
+                            Toast.makeText(context, context.getString(R.string.share_failed, e.message), Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.save_failed), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
+
+            // Search bar
+            if (isSearchVisible) {
+                SearchInput(
+                    searchText = searchText,
+                    onSearchTextChange = { viewModel.updateSearchText(it) },
+                    onClose = { viewModel.toggleSearch() }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Terminal output (fills remaining space)
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        if (isSearchVisible && searchText.isNotEmpty()) {
+                            val searchTextValue = viewModel.searchResult.value
+                            val displayStr = searchTextValue.ifEmpty { outputText }
+                            androidx.compose.material3.Text(
+                                text = displayStr,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp)
+                                    .verticalScroll(scrollState),
+                                style = TextStyle(
+                                    fontSize = 13.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
+                            )
+                        } else {
+                            androidx.compose.material3.Text(
+                                text = viewModel.getAnnotatedOutput(),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp)
+                                    .verticalScroll(scrollState),
+                                style = TextStyle(
+                                    fontSize = 13.sp,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            )
+                        }
+
+                        // Scroll buttons overlay
+                        if (scrollState.maxValue > 0) {
+                            Column(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                SmallFloatingActionButton(
+                                    onClick = {
+                                        kotlinx.coroutines.MainScope().launch {
+                                            scrollState.animateScrollTo(0)
+                                        }
+                                    },
+                                    modifier = Modifier.size(32.dp),
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    shape = CircleShape
+                                ) {
+                                    Icon(
+                                        Icons.Default.KeyboardArrowUp,
+                                        contentDescription = stringResource(R.string.scroll_to_top),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                                SmallFloatingActionButton(
+                                    onClick = {
+                                        kotlinx.coroutines.MainScope().launch {
+                                            scrollState.animateScrollTo(scrollState.maxValue)
+                                        }
+                                        viewModel.userScrolledAwayFromBottom = false
+                                    },
+                                    modifier = Modifier.size(32.dp),
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    shape = CircleShape
+                                ) {
+                                    Icon(
+                                        Icons.Default.KeyboardArrowDown,
+                                        contentDescription = stringResource(R.string.scroll_to_bottom),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Function keys
+            FunctionKeysRow(
+                onHistoryUp = { viewModel.navigateHistoryUp() },
+                onHistoryDown = { viewModel.navigateHistoryDown() },
+                onTab = { viewModel.insertTab() },
+                onCtrlC = { viewModel.cancelCommand() },
+                onEsc = { viewModel.clearInput() },
+                onClearScreen = { viewModel.clearScreen() },
+                onCopy = { viewModel.copyOutput() },
+                onQuickCommands = { showQuickCommandsDialog = true }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Command input at bottom
+            CommandInput(
+                commandText = commandText,
+                onCommandTextChange = { viewModel.updateCommandText(it) },
+                onSendCommand = { viewModel.executeCommand() },
+                isExecuting = isExecuting
+            )
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Function keys
-        FunctionKeysRow(
-            onHistoryUp = { viewModel.navigateHistoryUp() },
-            onHistoryDown = { viewModel.navigateHistoryDown() },
-            onTab = { viewModel.insertTab() },
-            onCtrlC = { viewModel.cancelCommand() },
-            onEsc = { viewModel.clearInput() },
-            onClearScreen = { viewModel.clearScreen() },
-            onCopy = { viewModel.copyOutput() },
-            onQuickCommands = { showQuickCommandsDialog = true }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Command input at bottom
-        CommandInput(
-            commandText = commandText,
-            onCommandTextChange = { viewModel.updateCommandText(it) },
-            onSendCommand = { viewModel.executeCommand() },
-            isExecuting = isExecuting
-        )
     }
 
     // History dialog
@@ -306,6 +321,7 @@ fun TopToolbar(
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 6.dp),
         shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Row(
@@ -363,6 +379,7 @@ fun SearchInput(
             .fillMaxWidth()
             .padding(horizontal = 12.dp),
         shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         color = MaterialTheme.colorScheme.surfaceContainerHighest
     ) {
         Row(
@@ -426,6 +443,7 @@ fun FunctionKeysRow(
             .fillMaxWidth()
             .padding(horizontal = 12.dp),
         shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Row(
@@ -487,6 +505,7 @@ fun CommandInput(
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 6.dp),
         shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         color = MaterialTheme.colorScheme.surfaceContainerHighest
     ) {
         BasicTextField(
