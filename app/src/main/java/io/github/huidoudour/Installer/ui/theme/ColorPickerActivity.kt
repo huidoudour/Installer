@@ -46,6 +46,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import io.github.huidoudour.Installer.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -186,7 +188,7 @@ fun ColorPickerDialog(
             ) {
                 // 标题
                 Text(
-                    text = "Theme Color",
+                    text = stringResource(R.string.theme_color_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -212,12 +214,12 @@ fun ColorPickerDialog(
                 ) {
                     Column {
                         Text(
-                            text = "Follow Wallpaper",
+                            text = stringResource(R.string.follow_wallpaper_option),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = if (isDynamic) "Dynamic color enabled" else "Using custom color",
+                            text = if (isDynamic) stringResource(R.string.dynamic_color_enabled) else stringResource(R.string.using_custom_color),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -236,7 +238,7 @@ fun ColorPickerDialog(
                 // 预设颜色网格
                 if (!isDynamic) {
                     Text(
-                        text = "Preset Colors",
+                        text = stringResource(R.string.preset_colors_title),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.align(Alignment.Start)
@@ -280,14 +282,14 @@ fun ColorPickerDialog(
                             modifier = Modifier.weight(1f).fillMaxHeight(),
                             shape = RoundedCornerShape(4.dp)
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                         Button(
                             onClick = { onColorSelected(selectedColor) },
                             modifier = Modifier.weight(1f).fillMaxHeight(),
                             shape = RoundedCornerShape(4.dp)
                         ) {
-                            Text("Apply")
+                            Text(stringResource(R.string.apply_button))
                         }
                     }
                 }
@@ -324,7 +326,7 @@ fun ColorItem(
         if (isSelected) {
             Icon(
                 painter = painterResource(id = android.R.drawable.checkbox_on_background),
-                contentDescription = "Selected",
+                contentDescription = stringResource(R.string.selected_content_description),
                 tint = Color.White,
                 modifier = Modifier.size(20.dp)
             )

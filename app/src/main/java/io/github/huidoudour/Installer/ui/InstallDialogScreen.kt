@@ -73,6 +73,7 @@ import androidx.palette.graphics.Palette
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.util.DhizukuInstallHelper
+import io.github.huidoudour.Installer.util.LogManager
 import io.github.huidoudour.Installer.util.PrivilegeHelper
 import io.github.huidoudour.Installer.util.ShizukuInstallHelper
 import kotlinx.coroutines.Dispatchers
@@ -334,7 +335,7 @@ fun InstallInfoHeader(state: InstallDialogState) {
         ) {
             // 包名 - 14sp
             Text(
-                text = "包名：${state.packageName.ifEmpty { "com.example.app" }}",
+                text = stringResource(R.string.package_name_label_colon) + (state.packageName.ifEmpty { stringResource(R.string.default_package_name) }),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -343,7 +344,7 @@ fun InstallInfoHeader(state: InstallDialogState) {
             
             // 当前版本 - 14sp
             Text(
-                text = "当前版本：${state.installedVersion.ifEmpty { "1.0.0" }}",
+                text = stringResource(R.string.current_version_label) + state.installedVersion,
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
@@ -361,7 +362,7 @@ fun InstallInfoHeader(state: InstallDialogState) {
             
             // 升级版本 - 14sp
             Text(
-                text = "升级版本：${state.version.ifEmpty { "1.1.0" }}",
+                text = stringResource(R.string.upgrade_version_label) + state.version,
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
@@ -370,7 +371,7 @@ fun InstallInfoHeader(state: InstallDialogState) {
             
             // 最低SDK - 14sp
             Text(
-                text = "最低SDK：${state.minSdk.ifEmpty { "21" }}",
+                text = stringResource(R.string.min_sdk_label) + state.minSdk,
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -379,7 +380,7 @@ fun InstallInfoHeader(state: InstallDialogState) {
             
             // 目标SDK - 14sp
             Text(
-                text = "目标SDK：${state.targetSdk.ifEmpty { "34" }}",
+                text = stringResource(R.string.target_sdk_label) + state.targetSdk,
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -655,11 +656,11 @@ private fun parseApkInfo(context: Context, uri: Uri): ApkInfo? {
         
         val appInfo = packageInfo.applicationInfo ?: return null
         val appName = appInfo.loadLabel(pm).toString()
-        val versionName = packageInfo.versionName ?: "Unknown"
+        val versionName = packageInfo.versionName ?: context.getString(R.string.unknown)
         val versionCode = packageInfo.longVersionCode
         val minSdk = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             appInfo.minSdkVersion.toString()
-        } else "N/A"
+        } else context.getString(R.string.not_available)
         val targetSdk = appInfo.targetSdkVersion.toString()
         val icon = try {
             appInfo.loadIcon(pm)
@@ -684,7 +685,7 @@ private fun parseApkInfo(context: Context, uri: Uri): ApkInfo? {
         }
         
         val installedVersion = installedPkg?.let {
-            "${it.versionName ?: "Unknown"} (${it.longVersionCode})"
+            "${it.versionName ?: context.getString(R.string.unknown)} (${it.longVersionCode})"
         } ?: ""
         
         ApkInfo(
@@ -716,24 +717,29 @@ private fun performRealInstallation(
     onError: (String) -> Unit
 ) {
     if (filePath == null) {
-        onError("Cannot access install file")
+        onError(context.getString(R.string.cannot_access_install_file))
         return
     }
 
     val isXapk = io.github.huidoudour.Installer.util.XapkInstaller.isXapkFile(filePath)
+
+    val logManager = LogManager.getInstance()
 
     when (mode) {
         PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
             val callback = object : ShizukuInstallHelper.InstallCallback {
                 override fun onProgress(message: String) {
                     Log.d("InstallDialog", message)
+                    logManager.addLog(message, "Dialog")
                 }
                 override fun onSuccess(message: String) {
                     Log.d("InstallDialog", message)
+                    logManager.addLog(message, "Dialog")
                     onSuccess()
                 }
                 override fun onError(error: String) {
                     Log.e("InstallDialog", error)
+                    logManager.addLog("Error: $error", "Dialog")
                     onError(error)
                 }
             }
@@ -747,13 +753,16 @@ private fun performRealInstallation(
             val callback = object : DhizukuInstallHelper.InstallCallback {
                 override fun onProgress(message: String) {
                     Log.d("InstallDialog", message)
+                    logManager.addLog(message, "Dialog")
                 }
                 override fun onSuccess(message: String) {
                     Log.d("InstallDialog", message)
+                    logManager.addLog(message, "Dialog")
                     onSuccess()
                 }
                 override fun onError(error: String) {
                     Log.e("InstallDialog", error)
+                    logManager.addLog("Error: $error", "Dialog")
                     onError(error)
                 }
             }
@@ -897,14 +906,14 @@ private fun InstallPrivilegeDialog(
                                             R.drawable.ic_warning
                                         ))
                                     },
-                                    contentDescription = "Shizuku",
+                                    contentDescription = stringResource(R.string.shizuku),
                                     modifier = Modifier.size(40.dp),
                                     contentScale = ContentScale.Fit
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "Shizuku",
+                                        text = stringResource(R.string.shizuku),
                                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                                     )
                                     Text(
@@ -945,14 +954,14 @@ private fun InstallPrivilegeDialog(
                                             R.drawable.ic_warning
                                         ))
                                     },
-                                    contentDescription = "Dhizuku",
+                                    contentDescription = stringResource(R.string.dhizuku),
                                     modifier = Modifier.size(40.dp),
                                     contentScale = ContentScale.Fit
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "Dhizuku",
+                                        text = stringResource(R.string.dhizuku),
                                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                                     )
                                     Text(
@@ -995,13 +1004,14 @@ private fun InstallPrivilegeDialog(
     )
 }
 
+@Composable
 private fun getPrivilegeStatusText(status: PrivilegeHelper.PrivilegeStatus?): String {
     return when (status) {
-        PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> "Authorized"
-        PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> "Not Authorized"
-        PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> "Not Installed"
-        PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> "Not Running"
-        PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> "Version Too Low"
-        null -> "Checking..."
+        PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> stringResource(R.string.privilege_status_authorized)
+        PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> stringResource(R.string.privilege_status_not_authorized)
+        PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> stringResource(R.string.privilege_status_not_installed)
+        PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> stringResource(R.string.privilege_status_not_running)
+        PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> stringResource(R.string.privilege_status_version_too_low)
+        null -> stringResource(R.string.checking)
     }
 }

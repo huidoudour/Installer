@@ -95,7 +95,7 @@ object LanguageManager {
             LANGUAGE_FOLLOW_SYSTEM -> context.getString(io.github.huidoudour.Installer.R.string.follow_system)
             LANGUAGE_SIMPLIFIED_CHINESE -> context.getString(io.github.huidoudour.Installer.R.string.simplified_chinese)
             LANGUAGE_TRADITIONAL_CHINESE -> "繁體中文"
-            LANGUAGE_HONGKONG_CHINESE -> "繁體中文（香港）"
+            LANGUAGE_HONGKONG_CHINESE -> context.getString(io.github.huidoudour.Installer.R.string.lang_name_meow)
             LANGUAGE_ENGLISH -> "English"
             LANGUAGE_JAPANESE -> "日本語"
             LANGUAGE_RUSSIAN -> "Русский"
@@ -111,7 +111,7 @@ object LanguageManager {
             LANGUAGE_FOLLOW_SYSTEM to "System Default",
             LANGUAGE_SIMPLIFIED_CHINESE to "简体中文",
             LANGUAGE_TRADITIONAL_CHINESE to "繁體中文",
-            LANGUAGE_HONGKONG_CHINESE to "繁體中文（香港）",
+            LANGUAGE_HONGKONG_CHINESE to "喵語中文",
             LANGUAGE_ENGLISH to "English",
             LANGUAGE_JAPANESE to "日本語",
             LANGUAGE_RUSSIAN to "Русский"

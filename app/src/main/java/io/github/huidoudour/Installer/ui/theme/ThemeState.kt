@@ -86,3 +86,35 @@ val LocalThemeStateHolder = compositionLocalOf<ThemeStateHolder> {
 val LocalColorScheme = compositionLocalOf<androidx.compose.material3.ColorScheme> {
     error("No ColorScheme provided")
 }
+
+/**
+ * 全局主题状态存储 — 跨 Compose 树和 Activity 共享
+ * 用于解决 AppTheme 与 ThemeManager 之间的状态同步问题
+ */
+object GlobalThemeStore {
+    private val _themeMode = mutableStateOf(ThemeMode.SYSTEM)
+    val themeMode: ThemeMode get() = _themeMode.value
+
+    var onThemeChanged: ((ThemeMode) -> Unit)? = null
+
+    fun setThemeMode(mode: ThemeMode) {
+        _themeMode.value = mode
+        onThemeChanged?.invoke(mode)
+    }
+
+    /** 从 ThemeManager 同步到 Compose */
+    fun syncFromThemeManager(themeValue: Int) {
+        _themeMode.value = when (themeValue) {
+            1 -> ThemeMode.LIGHT   // THEME_LIGHT
+            2 -> ThemeMode.DARK    // THEME_DARK
+            else -> ThemeMode.SYSTEM
+        }
+    }
+
+    /** 同步到 ThemeManager */
+    fun themeValueForManager(): Int = when (_themeMode.value) {
+        ThemeMode.LIGHT -> 1
+        ThemeMode.DARK -> 2
+        ThemeMode.SYSTEM -> -1
+    }
+}

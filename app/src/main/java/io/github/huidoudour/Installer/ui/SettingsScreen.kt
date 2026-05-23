@@ -67,18 +67,19 @@ import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.ui.dialogs.InstallerPackageDialog
 import io.github.huidoudour.Installer.ui.dialogs.LanguageSelectionDialog
 import io.github.huidoudour.Installer.ui.dialogs.ThemeSelectionDialog
-import io.github.huidoudour.Installer.ui.dialogs.getInstallerPackageDisplayName
+import io.github.huidoudour.Installer.ui.dialogs.getCurrentInstallerPackage
 import io.github.huidoudour.Installer.util.PrivilegeHelper
 import io.github.huidoudour.Installer.ui.theme.CardShape
+import io.github.huidoudour.Installer.ui.theme.GlobalThemeStore
 import io.github.huidoudour.Installer.ui.theme.SegmentedGap
 import io.github.huidoudour.Installer.ui.theme.SmallShape
+import io.github.huidoudour.Installer.ui.theme.ThemeMode
 import io.github.huidoudour.Installer.ui.theme.segmentedShape
 import io.github.huidoudour.Installer.ui.theme.singleShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onThemeClick: () -> Unit = {},
     onNavigateToMe: () -> Unit = {},
     viewModel: SettingsViewModel = viewModel()
 ) {
@@ -89,6 +90,16 @@ fun SettingsScreen(
     var showInstallerPackageDialog by remember { mutableStateOf(false) }
     var showPrivilegeDialog by remember { mutableStateOf(false) }
     var showNotificationDialog by remember { mutableStateOf(false) }
+
+    // 语言切换的延迟 recreate 标记（避免对话框 dismiss 动画与 recreate 竞态）
+    var pendingLanguageRecreate by remember { mutableStateOf(false) }
+
+    LaunchedEffect(pendingLanguageRecreate) {
+        if (pendingLanguageRecreate) {
+            kotlinx.coroutines.delay(200)
+            (context as? android.app.Activity)?.recreate()
+        }
+    }
 
     // Notification permission launcher (Android 13+)
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -106,7 +117,7 @@ fun SettingsScreen(
             }
             context.startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(context, "Unable to open notification settings", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.cannot_open_notification_settings), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -161,8 +172,8 @@ fun SettingsScreen(
             onConfirm = { newTheme ->
                 viewModel.setTheme(newTheme)
                 showThemeDialog = false
-                Toast.makeText(context, "Theme changed", Toast.LENGTH_SHORT).show()
-                (context as? android.app.Activity)?.recreate()
+                Toast.makeText(context, context.getString(R.string.toast_theme_changed), Toast.LENGTH_SHORT).show()
+                // 不需要 recreate — Compose 通过 GlobalThemeStore 实时响应
             }
         )
     }
@@ -187,8 +198,9 @@ fun SettingsScreen(
             onConfirm = { newLanguage ->
                 viewModel.setLanguage(newLanguage)
                 showLanguageDialog = false
-                Toast.makeText(context, "Language changed, restart required", Toast.LENGTH_LONG).show()
-                (context as? android.app.Activity)?.recreate()
+                Toast.makeText(context, context.getString(R.string.toast_language_changed), Toast.LENGTH_LONG).show()
+                // 延迟 recreate，等对话框 dismiss 动画完成后再重建
+                pendingLanguageRecreate = true
             },
             getDisplayName = { langCode ->
                 viewModel.getLanguageDisplayName(langCode)
@@ -261,7 +273,7 @@ private fun AppSettingsCard(
             SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_package),
                 title = stringResource(R.string.current_installer_package),
-                subtitle = null,
+                subtitle = getCurrentInstallerPackage(context),
                 colorPreview = null,
                 onClick = onInstallerPackageClick
             )
@@ -327,6 +339,7 @@ private fun PrivilegeSettingsCard(
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun AboutAppCard(
     context: android.content.Context,
@@ -334,9 +347,9 @@ private fun AboutAppCard(
 ) {
     val versionName = try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-        packageInfo.versionName ?: "1.0.0"
+        packageInfo.versionName ?: context.getString(R.string.unknown)
     } catch (e: Exception) {
-        "1.0.0"
+        context.getString(R.string.unknown)
     }
 
     // Easter egg: tap version 6 times within 2 seconds
@@ -374,7 +387,7 @@ private fun AboutAppCard(
                     .combinedClickable(
                         onClick = onNavigateToMe,
                         onLongClick = {
-                            Toast.makeText(context, "啥也没有呀", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.easter_egg_text), Toast.LENGTH_SHORT).show()
                         }
                     )
                     .padding(16.dp),
@@ -431,7 +444,7 @@ private fun AboutAppCard(
     // Easter egg toast
     if (showEasterEgg) {
         LaunchedEffect(Unit) {
-            Toast.makeText(context, "啥也没有呀", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.easter_egg_text), Toast.LENGTH_SHORT).show()
             showEasterEgg = false
         }
     }
@@ -595,7 +608,7 @@ private fun PrivilegeSelectionDialog(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Shizuku", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
+                            Text(stringResource(R.string.shizuku), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
                             Text(
                                 text = when (shizukuStatus) {
                                     PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> stringResource(R.string.shizuku_connected_and_authorized)
@@ -648,7 +661,7 @@ private fun PrivilegeSelectionDialog(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Dhizuku", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
+                            Text(stringResource(R.string.dhizuku), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
                             Text(
                                 text = when (dhizukuStatus) {
                                     PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> stringResource(R.string.dhizuku_connected_and_authorized)
@@ -818,7 +831,7 @@ fun AppIcon(
 
     if (iconBitmap != null) {
         Image(
-            bitmap = iconBitmap!!,
+            bitmap = iconBitmap,
             contentDescription = null,
             modifier = Modifier.size(size.dp),
             colorFilter = if (tint != Color.Unspecified)

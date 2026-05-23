@@ -578,4 +578,49 @@ Please try installing Chrome, Firefox or other browser apps.</string>
 <string name="content_description_search">Search</string>
 <string name="content_description_save">Save</string>
 
+<!-- Easter egg -->
+<string name="easter_egg_text">Nothing here~</string>
+
+<!-- Additional hardcoded strings found -->
+<string name="package_name_label_colon">Package Name: </string>
+<string name="current_version_label">Current Version: </string>
+<string name="upgrade_version_label">Upgrade Version: </string>
+<string name="min_sdk_label">Min SDK: </string>
+<string name="target_sdk_label">Target SDK: </string>
+<string name="search_in_output_hint">Search in output...</string>
+<string name="no_command_history">No command history</string>
+<string name="no_bookmarks_saved">No bookmarks saved</string>
+<string name="add_bookmark_title">Add Bookmark</string>
+<string name="enter_command_bookmark_hint">Enter command to bookmark...</string>
+<string name="theme_color_title">Theme Color</string>
+<string name="follow_wallpaper_option">Follow Wallpaper</string>
+<string name="preset_colors_title">Preset Colors</string>
+<string name="apply_button">Apply</string>
+<string name="selected_content_description">Selected</string>
+<string name="dynamic_color_enabled">Dynamic color enabled</string>
+<string name="using_custom_color">Using custom color</string>
+<string name="close_search">Close search</string>
+<string name="up_direction">Up</string>
+<string name="down_direction">Down</string>
+<string name="tab_key">Tab</string>
+<string name="ctrl_c_key">Ctrl+C</string>
+<string name="escape_key">Escape</string>
+<string name="clear_screen">Clear</string>
+<string name="clipboard_action">Clipboard</string>
+<string name="quick_commands_action">Quick Commands</string>
+<string name="add_bookmark_action">Add bookmark</string>
+<string name="remove_bookmark_action">Remove</string>
+
+<!-- Share and save related -->
+<string name="share_output_title">Share Output</string>
+<string name="share_failed">Share failed: %s</string>
+<string name="save_failed">Save failed</string>
+<string name="scroll_to_top">Scroll to top</string>
+<string name="scroll_to_bottom">Scroll to bottom</string>
+<string name="cannot_open_notification_settings">Unable to open notification settings</string>
+<string name="toast_theme_changed">Theme changed</string>
+<string name="toast_language_changed">Language changed, restart required</string>
+<string name="log_entries_count" formatted="false">%d entries</string>
+<string name="not_available">N/A</string>
+
 </resources>

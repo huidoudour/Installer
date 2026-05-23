@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -26,7 +27,15 @@ import androidx.core.view.WindowCompat
 fun AppTheme(
     content: @Composable () -> Unit
 ) {
-    val themeStateHolder = remember { ThemeStateHolder() }
+    // 从 GlobalThemeStore 读取用户选择的主题模式（而非总是默认 SYSTEM）
+    val globalThemeMode = GlobalThemeStore.themeMode
+    val themeStateHolder = remember {
+        ThemeStateHolder(ThemeState(themeMode = globalThemeMode))
+    }
+    // 当全局主题模式变更时同步到持有者
+    LaunchedEffect(globalThemeMode) {
+        themeStateHolder.setThemeMode(globalThemeMode)
+    }
     AppTheme(themeStateHolder, content)
 }
 

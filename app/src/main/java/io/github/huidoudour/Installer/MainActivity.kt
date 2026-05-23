@@ -57,9 +57,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AppTheme {
-                MainScreen(
-                    onThemeClick = { /* Navigate to theme settings */ }
-                )
+                MainScreen()
             }
         }
     }
@@ -73,9 +71,7 @@ data class BottomNavItemData(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(
-    onThemeClick: () -> Unit = {}
-) {
+fun MainScreen() {
     val navController = rememberNavController()
 
     val bottomNavItems = listOf(
@@ -141,7 +137,6 @@ fun MainScreen(
             composable(Screen.Settings.route) {
                 val context = LocalContext.current
                 SettingsScreen(
-                    onThemeClick = onThemeClick,
                     onNavigateToMe = {
                         val intent = Intent(context, MeActivity::class.java)
                         context.startActivity(intent)

@@ -182,6 +182,7 @@ dependencies {
     debugImplementation("androidx.graphics:graphics-path:1.0.1")
     debugImplementation("androidx.graphics:graphics-core:1.0.1")
 
-    // MTDataFilesProvider
+    // MTDataFilesProvider,documentfile
     debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
+    debugImplementation("androidx.documentfile:documentfile:1.0.1")
 }

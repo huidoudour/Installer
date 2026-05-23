@@ -591,5 +591,49 @@
     <string name="upgrade_version">升级版本：</string>
     <string name="arrow_down">向下箭头</string>
 
+    <!-- Easter egg -->
+    <string name="easter_egg_text">啥也没有呀</string>
+
+    <!-- Additional hardcoded strings found -->
+    <string name="package_name_label_colon">包名：</string>
+    <string name="current_version_label">当前版本：</string>
+    <string name="upgrade_version_label">升级版本：</string>
+    <string name="min_sdk_label">最低SDK：</string>
+    <string name="target_sdk_label">目标SDK：</string>
+    <string name="search_in_output_hint">在输出中搜索...</string>
+    <string name="no_command_history">没有命令历史</string>
+    <string name="no_bookmarks_saved">没有保存的书签</string>
+    <string name="add_bookmark_title">添加书签</string>
+    <string name="enter_command_bookmark_hint">输入要加入书签的命令...</string>
+    <string name="theme_color_title">主题颜色</string>
+    <string name="follow_wallpaper_option">跟随壁纸</string>
+    <string name="preset_colors_title">预设颜色</string>
+    <string name="apply_button">应用</string>
+    <string name="selected_content_description">已选择</string>
+    <string name="dynamic_color_enabled">动态颜色已启用</string>
+    <string name="using_custom_color">使用自定义颜色</string>
+    <string name="close_search">关闭搜索</string>
+    <string name="up_direction">上</string>
+    <string name="down_direction">下</string>
+    <string name="tab_key">制表符</string>
+    <string name="ctrl_c_key">Ctrl+C</string>
+    <string name="escape_key">退出</string>
+    <string name="clear_screen">清屏</string>
+    <string name="clipboard_action">剪贴板</string>
+    <string name="quick_commands_action">快捷命令</string>
+    <string name="add_bookmark_action">添加书签</string>
+    <string name="remove_bookmark_action">移除</string>
+
+    <!-- 分享和保存相关 -->
+    <string name="share_output_title">分享输出</string>
+    <string name="share_failed">分享失败：%s</string>
+    <string name="save_failed">保存失败</string>
+    <string name="scroll_to_top">滚动到顶部</string>
+    <string name="scroll_to_bottom">滚动到底部</string>
+    <string name="cannot_open_notification_settings">无法打开通知设置</string>
+    <string name="toast_theme_changed">主题已更改</string>
+    <string name="toast_language_changed">语言已更改，需要重启</string>
+    <string name="log_entries_count" formatted="false">%d 条记录</string>
+    <string name="not_available">不可用</string>
 
 </resources>

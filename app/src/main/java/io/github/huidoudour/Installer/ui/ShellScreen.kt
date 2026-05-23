@@ -23,6 +23,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -66,6 +68,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
@@ -120,12 +123,12 @@ fun ShellScreen(
                             ))
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
-                        context.startActivity(Intent.createChooser(shareIntent, "Share Output"))
+                        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share_output_title)))
                     } catch (e: Exception) {
-                        Toast.makeText(context, "Share failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.share_failed, e.message), Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(context, "Save failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.save_failed), Toast.LENGTH_SHORT).show()
                 }
             }
         )
@@ -203,7 +206,7 @@ fun ShellScreen(
                             ) {
                                 Icon(
                                     Icons.Default.KeyboardArrowUp,
-                                    contentDescription = "Scroll to top",
+                                    contentDescription = stringResource(R.string.scroll_to_top),
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -221,7 +224,7 @@ fun ShellScreen(
                             ) {
                                 Icon(
                                     Icons.Default.KeyboardArrowDown,
-                                    contentDescription = "Scroll to bottom",
+                                    contentDescription = stringResource(R.string.scroll_to_bottom),
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -384,7 +387,7 @@ fun SearchInput(
                     Box {
                         if (searchText.isEmpty()) {
                             Text(
-                                text = "Search in output...",
+                                text = stringResource(R.string.search_in_output_hint),
                                 style = TextStyle(
                                     fontSize = 14.sp,
                                     fontFamily = FontFamily.Monospace,
@@ -400,7 +403,7 @@ fun SearchInput(
             IconButton(onClick = onClose) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close search"
+                    contentDescription = stringResource(R.string.close_search)
                 )
             }
         }
@@ -433,15 +436,15 @@ fun FunctionKeysRow(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FunctionKeyButton(text = "↑", contentDescription = "Up", onClick = onHistoryUp)
-            FunctionKeyButton(text = "↓", contentDescription = "Down", onClick = onHistoryDown)
-            FunctionKeyButton(text = "TAB", contentDescription = "Tab", onClick = onTab)
-            FunctionKeyButton(text = "^C", contentDescription = "Ctrl+C", onClick = onCtrlC,
+            FunctionKeyButton(text = stringResource(R.string.up_arrow), contentDescription = stringResource(R.string.up_direction), onClick = onHistoryUp)
+            FunctionKeyButton(text = stringResource(R.string.down_arrow), contentDescription = stringResource(R.string.down_direction), onClick = onHistoryDown)
+            FunctionKeyButton(text = stringResource(R.string.tab), contentDescription = stringResource(R.string.tab_key), onClick = onTab)
+            FunctionKeyButton(text = stringResource(R.string.ctrl_c), contentDescription = stringResource(R.string.ctrl_c_key), onClick = onCtrlC,
                 textColor = MaterialTheme.colorScheme.error)
-            FunctionKeyButton(text = "ESC", contentDescription = "Escape", onClick = onEsc)
-            FunctionKeyButton(text = "C", contentDescription = "Clear", onClick = onClearScreen)
-            FunctionKeyButton(text = stringResource(R.string.clipboard), contentDescription = "Clipboard", onClick = onCopy)
-            FunctionKeyButton(text = stringResource(R.string.lightning), contentDescription = "Quick Commands", onClick = onQuickCommands)
+            FunctionKeyButton(text = stringResource(R.string.esc), contentDescription = stringResource(R.string.escape_key), onClick = onEsc)
+            FunctionKeyButton(text = stringResource(R.string.letter_c), contentDescription = stringResource(R.string.clear_screen), onClick = onClearScreen)
+            FunctionKeyButton(text = stringResource(R.string.clipboard), contentDescription = stringResource(R.string.clipboard_action), onClick = onCopy)
+            FunctionKeyButton(text = stringResource(R.string.lightning), contentDescription = stringResource(R.string.quick_commands_action), onClick = onQuickCommands)
         }
     }
 }
@@ -498,6 +501,8 @@ fun CommandInput(
                 color = MaterialTheme.colorScheme.onSurface
             ),
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onSendCommand() }),
             singleLine = true,
             enabled = !isExecuting,
             decorationBox = { innerTextField ->
@@ -540,7 +545,7 @@ fun ShellHistoryDialog(
         text = {
             if (history.isEmpty()) {
                 Text(
-                    text = "No command history",
+                    text = stringResource(R.string.no_command_history),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
@@ -595,14 +600,14 @@ fun ShellBookmarksDialog(
                     fontWeight = FontWeight.SemiBold
                 )
                 IconButton(onClick = { showAddDialog = true }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add bookmark")
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_bookmark_action))
                 }
             }
         },
         text = {
             if (bookmarks.isEmpty()) {
                 Text(
-                    text = "No bookmarks saved",
+                    text = stringResource(R.string.no_bookmarks_saved),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
@@ -632,7 +637,7 @@ fun ShellBookmarksDialog(
                             ) {
                                 Icon(
                                     Icons.Default.Delete,
-                                    contentDescription = "Remove",
+                                    contentDescription = stringResource(R.string.remove_bookmark_action),
                                     modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.error
                                 )
@@ -655,7 +660,7 @@ fun ShellBookmarksDialog(
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
             shape = RoundedCornerShape(20.dp),
-            title = { Text("Add Bookmark", fontWeight = FontWeight.SemiBold) },
+            title = { Text(stringResource(R.string.add_bookmark_title), fontWeight = FontWeight.SemiBold) },
             text = {
                 BasicTextField(
                     value = newBookmark,
@@ -674,7 +679,7 @@ fun ShellBookmarksDialog(
                         Box {
                             if (newBookmark.isEmpty()) {
                                 Text(
-                                    "Enter command to bookmark...",
+                                    stringResource(R.string.enter_command_bookmark_hint),
                                     style = TextStyle(
                                         fontSize = 14.sp,
                                         fontFamily = FontFamily.Monospace,

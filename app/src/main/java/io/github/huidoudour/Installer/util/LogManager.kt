@@ -1,12 +1,12 @@
 package io.github.huidoudour.Installer.util
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.util.JsonReader
-import android.util.JsonWriter
 import io.github.huidoudour.Installer.R
-import java.io.StringReader
-import java.io.StringWriter
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileReader
+import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.Collections
 import java.util.Date
@@ -14,12 +14,14 @@ import java.util.Locale
 
 /**
  * 全局日志管理器
+ * 内存上限 MAX_LOG_ENTRIES 条，超出时移除最旧条目。
+ * 持久化使用文件存储，无 SharedPreferences 大小限制。
  */
 class LogManager private constructor() {
 
     companion object {
-        private const val PREFS_NAME = "log_manager_prefs"
-        private const val KEY_LOGS_JSON = "logs_json"
+        private const val LOG_FILE_NAME = "installer_logs.txt"
+        private const val MAX_LOG_ENTRIES = 10_000
 
         @Volatile
         private var instance: LogManager? = null
@@ -35,7 +37,7 @@ class LogManager private constructor() {
     private val listeners = mutableListOf<LogListener>()
     private val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     private var context: Context? = null
-    private var prefs: SharedPreferences? = null
+    private var logFile: File? = null
 
     interface LogListener {
         fun onLogAdded(log: String, index: Int)
@@ -44,41 +46,44 @@ class LogManager private constructor() {
 
     fun setContext(context: Context) {
         this.context = context
-        this.prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        this.logFile = File(context.filesDir, LOG_FILE_NAME)
         loadLogs()
     }
 
     private fun loadLogs() {
-        if (prefs == null) return
-        val json = prefs?.getString(KEY_LOGS_JSON, null) ?: return
-        if (json.isEmpty()) return
+        val file = logFile ?: return
+        if (!file.exists()) return
         try {
             logs.clear()
-            val reader = JsonReader(StringReader(json))
-            reader.beginArray()
-            while (reader.hasNext()) {
-                logs.add(reader.nextString())
+            BufferedReader(FileReader(file)).use { reader ->
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    if (line != null) logs.add(line!!)
+                }
             }
-            reader.endArray()
-            reader.close()
+            // 如果历史日志超过上限，从头部裁剪
+            trimToMaxEntries()
         } catch (e: Exception) {
             logs.clear()
         }
     }
 
+    private fun trimToMaxEntries() {
+        while (logs.size > MAX_LOG_ENTRIES) {
+            logs.removeAt(0)
+        }
+    }
+
     private fun saveLogsAsync() {
-        if (prefs == null) return
+        val file = logFile ?: return
         Thread {
             try {
-                val stringWriter = StringWriter()
-                val writer = JsonWriter(stringWriter)
-                writer.beginArray()
-                for (log in logs) {
-                    writer.value(log)
+                BufferedWriter(FileWriter(file, false)).use { writer ->
+                    for (log in logs) {
+                        writer.write(log)
+                        writer.newLine()
+                    }
                 }
-                writer.endArray()
-                writer.close()
-                prefs?.edit()?.putString(KEY_LOGS_JSON, stringWriter.toString())?.apply()
             } catch (e: Exception) {
                 // 忽略写入错误
             }
@@ -86,10 +91,18 @@ class LogManager private constructor() {
     }
 
     fun addLog(message: String) {
+        addLog(message, "App")
+    }
+
+    fun addLog(message: String, tag: String?) {
         val timestamp = dateFormat.format(Date())
-        val logMessage = "$timestamp: $message"
+        val logMessage = if (tag != null) "$timestamp [$tag]: $message" else "$timestamp: $message"
 
         logs.add(logMessage)
+        // 超出上限时移除最旧条目
+        while (logs.size > MAX_LOG_ENTRIES) {
+            logs.removeAt(0)
+        }
         val insertedIndex = logs.size - 1
 
         // 通知所有监听器

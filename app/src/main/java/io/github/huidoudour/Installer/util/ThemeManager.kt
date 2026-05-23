@@ -1,10 +1,10 @@
 package io.github.huidoudour.Installer.util
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
 import io.github.huidoudour.Installer.R
+import io.github.huidoudour.Installer.ui.theme.GlobalThemeStore
+import io.github.huidoudour.Installer.ui.theme.ThemeMode
 
 /**
  * 主题管理工具类
@@ -31,20 +31,11 @@ object ThemeManager {
     }
 
     /**
-     * 应用主题模式
+     * 应用主题模式 — 同步到 Compose 全局主题状态
+     * 不再使用 AppCompatDelegate（ComponentActivity 无效），改由 Compose MaterialTheme 控制
      */
     fun applyTheme(themeMode: Int) {
-        when (themeMode) {
-            THEME_LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            THEME_DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            THEME_FOLLOW_SYSTEM -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
-                }
-            }
-        }
+        GlobalThemeStore.syncFromThemeManager(themeMode)
     }
 
     /**

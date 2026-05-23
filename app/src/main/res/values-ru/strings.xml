@@ -595,4 +595,49 @@
     <string name="content_description_search">Поиск</string>
     <string name="content_description_save">Сохранить</string>
 
+    <!-- Easter egg -->
+    <string name="easter_egg_text">Здесь ничего нет</string>
+
+    <!-- Additional hardcoded strings found -->
+    <string name="package_name_label_colon">Имя пакета: </string>
+    <string name="current_version_label">Текущая версия: </string>
+    <string name="upgrade_version_label">Версия обновления: </string>
+    <string name="min_sdk_label">Мин. SDK: </string>
+    <string name="target_sdk_label">Целевой SDK: </string>
+    <string name="search_in_output_hint">Поиск в выводе...</string>
+    <string name="no_command_history">Нет истории команд</string>
+    <string name="no_bookmarks_saved">Нет сохранённых закладок</string>
+    <string name="add_bookmark_title">Добавить закладку</string>
+    <string name="enter_command_bookmark_hint">Введите команду для закладки...</string>
+    <string name="theme_color_title">Цвет темы</string>
+    <string name="follow_wallpaper_option">Следовать обоям</string>
+    <string name="preset_colors_title">Предустановленные цвета</string>
+    <string name="apply_button">Применить</string>
+    <string name="selected_content_description">Выбрано</string>
+    <string name="dynamic_color_enabled">Динамический цвет включён</string>
+    <string name="using_custom_color">Используется пользовательский цвет</string>
+    <string name="close_search">Закрыть поиск</string>
+    <string name="up_direction">Вверх</string>
+    <string name="down_direction">Вниз</string>
+    <string name="tab_key">Tab</string>
+    <string name="ctrl_c_key">Ctrl+C</string>
+    <string name="escape_key">Escape</string>
+    <string name="clear_screen">Очистить</string>
+    <string name="clipboard_action">Буфер обмена</string>
+    <string name="quick_commands_action">Быстрые команды</string>
+    <string name="add_bookmark_action">Добавить закладку</string>
+    <string name="remove_bookmark_action">Удалить</string>
+
+    <!-- Share and save related -->
+    <string name="share_output_title">Поделиться выводом</string>
+    <string name="share_failed">Не удалось поделиться: %s</string>
+    <string name="save_failed">Не удалось сохранить</string>
+    <string name="scroll_to_top">Прокрутить вверх</string>
+    <string name="scroll_to_bottom">Прокрутить вниз</string>
+    <string name="cannot_open_notification_settings">Не удалось открыть настройки уведомлений</string>
+    <string name="toast_theme_changed">Тема изменена</string>
+    <string name="toast_language_changed">Язык изменён, требуется перезапуск</string>
+    <string name="log_entries_count" formatted="false">Записей: %d</string>
+    <string name="not_available">Н/Д</string>
+
 </resources>

@@ -2,6 +2,10 @@
 
 ## 特性介绍
 
+### 迁移
+ - 迁移至 Kotlin
+ - 使用 JetPack Compose
+
 ### Shell 功能
 - Shizuku 授权的 Shell 安装器
 - 定义了多个安装类型 (APK/APKS/XAPK)
@@ -10,10 +14,10 @@
 > 未进行过对 APKS&XAPK 的多种测试
 
 ### C++ 原生库
-- ✅ 集成 C++ 共享库 (`libinstaller-native.so`)
-- ✅ 集成 崩溃日志模块 (`libcrash-handler.so`)
+- ✅ 集成 C++ 共享库
+- ✅ 集成 崩溃日志模块
 - ✅ 支持架构: arm64-v8a, x86_64
-> 实际并无有效功能，仅用于测试 C++ 库的集成。
+> 实际并无有效功能，仅用于测试原生库的集成。
 
 ### APP 本身
 

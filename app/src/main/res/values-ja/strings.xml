@@ -595,4 +595,49 @@
     <string name="content_description_search">検索</string>
     <string name="content_description_save">保存</string>
 
+    <!-- Easter egg -->
+    <string name="easter_egg_text">何もないよ</string>
+
+    <!-- Additional hardcoded strings found -->
+    <string name="package_name_label_colon">パッケージ名：</string>
+    <string name="current_version_label">現在のバージョン：</string>
+    <string name="upgrade_version_label">アップグレードバージョン：</string>
+    <string name="min_sdk_label">最小SDK：</string>
+    <string name="target_sdk_label">ターゲットSDK：</string>
+    <string name="search_in_output_hint">出力を検索...</string>
+    <string name="no_command_history">コマンド履歴なし</string>
+    <string name="no_bookmarks_saved">ブックマークがありません</string>
+    <string name="add_bookmark_title">ブックマークを追加</string>
+    <string name="enter_command_bookmark_hint">ブックマークするコマンドを入力...</string>
+    <string name="theme_color_title">テーマカラー</string>
+    <string name="follow_wallpaper_option">壁紙に従う</string>
+    <string name="preset_colors_title">プリセットカラー</string>
+    <string name="apply_button">適用</string>
+    <string name="selected_content_description">選択済み</string>
+    <string name="dynamic_color_enabled">ダイナミックカラー有効</string>
+    <string name="using_custom_color">カスタムカラー使用中</string>
+    <string name="close_search">検索を閉じる</string>
+    <string name="up_direction">上</string>
+    <string name="down_direction">下</string>
+    <string name="tab_key">Tab</string>
+    <string name="ctrl_c_key">Ctrl+C</string>
+    <string name="escape_key">Escape</string>
+    <string name="clear_screen">消去</string>
+    <string name="clipboard_action">クリップボード</string>
+    <string name="quick_commands_action">クイックコマンド</string>
+    <string name="add_bookmark_action">ブックマークを追加</string>
+    <string name="remove_bookmark_action">削除</string>
+
+    <!-- Share and save related -->
+    <string name="share_output_title">出力を共有</string>
+    <string name="share_failed">共有失敗：%s</string>
+    <string name="save_failed">保存失敗</string>
+    <string name="scroll_to_top">先頭にスクロール</string>
+    <string name="scroll_to_bottom">末尾にスクロール</string>
+    <string name="cannot_open_notification_settings">通知設定を開けません</string>
+    <string name="toast_theme_changed">テーマが変更されました</string>
+    <string name="toast_language_changed">言語が変更されました、再起動が必要です</string>
+    <string name="log_entries_count" formatted="false">%d 件のエントリ</string>
+    <string name="not_available">N/A</string>
+
 </resources>

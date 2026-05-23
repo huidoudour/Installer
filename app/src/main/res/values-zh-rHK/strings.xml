@@ -591,5 +591,49 @@
     <string name="content_description_search">搜索喵</string>
     <string name="content_description_save">保存喵</string>
 
+    <!-- Easter egg -->
+    <string name="easter_egg_text">咩都冇呀</string>
+
+    <!-- Additional hardcoded strings found -->
+    <string name="package_name_label_colon">包名喵：</string>
+    <string name="current_version_label">当前版本喵：</string>
+    <string name="upgrade_version_label">升级版本喵：</string>
+    <string name="min_sdk_label">最低SDK喵：</string>
+    <string name="target_sdk_label">目标SDK喵：</string>
+    <string name="search_in_output_hint">搜索输出喵...</string>
+    <string name="no_command_history">没有命令历史喵</string>
+    <string name="no_bookmarks_saved">没有保存的书签喵</string>
+    <string name="add_bookmark_title">添加书签喵</string>
+    <string name="enter_command_bookmark_hint">输入要加入书签的命令喵...</string>
+    <string name="theme_color_title">主题颜色喵</string>
+    <string name="follow_wallpaper_option">跟随壁纸喵</string>
+    <string name="preset_colors_title">预设颜色喵</string>
+    <string name="apply_button">应用喵</string>
+    <string name="selected_content_description">已选择喵</string>
+    <string name="dynamic_color_enabled">动态颜色已启用喵</string>
+    <string name="using_custom_color">使用自定义颜色喵</string>
+    <string name="close_search">关闭搜索喵</string>
+    <string name="up_direction">上喵</string>
+    <string name="down_direction">下喵</string>
+    <string name="tab_key">Tab喵</string>
+    <string name="ctrl_c_key">Ctrl+C喵</string>
+    <string name="escape_key">Escape喵</string>
+    <string name="clear_screen">清屏喵</string>
+    <string name="clipboard_action">剪贴板喵</string>
+    <string name="quick_commands_action">快捷命令喵</string>
+    <string name="add_bookmark_action">添加书签喵</string>
+    <string name="remove_bookmark_action">移除喵</string>
+
+    <!-- Share and save related -->
+    <string name="share_output_title">分享输出喵</string>
+    <string name="share_failed">分享失败喵：%s</string>
+    <string name="save_failed">保存失败喵</string>
+    <string name="scroll_to_top">滚动到顶部喵</string>
+    <string name="scroll_to_bottom">滚动到底部喵</string>
+    <string name="cannot_open_notification_settings">无法打开通知设置喵</string>
+    <string name="toast_theme_changed">主题已更改喵</string>
+    <string name="toast_language_changed">语言已更改喵，需要重启喵</string>
+    <string name="log_entries_count" formatted="false">%d 条记录喵</string>
+    <string name="not_available">不可用喵</string>
 
 </resources>
