@@ -1,19 +1,23 @@
 name: Android CI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches: [ "master" , "ccrh_cache" , "dev" ]
-  pull_request:
-    branches: [ "master" ]
 
 jobs:
   build-debug:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+    - name: Get short commit hash
+      id: short_hash
+      run: echo "hash=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
     - name: set up JDK 21
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '21'
         distribution: 'temurin'
@@ -37,11 +41,15 @@ jobs:
           -Pandroid.injected.signing.key.password="${{ secrets.DEBUG_KEY_PASSWD }}" \
           --stacktrace
     
+    - name: Rename Debug APK
+      run: |
+        mv app/build/outputs/apk/debug/app-universal-debug.apk \
+           app/build/outputs/apk/debug/Installer-U-D-${{ steps.short_hash.outputs.hash }}.apk
     - name: Upload Debug APK as artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
-        name: app-universal-debug
-        path: app/build/outputs/apk/debug/app-universal-debug.apk
+        name: Installer-U-D-${{ steps.short_hash.outputs.hash }}
+        path: app/build/outputs/apk/debug/Installer-U-D-${{ steps.short_hash.outputs.hash }}.apk
         if-no-files-found: error
     
     - name: Clean up debug keystore
@@ -52,9 +60,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+    - name: Get short commit hash
+      id: short_hash
+      run: echo "hash=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
     - name: set up JDK 21
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '21'
         distribution: 'temurin'
@@ -83,11 +94,15 @@ jobs:
         echo "APK build completed. Files in output directory:"
         find app/build/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
     
+    - name: Rename Release APK
+      run: |
+        mv app/build/outputs/apk/release/app-universal-release.apk \
+           app/build/outputs/apk/release/Installer-U-R-${{ steps.short_hash.outputs.hash }}.apk
     - name: Upload Release APK as artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
-        name: app-universal-release
-        path: app/build/outputs/apk/release/app-universal-release.apk
+        name: Installer-U-R-${{ steps.short_hash.outputs.hash }}
+        path: app/build/outputs/apk/release/Installer-U-R-${{ steps.short_hash.outputs.hash }}.apk
         if-no-files-found: error
     
     - name: Clean up keystore

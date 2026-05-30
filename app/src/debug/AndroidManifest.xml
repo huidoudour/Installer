@@ -7,12 +7,6 @@
         android:debuggable="true"
         android:testOnly="true"
         tools:ignore="HardcodedDebugMode,MissingApplicationIcon">
-        <meta-data
-            android:name="Debug"
-            android:value="true" />
-
-        <!-- 允许调试 -->
-        <profileable android:shell="true" />
     </application>
 
 </manifest>
