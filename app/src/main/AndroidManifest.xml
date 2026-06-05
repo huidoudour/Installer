@@ -75,18 +75,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <!-- 安装对话 -->
+
+        <!-- 独立的安装对话框 Activity -->
         <activity
-            android:name=".ui.InstallDialog"
+            android:name=".InstallDialogActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer.Dialog"
-            android:launchMode="singleTask"
-            android:taskAffinity="io.github.huidoudour.Installer.INSTALL_DIALOG"
+            android:windowSoftInputMode="adjustResize"
+            android:noHistory="true"
             android:excludeFromRecents="true"
-            android:noHistory="true">
-            <!-- 注册为安装器，处理APK安装请求 -->
-            <intent-filter>
+            android:finishOnTaskLaunch="true"
+            android:taskAffinity="">
+            <!-- 注册为安装器，处理APK安装请求 - 设置高优先级 -->
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -94,8 +95,9 @@
                 <data android:scheme="content" />
                 <data android:mimeType="application/vnd.android.package-archive" />
             </intent-filter>
+            
             <!-- 支持 XAPK/APKS/APKM 格式 -->
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="file" />
@@ -104,8 +106,9 @@
                 <data android:mimeType="application/x-xapk" />
                 <data android:mimeType="application/octet-stream" />
             </intent-filter>
+            
             <!-- 支持分享功能 (SEND action) -->
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/vnd.android.package-archive" />
@@ -116,20 +119,19 @@
             </intent-filter>
         </activity>
 
-        <!-- 关于我的页面 Activity-->
+
+        <!-- 颜色选择 Activity -->
+        <activity
+            android:name=".ui.theme.ColorPickerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Installer.Dialog" />
+
+        <!-- 我页面 Activity -->
         <activity
             android:name=".ui.MeActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Installer" />
-        
-
-        <!-- 原生库测试 Activity -->
-        <activity
-            android:name=".ui.NativeTestActivity"
             android:exported="false"
-            android:label="C++ 原生库测试"
             android:theme="@style/Theme.Installer" />
-        
+
         <!-- Shizuku provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
@@ -149,15 +151,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <!--
-        <meta-data
-                android:name="io.github.huidoudour.zjs"
-                android:value="true" />
-        <meta-data
-                android:name="me.huidoudour.core"
-                android:value="true" />
-        -->
 
         <meta-data
                 android:name="io.github.huidoudour.zjs.version"

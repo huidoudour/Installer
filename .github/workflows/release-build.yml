@@ -1,6 +1,12 @@
 name: Release Build
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       release_tag:
@@ -13,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -51,7 +57,12 @@ jobs:
 
       - name: Validate and prepare release tag
         run: |
-          tag="${{ github.event.inputs.release_tag }}"
+          # 判断标签来源：推送标签使用 ref_name，手动触发使用 inputs
+          if [ "${{ github.event_name }}" == "push" ]; then
+            tag="${{ github.ref_name }}"
+          else
+            tag="${{ github.event.inputs.release_tag }}"
+          fi
           # 检查tag是否包含无效字符
           if [[ ! "$tag" =~ ^[a-zA-Z0-9._-]+$ ]]; then
             echo "Error: tag_name contains invalid characters. Use only alphanumeric, dots, hyphens, and underscores."
@@ -60,10 +71,10 @@ jobs:
           echo "TAG_NAME=$tag" >> $GITHUB_ENV
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG_NAME }}
-          name: Release ${{ github.event.inputs.release_tag }}
+          name: Release ${{ env.TAG_NAME }}
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -75,7 +86,7 @@ jobs:
           for apk in "$assets_dir"/*.apk; do
             if [ -f "$apk" ]; then
               echo "Uploading $(basename "$apk")..."
-              gh release upload "${{ github.event.inputs.release_tag }}" "$apk"
+              gh release upload "${{ env.TAG_NAME }}" "$apk"
             fi
           done
         env:

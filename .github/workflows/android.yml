@@ -1,20 +1,32 @@
 name: Android CI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches: [ "master" , "ccrh_cache" , "dev" ]
+    paths:
+      - 'app/src/**'
+      - 'app/build.gradle.kts'
+      - 'app/proguard-rules.pro'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - 'hidden-api/**'
 
 jobs:
-  build:
-
+  build-debug:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+    - name: Get short commit hash
+      id: short_hash
+      run: echo "hash=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
     - name: set up JDK 21
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '21'
         distribution: 'temurin'
@@ -22,27 +34,86 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build --stacktrace
-
-    - name: Copy APK to output
+    
+    - name: Create debug keystore file
       run: |
-        mkdir -p output
-        # Copy app module APKs (three architecture variants)
-        cp app/build/outputs/apk/debug/app-arm64-v8a-debug.apk output/ 2>/dev/null || true
-        cp app/build/outputs/apk/debug/app-x86_64-debug.apk output/ 2>/dev/null || true
-        cp app/build/outputs/apk/debug/app-universal-debug.apk output/ 2>/dev/null || true
-        cp app/build/outputs/apk/release/app-arm64-v8a-release.apk output/ 2>/dev/null || true
-        cp app/build/outputs/apk/release/app-x86_64-release.apk output/ 2>/dev/null || true
-        cp app/build/outputs/apk/release/app-universal-release.apk output/ 2>/dev/null || true
-        # List generated files
-        ls -lh output/
-        # Show build output structure for debugging
-        echo "=== APK files in build output ==="
-        find app/build/outputs/apk -name "*.apk" -type f 2>/dev/null || true
-
-    - name: Upload APKs as artifact
-      uses: actions/upload-artifact@v4
+        echo "${{ secrets.DEBUG_KEY_STORE_B64 }}" | base64 -d > debug_sign_key
+        ls -lh debug_sign_key
+        file debug_sign_key
+    
+    - name: Build Debug APK with signing
+      run: |
+        ./gradlew assembleDebug \
+          -Pandroid.injected.signing.store.file=$(pwd)/debug_sign_key \
+          -Pandroid.injected.signing.store.password="${{ secrets.DEBUG_KEY_PASSWD }}" \
+          -Pandroid.injected.signing.key.alias="${{ secrets.DEBUG_KEY_ALIAS }}" \
+          -Pandroid.injected.signing.key.password="${{ secrets.DEBUG_KEY_PASSWD }}" \
+          --stacktrace
+    
+    - name: Rename Debug APK
+      run: |
+        mv app/build/outputs/apk/debug/app-universal-debug.apk \
+           app/build/outputs/apk/debug/Installer-U-D-${{ steps.short_hash.outputs.hash }}.apk
+    - name: Upload Debug APK as artifact
+      uses: actions/upload-artifact@v5
       with:
-        name: apks
-        path: output/
+        name: Installer-U-D-${{ steps.short_hash.outputs.hash }}
+        path: app/build/outputs/apk/debug/Installer-U-D-${{ steps.short_hash.outputs.hash }}.apk
+        if-no-files-found: error
+    
+    - name: Clean up debug keystore
+      if: always()
+      run: rm -f debug_sign_key
+
+  build-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Get short commit hash
+      id: short_hash
+      run: echo "hash=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+    - name: set up JDK 21
+      uses: actions/setup-java@v5
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    
+    - name: Create release keystore file
+      run: |
+        echo "${{ secrets.SIGN_KEY_STORE_B64 }}" | base64 -d > sign_key
+        ls -lh sign_key
+        file sign_key
+    
+    - name: Build Release APK
+      run: |
+        ./gradlew assembleRelease \
+          -Pandroid.injected.signing.store.file=$(pwd)/sign_key \
+          -Pandroid.injected.signing.store.password="${{ secrets.SIGN_KEY_STORE_PASSWD }}" \
+          -Pandroid.injected.signing.key.alias="${{ secrets.SIGN_KEY_ALIAS }}" \
+          -Pandroid.injected.signing.key.password="${{ secrets.SIGN_KEY_ALIAS_PASSWD }}" \
+          --stacktrace
+    
+    - name: Verify APK signature
+      run: |
+        echo "APK build completed. Files in output directory:"
+        find app/build/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
+    
+    - name: Rename Release APK
+      run: |
+        mv app/build/outputs/apk/release/app-universal-release.apk \
+           app/build/outputs/apk/release/Installer-U-R-${{ steps.short_hash.outputs.hash }}.apk
+    - name: Upload Release APK as artifact
+      uses: actions/upload-artifact@v5
+      with:
+        name: Installer-U-R-${{ steps.short_hash.outputs.hash }}
+        path: app/build/outputs/apk/release/Installer-U-R-${{ steps.short_hash.outputs.hash }}.apk
+        if-no-files-found: error
+    
+    - name: Clean up keystore
+      if: always()
+      run: rm -f sign_key

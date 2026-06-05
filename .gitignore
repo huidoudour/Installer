@@ -1,5 +1,6 @@
 *.iml
 .gradle
+.kotlin
 .idea/
 /.lingma
 /.idea/workbuddy
@@ -17,11 +18,12 @@
 .cxx
 local.properties
 log.txt
-build.txt
 /按钮样式设计指南.md
 MarsCodeWorkspaceAppSettings.xml
-log.txt
 *.log
 /.qoder/
 /clone_cache/
 /GITHUB_WORKFLOW_SETUP.md
+/.workbuddy/
+
+.claude

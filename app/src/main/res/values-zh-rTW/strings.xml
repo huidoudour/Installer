@@ -51,12 +51,14 @@
     <string name="follow_system">跟隨系統</string>
     <string name="simplified_chinese">簡體中文</string>
     <string name="traditional_chinese">繁體中文</string>
-    <string name="english">English</string>
-    <string name="russian">Русский</string>
-    <string name="japanese">日本語</string>
+    <string name="english">英語</string>
+    <string name="russian">俄語</string>
+    <string name="japanese">日語</string>
+    <string name="meow_language">喵語中文</string>
     <string name="confirm">確認</string>
-    <string name="language_changed_tip">語言已切換為%s，應用將自動重啟</string>
+    <string name="language_changed_tip">語言已切換為%s</string>
     <string name="language_change_failed">語言切換失敗</string>
+    <string name="theme_changed_tip">主題已切換為%s</string>
     <string name="feature_developing">功能開發中</string>
     <string name="notification_settings_updated">通知設定已更新</string>
     <string name="background_display_enabled">背景顯示已啟用，應用將出現在最近任務列表中（重啟應用後生效）</string>
@@ -67,6 +69,16 @@
     <string name="find_me">ω尋找我ω</string>
     <string name="about_description">專注於 Android 應用安裝工具開發</string>
     <string name="visit_github">訪問 GitHub</string>
+
+    <string name="light_theme">淺色主題</string>
+    <string name="dark_theme">深色主題</string>
+    <string name="lang_name_system">跟隨系統</string>
+    <string name="lang_name_simplified">简体中文</string>
+    <string name="lang_name_traditional">繁體中文</string>
+    <string name="lang_name_english">English</string>
+    <string name="lang_name_russian">Русский</string>
+    <string name="lang_name_japanese">日本語</string>
+    <string name="lang_name_meow">喵语中文</string>
 
     <!-- Shell and tools -->
     <string name="shell_hint">輸入命令...</string>
@@ -138,6 +150,7 @@
     <string name="unknown">未知</string>
     <string name="xapk_package">XAPK安裝包</string>
     <string name="invalid_install_request">無效的安裝請求</string>
+    <string name="unsupported_file_type">不支援的檔案類型，僅支援 APK/XAPK/APKS/APKM 檔案</string>
     <string name="cannot_access_install_file">無法存取安裝檔案</string>
     <string name="process_install_file_failed">處理安裝檔案失敗</string>
     <string name="error_processing_install_file">處理安裝檔案時發生錯誤</string>
@@ -166,14 +179,6 @@
 
     請嘗試安裝Chrome、Firefox或其他瀏覽器應用。</string>
     <string name="receive_install_intent">接收到安裝意圖，URI: %s</string>
-    <string name="start_apk_install">開始安裝 APK...</string>
-    <string name="create_session">建立安裝會話: %s</string>
-    <string name="session_id">會話ID: %s</string>
-    <string name="write_apk_data">寫入 APK 資料...</string>
-    <string name="submit_install">提交安裝...</string>
-    <string name="install_failed">安裝失敗: %s</string>
-    <string name="install_exception">安裝異常: %s</string>
-    <string name="extract_xapk">正在解壓 XAPK (使用原生壓縮庫)...</string>
     <string name="shizuku_not_running">未運行/未安裝</string>
     <string name="shizuku_not_connected">Shizuku 未連接.</string>
     <string name="version_too_low">版本過低</string>
@@ -188,12 +193,6 @@
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi 捕獲異常: %s</string>
 
     <!-- XAPK extraction -->
-    <string name="extract_complete">解壓完成，共 %d 個 APK</string>
-    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
-    <string name="submitting_install">提交安裝...</string>
-    <string name="xapk_install_success_msg">XAPK 安裝成功！共安裝 %d 個 APK</string>
-    <string name="xapk_install_exception">XAPK 安裝異常: %s</string>
-    <string name="apk_not_exist">APK 檔案不存在</string>
     <string name="start_extract_xapk">開始解壓 XAPK: %s</string>
     <string name="extract_target_dir">解壓目標目錄: %s</string>
     <string name="opening_zip_file">正在開啟 ZIP 檔案...</string>
@@ -206,7 +205,7 @@
     <string name="close_zip_stream_failed">關閉 ZIP 輸入流失敗</string>
     <string name="close_file_stream">檔案輸入流已關閉</string>
     <string name="close_file_stream_failed">關閉檔案輸入流失敗</string>
-    <string name="install_success_simple">安裝成功！</string>
+
     <string name="extract_complete_summary" formatted="false">解壓完成！共處理 %d 個條目，提取 %d 個 APK 檔案</string>
     <string name="extract_xapk_error">解壓 XAPK 過程中發生錯誤</string>
     <string name="no_apk_found">XAPK/APKS 檔案中未找到任何 APK 檔案</string>
@@ -230,7 +229,7 @@
     <string name="install_progress">安裝進度: %s</string>
     <string name="apk_install_success_log">APK 安裝成功: %s</string>
     <string name="apk_install_failed_log">APK 安裝失敗: %s</string>
-    <string name="install_failed_error">安裝失敗: %s</string>
+
     <string name="all_apks_installed">所有 APK 安裝完成</string>
     <string name="xapk_install_exception_log">XAPK 安裝異常</string>
     <string name="install_exception_error">安裝異常: %s</string>
@@ -283,7 +282,7 @@
     <string name="non_interactive_mode">非互動式模式</string>
     <string name="disable_job_control_avoid_tty_error">禁用作業控制，避免TTY錯誤</string>
     <string name="unknown_file_format_chinese">未知格式</string>
-    <string name="apk_name_failed" formatted="false">%s 失敗: %s</string>
+
 
     <!-- File operations -->
     <string name="copy_file_failed_log">複製檔案到臨時目錄失敗 Exit code: %d</string>
@@ -579,5 +578,54 @@
     <string name="request_authorization">請求授權</string>
     <string name="privilege_settings_hint">選擇用於安裝應用的授權方式。確保所選服務正在運行並已授權。</string>
     <string name="dhizuku_required">需要Dhizuku授權才能安裝應用</string>
+    <string name="content_description_history">歷史</string>
+    <string name="content_description_bookmarks">書籤</string>
+    <string name="content_description_search">搜尋</string>
+    <string name="content_description_save">儲存</string>
+
+    <!-- Easter egg -->
+    <string name="easter_egg_text">什麼也沒有呀</string>
+
+    <!-- Additional hardcoded strings found -->
+    <string name="package_name_label_colon">套件名稱：</string>
+    <string name="current_version_label">目前版本：</string>
+    <string name="upgrade_version_label">升級版本：</string>
+    <string name="min_sdk_label">最低SDK：</string>
+    <string name="target_sdk_label">目標SDK：</string>
+    <string name="search_in_output_hint">在輸出中搜尋...</string>
+    <string name="no_command_history">無指令歷史記錄</string>
+    <string name="no_bookmarks_saved">無已儲存書籤</string>
+    <string name="add_bookmark_title">新增書籤</string>
+    <string name="enter_command_bookmark_hint">輸入要加入書籤的指令...</string>
+    <string name="theme_color_title">主題顏色</string>
+    <string name="follow_wallpaper_option">跟隨桌布</string>
+    <string name="preset_colors_title">預設顏色</string>
+    <string name="apply_button">套用</string>
+    <string name="selected_content_description">已選取</string>
+    <string name="dynamic_color_enabled">動態顏色已啟用</string>
+    <string name="using_custom_color">使用自訂顏色</string>
+    <string name="close_search">關閉搜尋</string>
+    <string name="up_direction">上</string>
+    <string name="down_direction">下</string>
+    <string name="tab_key">Tab</string>
+    <string name="ctrl_c_key">Ctrl+C</string>
+    <string name="escape_key">Escape</string>
+    <string name="clear_screen">清除</string>
+    <string name="clipboard_action">剪貼簿</string>
+    <string name="quick_commands_action">快速指令</string>
+    <string name="add_bookmark_action">新增書籤</string>
+    <string name="remove_bookmark_action">移除</string>
+
+    <!-- Share and save related -->
+    <string name="share_output_title">分享輸出</string>
+    <string name="share_failed">分享失敗：%s</string>
+    <string name="save_failed">儲存失敗</string>
+    <string name="scroll_to_top">捲動到頂部</string>
+    <string name="scroll_to_bottom">捲動到底部</string>
+    <string name="cannot_open_notification_settings">無法開啟通知設定</string>
+    <string name="toast_theme_changed">主題已變更</string>
+    <string name="toast_language_changed">語言已變更，需要重新啟動</string>
+    <string name="log_entries_count" formatted="false">%d 筆記錄</string>
+    <string name="not_available">不可用</string>
 
 </resources>

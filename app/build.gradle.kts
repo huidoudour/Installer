@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -11,31 +12,15 @@ android {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
-        versionCode = 557 //版本代码
-        versionName = "v5.5.7" //版本名称
+        versionCode = 674 //版本代码
+        versionName = "6.7.4-alpha" //版本名称
         
-        // 启用NDK - 配置C++共享库编译
-        externalNativeBuild {
-            cmake {
-                // 指定支持的架构 - 包含全部 4 个架构以支持通用 APK
-                abiFilters("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
-                // C++ 编译参数
-                cppFlags += listOf("-std=c++17")
-                // 添加 16KB 页面对齐支持
-                arguments += listOf(
-                    "-DANDROID_STL=c++_shared",
-                    "-DCMAKE_VERBOSE_MAKEFILE=ON"
-                )
-            }
-        }
+
         
         
         // === 完整的 16KB 页面大小支持配置 ===
         // 确保整个 APK 在 16KB 页面大小的设备上正常运行 (Android 15+)
         packaging {
-            jniLibs {
-                // 删除未使用的原生库调试符号配置
-            }
             // 配置资源压缩选项
             resources {
                 // 排除不需要的元数据
@@ -51,6 +36,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -63,23 +52,18 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = "21"
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
     }
     
     // 启用 ViewBinding
     buildFeatures {
         viewBinding = true
     }
-    
-    // 配置 CMake
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
-    
+
     // 配置 APK 分块 - 支持全部 4 个架构
     splits {
         abi {
@@ -89,6 +73,7 @@ android {
             isUniversalApk = true
         }
     }
+
     lint {
         // 将警告视为警告,不要作为错误
         warningsAsErrors = false
@@ -130,27 +115,49 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    
-    // Shizuku dependencies
+
+    // Compose
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.activity.compose)
+    implementation(libs.navigation.compose)
+    implementation(libs.accompanist.drawablepainter)
+    implementation("androidx.palette:palette:1.0.0")
+
+    // Material Kolor - 动态主题颜色生成
+    implementation(libs.material.kolor)
+
+    debugImplementation(libs.compose.ui.tooling)
+
+    // ====== 必要依赖开始 ======
+    // Hidden API for Dhizuku binder wrapper
+    // (compileOnly - uses system framework at runtime)
+    compileOnly(project(":hidden-api"))
+    // Shizuku api/provider
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
-    
-    // MTDataFilesProvider
-    debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
+    // Dhizuku
+    implementation("io.github.iamr0s:Dhizuku-API:2.5.4")
 
+    // 绕过隐式 API
+    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
+    // ACRA - 崩溃捕获
+    implementation("ch.acra:acra-core:5.11.3")
     // Kotlin support
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
     implementation("androidx.core:core-ktx:1.15.0")
-    
-    // Compression/Decompression native library
-    implementation("com.github.luben:zstd-jni:1.5.6-5")
+    // ====== 必要依赖结束 ======
 
-    // Dhizuku
-    implementation(libs.iamr0s.dhizuku.api)
+    // 测试依赖
+    // Jetpack Graphics 原生库 - 用于高性能图形渲染
+    debugImplementation("androidx.graphics:graphics-path:1.0.1")
+    debugImplementation("androidx.graphics:graphics-core:1.0.1")
 
-    // Hidden API for Dhizuku binder wrapper (compileOnly - uses system framework at runtime)
-    compileOnly(project(":hidden-api"))
-
-    // Bypass Android hidden API restrictions
-    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
+    // MTDataFilesProvider,documentfile
+    debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
+    debugImplementation("androidx.documentfile:documentfile:1.0.1")
 }

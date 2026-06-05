@@ -54,9 +54,11 @@
 <string name="english">English</string>
 <string name="russian">Russian</string>
 <string name="japanese">Japanese</string>
+<string name="meow_language">Meow Chinese</string>
 <string name="confirm">Confirm</string>
-<string name="language_changed_tip">Language switched to %s, the app will restart automatically</string>
-<string name="language_change_failed">Language switch failed</string>
+    <string name="language_changed_tip">Language switched to %s</string>
+    <string name="language_change_failed">Language switch failed</string>
+    <string name="theme_changed_tip">Theme switched to %s</string>
 <string name="feature_developing">Feature under development</string>
 <string name="notification_settings_updated">Notification settings updated</string>
 <string name="background_display_enabled">Background display enabled, the app will appear in the recent tasks list (takes effect after restarting the app)</string>
@@ -67,6 +69,16 @@
 <string name="find_me">ω寻找我ω</string>
 <string name="about_description">Focused on Android app installation tool development</string>
 <string name="visit_github">Visit GitHub</string>
+
+<string name="light_theme">Light Theme</string>
+<string name="dark_theme">Dark Theme</string>
+<string name="lang_name_system">Follow System</string>
+<string name="lang_name_simplified">简体中文</string>
+<string name="lang_name_traditional">繁體中文</string>
+<string name="lang_name_english">English</string>
+<string name="lang_name_russian">Русский</string>
+<string name="lang_name_japanese">日本語</string>
+<string name="lang_name_meow">喵语中文</string>
 
 <!-- 引用的字符串 -->
 <string name="shell_hint">Enter command...</string>
@@ -113,7 +125,7 @@
 <string name="preparing">Preparing...</string>
 <string name="progress_count">0/0</string>
 <string name="full_log">Full log</string>
-<string name="clear">Clear</string>
+    <string name="clear">Clear</string>
 <string name="export">Export</string>
 <string name="real_time_logs">Real-time log display</string>
 <string name="waiting_operation">Waiting...</string>
@@ -132,6 +144,7 @@
 <string name="unknown">Unknown</string>
 <string name="xapk_package">XAPK Installation Package</string>
 <string name="invalid_install_request">Invalid installation request</string>
+<string name="unsupported_file_type">Unsupported file type, only APK/XAPK/APKS/APKM files are supported</string>
 <string name="cannot_access_install_file">Cannot access installation file</string>
 <string name="process_install_file_failed">Failed to process installation file</string>
 <string name="error_processing_install_file">Error occurred while processing installation file</string>
@@ -561,5 +574,54 @@ Please try installing Chrome, Firefox or other browser apps.</string>
 <string name="select_privilege_mode">Select Authorization</string>
 <string name="upgrade_version">Upgrade Version: </string>
 <string name="arrow_down">Down Arrow</string>
+<string name="content_description_history">History</string>
+<string name="content_description_bookmarks">Bookmarks</string>
+<string name="content_description_search">Search</string>
+<string name="content_description_save">Save</string>
+
+<!-- Easter egg -->
+<string name="easter_egg_text">Nothing here~</string>
+
+<!-- Additional hardcoded strings found -->
+<string name="package_name_label_colon">Package Name: </string>
+<string name="current_version_label">Current Version: </string>
+<string name="upgrade_version_label">Upgrade Version: </string>
+<string name="min_sdk_label">Min SDK: </string>
+<string name="target_sdk_label">Target SDK: </string>
+<string name="search_in_output_hint">Search in output...</string>
+<string name="no_command_history">No command history</string>
+<string name="no_bookmarks_saved">No bookmarks saved</string>
+<string name="add_bookmark_title">Add Bookmark</string>
+<string name="enter_command_bookmark_hint">Enter command to bookmark...</string>
+<string name="theme_color_title">Theme Color</string>
+<string name="follow_wallpaper_option">Follow Wallpaper</string>
+<string name="preset_colors_title">Preset Colors</string>
+<string name="apply_button">Apply</string>
+<string name="selected_content_description">Selected</string>
+<string name="dynamic_color_enabled">Dynamic color enabled</string>
+<string name="using_custom_color">Using custom color</string>
+<string name="close_search">Close search</string>
+<string name="up_direction">Up</string>
+<string name="down_direction">Down</string>
+<string name="tab_key">Tab</string>
+<string name="ctrl_c_key">Ctrl+C</string>
+<string name="escape_key">Escape</string>
+<string name="clear_screen">Clear</string>
+<string name="clipboard_action">Clipboard</string>
+<string name="quick_commands_action">Quick Commands</string>
+<string name="add_bookmark_action">Add bookmark</string>
+<string name="remove_bookmark_action">Remove</string>
+
+<!-- Share and save related -->
+<string name="share_output_title">Share Output</string>
+<string name="share_failed">Share failed: %s</string>
+<string name="save_failed">Save failed</string>
+<string name="scroll_to_top">Scroll to top</string>
+<string name="scroll_to_bottom">Scroll to bottom</string>
+<string name="cannot_open_notification_settings">Unable to open notification settings</string>
+<string name="toast_theme_changed">Theme changed</string>
+<string name="toast_language_changed">Language changed, restart required</string>
+<string name="log_entries_count" formatted="false">%d entries</string>
+<string name="not_available">N/A</string>
 
 </resources>

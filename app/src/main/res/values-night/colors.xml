@@ -122,4 +122,9 @@
     <color name="button_accent_dark">#FFFF6F00</color>
     <color name="button_install">#FF4DB6AC</color>
     <color name="button_install_dark">#FF00796B</color>
+    
+    <!-- 状态指示器颜色（深色模式适配）-->
+    <color name="status_indicator_error">#FFFF5252</color>
+    <color name="status_indicator_warning">#FFFFAB40</color>
+    <color name="status_indicator_success">#FF66BB6A</color>
 </resources>
