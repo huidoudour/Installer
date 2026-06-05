@@ -1,7 +1,6 @@
 package io.github.huidoudour.Installer.util
 
 import android.content.Context
-import io.github.huidoudour.Installer.R
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.File
@@ -114,8 +113,7 @@ class LogManager private constructor() {
         saveLogsAsync()
 
         // 同时输出到 System.out
-        val logPrefix = context?.getString(R.string.app_name) ?: "Installer"
-        println("$logPrefix: $logMessage")
+        println("Installer: $logMessage")
     }
 
     fun clearLogs() {
@@ -128,7 +126,7 @@ class LogManager private constructor() {
 
     fun getAllLogs(): String {
         if (logs.isEmpty()) {
-            return context?.getString(R.string.log_manager_waiting) ?: "等待操作..."
+            return "Waiting for operation..."
         }
         val sb = StringBuilder()
         for (log in logs) {

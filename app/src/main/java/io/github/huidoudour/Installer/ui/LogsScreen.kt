@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -92,17 +94,96 @@ fun LogsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
-        // Page title
-        Text(
-            text = stringResource(R.string.full_log),
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        // Page title + action buttons
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.full_log),
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Row {
+                // 清除按钮
+                Surface(
+                    shape = SmallShape,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    onClick = {
+                        viewModel.clearLogs()
+                        userScrolledAway = false
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.clear),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // 导出按钮
+                Surface(
+                    shape = SmallShape,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    onClick = {
+                        val result = viewModel.exportLogs()
+                        result.onSuccess { file ->
+                            try {
+                                val shareIntent = viewModel.shareLogFile(file)
+                                context.startActivity(
+                                    Intent.createChooser(shareIntent, context.getString(R.string.export_log))
+                                )
+                                Toast.makeText(context, context.getString(R.string.log_exported, file.name), Toast.LENGTH_LONG).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(context, context.getString(R.string.export_failed, e.message), Toast.LENGTH_LONG).show()
+                            }
+                        }.onFailure { error ->
+                            Toast.makeText(context, context.getString(R.string.export_failed, error.message), Toast.LENGTH_LONG).show()
+                        }
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.export),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+            }
+        }
 
         // Log card
         Card(
@@ -115,114 +196,31 @@ fun LogsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(20.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                // Header: title + count, then action buttons row
-                Column(
+                // Header: title + count
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 12.dp)
+                        .padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Row 1: 标题 + 日志条数
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.real_time_logs),
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = if (logs.isNotEmpty()) context.getString(R.string.log_entries_count, logCount) else "",
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontSize = 12.sp,
-                                fontFamily = FontFamily.Monospace
-                            ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Row 2: 清除 + 导出按钮，右对齐
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        // 清除按钮 — TonalButton 风格与项目设计统一
-                        Surface(
-                            shape = SmallShape,
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            onClick = {
-                                viewModel.clearLogs()
-                                userScrolledAway = false
-                            }
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = stringResource(R.string.clear),
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // 导出按钮 — TonalButton 风格与项目设计统一
-                        Surface(
-                            shape = SmallShape,
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            onClick = {
-                                val result = viewModel.exportLogs()
-                                result.onSuccess { file ->
-                                    try {
-                                        val shareIntent = viewModel.shareLogFile(file)
-                                        context.startActivity(
-                                            Intent.createChooser(shareIntent, context.getString(R.string.export_log))
-                                        )
-                                        Toast.makeText(context, context.getString(R.string.log_exported, file.name), Toast.LENGTH_LONG).show()
-                                    } catch (e: Exception) {
-                                        Toast.makeText(context, context.getString(R.string.export_failed, e.message), Toast.LENGTH_LONG).show()
-                                    }
-                                }.onFailure { error ->
-                                    Toast.makeText(context, context.getString(R.string.export_failed, error.message), Toast.LENGTH_LONG).show()
-                                }
-                            }
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.Share,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = stringResource(R.string.export),
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                            }
-                        }
-                    }
+                    Text(
+                        text = stringResource(R.string.real_time_logs),
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Medium
+                        ),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = if (logs.isNotEmpty()) context.getString(R.string.log_entries_count, logCount) else "",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 11.sp,
+                            fontFamily = FontFamily.Monospace
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
 
                 // Log list
@@ -252,8 +250,9 @@ fun LogsScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxSize()
-                            .weight(1f),
-                        shape = SmallShape,
+                            .weight(1f)
+                            .horizontalScroll(rememberScrollState()),
+                        shape = RoundedCornerShape(0.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                         )
@@ -261,6 +260,7 @@ fun LogsScreen(
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
+                                .wrapContentWidth()
                                 .padding(12.dp),
                             state = listState
                         ) {
@@ -290,7 +290,6 @@ fun LogEntryItem(log: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
             .padding(vertical = 2.dp)
     ) {
         Text(

@@ -183,14 +183,6 @@
 
     Please try installing Chrome, Firefox or other browser.</string>
     <string name="receive_install_intent">Received install intent, URI: %s</string>
-    <string name="start_apk_install">Starting APK installation...</string>
-    <string name="create_session">Creating install session: %s</string>
-    <string name="session_id">Session ID: %s</string>
-    <string name="write_apk_data">Writing APK data...</string>
-    <string name="submit_install">Submitting install...</string>
-    <string name="install_failed">Installation failed: %s</string>
-    <string name="install_exception">Installation exception: %s</string>
-    <string name="extract_xapk">Extracting XAPK (using native compression library)...</string>
     <string name="shizuku_not_running">Not Running/Not Installed</string>
     <string name="dhizuku_not_running">Not Running/Not Installed</string>
     <string name="shizuku_not_connected">Shizuku not connected.</string>
@@ -212,12 +204,6 @@
     <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUi caught exception: %s</string>
 
     <!-- XAPK extraction -->
-    <string name="extract_complete">Extraction complete, total %d APK files</string>
-    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
-    <string name="submitting_install">Submitting install...</string>
-    <string name="xapk_install_success_msg">XAPK installed successfully! Total %d APK files installed</string>
-    <string name="xapk_install_exception">XAPK installation exception: %s</string>
-    <string name="apk_not_exist">APK file does not exist</string>
     <string name="start_extract_xapk">Starting XAPK extraction: %s</string>
     <string name="extract_target_dir">Extraction target directory: %s</string>
     <string name="opening_zip_file">Opening ZIP file...</string>
@@ -230,7 +216,7 @@
     <string name="close_zip_stream_failed">Failed to close ZIP input stream</string>
     <string name="close_file_stream">File input stream closed</string>
     <string name="close_file_stream_failed">Failed to close file input stream</string>
-    <string name="install_success_simple">Installation successful!</string>
+
     <string name="extract_complete_summary" formatted="false">Extraction complete! Processed %d entries, extracted %d APK files</string>
     <string name="extract_xapk_error">Error occurred during XAPK extraction</string>
     <string name="no_apk_found">No APK files found in XAPK/APKS file</string>
@@ -254,7 +240,7 @@
     <string name="install_progress">Installation progress: %s</string>
     <string name="apk_install_success_log">APK installed successfully: %s</string>
     <string name="apk_install_failed_log">APK installation failed: %s</string>
-    <string name="install_failed_error">Installation failed: %s</string>
+
     <string name="all_apks_installed">All APK installation completed</string>
     <string name="xapk_install_exception_log">XAPK installation exception</string>
     <string name="install_exception_error">Installation exception: %s</string>
@@ -307,7 +293,7 @@
     <string name="non_interactive_mode">Non-interactive mode</string>
     <string name="disable_job_control_avoid_tty_error">Disable job control, avoid TTY error</string>
     <string name="unknown_file_format_chinese">Unknown format</string>
-    <string name="apk_name_failed" formatted="false">%s failed: %s</string>
+
 
     <!-- File operations -->
     <string name="copy_file_failed_log">Failed to copy file to temp directory Exit code: %d</string>

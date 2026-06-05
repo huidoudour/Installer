@@ -179,14 +179,6 @@
 
     請嘗試安裝Chrome、Firefox或其他瀏覽器應用。</string>
     <string name="receive_install_intent">接收到安裝意圖，URI: %s</string>
-    <string name="start_apk_install">開始安裝 APK...</string>
-    <string name="create_session">建立安裝會話: %s</string>
-    <string name="session_id">會話ID: %s</string>
-    <string name="write_apk_data">寫入 APK 資料...</string>
-    <string name="submit_install">提交安裝...</string>
-    <string name="install_failed">安裝失敗: %s</string>
-    <string name="install_exception">安裝異常: %s</string>
-    <string name="extract_xapk">正在解壓 XAPK (使用原生壓縮庫)...</string>
     <string name="shizuku_not_running">未運行/未安裝</string>
     <string name="shizuku_not_connected">Shizuku 未連接.</string>
     <string name="version_too_low">版本過低</string>
@@ -201,12 +193,6 @@
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi 捕獲異常: %s</string>
 
     <!-- XAPK extraction -->
-    <string name="extract_complete">解壓完成，共 %d 個 APK</string>
-    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
-    <string name="submitting_install">提交安裝...</string>
-    <string name="xapk_install_success_msg">XAPK 安裝成功！共安裝 %d 個 APK</string>
-    <string name="xapk_install_exception">XAPK 安裝異常: %s</string>
-    <string name="apk_not_exist">APK 檔案不存在</string>
     <string name="start_extract_xapk">開始解壓 XAPK: %s</string>
     <string name="extract_target_dir">解壓目標目錄: %s</string>
     <string name="opening_zip_file">正在開啟 ZIP 檔案...</string>
@@ -219,7 +205,7 @@
     <string name="close_zip_stream_failed">關閉 ZIP 輸入流失敗</string>
     <string name="close_file_stream">檔案輸入流已關閉</string>
     <string name="close_file_stream_failed">關閉檔案輸入流失敗</string>
-    <string name="install_success_simple">安裝成功！</string>
+
     <string name="extract_complete_summary" formatted="false">解壓完成！共處理 %d 個條目，提取 %d 個 APK 檔案</string>
     <string name="extract_xapk_error">解壓 XAPK 過程中發生錯誤</string>
     <string name="no_apk_found">XAPK/APKS 檔案中未找到任何 APK 檔案</string>
@@ -243,7 +229,7 @@
     <string name="install_progress">安裝進度: %s</string>
     <string name="apk_install_success_log">APK 安裝成功: %s</string>
     <string name="apk_install_failed_log">APK 安裝失敗: %s</string>
-    <string name="install_failed_error">安裝失敗: %s</string>
+
     <string name="all_apks_installed">所有 APK 安裝完成</string>
     <string name="xapk_install_exception_log">XAPK 安裝異常</string>
     <string name="install_exception_error">安裝異常: %s</string>
@@ -296,7 +282,7 @@
     <string name="non_interactive_mode">非互動式模式</string>
     <string name="disable_job_control_avoid_tty_error">禁用作業控制，避免TTY錯誤</string>
     <string name="unknown_file_format_chinese">未知格式</string>
-    <string name="apk_name_failed" formatted="false">%s 失敗: %s</string>
+
 
     <!-- File operations -->
     <string name="copy_file_failed_log">複製檔案到臨時目錄失敗 Exit code: %d</string>
