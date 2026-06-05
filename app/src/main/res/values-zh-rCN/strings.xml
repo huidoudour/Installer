@@ -152,6 +152,7 @@
     <string name="unknown">未知</string>
     <string name="xapk_package">XAPK安装包</string>
     <string name="invalid_install_request">无效的安装请求</string>
+    <string name="unsupported_file_type">不支持的文件类型，仅支持 APK/XAPK/APKS/APKM 文件</string>
     <string name="cannot_access_install_file">无法访问安装文件</string>
     <string name="process_install_file_failed">处理安装文件失败</string>
     <string name="error_processing_install_file">处理安装文件时发生错误</string>

@@ -93,15 +93,7 @@ fun SettingsScreen(
     var showPrivilegeDialog by remember { mutableStateOf(false) }
     var showNotificationDialog by remember { mutableStateOf(false) }
 
-    // 语言切换的延迟 recreate 标记（避免对话框 dismiss 动画与 recreate 竞态）
-    var pendingLanguageRecreate by remember { mutableStateOf(false) }
-
-    LaunchedEffect(pendingLanguageRecreate) {
-        if (pendingLanguageRecreate) {
-            kotlinx.coroutines.delay(200)
-            (context as? android.app.Activity)?.recreate()
-        }
-    }
+    // 注意：语言切换使用 AppCompatDelegate.setApplicationLocales() 自动触发 Activity 重建，无需手动 recreate
 
     // Notification permission launcher (Android 13+)
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -201,8 +193,7 @@ fun SettingsScreen(
                 viewModel.setLanguage(newLanguage)
                 showLanguageDialog = false
                 Toast.makeText(context, context.getString(R.string.toast_language_changed), Toast.LENGTH_LONG).show()
-                // 延迟 recreate，等对话框 dismiss 动画完成后再重建
-                pendingLanguageRecreate = true
+                // AppCompatDelegate.setApplicationLocales() 会自动触发 Activity 重建
             },
             getDisplayName = { langCode ->
                 viewModel.getLanguageDisplayName(langCode)

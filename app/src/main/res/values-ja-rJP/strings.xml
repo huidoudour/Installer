@@ -147,6 +147,7 @@
     <string name="unknown">不明</string>
     <string name="xapk_package">XAPKパッケージ</string>
     <string name="invalid_install_request">無効なインストールリクエスト</string>
+    <string name="unsupported_file_type">サポートされていないファイルタイプです。APK/XAPK/APKS/APKMファイルのみサポートされています</string>
     <string name="cannot_access_install_file">インストールファイルにアクセスできません</string>
     <string name="process_install_file_failed">インストールファイルの処理に失敗しました</string>
     <string name="error_processing_install_file">インストールファイルの処理中にエラーが発生しました</string>

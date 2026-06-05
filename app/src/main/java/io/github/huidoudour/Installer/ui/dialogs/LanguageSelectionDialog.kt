@@ -45,10 +45,10 @@ fun LanguageSelectionDialog(
     val languages = listOf(
         LanguageOption("system", "Follow System", "跟随系统", false),
         LanguageOption("zh-rCN", "简体中文", "Simplified Chinese", true),
-        LanguageOption("en", "English", "English", false),
+        LanguageOption("en-rUS", "English", "English", false),
         LanguageOption("zh-rTW", "繁體中文", "Traditional Chinese", false),
-        LanguageOption("ru", "Русский", "Russian", false),
-        LanguageOption("ja", "日本語", "Japanese", false),
+        LanguageOption("ru-rRU", "Русский", "Russian", false),
+        LanguageOption("ja-rJP", "日本語", "Japanese", false),
         LanguageOption("zh-rHK", "喵语中文", "Meow Language", false)
     )
     

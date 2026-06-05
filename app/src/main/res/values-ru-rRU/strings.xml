@@ -150,6 +150,7 @@
     <string name="unknown">Неизвестно</string>
     <string name="xapk_package">XAPK пакет</string>
     <string name="invalid_install_request">Недопустимый запрос установки</string>
+    <string name="unsupported_file_type">Неподдерживаемый тип файла, поддерживаются только файлы APK/XAPK/APKS/APKM</string>
     <string name="cannot_access_install_file">Невозможно получить доступ к файлу установки</string>
     <string name="process_install_file_failed">Не удалось обработать файл установки</string>
     <string name="error_processing_install_file">Ошибка при обработке файла установки</string>

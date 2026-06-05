@@ -3,6 +3,7 @@ package io.github.huidoudour.Installer
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -22,6 +23,21 @@ class InstallDialogActivity : ComponentActivity() {
 
     private var installUri: Uri? = null
 
+    /**
+     * 支持的安装文件 MIME 类型
+     */
+    private val SUPPORTED_MIME_TYPES = setOf(
+        "application/vnd.android.package-archive",
+        "application/vnd.apkm",
+        "application/x-xapk",
+        "application/octet-stream"
+    )
+
+    /**
+     * 支持的安装文件扩展名
+     */
+    private val SUPPORTED_EXTENSIONS = setOf("apk", "xapk", "apks", "apkm")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyUserThemePreference(this)
         LanguageManager.applyUserLanguagePreference(this)
@@ -31,8 +47,17 @@ class InstallDialogActivity : ComponentActivity() {
         // 设置透明背景，让 Dialog 可以正常显示
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // 获取安装 URI
+        // 获取并验证安装 URI
         installUri = intent.data
+        val errorResId = validateInstallUri(installUri)
+
+        if (errorResId != 0) {
+            // URI 无效或文件不支持，显示提示并关闭
+            Log.w("InstallDialog", "Validation failed for URI: $installUri, errorResId=$errorResId")
+            Toast.makeText(this, getString(errorResId), Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         setContent {
             if (installUri != null) {
@@ -50,9 +75,98 @@ class InstallDialogActivity : ComponentActivity() {
                     }
                 )
             } else {
-                // 如果没有 URI，直接关闭
                 finish()
             }
+        }
+    }
+
+    /**
+     * 验证安装 URI 的有效性
+     * @return 0 表示有效，非 0 表示对应的错误字符串资源 ID
+     */
+    private fun validateInstallUri(uri: Uri?): Int {
+        // 1. URI 空检查
+        if (uri == null) {
+            Log.w("InstallDialog", "URI is null")
+            return R.string.invalid_install_request
+        }
+
+        // 2. URI scheme 检查（仅允许 file 和 content）
+        val scheme = uri.scheme
+        if (scheme != "file" && scheme != "content") {
+            Log.w("InstallDialog", "Unsupported URI scheme: $scheme")
+            return R.string.unsupported_file_type
+        }
+
+        // 3. MIME 类型检查
+        val mimeType = contentResolver.getType(uri)
+        Log.d("InstallDialog", "URI MIME type: $mimeType, URI: $uri")
+        val isMimeSupported = mimeType != null && SUPPORTED_MIME_TYPES.any {
+            mimeType.equals(it, ignoreCase = true)
+        }
+
+        // 4. 文件扩展名检查（作为 MIME 的补充/降级）
+        val fileName = getFileNameFromUri(uri)
+        val extension = fileName?.substringAfterLast('.', "")?.lowercase()
+        val isExtensionSupported = !extension.isNullOrEmpty() && SUPPORTED_EXTENSIONS.contains(extension)
+
+        // MIME 或扩展名任一匹配即可通过
+        if (!isMimeSupported && !isExtensionSupported) {
+            Log.w("InstallDialog", "Unsupported file type: mime=$mimeType, ext=$extension, file=$fileName")
+            return R.string.unsupported_file_type
+        }
+
+        // 5. 文件可访问性检查
+        if (!isUriAccessible(uri)) {
+            Log.w("InstallDialog", "URI is not accessible: $uri")
+            return R.string.cannot_access_install_file
+        }
+
+        Log.d("InstallDialog", "URI validation passed: mime=$mimeType, ext=$extension, file=$fileName")
+        return 0
+    }
+
+    /**
+     * 从 URI 获取文件名
+     */
+    private fun getFileNameFromUri(uri: Uri): String? {
+        return try {
+            when (uri.scheme) {
+                "file" -> uri.lastPathSegment
+                "content" -> {
+                    contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                            if (nameIndex >= 0) cursor.getString(nameIndex) else null
+                        } else null
+                    }
+                }
+                else -> uri.lastPathSegment
+            }
+        } catch (e: Exception) {
+            Log.e("InstallDialog", "Failed to get file name from URI", e)
+            null
+        }
+    }
+
+    /**
+     * 检查 URI 对应的文件是否可访问
+     */
+    private fun isUriAccessible(uri: Uri): Boolean {
+        return try {
+            when (uri.scheme) {
+                "file" -> {
+                    val path = uri.path
+                    path != null && java.io.File(path).let { it.exists() && it.canRead() }
+                }
+                "content" -> {
+                    contentResolver.openInputStream(uri)?.use { true } ?: false
+                }
+                else -> false
+            }
+        } catch (e: Exception) {
+            Log.e("InstallDialog", "URI accessibility check failed", e)
+            false
         }
     }
 

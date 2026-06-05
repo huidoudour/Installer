@@ -1,12 +1,14 @@
 package io.github.huidoudour.Installer.util
 
 import android.content.Context
-import android.content.res.Configuration
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import java.util.Locale
 
 /**
  * 语言管理工具类
+ * 使用 AppCompatDelegate.setApplicationLocales() 实现可靠的语言切换
  */
 object LanguageManager {
 
@@ -18,17 +20,17 @@ object LanguageManager {
     const val LANGUAGE_SIMPLIFIED_CHINESE = "zh-rCN"
     const val LANGUAGE_TRADITIONAL_CHINESE = "zh-rTW"
     const val LANGUAGE_HONGKONG_CHINESE = "zh-rHK"
-    const val LANGUAGE_ENGLISH = "en"
-    const val LANGUAGE_JAPANESE = "ja"
-    const val LANGUAGE_RUSSIAN = "ru"
+    const val LANGUAGE_ENGLISH = "en-rUS"
+    const val LANGUAGE_JAPANESE = "ja-rJP"
+    const val LANGUAGE_RUSSIAN = "ru-rRU"
 
     /**
-     * 应用用户选择的语言偏好
+     * 应用用户选择的语言偏好（在 Activity.onCreate 的 super.onCreate 之前调用）
      */
     fun applyUserLanguagePreference(context: Context) {
         try {
             val language = getUserLanguage(context)
-            applyLanguage(context, language)
+            applyLanguage(language)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to apply language preference: ${e.message}")
         }
@@ -36,29 +38,35 @@ object LanguageManager {
 
     /**
      * 应用指定语言
+     * 使用 AppCompatDelegate.setApplicationLocales() 自动处理 Activity 重建和配置更新
      */
-    fun applyLanguage(context: Context, languageCode: String) {
+    fun applyLanguage(languageCode: String) {
         try {
-            val locale = when (languageCode) {
-                LANGUAGE_FOLLOW_SYSTEM -> Locale.getDefault()
-                LANGUAGE_SIMPLIFIED_CHINESE -> Locale.SIMPLIFIED_CHINESE
-                LANGUAGE_TRADITIONAL_CHINESE -> Locale.TRADITIONAL_CHINESE
-                LANGUAGE_HONGKONG_CHINESE -> Locale.Builder().setLanguage("zh").setRegion("HK").build()
-                LANGUAGE_ENGLISH -> Locale.ENGLISH
-                LANGUAGE_JAPANESE -> Locale.JAPANESE
-                LANGUAGE_RUSSIAN -> Locale.Builder().setLanguage("ru").build()
-                else -> Locale.getDefault()
+            val localeList = when (languageCode) {
+                LANGUAGE_FOLLOW_SYSTEM -> LocaleListCompat.getEmptyLocaleList()
+                else -> {
+                    val locale = languageCodeToLocale(languageCode)
+                    LocaleListCompat.create(locale)
+                }
             }
-
-            Locale.setDefault(locale)
-
-            val config = Configuration(context.resources.configuration)
-            config.setLocale(locale)
-
-            @Suppress("DEPRECATION")
-            context.resources.updateConfiguration(config, context.resources.displayMetrics)
+            AppCompatDelegate.setApplicationLocales(localeList)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to apply language: ${e.message}")
+        }
+    }
+
+    /**
+     * 将语言代码转换为 Locale 对象
+     */
+    private fun languageCodeToLocale(languageCode: String): Locale {
+        return when (languageCode) {
+            LANGUAGE_SIMPLIFIED_CHINESE -> Locale.SIMPLIFIED_CHINESE
+            LANGUAGE_TRADITIONAL_CHINESE -> Locale.TRADITIONAL_CHINESE
+            LANGUAGE_HONGKONG_CHINESE -> Locale.Builder().setLanguage("zh").setRegion("HK").build()
+            LANGUAGE_ENGLISH -> Locale.Builder().setLanguage("en").setRegion("US").build()
+            LANGUAGE_JAPANESE -> Locale.Builder().setLanguage("ja").setRegion("JP").build()
+            LANGUAGE_RUSSIAN -> Locale.Builder().setLanguage("ru").setRegion("RU").build()
+            else -> Locale.getDefault()
         }
     }
 
@@ -85,6 +93,18 @@ object LanguageManager {
             Log.e(TAG, "Failed to get language setting: ${e.message}")
             LANGUAGE_FOLLOW_SYSTEM
         }
+    }
+
+    /**
+     * 获取当前应用的语言代码
+     */
+    fun getCurrentLanguageCode(): String {
+        val locales = AppCompatDelegate.getApplicationLocales()
+        if (locales.isEmpty) return LANGUAGE_FOLLOW_SYSTEM
+        val locale = locales[0] ?: return LANGUAGE_FOLLOW_SYSTEM
+        val language = locale.language
+        val region = locale.country
+        return if (region.isNotEmpty()) "${language}-r$region" else language
     }
 
     /**

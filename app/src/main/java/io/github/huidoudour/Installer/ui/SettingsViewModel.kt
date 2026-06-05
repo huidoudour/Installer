@@ -65,11 +65,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     /**
      * 切换语言
+     * 使用 AppCompatDelegate.setApplicationLocales() 自动触发 Activity 重建
      */
     fun setLanguage(languageCode: String) {
         LanguageManager.saveUserLanguage(context, languageCode)
-        LanguageManager.applyUserLanguagePreference(context)
-        _currentLanguage.value = languageCode
+        LanguageManager.applyLanguage(languageCode)
+        // 注意：applyLanguage 会触发 Activity 重建，无需手动更新 _currentLanguage
     }
 
     /**

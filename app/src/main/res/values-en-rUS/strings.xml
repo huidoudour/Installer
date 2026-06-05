@@ -144,6 +144,7 @@
 <string name="unknown">Unknown</string>
 <string name="xapk_package">XAPK Installation Package</string>
 <string name="invalid_install_request">Invalid installation request</string>
+<string name="unsupported_file_type">Unsupported file type, only APK/XAPK/APKS/APKM files are supported</string>
 <string name="cannot_access_install_file">Cannot access installation file</string>
 <string name="process_install_file_failed">Failed to process installation file</string>
 <string name="error_processing_install_file">Error occurred while processing installation file</string>
