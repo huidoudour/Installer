@@ -6,6 +6,15 @@ env:
 on:
   push:
     branches: [ "master" , "ccrh_cache" , "dev" ]
+    paths:
+      - 'app/src/**'
+      - 'app/build.gradle.kts'
+      - 'app/proguard-rules.pro'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - 'hidden-api/**'
 
 jobs:
   build-debug:

@@ -64,6 +64,16 @@ android {
         viewBinding = true
     }
 
+    // 配置 APK 分块 - 支持全部 4 个架构
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+            isUniversalApk = true
+        }
+    }
+
     lint {
         // 将警告视为警告,不要作为错误
         warningsAsErrors = false
