@@ -264,7 +264,10 @@ fun LogsScreen(
                                 .padding(12.dp),
                             state = listState
                         ) {
-                            items(logs) { log ->
+                            items(
+                                items = logs,
+                                key = { index -> "log_$index" }
+                            ) { log ->
                                 LogEntryItem(log = log)
                             }
                         }

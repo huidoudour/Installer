@@ -12,31 +12,15 @@ android {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
-        versionCode = 657 //版本代码
-        versionName = "6.5.7-alpha" //版本名称
+        versionCode = 674 //版本代码
+        versionName = "6.7.4-alpha" //版本名称
         
-        // 启用NDK - 配置C++共享库编译
-        externalNativeBuild {
-            cmake {
-                // 指定支持的架构 - 包含全部 4 个架构以支持通用 APK
-                abiFilters("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
-                // C++ 编译参数
-                cppFlags += listOf("-std=c++17")
-                // 添加 16KB 页面对齐支持
-                arguments += listOf(
-                    "-DANDROID_STL=c++_shared",
-                    "-DCMAKE_VERBOSE_MAKEFILE=ON"
-                )
-            }
-        }
+
         
         
         // === 完整的 16KB 页面大小支持配置 ===
         // 确保整个 APK 在 16KB 页面大小的设备上正常运行 (Android 15+)
         packaging {
-            jniLibs {
-                // 删除未使用的原生库调试符号配置
-            }
             // 配置资源压缩选项
             resources {
                 // 排除不需要的元数据
@@ -79,24 +63,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
-    
-    // 配置 CMake
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
-    
-    // 配置 APK 分块 - 支持全部 4 个架构
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
-            isUniversalApk = true
-        }
-    }
+
     lint {
         // 将警告视为警告,不要作为错误
         warningsAsErrors = false
@@ -155,7 +122,6 @@ dependencies {
     implementation(libs.material.kolor)
 
     debugImplementation(libs.compose.ui.tooling)
-    debugImplementation(libs.compose.ui.tooling.preview)
 
     // ====== 必要依赖开始 ======
     // Hidden API for Dhizuku binder wrapper
@@ -166,8 +132,7 @@ dependencies {
     implementation("dev.rikka.shizuku:provider:13.1.5")
     // Dhizuku
     implementation("io.github.iamr0s:Dhizuku-API:2.5.4")
-    // Compression/Decompression native library - 使用最新版本兼容 NDK 27
-    implementation("com.github.luben:zstd-jni:1.5.6-6")
+
     // 绕过隐式 API
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
     // ACRA - 崩溃捕获

@@ -61,6 +61,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -102,6 +103,7 @@ fun ShellScreen(
     var showQuickCommandsDialog by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(viewModel.outputLineCount) {
         if (!viewModel.userScrolledAwayFromBottom) {
@@ -171,7 +173,7 @@ fun ShellScreen(
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         if (isSearchVisible && searchText.isNotEmpty()) {
-                            val searchTextValue = viewModel.searchResult.value
+                            val searchTextValue by viewModel.searchResult.collectAsState()
                             val displayStr = searchTextValue.ifEmpty { outputText }
                             androidx.compose.material3.Text(
                                 text = displayStr,
@@ -209,7 +211,7 @@ fun ShellScreen(
                             ) {
                                 SmallFloatingActionButton(
                                     onClick = {
-                                        kotlinx.coroutines.MainScope().launch {
+                                        coroutineScope.launch {
                                             scrollState.animateScrollTo(0)
                                         }
                                     },
@@ -226,7 +228,7 @@ fun ShellScreen(
                                 }
                                 SmallFloatingActionButton(
                                     onClick = {
-                                        kotlinx.coroutines.MainScope().launch {
+                                        coroutineScope.launch {
                                             scrollState.animateScrollTo(scrollState.maxValue)
                                         }
                                         viewModel.userScrolledAwayFromBottom = false
@@ -551,6 +553,7 @@ fun ShellHistoryDialog(
     onSelectCommand: (String) -> Unit
 ) {
     val history = remember { ShellExecutor.CommandHistory.getAll() }
+    val reversedHistory = remember(history) { history.reversed() }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -571,7 +574,7 @@ fun ShellHistoryDialog(
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(history.reversed()) { cmd ->
+                    items(reversedHistory) { cmd ->
                         Text(
                             text = cmd,
                             modifier = Modifier
