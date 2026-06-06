@@ -1,7 +1,6 @@
 package android.content.pm;
 
 import android.content.IntentSender;
-import android.os.Parcel;
 
 import java.io.File;
 import java.io.OutputStream;

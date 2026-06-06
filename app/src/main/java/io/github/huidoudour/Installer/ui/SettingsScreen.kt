@@ -12,9 +12,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -70,14 +68,12 @@ import io.github.huidoudour.Installer.ui.dialogs.InstallerPackageDialog
 import io.github.huidoudour.Installer.ui.dialogs.LanguageSelectionDialog
 import io.github.huidoudour.Installer.ui.dialogs.ThemeSelectionDialog
 import io.github.huidoudour.Installer.ui.dialogs.getCurrentInstallerPackage
-import io.github.huidoudour.Installer.util.PrivilegeHelper
 import io.github.huidoudour.Installer.ui.theme.CardShape
-import io.github.huidoudour.Installer.ui.theme.GlobalThemeStore
 import io.github.huidoudour.Installer.ui.theme.SegmentedGap
 import io.github.huidoudour.Installer.ui.theme.SmallShape
-import io.github.huidoudour.Installer.ui.theme.ThemeMode
 import io.github.huidoudour.Installer.ui.theme.segmentedShape
 import io.github.huidoudour.Installer.ui.theme.singleShape
+import io.github.huidoudour.Installer.util.PrivilegeHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

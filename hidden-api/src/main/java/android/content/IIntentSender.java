@@ -1,8 +1,8 @@
 package android.content;
 
-import android.os.IInterface;
-import android.os.IBinder;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.IInterface;
 
 /**
  * Hidden API interface for IIntentSender.

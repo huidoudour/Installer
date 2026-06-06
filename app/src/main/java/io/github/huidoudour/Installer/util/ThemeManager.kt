@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.ui.theme.GlobalThemeStore
-import io.github.huidoudour.Installer.ui.theme.ThemeMode
 
 /**
  * 主题管理工具类
