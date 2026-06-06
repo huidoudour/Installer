@@ -5,16 +5,15 @@ env:
 
 on:
   push:
-    branches: [ "master" , "ccrh_cache" , "dev" ]
+    branches: [ "master" , "dev" ]
     paths:
       - 'app/src/**'
       - 'app/build.gradle.kts'
-      - 'app/proguard-rules.pro'
+      - 'app/AndroidManifest.xml'
+      - 'hidden-api/src/**'
+      - 'hidden-api/build.gradle.kts'
       - 'build.gradle.kts'
       - 'settings.gradle.kts'
-      - 'gradle.properties'
-      - 'gradle/**'
-      - 'hidden-api/**'
 
 jobs:
   build-debug:
