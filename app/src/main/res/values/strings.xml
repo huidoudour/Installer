@@ -634,4 +634,23 @@
     <string name="log_entries_count" formatted="false">%d entries</string>
     <string name="not_available">N/A</string>
 
+    <!-- Missing default strings (defined in language-specific folders) -->
+    <string name="apk_name_failed" formatted="false">%s failed: %s</string>
+    <string name="apk_not_exist">APK file does not exist</string>
+    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
+    <string name="create_session">Create installation session: %s</string>
+    <string name="extract_complete">Extraction complete, %d APKs in total</string>
+    <string name="extract_xapk">Extracting XAPK (using native compression library)…</string>
+    <string name="install_exception">Installation exception: %s</string>
+    <string name="install_failed">Installation failed: %s</string>
+    <string name="install_failed_error">Installation failed: %s</string>
+    <string name="install_success_simple">Installation successful!</string>
+    <string name="session_id">Session ID: %s</string>
+    <string name="start_apk_install">Start APK installation…</string>
+    <string name="submit_install">Submit installation…</string>
+    <string name="submitting_install">Submitting installation…</string>
+    <string name="write_apk_data">Writing APK data…</string>
+    <string name="xapk_install_exception">XAPK installation exception: %s</string>
+    <string name="xapk_install_success_msg">XAPK installation successful! %d APKs installed in total</string>
+
 </resources>
