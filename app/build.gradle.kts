@@ -16,7 +16,7 @@ android {
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
         versionCode = 690 //版本代码
-        versionName = "v26.06.690" //版本名称
+        versionName = "v26.06.691" //版本名称
 
         // NDK ABI 配置 - 构建 libtermux_bridge.so 支持的架构
         externalNativeBuild {
