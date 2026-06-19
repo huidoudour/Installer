@@ -1,14 +1,14 @@
 package io.github.huidoudour.Installer.ui
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import io.github.huidoudour.Installer.ui.theme.AppTheme
 import io.github.huidoudour.Installer.util.LanguageManager
 
-class MeActivity : ComponentActivity() {
+class MeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // 应用用户选择的语言

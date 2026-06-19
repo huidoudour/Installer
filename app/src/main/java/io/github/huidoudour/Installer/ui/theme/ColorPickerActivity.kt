@@ -3,7 +3,7 @@ package io.github.huidoudour.Installer.ui.theme
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -56,7 +56,7 @@ import io.github.huidoudour.Installer.R
  * 颜色选择 Activity
  * 用于从设置界面启动 Compose 颜色选择对话框
  */
-class ColorPickerActivity : ComponentActivity() {
+class ColorPickerActivity : AppCompatActivity() {
     
     companion object {
         const val EXTRA_CURRENT_COLOR = "current_color"

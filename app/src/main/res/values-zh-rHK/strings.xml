@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Installer 喵~</string>
+    <string name="app_name">Installer</string>
     <string name="title_home">安装喵</string>
     <string name="title_shell">Shell 喵</string>
     <string name="title_notifications">日志喵</string>

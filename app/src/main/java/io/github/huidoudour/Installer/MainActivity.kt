@@ -2,7 +2,7 @@ package io.github.huidoudour.Installer
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -38,7 +38,7 @@ import io.github.huidoudour.Installer.ui.theme.AppTheme
 import io.github.huidoudour.Installer.util.LanguageManager
 import io.github.huidoudour.Installer.util.ThemeManager
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyUserThemePreference(this)

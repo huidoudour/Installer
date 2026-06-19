@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import io.github.huidoudour.Installer.ui.InstallDialog
@@ -19,7 +19,7 @@ import io.github.huidoudour.Installer.util.ThemeManager
  * 用于处理来自外部的 APK 安装请求
  * 完全独立于 MainActivity，不显示底部导航栏等 App UI
  */
-class InstallDialogActivity : ComponentActivity() {
+class InstallDialogActivity : AppCompatActivity() {
 
     private var installUri: Uri? = null
 
