@@ -8,16 +8,24 @@ android {
     namespace = "io.github.huidoudour.Installer"
     compileSdk = 36
 
+    // NDK 版本配置 - PTY 子进程管理
+    ndkVersion = "30.0.14904198"
+
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
         versionCode = 687 //版本代码
         versionName = "6.8.7-alpha" //版本名称
-        
 
-        
-        
+        // NDK ABI 配置 - 构建 libtermux_bridge.so 支持的架构
+        externalNativeBuild {
+            cmake {
+                // 匹配 ABI 分块配置
+                abiFilters += setOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+            }
+        }
+
         // === 完整的 16KB 页面大小支持配置 ===
         // 确保整个 APK 在 16KB 页面大小的设备上正常运行 (Android 15+)
         packaging {
@@ -49,6 +57,14 @@ android {
             )
         }
     }
+    // NDK 构建配置 (libtermux_bridge.so - PTY 子进程管理)
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
@@ -152,13 +168,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
     implementation("androidx.core:core-ktx:1.15.0")
     // ====== 必要依赖结束 ======
-
-    // 测试依赖
     // Jetpack Graphics 原生库 - 用于高性能图形渲染
-    debugImplementation("androidx.graphics:graphics-path:1.0.1")
-    debugImplementation("androidx.graphics:graphics-core:1.0.1")
-
+    implementation("androidx.graphics:graphics-path:1.0.1")
+    implementation("androidx.graphics:graphics-core:1.0.1")
+    // 测试依赖
     // MTDataFilesProvider,documentfile
     debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
     debugImplementation("androidx.documentfile:documentfile:1.0.1")
+
+    // Termux
+    // debugImplementation("com.termux.termux-app:termux-shared:0.118.0")
 }

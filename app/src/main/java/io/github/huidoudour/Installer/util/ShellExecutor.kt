@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import io.github.huidoudour.Installer.R
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
@@ -18,12 +19,222 @@ object ShellExecutor {
 
     private const val TAG = "ShellExecutor"
 
+    // ====== 传统模式 (pipe-based) ======
     private var persistentShellProcess: Process? = null
     private var persistentShellWriter: BufferedWriter? = null
     private var persistentShellStdout: BufferedReader? = null
     private var persistentShellStderr: BufferedReader? = null
     private var isShizukuSession = false
     private var currentWorkingDirectory = "/"
+
+    // ====== PTY / Shizuku 模式 ======
+    @Volatile
+    private var ptySession: PtyShellSession? = null
+    @Volatile
+    private var shizukuSession: ShizukuShellSession? = null
+
+    /**
+     * PTY (伪终端) Shell 会话
+     * 基于 TermuxBridge / libtermux_bridge.so
+     * 参考: https://github.com/termux/termux-app/wiki/Termux-Libraries
+     */
+    class PtyShellSession(
+        val pty: TermuxBridge.PtyProcess,
+        private val callback: ExecuteCallback?
+    ) {
+        private var running = true
+        private var readThread: Thread? = null
+
+        /** 启动输出读取线程 */
+        fun startReading() {
+            readThread = Thread({
+                val buffer = ByteArray(4096)
+                while (running) {
+                    try {
+                        val n = pty.inputStream.readWithTimeout(buffer, 0, buffer.size, 50)
+                        if (n > 0) {
+                            // 实时推送数据到终端模拟器，不按行缓冲
+                            val text = String(buffer, 0, n, Charsets.UTF_8)
+                            callback?.onOutput(text)
+                        } else if (n < 0) {
+                            Log.w(TAG, "PTY read error: $n")
+                            break
+                        }
+                    } catch (e: Exception) {
+                        if (running) Log.e(TAG, "PTY read error", e)
+                        break
+                    }
+                }
+                Log.d(TAG, "PTY reading stopped")
+            }, "pty-read-thread")
+            readThread?.isDaemon = true
+            readThread?.start()
+        }
+
+        /** 执行命令 (写入 PTY) */
+        fun executeCommand(command: String) {
+            try {
+                pty.outputStream.write((command + "\n").toByteArray(Charsets.UTF_8))
+                pty.outputStream.flush()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to write command to PTY", e)
+                callback?.onError("PTY write error: ${e.message}")
+            }
+        }
+
+        /** 发送 Ctrl+C 信号 */
+        fun sendCtrlC() {
+            try {
+                // 发送 Ctrl+C (0x03) 到 PTY
+                pty.outputStream.write(byteArrayOf(0x03))
+                pty.outputStream.flush()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to send Ctrl+C", e)
+            }
+        }
+
+        /** 设置终端尺寸 */
+        fun setWindowSize(rows: Int, cols: Int) {
+            TermuxBridge.setPtyWindowSize(pty.ptyFd, rows, cols)
+        }
+
+        /** 关闭会话 */
+        fun close() {
+            running = false
+            try {
+                // 发送 exit 命令
+                pty.outputStream.write("exit\n".toByteArray(Charsets.UTF_8))
+                pty.outputStream.flush()
+            } catch (_: Exception) {}
+            try {
+                TermuxBridge.close(pty.ptyFd)
+            } catch (_: Exception) {}
+            try {
+                readThread?.join(1000)
+            } catch (_: Exception) {}
+        }
+
+        /** 检查会话是否存活 */
+        fun isAlive(): Boolean {
+            return running && TermuxBridge.isAlive(pty.pid)
+        }
+    }
+
+    /**
+     * Shizuku Shell 会话 (管道 I/O, shell UID 权限)
+     * 使用 Shizuku.newProcess 创建特权 shell, 替代 PTY 模式
+     */
+    class ShizukuShellSession(
+        private val process: Process,
+        private val callback: ExecuteCallback?
+    ) {
+        private var running = true
+        private var readThread: Thread? = null
+        private val writer: BufferedWriter = BufferedWriter(OutputStreamWriter(process.outputStream))
+        private val errorReader: BufferedReader = BufferedReader(InputStreamReader(process.errorStream))
+
+        fun startReading() {
+            // 合并读取 stdout+stderr，确保输出串行化，避免 PS1 交错插入
+            readThread = Thread({
+                val stdoutReader = BufferedReader(InputStreamReader(process.inputStream))
+                val stderrReader = errorReader
+                val buffer = CharArray(4096)
+                while (running) {
+                    try {
+                        var hasData = false
+                        if (stdoutReader.ready()) {
+                            val n = stdoutReader.read(buffer, 0, buffer.size)
+                            if (n > 0) {
+                                callback?.onOutput(String(buffer, 0, n))
+                                hasData = true
+                            } else {
+                                break
+                            }
+                        }
+                        if (stderrReader.ready()) {
+                            val n = stderrReader.read(buffer, 0, buffer.size)
+                            if (n > 0) {
+                                callback?.onOutput(String(buffer, 0, n))
+                                hasData = true
+                            } else {
+                                break
+                            }
+                        }
+                        if (!hasData) {
+                            Thread.sleep(30)
+                        }
+                    } catch (e: Exception) {
+                        if (running) Log.e(TAG, "Shizuku read error", e)
+                        break
+                    }
+                }
+            }, "shizuku-read-thread")
+            readThread?.isDaemon = true
+            readThread?.start()
+        }
+
+        fun writeBytes(bytes: ByteArray) {
+            try {
+                // Pipe 模式没有终端驱动做 ICRNL 转换，手动将 CR(0x0D) 转为 LF(0x0A)
+                val data = if (bytes.contains(0x0D.toByte())) {
+                    ByteArray(bytes.size) { i -> if (bytes[i] == 0x0D.toByte()) 0x0A else bytes[i] }
+                } else {
+                    bytes
+                }
+                writer.write(data.toString(Charsets.UTF_8))
+                writer.flush()
+            } catch (e: Exception) {
+                Log.e(TAG, "Shizuku write error", e)
+            }
+        }
+
+        fun executeCommand(command: String) {
+            writeBytes((command + "\n").toByteArray(Charsets.UTF_8))
+        }
+
+        fun sendCtrlC() {
+            writeBytes(byteArrayOf(0x03))
+        }
+
+        fun close() {
+            running = false
+            try {
+                writer.write("exit\n"); writer.flush(); writer.close()
+            } catch (_: Exception) {}
+            try { process.destroy() } catch (_: Exception) {}
+            try { readThread?.join(1000) } catch (_: Exception) {}
+        }
+
+        fun isAlive(): Boolean {
+            if (!running) return false
+            return try {
+                // ShizukuRemoteProcess.exitValue() 抛出 IllegalArgumentException
+                // 而非标准 IllegalThreadStateException，导致 Process.isAlive() 崩溃
+                process.exitValue()
+                false // 进程已退出
+            } catch (e: Exception) {
+                true // 进程仍在运行
+            }
+        }
+    }
+
+    // ========== 通过反射调用 Shizuku.newProcess ==========
+
+    private fun createShizukuProcess(args: Array<String>): Process? {
+        return try {
+            val shizukuClass = Class.forName("rikka.shizuku.Shizuku")
+            for (method in shizukuClass.declaredMethods) {
+                if (method.name == "newProcess") {
+                    method.isAccessible = true
+                    return method.invoke(null, args, null, null) as Process
+                }
+            }
+            null
+        } catch (e: Exception) {
+            Log.e(TAG, "Shizuku.newProcess failed", e)
+            null
+        }
+    }
 
     interface ExecuteCallback {
         fun onOutput(line: String)
@@ -365,12 +576,151 @@ object ShellExecutor {
         }
     }
 
+    // ========== PTY / Shizuku 会话公共 API ==========
+
+    /**
+     * 启动终端会话 (自动选择模式):
+     * - Shizuku 可用: ShizukuShellSession (shell UID 权限, pipe I/O)
+     * - Shizuku 不可用: PtyShellSession (app UID, 真 PTY)
+     */
+    fun startTerminalSession(
+        callback: ExecuteCallback,
+        rows: Int = 24,
+        cols: Int = 80,
+        cwd: String = if (isShizukuAvailable()) "/data/local/tmp" else "/sdcard"
+    ): Any? {
+        destroyPtySession()
+
+        if (isShizukuAvailable()) {
+            return startShizukuSession(callback)
+        } else {
+            return startPtySession(callback, rows, cols, cwd)
+        }
+    }
+
+    /**
+     * 创建并启动 Shizuku Shell 会话 (shell UID 权限).
+     */
+    fun startShizukuSession(
+        callback: ExecuteCallback
+    ): ShizukuShellSession? {
+        destroyPtySession()
+
+        return try {
+            Log.d(TAG, "Starting Shizuku shell session")
+            // 使用 -i 强制交互模式，pipe 模式下也能显示提示符
+            val process = createShizukuProcess(arrayOf("sh", "-i"))
+                ?: throw Exception("Failed to create Shizuku process")
+
+            val session = ShizukuShellSession(process, callback)
+            session.startReading()
+            ptySession = null
+            shizukuSession = session
+            session
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start Shizuku session", e)
+            callback.onError("Shizuku init failed: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * 创建并启动 PTY Shell 会话 (基于 TermuxBridge).
+     * 仅用于 Shizuku 不可用时回落。
+     */
+    fun startPtySession(
+        callback: ExecuteCallback,
+        rows: Int = 24,
+        cols: Int = 80,
+        cwd: String = if (isShizukuAvailable()) "/data/local/tmp" else "/sdcard"
+    ): PtyShellSession? {
+        // 清理旧会话
+        destroyPtySession()
+
+        return try {
+            Log.d(TAG, "Starting PTY shell session (${rows}x$cols, cwd=$cwd)")
+            val pty = TermuxBridge.createShellSession(cwd = cwd, rows = rows, cols = cols)
+            val session = PtyShellSession(pty, callback)
+            session.startReading()
+            ptySession = session
+            session
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start PTY session", e)
+            callback.onError("PTY init failed: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * 向当前活跃会话写入字节 (自动选择 PTY 或 Shizuku).
+     */
+    fun executePtyCommandRaw(bytes: ByteArray): Boolean {
+        // 优先 Shizuku 会话
+        val shizuku = shizukuSession
+        if (shizuku != null && shizuku.isAlive()) {
+            shizuku.writeBytes(bytes)
+            return true
+        }
+        // 其次 PTY 会话
+        val session = ptySession
+        if (session != null && session.isAlive()) {
+            try {
+                session.pty.outputStream.write(bytes)
+                session.pty.outputStream.flush()
+                return true
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to write bytes to PTY", e)
+            }
+        }
+        return false
+    }
+
+    /**
+     * 通过 PTY 会话执行命令.
+     * @return true 如果成功写入
+     */
+    fun executePtyCommand(command: String): Boolean {
+        val session = ptySession
+        return if (session != null && session.isAlive()) {
+            session.executeCommand(command)
+            true
+        } else {
+            false
+        }
+    }
+
+    /** 发送 Ctrl+C */
+    fun sendPtyCtrlC() {
+        shizukuSession?.sendCtrlC() ?: ptySession?.sendCtrlC()
+    }
+
+    /** 设置 PTY 终端尺寸 (仅 PTY 模式有效) */
+    fun setPtyWindowSize(rows: Int, cols: Int) {
+        ptySession?.setWindowSize(rows, cols)
+    }
+
+    /** 检查会话是否存活 */
+    fun isSessionAlive(): Boolean {
+        return shizukuSession?.isAlive() == true || ptySession?.isAlive() == true
+    }
+
+    /** 销毁所有会话 */
+    fun destroyPtySession() {
+        shizukuSession?.close()
+        shizukuSession = null
+        ptySession?.close()
+        ptySession = null
+    }
+
+    // ========== 传统模式 API ==========
+
     fun getCurrentWorkingDirectory(): String {
         return currentWorkingDirectory
     }
 
     fun resetSession() {
         destroyPersistentSession()
+        destroyPtySession()
     }
 
     fun copyToClipboard(context: Context, text: String): Boolean {

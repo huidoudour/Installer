@@ -97,13 +97,15 @@
     <string name="dollar_sign">$</string>
     <string name="up_arrow">↑</string>
     <string name="down_arrow">↓</string>
-    <string name="tab">TAB</string>
-    <string name="ctrl_c">^C</string>
-    <string name="esc">ESC</string>
+    <string name="btn_shell_tab">TAB</string>
+    <string name="btn_shell_cancel">^C</string>
+    <string name="btn_shell_close">^D</string>
+    <string name="btn_shell_esc">ESC</string>
     <string name="root">root</string>
-    <string name="letter_c">C</string>
-    <string name="clipboard">P</string>
-    <string name="lightning">Q</string>
+    <string name="btn_shell_clear">C</string>
+    <string name="btn_shell_paste">P</string>
+    <string name="btn_shell_quick">Q</string>
+    <string name="btn_shell_save">S</string>
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku Status</string>
@@ -615,6 +617,7 @@
     <string name="down_direction">Down</string>
     <string name="tab_key">Tab</string>
     <string name="ctrl_c_key">Ctrl+C</string>
+    <string name="ctrl_d_key">Ctrl+D</string>
     <string name="escape_key">Escape</string>
     <string name="clear_screen">Clear</string>
     <string name="clipboard_action">Clipboard</string>

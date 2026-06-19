@@ -5,7 +5,7 @@
     <string name="title_shell">Shell</string>
     <string name="title_notifications">ログ</string>
     <string name="title_settings">設定</string>
-
+    
     <!-- Install page -->
     <string name="install_title">アプリをインストール</string>
     <string name="authorization_method">認証方式</string>
@@ -23,16 +23,25 @@
     <string name="switched_to_shizuku">Shizukuに切り替えました</string>
     <string name="switched_to_dhizuku">Dhizukuに切り替えました</string>
     <string name="close">閉じる</string>
+    <string name="request_authorization">認証をリクエスト</string>
+    <string name="privilege_settings_hint">アプリのインストールに使用する認証方式を選択してください。選択したサービスが実行中で認証されていることを確認してください。</string>
     <string name="copied_to_clipboard">クリップボードにコピーされました</string>
     <string name="copy_failed">コピーに失敗しました</string>
     <string name="installing">インストール中...</string>
     <string name="app_icon_description">アプリアイコン</string>
-
+    
     <!-- Settings page -->
     <string name="settings_title">設定</string>
     <string name="settings_subtitle">アプリの設定とカスタマイズ</string>
     <string name="app_settings">アプリ設定</string>
     <string name="theme_settings">テーマ</string>
+    <string name="theme_color">Theme Color</string>
+    <string name="theme_follow_system">Follow System</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="theme_dark">Dark Theme</string>
+    <string name="follow_wallpaper">Follow Wallpaper</string>
+    <string name="light_theme">ライトテーマ</string>
+    <string name="dark_theme">ダークテーマ</string>
     <string name="language_settings">言語</string>
     <string name="notification_settings">通知</string>
     <string name="background_display">バックグラウンド表示</string>
@@ -54,6 +63,16 @@
     <string name="english">英語</string>
     <string name="russian">ロシア語</string>
     <string name="japanese">日本語</string>
+    <string name="meow_language">喵語中国語</string>
+    
+    <!-- Static language names (not translated) -->
+    <string name="lang_name_system">システムに従う</string>
+    <string name="lang_name_simplified">简体中文</string>
+    <string name="lang_name_traditional">繁体中文</string>
+    <string name="lang_name_english">English</string>
+    <string name="lang_name_russian">Русский</string>
+    <string name="lang_name_japanese">日本語</string>
+    <string name="lang_name_meow">喵语中文</string>
     <string name="confirm">確認</string>
     <string name="language_changed_tip">言語が%sに変更されました</string>
     <string name="language_change_failed">言語の変更に失敗しました</string>
@@ -68,19 +87,8 @@
     <string name="find_me">ω寻找我ω</string>
     <string name="about_description">Androidアプリインストールツールの開発に専念</string>
     <string name="visit_github">GitHubを見る</string>
-
-    <string name="light_theme">ライトテーマ</string>
-    <string name="dark_theme">ダークテーマ</string>
-    <string name="lang_name_system">システムに従う</string>
-    <string name="lang_name_simplified">简体中文</string>
-    <string name="lang_name_traditional">繁体中文</string>
-    <string name="lang_name_english">English</string>
-    <string name="lang_name_russian">Русский</string>
-    <string name="lang_name_japanese">日本語</string>
-    <string name="lang_name_meow">喵语中文</string>
-    <string name="meow_language">喵語中国語</string>
-
-    <!-- Shell and tools -->
+    
+    <!-- Reference strings -->
     <string name="shell_hint">コマンドを入力...</string>
     <string name="clear_log">ログをクリア</string>
     <string name="shell_txt">"@termux"</string>
@@ -89,13 +97,15 @@
     <string name="dollar_sign">$</string>
     <string name="up_arrow">↑</string>
     <string name="down_arrow">↓</string>
-    <string name="tab">TAB</string>
-    <string name="ctrl_c">^C</string>
-    <string name="esc">ESC</string>
+    <string name="btn_shell_tab">TAB</string>
+    <string name="btn_shell_cancel">^C</string>
+    <string name="btn_shell_close">^D</string>
+    <string name="btn_shell_esc">ESC</string>
     <string name="root">root</string>
-    <string name="letter_c">C</string>
-    <string name="clipboard">P</string>
-    <string name="lightning">Q</string>
+    <string name="btn_shell_clear">C</string>
+    <string name="btn_shell_paste">P</string>
+    <string name="btn_shell_quick">Q</string>
+    <string name="btn_shell_save">S</string>
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizukuの状態</string>
@@ -103,13 +113,8 @@
     <string name="checking">確認中...</string>
     <string name="grant_shizuku_permission">Shizuku権限を付与</string>
     <string name="grant_dhizuku_permission">Dhizuku権限を付与</string>
+    <string name="request_shizuku_permission">Shizuku権限をリクエストしようとしています...</string>
     <string name="request_dhizuku_permission">Dhizuku権限をリクエストしようとしています...</string>
-    <string name="dhizuku_not_running">未実行/未インストール</string>
-    <string name="dhizuku_not_connected">Dhizukuが接続されていません。</string>
-    <string name="dhizuku_version_too_low">Dhizukuのバージョンが低すぎます。</string>
-    <string name="dhizuku_connected_and_authorized">Dhizukuが接続され、認証されました。</string>
-    <string name="check_dhizuku_version_permission_failed">Dhizukuのバージョン/権限の確認に失敗しました: %s</string>
-    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUiが例外をキャッチ: %s</string>
     <string name="no_file_selected">ファイルが選択されていません</string>
     <string name="select_apk_file">APKファイルを選択</string>
     <string name="install_options">インストールオプション</string>
@@ -132,8 +137,11 @@
     <string name="clear">クリア</string>
     <string name="export">エクスポート</string>
     <string name="real_time_logs">すべての操作ログをリアルタイムで表示</string>
+    <string name="no_logs_available">No logs available</string>
+    <string name="upgrade_version">アップグレードバージョン：</string>
     <string name="waiting_operation">操作を待機中……</string>
     <string name="app_name_label">アプリ名</string>
+    <string name="package_name_label">パッケージ名：</string>
     <string name="default_package_name">com.example.app</string>
     <string name="version">バージョン</string>
     <string name="file_size">ファイルサイズ</string>
@@ -156,6 +164,7 @@
     <string name="parse_file_failed">インストールファイル情報の解析に失敗しました</string>
     <string name="set_app_icon_failed">アプリアイコンの設定に失敗しました</string>
     <string name="shizuku_required">アプリをインストールするにはShizukuの認証が必要です</string>
+    <string name="dhizuku_required">アプリをインストールするにはDhizukuの認証が必要です</string>
     <string name="xapk_install_success">XAPKのインストールに成功しました</string>
     <string name="xapk_install_failed">XAPKのインストールに失敗しました: %s</string>
     <string name="apk_install_success">APKのインストールに成功しました</string>
@@ -176,36 +185,28 @@
 
     Chrome、Firefox、または他のブラウザアプリをインストールしてみてください。</string>
     <string name="receive_install_intent">インストールインテントを受信しました。URI: %s</string>
-    <string name="start_apk_install">APKのインストールを開始...</string>
-    <string name="create_session">インストールセッションを作成: %s</string>
-    <string name="session_id">セッションID: %s</string>
-    <string name="write_apk_data">APKデータを書き込み中...</string>
-    <string name="submit_install">インストールを送信中...</string>
-    <string name="install_failed">インストールに失敗しました: %s</string>
-    <string name="install_exception">インストール例外: %s</string>
-    <string name="extract_xapk">XAPKを解凍中（ネイティブ圧縮ライブラリを使用）...</string>
     <string name="shizuku_not_running">未実行/未インストール</string>
+    <string name="dhizuku_not_running">未実行/未インストール</string>
     <string name="shizuku_not_connected">Shizukuが接続されていません。</string>
+    <string name="dhizuku_not_connected">Dhizukuが接続されていません。</string>
     <string name="not_running">未実行</string>
     <string name="version_too_low">バージョンが低すぎます</string>
     <string name="shizuku_version_too_low">Shizukuのバージョンが低すぎます。</string>
+    <string name="dhizuku_version_too_low">Dhizukuのバージョンが低すぎます。</string>
     <string name="permission_granted">許可されました</string>
     <string name="shizuku_connected_and_authorized">Shizukuが接続され、認証されました。</string>
+    <string name="dhizuku_connected_and_authorized">Dhizukuが接続され、認証されました。</string>
     <string name="not_authorized">未認証</string>
     <string name="shizuku_connected_but_not_authorized">Shizukuは接続されていますが、認証されていません。</string>
     <string name="dhizuku_connected_but_not_authorized">Dhizukuは接続されていますが、認証されていません。</string>
     <string name="status_unknown">状態不明</string>
     <string name="check_shizuku_version_permission_failed">Shizukuのバージョン/権限の確認に失敗しました: %s</string>
+    <string name="check_dhizuku_version_permission_failed">Dhizukuのバージョン/権限の確認に失敗しました: %s</string>
     <string name="unavailable">利用不可</string>
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUiが例外をキャッチ: %s</string>
+    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUiが例外をキャッチ: %s</string>
 
     <!-- XAPK extraction -->
-    <string name="extract_complete">解凍完了、合計 %d 個のAPK</string>
-    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
-    <string name="submitting_install">インストールを送信中...</string>
-    <string name="xapk_install_success_msg">XAPKのインストールに成功しました！合計 %d 個のAPKがインストールされました</string>
-    <string name="xapk_install_exception">XAPKインストール例外: %s</string>
-    <string name="apk_not_exist">APKファイルが存在しません</string>
     <string name="start_extract_xapk">XAPKの解凍を開始: %s</string>
     <string name="extract_target_dir">解凍先ディレクトリ: %s</string>
     <string name="opening_zip_file">ZIPファイルを開いています...</string>
@@ -218,7 +219,7 @@
     <string name="close_zip_stream_failed">ZIP入力ストリームを閉じられませんでした</string>
     <string name="close_file_stream">ファイル入力ストリームを閉じました</string>
     <string name="close_file_stream_failed">ファイル入力ストリームを閉じられませんでした</string>
-    <string name="install_success_simple">インストール成功！</string>
+
     <string name="extract_complete_summary" formatted="false">解凍完了！%d 個のエントリを処理し、%d 個のAPKファイルを抽出しました</string>
     <string name="extract_xapk_error">XAPKの解凍中にエラーが発生しました</string>
     <string name="no_apk_found">XAPK/APKSファイル内にAPKファイルが見つかりません</string>
@@ -242,7 +243,7 @@
     <string name="install_progress">インストール進捗: %s</string>
     <string name="apk_install_success_log">APKのインストールに成功しました: %s</string>
     <string name="apk_install_failed_log">APKのインストールに失敗しました: %s</string>
-    <string name="install_failed_error">インストールに失敗しました: %s</string>
+
     <string name="all_apks_installed">すべてのAPKのインストールが完了しました</string>
     <string name="xapk_install_exception_log">XAPKインストール例外</string>
     <string name="install_exception_error">インストール例外: %s</string>
@@ -295,7 +296,7 @@
     <string name="non_interactive_mode">非対話型モード</string>
     <string name="disable_job_control_avoid_tty_error">ジョブ制御を無効にしてTTYエラーを回避</string>
     <string name="unknown_file_format_chinese">不明な形式</string>
-    <string name="apk_name_failed" formatted="false">%s 失敗: %s</string>
+
 
     <!-- File operations -->
     <string name="copy_file_failed_log">一時ディレクトリへのファイルコピーに失敗しました Exit code: %d</string>
@@ -420,7 +421,6 @@
     <string name="request_read_storage">READ_EXTERNAL_STORAGE権限をリクエスト中。</string>
     <string name="open_file_picker">ファイルピッカーを開いています...</string>
     <string name="file_picker_not_found">ファイルピッカーが見つかりません。</string>
-    <string name="request_shizuku_permission">Shizuku権限をリクエストしようとしています...</string>
     <string name="shizuku_not_started">Shizukuが起動していません。</string>
     <string name="shizuku_version_low">Shizukuのバージョンが低すぎるか、互換性がありません。</string>
     <string name="shizuku_authorized">Shizukuが認証されました。</string>
@@ -459,6 +459,11 @@
     <string name="user_prompt">user@ashell:~$</string>
     <string name="command_cancelled_session_reset">[コマンドがキャンセルされ、セッションがリセットされました]</string>
     <string name="process_completed_with_exit_code">[プロセスが終了コード %d で完了しました]</string>
+    <string name="content_description_history">履歴</string>
+    <string name="content_description_bookmarks">ブックマーク</string>
+    <string name="content_description_search">検索</string>
+    <string name="content_description_save">保存</string>
+    <string name="quick_commands">Quick Commands</string>
     <string name="hash_sign">#</string>
     <string name="user">ユーザー</string>
 
@@ -466,8 +471,8 @@
     <string name="notification_permission_required">通知権限が必要です</string>
     <string name="notification_enabled">通知が有効になりました</string>
     <string name="notification_disabled">通知が無効になりました</string>
-
-    <!-- Permission authorization -->
+    
+    <!-- Permission authorization related -->
     <string name="privilege_settings">権限設定</string>
     <string name="shizuku_settings">Shizuku認証</string>
     <string name="privilege_status">状態: %s</string>
@@ -485,7 +490,7 @@
 
     <!-- Native library test related strings -->
     <string name="execute_command_failed">コマンドの実行に失敗しました</string>
-
+    
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== ネイティブライブラリテスト ===</string>
     <string name="native_lib_loaded_success">ネイティブライブラリが正常にロードされました！</string>
@@ -502,8 +507,8 @@
     <string name="native_lib_check_ndk">1. NDKが正しくインストールされているか</string>
     <string name="native_lib_check_cmake">2. CMake設定が正しいか</string>
     <string name="native_lib_check_arch">3. アーキテクチャが一致しているか (arm64-v8a または x86_64)</string>
-
-    <!-- Privilege status related strings -->
+    
+    <!-- 权限状态相关字符串 -->
     <string name="privilege_status_title">%s の状態</string>
     <string name="privilege_not_installed_status">%s は未インストールです</string>
     <string name="privilege_download_button">%s をダウンロード</string>
@@ -520,8 +525,8 @@
     <string name="log_received_home_install">HomeActivityからインストールURIを受信: %s</string>
     <string name="log_processed_home_request">HomeActivityからのインストールリクエストを処理しました。ファイルはcacheにコピーされました: %s</string>
     <string name="log_detected_file" formatted="false">%s を検出、%d 個のAPKファイルを含みます</string>
-
-    <!-- Authorization related hardcoded strings -->
+    
+    <!-- 授权器相关硬编码字符串 -->
     <string name="switched_to_privilege">%s に切り替えました</string>
     <string name="privilege_not_installed_log">%s は未インストールです。GitHubダウンロードページを開いています...</string>
     <string name="opening_privilege_app">%s アプリを開いています...</string>
@@ -543,7 +548,7 @@
     <string name="refresh_file_info_error">ファイル情報の更新中にエラーが発生しました: %s</string>
     <string name="refresh_file_info_error_toast">ファイル情報の更新に失敗しました</string>
     <string name="no_file_to_refresh">更新するファイルがありません</string>
-
+    
     <!-- Additional strings for UI updates -->
     <string name="native_test_opened">ネイティブライブラリテストインターフェースを開きました</string>
     <string name="permission_already_granted">既に認証済み</string>
@@ -569,33 +574,22 @@
     <string name="cannot_open_app">アプリを開けません</string>
     <string name="app_no_launcher">アプリ %s にはランチャーアクティビティがありません</string>
     <string name="open_app_failed">アプリを開けませんでした: %s</string>
-
-    <!-- Version comparison and upgrade related -->
+    
+    <!-- 版本比对和升级相关 -->
     <string name="upgrade">アップグレード</string>
     <string name="downgrade">ダウングレード</string>
     <string name="same_version">同じバージョン</string>
-
+    
     <!-- Installer package settings -->
     <string name="installer_package_settings">インストーラーパッケージ</string>
     <string name="current_installer_package">現在のインストーラーパッケージ</string>
     <string name="current_app">現在のアプリ</string>
     <string name="installer_package_changed">インストーラーパッケージが変更されました</string>
 
-
-    <!-- Missing strings from default -->
-    <string name="request_authorization">認証をリクエスト</string>
-    <string name="privilege_settings_hint">アプリのインストールに使用する認証方式を選択してください。選択したサービスが実行中で認証されていることを確認してください。</string>
-    <string name="dhizuku_required">アプリをインストールするにはDhizukuの認証が必要です</string>
-    <string name="package_name_label">パッケージ名：</string>
     <string name="previous_step">前へ</string>
     <string name="next_step">次へ</string>
     <string name="select_privilege_mode">認証方式を選択</string>
-    <string name="upgrade_version">アップグレードバージョン：</string>
     <string name="arrow_down">下矢印</string>
-    <string name="content_description_history">履歴</string>
-    <string name="content_description_bookmarks">ブックマーク</string>
-    <string name="content_description_search">検索</string>
-    <string name="content_description_save">保存</string>
 
     <!-- Easter egg -->
     <string name="easter_egg_text">何もないよ</string>
@@ -623,6 +617,7 @@
     <string name="down_direction">下</string>
     <string name="tab_key">Tab</string>
     <string name="ctrl_c_key">Ctrl+C</string>
+    <string name="ctrl_d_key">Ctrl+D</string>
     <string name="escape_key">Escape</string>
     <string name="clear_screen">消去</string>
     <string name="clipboard_action">クリップボード</string>
@@ -641,5 +636,24 @@
     <string name="toast_language_changed">言語が変更されました、再起動が必要です</string>
     <string name="log_entries_count" formatted="false">%d 件のエントリ</string>
     <string name="not_available">N/A</string>
+
+    <!-- Missing default strings (defined in language-specific folders) -->
+    <string name="apk_name_failed" formatted="false">%s 失敗: %s</string>
+    <string name="apk_not_exist">APKファイルが存在しません</string>
+    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
+    <string name="create_session">インストールセッションを作成: %s</string>
+    <string name="extract_complete">解凍完了、合計 %d 個のAPK</string>
+    <string name="extract_xapk">XAPKを解凍中（ネイティブ圧縮ライブラリを使用）...</string>
+    <string name="install_exception">インストール例外: %s</string>
+    <string name="install_failed">インストールに失敗しました: %s</string>
+    <string name="install_failed_error">インストールに失敗しました: %s</string>
+    <string name="install_success_simple">インストール成功！</string>
+    <string name="session_id">セッションID: %s</string>
+    <string name="start_apk_install">APKのインストールを開始...</string>
+    <string name="submit_install">インストールを送信中...</string>
+    <string name="submitting_install">インストールを送信中...</string>
+    <string name="write_apk_data">APKデータを書き込み中...</string>
+    <string name="xapk_install_exception">XAPKインストール例外: %s</string>
+    <string name="xapk_install_success_msg">XAPKのインストールに成功しました！合計 %d 個のAPKがインストールされました</string>
 
 </resources>

@@ -5,7 +5,7 @@
     <string name="title_shell">Shell</string>
     <string name="title_notifications">Журналы</string>
     <string name="title_settings">Настройки</string>
-
+    
     <!-- Install page -->
     <string name="install_title">Установить приложение</string>
     <string name="authorization_method">Способ авторизации</string>
@@ -23,16 +23,25 @@
     <string name="switched_to_shizuku">Переключено на Shizuku</string>
     <string name="switched_to_dhizuku">Переключено на Dhizuku</string>
     <string name="close">Закрыть</string>
+    <string name="request_authorization">Запросить авторизацию</string>
+    <string name="privilege_settings_hint">Выберите способ авторизации для установки приложений. Убедитесь, что выбранный сервис запущен и авторизован.</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
     <string name="copy_failed">Копирование не удалось</string>
     <string name="installing">Установка...</string>
     <string name="app_icon_description">Значок приложения</string>
-
+    
     <!-- Settings page -->
     <string name="settings_title">Настройки</string>
     <string name="settings_subtitle">Конфигурация приложения и персонализация</string>
     <string name="app_settings">Настройки приложения</string>
     <string name="theme_settings">Тема</string>
+    <string name="theme_color">Theme Color</string>
+    <string name="theme_follow_system">Follow System</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="theme_dark">Dark Theme</string>
+    <string name="follow_wallpaper">Follow Wallpaper</string>
+    <string name="light_theme">Светлая тема</string>
+    <string name="dark_theme">Тёмная тема</string>
     <string name="language_settings">Язык</string>
     <string name="notification_settings">Уведомления</string>
     <string name="background_display">Показывать в фоне</string>
@@ -55,6 +64,15 @@
     <string name="russian">Русский</string>
     <string name="japanese">Японский</string>
     <string name="meow_language">Мяу Китайский</string>
+    
+    <!-- Static language names (not translated) -->
+    <string name="lang_name_system">Как в системе</string>
+    <string name="lang_name_simplified">简体中文</string>
+    <string name="lang_name_traditional">繁體中文</string>
+    <string name="lang_name_english">English</string>
+    <string name="lang_name_russian">Русский</string>
+    <string name="lang_name_japanese">日本語</string>
+    <string name="lang_name_meow">喵语中文</string>
     <string name="confirm">Подтвердить</string>
     <string name="language_changed_tip">Язык изменен на %s</string>
     <string name="language_change_failed">Не удалось изменить язык</string>
@@ -69,18 +87,8 @@
     <string name="find_me">ω寻找我ω</string>
     <string name="about_description">Разработка инструментов установки Android приложений</string>
     <string name="visit_github">Посетить GitHub</string>
-
-    <string name="light_theme">Светлая тема</string>
-    <string name="dark_theme">Тёмная тема</string>
-    <string name="lang_name_system">Как в системе</string>
-    <string name="lang_name_simplified">简体中文</string>
-    <string name="lang_name_traditional">繁體中文</string>
-    <string name="lang_name_english">English</string>
-    <string name="lang_name_russian">Русский</string>
-    <string name="lang_name_japanese">日本語</string>
-    <string name="lang_name_meow">喵语中文</string>
-
-    <!-- Shell and tools -->
+    
+    <!-- Reference strings -->
     <string name="shell_hint">Введите команду...</string>
     <string name="clear_log">Очистить журнал</string>
     <string name="shell_txt">"@termux"</string>
@@ -89,13 +97,15 @@
     <string name="dollar_sign">$</string>
     <string name="up_arrow">↑</string>
     <string name="down_arrow">↓</string>
-    <string name="tab">TAB</string>
-    <string name="ctrl_c">^C</string>
-    <string name="esc">ESC</string>
+    <string name="btn_shell_tab">TAB</string>
+    <string name="btn_shell_cancel">^C</string>
+    <string name="btn_shell_close">^D</string>
+    <string name="btn_shell_esc">ESC</string>
     <string name="root">root</string>
-    <string name="letter_c">C</string>
-    <string name="clipboard">P</string>
-    <string name="lightning">Q</string>
+    <string name="btn_shell_clear">C</string>
+    <string name="btn_shell_paste">P</string>
+    <string name="btn_shell_quick">Q</string>
+    <string name="btn_shell_save">S</string>
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Статус Shizuku</string>
@@ -105,13 +115,6 @@
     <string name="grant_dhizuku_permission">Предоставить разрешение Dhizuku</string>
     <string name="request_shizuku_permission">Попытка запросить разрешение Shizuku...</string>
     <string name="request_dhizuku_permission">Попытка запросить разрешение Dhizuku...</string>
-    <string name="dhizuku_not_running">Не запущен/не установлен</string>
-    <string name="dhizuku_not_connected">Dhizuku не подключен.</string>
-    <string name="dhizuku_version_too_low">Версия Dhizuku слишком низкая.</string>
-    <string name="dhizuku_connected_and_authorized">Dhizuku подключен и авторизован.</string>
-    <string name="dhizuku_connected_but_not_authorized">Dhizuku подключен, но не авторизован.</string>
-    <string name="check_dhizuku_version_permission_failed">Не удалось проверить версию/разрешения Dhizuku: %s</string>
-    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUi поймал исключение: %s</string>
     <string name="no_file_selected">Файл не выбран</string>
     <string name="select_apk_file">Выбрать APK файл</string>
     <string name="install_options">Параметры установки</string>
@@ -134,6 +137,8 @@
     <string name="clear">Очистить</string>
     <string name="export">Экспорт</string>
     <string name="real_time_logs">Отображать все журналы операций в реальном времени</string>
+    <string name="no_logs_available">No logs available</string>
+    <string name="upgrade_version">Версия обновления: </string>
     <string name="waiting_operation">Ожидание операции……</string>
     <string name="app_name_label">Имя приложения</string>
     <string name="package_name_label">Имя пакета: </string>
@@ -159,6 +164,7 @@
     <string name="parse_file_failed">Не удалось разобрать информацию о файле установки</string>
     <string name="set_app_icon_failed">Не удалось установить значок приложения</string>
     <string name="shizuku_required">Требуется авторизация Shizuku для установки приложения</string>
+    <string name="dhizuku_required">Требуется авторизация Dhizuku для установки приложения</string>
     <string name="xapk_install_success">XAPK успешно установлен</string>
     <string name="xapk_install_failed">Ошибка установки XAPK: %s</string>
     <string name="apk_install_success">APK успешно установлен</string>
@@ -179,35 +185,28 @@
 
     Попробуйте установить Chrome, Firefox или другой браузер.</string>
     <string name="receive_install_intent">Получен intent установки, URI: %s</string>
-    <string name="start_apk_install">Начало установки APK...</string>
-    <string name="create_session">Создание сессии установки: %s</string>
-    <string name="session_id">ID сессии: %s</string>
-    <string name="write_apk_data">Запись данных APK...</string>
-    <string name="submit_install">Отправка установки...</string>
-    <string name="install_failed">Ошибка установки: %s</string>
-    <string name="install_exception">Исключение установки: %s</string>
-    <string name="extract_xapk">Извлечение XAPK (используется нативная библиотека сжатия)...</string>
     <string name="shizuku_not_running">Не запущен/не установлен</string>
+    <string name="dhizuku_not_running">Не запущен/не установлен</string>
     <string name="shizuku_not_connected">Shizuku не подключен.</string>
+    <string name="dhizuku_not_connected">Dhizuku не подключен.</string>
     <string name="not_running">Не запущено</string>
     <string name="version_too_low">Версия слишком низкая</string>
     <string name="shizuku_version_too_low">Версия Shizuku слишком низкая.</string>
+    <string name="dhizuku_version_too_low">Версия Dhizuku слишком низкая.</string>
     <string name="permission_granted">Разрешение предоставлено</string>
     <string name="shizuku_connected_and_authorized">Shizuku подключен и авторизован.</string>
+    <string name="dhizuku_connected_and_authorized">Dhizuku подключен и авторизован.</string>
     <string name="not_authorized">Не авторизован</string>
     <string name="shizuku_connected_but_not_authorized">Shizuku подключен, но не авторизован.</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizuku подключен, но не авторизован.</string>
     <string name="status_unknown">Статус неизвестен</string>
     <string name="check_shizuku_version_permission_failed">Не удалось проверить версию/разрешения Shizuku: %s</string>
+    <string name="check_dhizuku_version_permission_failed">Не удалось проверить версию/разрешения Dhizuku: %s</string>
     <string name="unavailable">Недоступен</string>
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi поймал исключение: %s</string>
+    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUi поймал исключение: %s</string>
 
     <!-- XAPK extraction -->
-    <string name="extract_complete">Извлечение завершено, всего %d APK</string>
-    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
-    <string name="submitting_install">Отправка установки...</string>
-    <string name="xapk_install_success_msg">XAPK успешно установлен! Всего установлено %d APK</string>
-    <string name="xapk_install_exception">Исключение установки XAPK: %s</string>
-    <string name="apk_not_exist">APK файл не существует</string>
     <string name="start_extract_xapk">Начало извлечения XAPK: %s</string>
     <string name="extract_target_dir">Целевая директория извлечения: %s</string>
     <string name="opening_zip_file">Открытие ZIP файла...</string>
@@ -220,7 +219,7 @@
     <string name="close_zip_stream_failed">Не удалось закрыть ZIP входной поток</string>
     <string name="close_file_stream">Файловый входной поток закрыт</string>
     <string name="close_file_stream_failed">Не удалось закрыть файловый входной поток</string>
-    <string name="install_success_simple">Установка успешна!</string>
+
     <string name="extract_complete_summary" formatted="false">Извлечение завершено! Обработано %d элементов, извлечено %d APK файлов</string>
     <string name="extract_xapk_error">Ошибка при извлечении XAPK</string>
     <string name="no_apk_found">APK файлы не найдены в файле XAPK/APKS</string>
@@ -244,7 +243,7 @@
     <string name="install_progress">Прогресс установки: %s</string>
     <string name="apk_install_success_log">APK успешно установлен: %s</string>
     <string name="apk_install_failed_log">Ошибка установки APK: %s</string>
-    <string name="install_failed_error">Ошибка установки: %s</string>
+
     <string name="all_apks_installed">Все APK установлены</string>
     <string name="xapk_install_exception_log">Исключение установки XAPK</string>
     <string name="install_exception_error">Исключение установки: %s</string>
@@ -297,7 +296,7 @@
     <string name="non_interactive_mode">Неинтерактивный режим</string>
     <string name="disable_job_control_avoid_tty_error">Отключить управление задачами, избежать ошибки TTY</string>
     <string name="unknown_file_format_chinese">Неизвестный формат</string>
-    <string name="apk_name_failed" formatted="false">%s не удалось: %s</string>
+
 
     <!-- File operations -->
     <string name="copy_file_failed_log">Не удалось скопировать файл во временную директорию. Код выхода: %d</string>
@@ -460,6 +459,11 @@
     <string name="user_prompt">user@ashell:~$</string>
     <string name="command_cancelled_session_reset">[Команда отменена, сессия сброшена]</string>
     <string name="process_completed_with_exit_code">[Процесс завершен с кодом выхода %d]</string>
+    <string name="content_description_history">История</string>
+    <string name="content_description_bookmarks">Закладки</string>
+    <string name="content_description_search">Поиск</string>
+    <string name="content_description_save">Сохранить</string>
+    <string name="quick_commands">Quick Commands</string>
     <string name="hash_sign">#</string>
     <string name="user">пользователь</string>
 
@@ -467,8 +471,8 @@
     <string name="notification_permission_required">Требуется разрешение на уведомления</string>
     <string name="notification_enabled">Уведомления включены</string>
     <string name="notification_disabled">Уведомления отключены</string>
-
-    <!-- Permission authorization -->
+    
+    <!-- Permission authorization related -->
     <string name="privilege_settings">Настройки разрешений</string>
     <string name="shizuku_settings">Авторизация Shizuku</string>
     <string name="privilege_status">Статус: %s</string>
@@ -486,7 +490,7 @@
 
     <!-- Native library test related strings -->
     <string name="execute_command_failed">Не удалось выполнить команду</string>
-
+    
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== Тесты нативной библиотеки ===</string>
     <string name="native_lib_loaded_success">Нативная библиотека успешно загружена!</string>
@@ -503,8 +507,8 @@
     <string name="native_lib_check_ndk">1. NDK правильно установлен</string>
     <string name="native_lib_check_cmake">2. Конфигурация CMake правильная</string>
     <string name="native_lib_check_arch">3. Архитектура совпадает (arm64-v8a или x86_64)</string>
-
-    <!-- Privilege status related strings -->
+    
+    <!-- 权限状态相关字符串 -->
     <string name="privilege_status_title">Статус %s</string>
     <string name="privilege_not_installed_status">%s не установлен</string>
     <string name="privilege_download_button">Скачать %s</string>
@@ -521,8 +525,8 @@
     <string name="log_received_home_install">Получен URI установки от HomeActivity: %s</string>
     <string name="log_processed_home_request">Обработан запрос установки от HomeActivity, файл скопирован в cache: %s</string>
     <string name="log_detected_file" formatted="false">Обнаружено %s, содержит %d APK файлов</string>
-
-    <!-- Authorization related hardcoded strings -->
+    
+    <!-- 授权器相关硬编码字符串 -->
     <string name="switched_to_privilege">Переключено на %s</string>
     <string name="privilege_not_installed_log">%s не установлен, открывается страница загрузки GitHub...</string>
     <string name="opening_privilege_app">Открытие приложения %s...</string>
@@ -544,7 +548,7 @@
     <string name="refresh_file_info_error">Ошибка при обновлении информации о файле: %s</string>
     <string name="refresh_file_info_error_toast">Не удалось обновить информацию о файле</string>
     <string name="no_file_to_refresh">Нет файла для обновления</string>
-
+    
     <!-- Additional strings for UI updates -->
     <string name="native_test_opened">Открыт интерфейс тестирования нативной библиотеки</string>
     <string name="permission_already_granted">Уже авторизован</string>
@@ -570,32 +574,22 @@
     <string name="cannot_open_app">Невозможно открыть приложение</string>
     <string name="app_no_launcher">Приложение %s не имеет активности запуска</string>
     <string name="open_app_failed">Не удалось открыть приложение: %s</string>
-
-    <!-- Version comparison and upgrade related -->
+    
+    <!-- 版本比对和升级相关 -->
     <string name="upgrade">Обновление</string>
     <string name="downgrade">Понижение версии</string>
     <string name="same_version">Та же версия</string>
-
+    
     <!-- Installer package settings -->
     <string name="installer_package_settings">Пакет установщика</string>
     <string name="current_installer_package">Текущий пакет установщика</string>
     <string name="current_app">Текущее приложение</string>
     <string name="installer_package_changed">Пакет установщика изменен</string>
 
-
-    <!-- Missing strings from default -->
-    <string name="request_authorization">Запросить авторизацию</string>
-    <string name="privilege_settings_hint">Выберите способ авторизации для установки приложений. Убедитесь, что выбранный сервис запущен и авторизован.</string>
-    <string name="dhizuku_required">Требуется авторизация Dhizuku для установки приложения</string>
     <string name="previous_step">Предыдущий</string>
     <string name="next_step">Следующий</string>
     <string name="select_privilege_mode">Выбрать авторизацию</string>
-    <string name="upgrade_version">Версия обновления: </string>
     <string name="arrow_down">Стрелка вниз</string>
-    <string name="content_description_history">История</string>
-    <string name="content_description_bookmarks">Закладки</string>
-    <string name="content_description_search">Поиск</string>
-    <string name="content_description_save">Сохранить</string>
 
     <!-- Easter egg -->
     <string name="easter_egg_text">Здесь ничего нет</string>
@@ -623,6 +617,7 @@
     <string name="down_direction">Вниз</string>
     <string name="tab_key">Tab</string>
     <string name="ctrl_c_key">Ctrl+C</string>
+    <string name="ctrl_d_key">Ctrl+D</string>
     <string name="escape_key">Escape</string>
     <string name="clear_screen">Очистить</string>
     <string name="clipboard_action">Буфер обмена</string>
@@ -641,5 +636,24 @@
     <string name="toast_language_changed">Язык изменён, требуется перезапуск</string>
     <string name="log_entries_count" formatted="false">Записей: %d</string>
     <string name="not_available">Н/Д</string>
+
+    <!-- Missing default strings (defined in language-specific folders) -->
+    <string name="apk_name_failed" formatted="false">%s не удалось: %s</string>
+    <string name="apk_not_exist">APK файл не существует</string>
+    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
+    <string name="create_session">Создание сессии установки: %s</string>
+    <string name="extract_complete">Извлечение завершено, всего %d APK</string>
+    <string name="extract_xapk">Извлечение XAPK (используется нативная библиотека сжатия)...</string>
+    <string name="install_exception">Исключение установки: %s</string>
+    <string name="install_failed">Ошибка установки: %s</string>
+    <string name="install_failed_error">Ошибка установки: %s</string>
+    <string name="install_success_simple">Установка успешна!</string>
+    <string name="session_id">ID сессии: %s</string>
+    <string name="start_apk_install">Начало установки APK...</string>
+    <string name="submit_install">Отправка установки...</string>
+    <string name="submitting_install">Отправка установки...</string>
+    <string name="write_apk_data">Запись данных APK...</string>
+    <string name="xapk_install_exception">Исключение установки XAPK: %s</string>
+    <string name="xapk_install_success_msg">XAPK успешно установлен! Всего установлено %d APK</string>
 
 </resources>

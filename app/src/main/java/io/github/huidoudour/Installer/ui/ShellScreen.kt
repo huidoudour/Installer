@@ -13,11 +13,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,7 +30,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -54,6 +52,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -64,6 +63,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -80,47 +80,57 @@ import io.github.huidoudour.Installer.util.CommandBookmarks
 import io.github.huidoudour.Installer.util.ShellExecutor
 import kotlinx.coroutines.launch
 
+/**
+ * 终端 Shell 页面 - 类似 Termux 的全屏终端模拟器
+ *
+ * 功能:
+ * - 基于 PTY + TerminalEmulator 的完整终端模拟
+ * - 直接键盘输入 (光标闪烁、方向键、Ctrl组合等)
+ * - ANSI 颜色/样式渲染
+ * - 功能键工具栏
+ * - 命令历史/书签/快速命令
+ */
 @Composable
 fun ShellScreen(
     viewModel: ShellViewModel = viewModel()
 ) {
     val context = LocalContext.current
-
-    val outputText: String by viewModel.outputText.collectAsState()
-    val commandText: String by viewModel.commandText.collectAsState()
-    val isExecuting: Boolean by viewModel.isExecuting.collectAsState()
-    val isSearchVisible: Boolean by viewModel.isSearchVisible.collectAsState()
-    val searchText: String by viewModel.searchText.collectAsState()
-
-    var showHistoryDialog by remember { mutableStateOf(false) }
-    var showBookmarksDialog by remember { mutableStateOf(false) }
-    var showQuickCommandsDialog by remember { mutableStateOf(false) }
-
-    val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(viewModel.outputLineCount) {
-        if (!viewModel.userScrolledAwayFromBottom) {
-            scrollState.animateScrollTo(scrollState.maxValue)
+    var showQuickCommandsDialog by remember { mutableStateOf(false) }
+
+    // 终端尺寸计算 (增大字符尺寸提升可读性)
+    val charWidth = 11f
+    val charHeight = 24f
+    var terminalWidth by remember { mutableIntStateOf(0) }
+    var terminalHeight by remember { mutableIntStateOf(0) }
+
+    // 当终端区域尺寸变化时，更新 PTY 窗口大小
+    LaunchedEffect(terminalWidth, terminalHeight) {
+        if (terminalWidth > 0 && terminalHeight > 0) {
+            val cols = (terminalWidth / charWidth).toInt().coerceAtLeast(20)
+            val rows = (terminalHeight / charHeight).toInt().coerceAtLeast(4)
+            viewModel.setTerminalSize(rows, cols)
         }
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(
-                WindowInsets.ime.exclude(WindowInsets.navigationBars)
-            )
+            .imePadding()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Top toolbar
-            TopToolbar(
-                onHistoryClick = { showHistoryDialog = true },
-                onBookmarksClick = { showBookmarksDialog = true },
-                onSearchClick = { viewModel.toggleSearch() },
-                onSaveClick = {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // 功能键栏（移至顶部，含保存按钮）
+            Spacer(modifier = Modifier.height(4.dp))
+            FunctionKeysRow(
+                onCtrlC = { viewModel.sendCtrlC() },
+                onCtrlD = { viewModel.sendCtrlD() },
+                onEsc = { viewModel.sendEscape() },
+                onTab = { viewModel.sendTab() },
+                onClearScreen = { viewModel.clearScreen() },
+                onCopy = { viewModel.copyOutput() },
+                onQuickCommands = { showQuickCommandsDialog = true },
+                onSave = {
                     val result = viewModel.saveOutput(context)
                     if (result.isSuccess) {
                         val file = result.getOrNull()!!
@@ -141,23 +151,18 @@ fun ShellScreen(
                     }
                 }
             )
+            Spacer(modifier = Modifier.height(4.dp))
 
-            // Search bar
-            if (isSearchVisible) {
-                SearchInput(
-                    searchText = searchText,
-                    onSearchTextChange = { viewModel.updateSearchText(it) },
-                    onClose = { viewModel.toggleSearch() }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            // Terminal output (fills remaining space)
+            // 终端视图 (填充剩余空间)
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
+                    .onSizeChanged { size ->
+                        terminalWidth = size.width
+                        terminalHeight = size.height
+                    }
             ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -165,140 +170,26 @@ fun ShellScreen(
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                 ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        if (isSearchVisible && searchText.isNotEmpty()) {
-                            val searchTextValue by viewModel.searchResult.collectAsState()
-                            val displayStr = searchTextValue.ifEmpty { outputText }
-                            androidx.compose.material3.Text(
-                                text = displayStr,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(12.dp)
-                                    .verticalScroll(scrollState),
-                                style = TextStyle(
-                                    fontSize = 13.sp,
-                                    fontFamily = FontFamily.Monospace,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            )
-                        } else {
-                            androidx.compose.material3.Text(
-                                text = viewModel.getAnnotatedOutput(),
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(12.dp)
-                                    .verticalScroll(scrollState),
-                                style = TextStyle(
-                                    fontSize = 13.sp,
-                                    fontFamily = FontFamily.Monospace
-                                )
-                            )
-                        }
-
-                        // Scroll buttons overlay
-                        if (scrollState.maxValue > 0) {
-                            Column(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                SmallFloatingActionButton(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            scrollState.animateScrollTo(0)
-                                        }
-                                    },
-                                    modifier = Modifier.size(32.dp),
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    shape = CircleShape
-                                ) {
-                                    Icon(
-                                        Icons.Default.KeyboardArrowUp,
-                                        contentDescription = stringResource(R.string.scroll_to_top),
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                SmallFloatingActionButton(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            scrollState.animateScrollTo(scrollState.maxValue)
-                                        }
-                                        viewModel.userScrolledAwayFromBottom = false
-                                    },
-                                    modifier = Modifier.size(32.dp),
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    shape = CircleShape
-                                ) {
-                                    Icon(
-                                        Icons.Default.KeyboardArrowDown,
-                                        contentDescription = stringResource(R.string.scroll_to_bottom),
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    TerminalView(
+                        terminal = viewModel.terminal,
+                        onKeyInput = { bytes -> viewModel.sendKeyInput(bytes) },
+                        needLocalEcho = viewModel.needLocalEcho,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp)
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Function keys
-            FunctionKeysRow(
-                onHistoryUp = { viewModel.navigateHistoryUp() },
-                onHistoryDown = { viewModel.navigateHistoryDown() },
-                onTab = { viewModel.insertTab() },
-                onCtrlC = { viewModel.cancelCommand() },
-                onEsc = { viewModel.clearInput() },
-                onClearScreen = { viewModel.clearScreen() },
-                onCopy = { viewModel.copyOutput() },
-                onQuickCommands = { showQuickCommandsDialog = true }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Command input at bottom
-            CommandInput(
-                commandText = commandText,
-                onCommandTextChange = { viewModel.updateCommandText(it) },
-                onSendCommand = { viewModel.executeCommand() },
-                isExecuting = isExecuting
-            )
         }
     }
 
-    // History dialog
-    if (showHistoryDialog) {
-        ShellHistoryDialog(
-            onDismiss = { showHistoryDialog = false },
-            onSelectCommand = { cmd ->
-                viewModel.updateCommandText(cmd)
-                showHistoryDialog = false
-            }
-        )
-    }
-
-    // Bookmarks dialog
-    if (showBookmarksDialog) {
-        ShellBookmarksDialog(
-            context = context,
-            onDismiss = { showBookmarksDialog = false },
-            onSelectCommand = { cmd ->
-                viewModel.updateCommandText(cmd)
-                showBookmarksDialog = false
-            }
-        )
-    }
-
-    // Quick commands dialog
+    // 快速命令对话框
     if (showQuickCommandsDialog) {
         QuickCommandsDialog(
             onDismiss = { showQuickCommandsDialog = false },
             onSelectCommand = { cmd ->
-                viewModel.updateCommandText(cmd)
+                viewModel.sendKeyInput((cmd + "\n").toByteArray(Charsets.UTF_8))
                 showQuickCommandsDialog = false
             }
         )
@@ -306,133 +197,15 @@ fun ShellScreen(
 }
 
 @Composable
-fun TopToolbar(
-    onHistoryClick: () -> Unit,
-    onBookmarksClick: () -> Unit,
-    onSearchClick: () -> Unit,
-    onSaveClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        color = MaterialTheme.colorScheme.surfaceContainer
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            ToolbarButton(
-                iconId = R.drawable.ic_shell_history,
-                contentDescription = stringResource(R.string.content_description_history),
-                onClick = onHistoryClick
-            )
-            ToolbarButton(
-                iconId = R.drawable.ic_shell_bookmark,
-                contentDescription = stringResource(R.string.content_description_bookmarks),
-                onClick = onBookmarksClick
-            )
-            ToolbarButton(
-                iconId = R.drawable.ic_shell_search,
-                contentDescription = stringResource(R.string.content_description_search),
-                onClick = onSearchClick
-            )
-            ToolbarButton(
-                iconId = R.drawable.ic_shell_save,
-                contentDescription = stringResource(R.string.content_description_save),
-                onClick = onSaveClick
-            )
-        }
-    }
-}
-
-@Composable
-fun ToolbarButton(
-    iconId: Int,
-    contentDescription: String,
-    onClick: () -> Unit
-) {
-    IconButton(onClick = onClick) {
-        Icon(
-            imageVector = ImageVector.vectorResource(iconId),
-            contentDescription = contentDescription
-        )
-    }
-}
-
-@Composable
-fun SearchInput(
-    searchText: String,
-    onSearchTextChange: (String) -> Unit,
-    onClose: () -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        color = MaterialTheme.colorScheme.surfaceContainerHighest
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BasicTextField(
-                value = searchText,
-                onValueChange = onSearchTextChange,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                decorationBox = { innerTextField ->
-                    Box {
-                        if (searchText.isEmpty()) {
-                            Text(
-                                text = stringResource(R.string.search_in_output_hint),
-                                style = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontFamily = FontFamily.Monospace,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            )
-                        }
-                        innerTextField()
-                    }
-                }
-            )
-
-            IconButton(onClick = onClose) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = stringResource(R.string.close_search)
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun FunctionKeysRow(
-    onHistoryUp: () -> Unit,
-    onHistoryDown: () -> Unit,
-    onTab: () -> Unit,
     onCtrlC: () -> Unit,
+    onCtrlD: () -> Unit,
     onEsc: () -> Unit,
+    onTab: () -> Unit,
     onClearScreen: () -> Unit,
     onCopy: () -> Unit,
-    onQuickCommands: () -> Unit
+    onQuickCommands: () -> Unit,
+    onSave: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -450,15 +223,14 @@ fun FunctionKeysRow(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FunctionKeyButton(text = stringResource(R.string.up_arrow), contentDescription = stringResource(R.string.up_direction), onClick = onHistoryUp)
-            FunctionKeyButton(text = stringResource(R.string.down_arrow), contentDescription = stringResource(R.string.down_direction), onClick = onHistoryDown)
-            FunctionKeyButton(text = stringResource(R.string.tab), contentDescription = stringResource(R.string.tab_key), onClick = onTab)
-            FunctionKeyButton(text = stringResource(R.string.ctrl_c), contentDescription = stringResource(R.string.ctrl_c_key), onClick = onCtrlC,
-                textColor = MaterialTheme.colorScheme.error)
-            FunctionKeyButton(text = stringResource(R.string.esc), contentDescription = stringResource(R.string.escape_key), onClick = onEsc)
-            FunctionKeyButton(text = stringResource(R.string.letter_c), contentDescription = stringResource(R.string.clear_screen), onClick = onClearScreen)
-            FunctionKeyButton(text = stringResource(R.string.clipboard), contentDescription = stringResource(R.string.clipboard_action), onClick = onCopy)
-            FunctionKeyButton(text = stringResource(R.string.lightning), contentDescription = stringResource(R.string.quick_commands_action), onClick = onQuickCommands)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_cancel), contentDescription = stringResource(R.string.ctrl_c_key), onClick = onCtrlC, textColor = MaterialTheme.colorScheme.error)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_close), contentDescription = stringResource(R.string.ctrl_d_key), onClick = onCtrlD, textColor = MaterialTheme.colorScheme.error)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_esc), contentDescription = stringResource(R.string.escape_key), onClick = onEsc)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_tab), contentDescription = stringResource(R.string.tab_key), onClick = onTab)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_clear), contentDescription = stringResource(R.string.clear_screen), onClick = onClearScreen, textColor = MaterialTheme.colorScheme.error)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_paste), contentDescription = stringResource(R.string.clipboard_action), onClick = onCopy)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_quick), contentDescription = stringResource(R.string.quick_commands_action), onClick = onQuickCommands)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_save), contentDescription = stringResource(R.string.content_description_save), onClick = onSave)
         }
     }
 }
@@ -489,56 +261,6 @@ fun FunctionKeyButton(
     }
 }
 
-@Composable
-fun CommandInput(
-    commandText: String,
-    onCommandTextChange: (String) -> Unit,
-    onSendCommand: () -> Unit,
-    isExecuting: Boolean
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        color = MaterialTheme.colorScheme.surfaceContainerHighest
-    ) {
-        BasicTextField(
-            value = commandText,
-            onValueChange = onCommandTextChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            textStyle = TextStyle(
-                fontSize = 15.sp,
-                fontFamily = FontFamily.Monospace,
-                color = MaterialTheme.colorScheme.onSurface
-            ),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { onSendCommand() }),
-            singleLine = true,
-            enabled = !isExecuting,
-            decorationBox = { innerTextField ->
-                Box {
-                    if (commandText.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.shell_hint),
-                            style = TextStyle(
-                                fontSize = 15.sp,
-                                fontFamily = FontFamily.Monospace,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        )
-                    }
-                    innerTextField()
-                }
-            }
-        )
-    }
-}
-
 // ============ Dialogs ============
 
 @Composable
@@ -565,9 +287,7 @@ fun ShellHistoryDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
                     items(reversedHistory) { cmd ->
                         Text(
                             text = cmd,

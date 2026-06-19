@@ -5,7 +5,7 @@
     <string name="title_shell">Shell</string>
     <string name="title_notifications">日志</string>
     <string name="title_settings">设置</string>
-
+    
     <!-- Install page -->
     <string name="install_title">安装应用</string>
     <string name="authorization_method">授权方式</string>
@@ -20,21 +20,28 @@
     <string name="cancel">算了</string>
     <string name="privilege">权限</string>
     <string name="back">返回</string>
-    <string name="close">关闭</string>
     <string name="switched_to_shizuku">已切换到 Shizuku</string>
     <string name="switched_to_dhizuku">已切换到 Dhizuku</string>
+    <string name="close">关闭</string>
     <string name="request_authorization">请求授权</string>
     <string name="privilege_settings_hint">选择用于安装应用的授权方式。确保所选服务正在运行并已授权。</string>
     <string name="copied_to_clipboard">已复制到剪贴板</string>
     <string name="copy_failed">复制失败</string>
     <string name="installing">安装中...</string>
     <string name="app_icon_description">应用图标</string>
-
+    
     <!-- Settings page -->
     <string name="settings_title">设置</string>
     <string name="settings_subtitle">应用配置和个性化设置</string>
     <string name="app_settings">应用设置</string>
     <string name="theme_settings">主题设置</string>
+    <string name="theme_color">Theme Color</string>
+    <string name="theme_follow_system">Follow System</string>
+    <string name="theme_light">Light Theme</string>
+    <string name="theme_dark">Dark Theme</string>
+    <string name="follow_wallpaper">Follow Wallpaper</string>
+    <string name="light_theme">浅色主题</string>
+    <string name="dark_theme">深色主题</string>
     <string name="language_settings">语言设置</string>
     <string name="notification_settings">通知设置</string>
     <string name="background_display">显示后台</string>
@@ -56,6 +63,16 @@
     <string name="english">英语</string>
     <string name="russian">俄语</string>
     <string name="japanese">日语</string>
+    <string name="meow_language">喵语中文</string>
+    
+    <!-- Static language names (not translated) -->
+    <string name="lang_name_system">跟随系统</string>
+    <string name="lang_name_simplified">简体中文</string>
+    <string name="lang_name_traditional">繁体中文</string>
+    <string name="lang_name_english">English</string>
+    <string name="lang_name_russian">Русский</string>
+    <string name="lang_name_japanese">日本語</string>
+    <string name="lang_name_meow">喵语中文</string>
     <string name="confirm">确认</string>
     <string name="language_changed_tip">语言已切换为%s</string>
     <string name="language_change_failed">语言切换失败</string>
@@ -70,19 +87,8 @@
     <string name="find_me">ω寻找我ω</string>
     <string name="about_description">专注于 Android 应用安装工具开发</string>
     <string name="visit_github">访问 GitHub</string>
-
-    <string name="light_theme">浅色主题</string>
-    <string name="dark_theme">深色主题</string>
-    <string name="lang_name_system">跟随系统</string>
-    <string name="lang_name_simplified">简体中文</string>
-    <string name="lang_name_traditional">繁体中文</string>
-    <string name="lang_name_english">English</string>
-    <string name="lang_name_russian">Русский</string>
-    <string name="lang_name_japanese">日本語</string>
-    <string name="lang_name_meow">喵语中文</string>
-    <string name="meow_language">喵语中文</string>
-
-    <!-- Shell and tools -->
+    
+    <!-- Reference strings -->
     <string name="shell_hint">输入命令...</string>
     <string name="clear_log">清空日志</string>
     <string name="shell_txt">"@termux"</string>
@@ -91,13 +97,15 @@
     <string name="dollar_sign">$</string>
     <string name="up_arrow">↑</string>
     <string name="down_arrow">↓</string>
-    <string name="tab">TAB</string>
-    <string name="ctrl_c">^C</string>
-    <string name="esc">ESC</string>
+    <string name="btn_shell_tab">TAB</string>
+    <string name="btn_shell_cancel">^C</string>
+    <string name="btn_shell_close">^D</string>
+    <string name="btn_shell_esc">ESC</string>
     <string name="root">root</string>
-    <string name="letter_c">C</string>
-    <string name="clipboard">P</string>
-    <string name="lightning">Q</string>
+    <string name="btn_shell_clear">C</string>
+    <string name="btn_shell_paste">P</string>
+    <string name="btn_shell_quick">Q</string>
+    <string name="btn_shell_save">S</string>
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku 状态</string>
@@ -107,13 +115,6 @@
     <string name="grant_dhizuku_permission">授予 Dhizuku 权限</string>
     <string name="request_shizuku_permission">尝试请求 Shizuku 权限~...</string>
     <string name="request_dhizuku_permission">尝试请求 Dhizuku 权限~...</string>
-    <string name="dhizuku_not_running">未运行/未安装</string>
-    <string name="dhizuku_not_connected">Dhizuku 未连接.</string>
-    <string name="dhizuku_version_too_low">Dhizuku 版本过低.</string>
-    <string name="dhizuku_connected_and_authorized">Dhizuku 已连接并授权.</string>
-    <string name="dhizuku_connected_but_not_authorized">Dhizuku 已连接但未授权.</string>
-    <string name="check_dhizuku_version_permission_failed">检查 Dhizuku 版本/权限失败: %s</string>
-    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUi 捕获异常: %s</string>
     <string name="no_file_selected">未选择文件</string>
     <string name="select_apk_file">选择 APK 文件</string>
     <string name="install_options">安装选项</string>
@@ -136,6 +137,8 @@
     <string name="clear">Clear</string>
     <string name="export">Export</string>
     <string name="real_time_logs">Real-time Logs</string>
+    <string name="no_logs_available">No logs available</string>
+    <string name="upgrade_version">升级版本：</string>
     <string name="waiting_operation">等待操作……</string>
     <string name="app_name_label">应用名称</string>
     <string name="package_name_label">包名：</string>
@@ -183,18 +186,25 @@
     请尝试安装Chrome、Firefox或其他浏览器应用。</string>
     <string name="receive_install_intent">接收到安装意图，URI: %s</string>
     <string name="shizuku_not_running">未运行/未安装</string>
+    <string name="dhizuku_not_running">未运行/未安装</string>
     <string name="shizuku_not_connected">Shizuku 未连接.</string>
+    <string name="dhizuku_not_connected">Dhizuku 未连接.</string>
     <string name="not_running">未运行</string>
     <string name="version_too_low">版本过低</string>
     <string name="shizuku_version_too_low">Shizuku 版本过低.</string>
+    <string name="dhizuku_version_too_low">Dhizuku 版本过低.</string>
     <string name="permission_granted">已授予</string>
     <string name="shizuku_connected_and_authorized">Shizuku 已连接并授权.</string>
+    <string name="dhizuku_connected_and_authorized">Dhizuku 已连接并授权.</string>
     <string name="not_authorized">未授予</string>
     <string name="shizuku_connected_but_not_authorized">Shizuku 已连接但未授权.</string>
+    <string name="dhizuku_connected_but_not_authorized">Dhizuku 已连接但未授权.</string>
     <string name="status_unknown">状态未知</string>
     <string name="check_shizuku_version_permission_failed">检查 Shizuku 版本/权限失败: %s</string>
+    <string name="check_dhizuku_version_permission_failed">检查 Dhizuku 版本/权限失败: %s</string>
     <string name="unavailable">不可用</string>
     <string name="update_shizuku_status_ui_exception">updateShizukuStatusAndUi 捕获异常: %s</string>
+    <string name="update_dhizuku_status_ui_exception">updateDhizukuStatusAndUi 捕获异常: %s</string>
 
     <!-- XAPK extraction -->
     <string name="start_extract_xapk">开始解压 XAPK: %s</string>
@@ -453,6 +463,7 @@
     <string name="content_description_bookmarks">书签</string>
     <string name="content_description_search">搜索</string>
     <string name="content_description_save">保存</string>
+    <string name="quick_commands">Quick Commands</string>
     <string name="hash_sign">#</string>
     <string name="user">用户</string>
 
@@ -460,8 +471,8 @@
     <string name="notification_permission_required">需要通知权限</string>
     <string name="notification_enabled">通知已开启</string>
     <string name="notification_disabled">通知已关闭</string>
-
-    <!-- Permission authorization -->
+    
+    <!-- Permission authorization related -->
     <string name="privilege_settings">权限授权设置</string>
     <string name="shizuku_settings">Shizuku 授权</string>
     <string name="privilege_status">状态: %s</string>
@@ -477,8 +488,9 @@
     <string name="current_privilege">当前授权器</string>
     <string name="privilege_mode_shizuku">Shizuku</string>
 
-    <!-- 原生库测试相关字符串 -->
+    <!-- Native library test related strings -->
     <string name="execute_command_failed">执行命令失败</string>
+    
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== 原生库测试 ===</string>
     <string name="native_lib_loaded_success">原生库加载成功!</string>
@@ -495,7 +507,7 @@
     <string name="native_lib_check_ndk">1. NDK 是否正确安装</string>
     <string name="native_lib_check_cmake">2. CMake 配置是否正确</string>
     <string name="native_lib_check_arch">3. 架构是否匹配 (arm64-v8a 或 x86_64)</string>
-
+    
     <!-- 权限状态相关字符串 -->
     <string name="privilege_status_title">%s 状态</string>
     <string name="privilege_not_installed_status">%s 未安装</string>
@@ -513,7 +525,7 @@
     <string name="log_received_home_install">接收到HomeActivity传递的安装URI: %s</string>
     <string name="log_processed_home_request">已处理HomeActivity传递的安装请求，文件已复制到 cache: %s</string>
     <string name="log_detected_file" formatted="false">检测到 %s，包含 %d 个 APK 文件</string>
-
+    
     <!-- 授权器相关硬编码字符串 -->
     <string name="switched_to_privilege">已切换到 %s</string>
     <string name="privilege_not_installed_log">%s 未安装，正在打开 GitHub 下载页面...</string>
@@ -536,7 +548,7 @@
     <string name="refresh_file_info_error">刷新文件信息时出错：%s</string>
     <string name="refresh_file_info_error_toast">刷新文件信息失败</string>
     <string name="no_file_to_refresh">没有可刷新的文件</string>
-
+    
     <!-- Additional strings for UI updates -->
     <string name="native_test_opened">已打开原生库测试界面</string>
     <string name="permission_already_granted">已授权</string>
@@ -562,11 +574,12 @@
     <string name="cannot_open_app">无法打开应用</string>
     <string name="app_no_launcher">应用 %s 没有启动活动</string>
     <string name="open_app_failed">打开应用失败: %s</string>
+    
     <!-- 版本比对和升级相关 -->
     <string name="upgrade">升级</string>
     <string name="downgrade">降级</string>
     <string name="same_version">相同版本</string>
-
+    
     <!-- Installer package settings -->
     <string name="installer_package_settings">安装器包</string>
     <string name="current_installer_package">当前安装器包</string>
@@ -576,7 +589,6 @@
     <string name="previous_step">返回</string>
     <string name="next_step">确认</string>
     <string name="select_privilege_mode">选择授权方式</string>
-    <string name="upgrade_version">升级版本：</string>
     <string name="arrow_down">向下箭头</string>
 
     <!-- Easter egg -->
@@ -605,6 +617,7 @@
     <string name="down_direction">下</string>
     <string name="tab_key">制表符</string>
     <string name="ctrl_c_key">Ctrl+C</string>
+    <string name="ctrl_d_key">Ctrl+D</string>
     <string name="escape_key">退出</string>
     <string name="clear_screen">清屏</string>
     <string name="clipboard_action">剪贴板</string>
@@ -612,7 +625,7 @@
     <string name="add_bookmark_action">添加书签</string>
     <string name="remove_bookmark_action">移除</string>
 
-    <!-- 分享和保存相关 -->
+    <!-- Share and save related -->
     <string name="share_output_title">分享输出</string>
     <string name="share_failed">分享失败：%s</string>
     <string name="save_failed">保存失败</string>
@@ -623,5 +636,24 @@
     <string name="toast_language_changed">语言已更改，需要重启</string>
     <string name="log_entries_count" formatted="false">%d 条记录</string>
     <string name="not_available">不可用</string>
+
+    <!-- Missing default strings (defined in language-specific folders) -->
+    <string name="apk_name_failed" formatted="false">%s failed: %s</string>
+    <string name="apk_not_exist">APK file does not exist</string>
+    <string name="apk_progress" formatted="false">[%d/%d] %s</string>
+    <string name="create_session">Create installation session: %s</string>
+    <string name="extract_complete">Extraction complete, %d APKs in total</string>
+    <string name="extract_xapk">Extracting XAPK (using native compression library)…</string>
+    <string name="install_exception">Installation exception: %s</string>
+    <string name="install_failed">Installation failed: %s</string>
+    <string name="install_failed_error">Installation failed: %s</string>
+    <string name="install_success_simple">Installation successful!</string>
+    <string name="session_id">Session ID: %s</string>
+    <string name="start_apk_install">Start APK installation…</string>
+    <string name="submit_install">Submit installation…</string>
+    <string name="submitting_install">Submitting installation…</string>
+    <string name="write_apk_data">Writing APK data…</string>
+    <string name="xapk_install_exception">XAPK installation exception: %s</string>
+    <string name="xapk_install_success_msg">XAPK installation successful! %d APKs installed in total</string>
 
 </resources>

@@ -13,10 +13,8 @@
 - 允许使用 shell 命令终端
 > 未进行过对 APKS&XAPK 的多种测试
 
-### C++ 原生库
-- ✅ 集成 C++ 共享库
-- ✅ 集成 崩溃日志模块
-- ✅ 支持架构: arm64-v8a, x86_64
+### 原生库
+- ✅ 支持架构: arm64-v8a, x86_64 等
 > 实际并无有效功能，仅用于测试原生库的集成。
 
 ### APP 本身
@@ -50,5 +48,6 @@
 - [iamr0s/Dhizuku](https://github.com/iamr0s/Dhizuku)<br>
 - [DP-Hridayan/aShellYou](https://github.com/DP-Hridayan/aShellYou)<br>
 - [sunilpaulmathew/ashell](https://gitlab.com/sunilpaulmathew/ashell)<br>
+- [termux/termux-app](https://github.com/termux/termux-app)<br>
 
 > 若有任何涉及到侵权的地方，请联系我。

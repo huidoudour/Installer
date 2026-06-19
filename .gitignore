@@ -27,3 +27,5 @@ MarsCodeWorkspaceAppSettings.xml
 /.workbuddy/
 
 .claude
+*.py
+*.bak

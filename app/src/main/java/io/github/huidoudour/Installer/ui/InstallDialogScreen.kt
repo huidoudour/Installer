@@ -59,6 +59,8 @@ import io.github.huidoudour.Installer.util.DhizukuInstallHelper
 import io.github.huidoudour.Installer.util.LogManager
 import io.github.huidoudour.Installer.util.PrivilegeHelper
 import io.github.huidoudour.Installer.util.ShizukuInstallHelper
+import android.os.Handler
+import android.os.Looper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -707,6 +709,7 @@ private fun performRealInstallation(
     val isXapk = io.github.huidoudour.Installer.util.XapkInstaller.isXapkFile(filePath)
 
     val logManager = LogManager.getInstance()
+    val mainHandler = Handler(Looper.getMainLooper())
 
     when (mode) {
         PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
@@ -718,12 +721,12 @@ private fun performRealInstallation(
                 override fun onSuccess(message: String) {
                     Log.d("InstallDialog", message)
                     logManager.addLog(message, "Dialog")
-                    onSuccess()
+                    mainHandler.post { onSuccess() }
                 }
                 override fun onError(error: String) {
                     Log.e("InstallDialog", error)
                     logManager.addLog("Error: $error", "Dialog")
-                    onError(error)
+                    mainHandler.post { onError(error) }
                 }
             }
             if (isXapk) {
@@ -741,12 +744,12 @@ private fun performRealInstallation(
                 override fun onSuccess(message: String) {
                     Log.d("InstallDialog", message)
                     logManager.addLog(message, "Dialog")
-                    onSuccess()
+                    mainHandler.post { onSuccess() }
                 }
                 override fun onError(error: String) {
                     Log.e("InstallDialog", error)
                     logManager.addLog("Error: $error", "Dialog")
-                    onError(error)
+                    mainHandler.post { onError(error) }
                 }
             }
             if (isXapk) {
