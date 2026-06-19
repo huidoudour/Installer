@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -116,6 +117,7 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .navigationBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
@@ -336,9 +338,11 @@ private fun AboutAppCard(
     context: android.content.Context,
     onNavigateToMe: () -> Unit
 ) {
-    val versionName = try {
+    val versionDisplayText = try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-        packageInfo.versionName ?: context.getString(R.string.unknown)
+        val name = packageInfo.versionName ?: context.getString(R.string.unknown)
+        val code = packageInfo.longVersionCode
+        "$name（$code）"
     } catch (e: Exception) {
         context.getString(R.string.unknown)
     }
@@ -407,7 +411,7 @@ private fun AboutAppCard(
             item = SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_version),
                 title = stringResource(R.string.app_version),
-                subtitle = versionName,
+                subtitle = versionDisplayText,
                 colorPreview = null,
                 onClick = {
                     val now = System.currentTimeMillis()

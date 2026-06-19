@@ -3,7 +3,8 @@ package io.github.huidoudour.Installer.ui
 import android.graphics.Typeface
 import android.view.Choreographer
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
@@ -33,6 +34,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -65,12 +67,6 @@ fun TerminalView(
     var blinkJob by remember { mutableStateOf<Job?>(null) }
     val textFieldFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-
-    // 页面加载时自动获取焦点并弹出键盘
-    LaunchedEffect(Unit) {
-        textFieldFocusRequester.requestFocus()
-        keyboardController?.show()
-    }
 
     // 隐藏 TextField 输入缓冲区
     var imeBuffer by remember { mutableStateOf("") }
@@ -110,12 +106,19 @@ fun TerminalView(
         }
     }
 
-    val currentScreen = terminal.getScreen()
+    val currentScreen = terminal.getVisibleScreen(terminal.rows)
     val curRow = terminal.cursorRow
     val curCol = terminal.cursorCol
-    val isCursorVis = showCursor && terminal.cursorVisible
+    val isScrollback = terminal.isScrollbackActive()
+    val isCursorVis = showCursor && terminal.cursorVisible && !isScrollback
     val termRows = terminal.rows
     val termCols = terminal.cols
+
+    // 固定单元格尺寸 (不随 Canvas 大小变化，消除键盘弹出时的缩放效果)
+    val density = LocalDensity.current
+    val fixedFontSizePx = with(density) { 12f.sp.toPx() }
+    val fixedCellWidth = fixedFontSizePx * 0.6f
+    val fixedCellHeight = fixedFontSizePx * 1.25f
 
     Box(
         modifier = modifier
@@ -124,7 +127,6 @@ fun TerminalView(
             .onFocusChanged {
                 if (it.isFocused) {
                     textFieldFocusRequester.requestFocus()
-                    keyboardController?.show()
                 }
             }
             .onKeyEvent { event ->
@@ -211,25 +213,29 @@ fun TerminalView(
         androidx.compose.foundation.Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
-            val cellWidth = size.width / termCols
-            val cellHeight = size.height / termRows
+            // 固定单元格尺寸 (不随 Canvas 变化，消除缩放)
+            val cellWidth = fixedCellWidth
+            val cellHeight = fixedCellHeight
+            val visibleRows = (size.height / cellHeight).toInt().coerceAtLeast(1)
+                .coerceAtMost(termRows)
 
-            paint.textSize = cellHeight * 0.8f
+            paint.textSize = fixedFontSizePx
             val baseline = cellHeight * 0.78f
 
-            for (row in 0 until termRows) {
+            for (row in 0 until visibleRows) {
+                if (row >= currentScreen.size) break
                 val rowCells = currentScreen[row]
                 val y = row * cellHeight
 
                 var col = 0
-                while (col < termCols) {
+                while (col < termCols && col < rowCells.size) {
                     val cell = rowCells[col]
                     val startCol = col
                     val cellBg = cell.bg
                     val cellFg = cell.fg
                     val cellBold = cell.bold
 
-                    while (col < termCols) {
+                    while (col < termCols && col < rowCells.size) {
                         val next = rowCells[col]
                         if (next.bg != cellBg || next.fg != cellFg || next.bold != cellBold) break
                         col++
@@ -265,7 +271,7 @@ fun TerminalView(
                         size = androidx.compose.ui.geometry.Size(cellWidth, cellHeight),
                         alpha = 0.7f
                     )
-                    if (curCol < termCols) {
+                    if (curCol < termCols && curCol < rowCells.size) {
                         val cursorCell = rowCells[curCol]
                         paint.color = android.graphics.Color.BLACK
                         paint.isFakeBoldText = cursorCell.bold
@@ -276,20 +282,51 @@ fun TerminalView(
                 }
             }
 
+            // 回看模式指示条
+            if (isScrollback) {
+                drawRect(
+                    color = Color(0x80FFFFFF),
+                    topLeft = androidx.compose.ui.geometry.Offset(size.width - 4f, 0f),
+                    size = androidx.compose.ui.geometry.Size(4f, size.height)
+                )
+            }
+
             @Suppress("UNUSED_EXPRESSION")
             screenVersion
         }
 
-        // ====== 点击区域 - 请求 TextField 焦点 (弹出软键盘) ======
+        // 触摸拖拽累加器，累加偏移量超过一个 cell 才触发滚动，避免抖动
+        var dragAccumulator by remember { mutableStateOf(0f) }
+        
+        // ====== 触摸区域: 点击聚焦 + 上下滑动滚动回看 ======
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    textFieldFocusRequester.requestFocus()
-                    keyboardController?.show()
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        textFieldFocusRequester.requestFocus()
+                        keyboardController?.show()
+                    }
+                }
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragEnd = {
+                            dragAccumulator = 0f
+                        }
+                    ) { _, dragAmount ->
+                        dragAccumulator += dragAmount.y
+                        val lines = (dragAccumulator / fixedCellHeight).toInt()
+                        if (lines != 0) {
+                            if (lines > 0) {
+                                // 手指下滑 → 显示更旧历史
+                                terminal.scrollHistoryUp(lines)
+                            } else {
+                                // 手指上滑 → 显示更新内容
+                                terminal.scrollHistoryDown(-lines)
+                            }
+                            dragAccumulator -= lines * fixedCellHeight
+                        }
+                    }
                 }
         )
     }

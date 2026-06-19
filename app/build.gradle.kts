@@ -15,8 +15,8 @@ android {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 36 //Android 16
-        versionCode = 687 //版本代码
-        versionName = "6.8.7-alpha" //版本名称
+        versionCode = 690 //版本代码
+        versionName = "v26.06.690" //版本名称
 
         // NDK ABI 配置 - 构建 libtermux_bridge.so 支持的架构
         externalNativeBuild {
@@ -176,6 +176,4 @@ dependencies {
     debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
     debugImplementation("androidx.documentfile:documentfile:1.0.1")
 
-    // Termux
-    // debugImplementation("com.termux.termux-app:termux-shared:0.118.0")
 }

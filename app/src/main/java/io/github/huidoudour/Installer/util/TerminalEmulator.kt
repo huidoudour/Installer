@@ -70,6 +70,10 @@ class TerminalEmulator(
     private val scrollbackBuffer = ArrayDeque<MutableList<Cell>>()
     private val maxScrollbackLines = 5000
 
+    // 滚动回看偏移量 (0=最新视图, >0=向上回看)
+    var scrollOffset: Int = 0
+        private set
+
     // 光标位置
     var cursorRow: Int = 0
         private set
@@ -125,6 +129,10 @@ class TerminalEmulator(
 
     /** 从 PTY 读取的数据喂入终端模拟器 */
     fun feed(data: ByteArray, length: Int) {
+        // 有新输入时自动回到底部
+        if (scrollOffset > 0) {
+            scrollOffset = 0
+        }
         for (i in 0 until length) {
             feedByte(data[i].toInt() and 0xFF)
         }
@@ -685,6 +693,46 @@ class TerminalEmulator(
         return screen
     }
 
+    /** 获取当前可见屏幕内容 (支持滚动回看) */
+    fun getVisibleScreen(visibleRows: Int): List<List<Cell>> {
+        if (scrollOffset <= 0) {
+            // 显示最新的 screen 内容
+            return screen
+        }
+        // 从 scrollback + screen 组合构建回看视图
+        val result = mutableListOf<List<Cell>>()
+        val totalHistory = scrollbackBuffer.size + rows
+        val startLine = (totalHistory - visibleRows - scrollOffset).coerceAtLeast(0)
+
+        for (i in 0 until visibleRows) {
+            val lineIdx = startLine + i
+            if (lineIdx < scrollbackBuffer.size) {
+                result.add(scrollbackBuffer[lineIdx])
+            } else if (lineIdx - scrollbackBuffer.size < rows) {
+                result.add(screen[lineIdx - scrollbackBuffer.size])
+            } else {
+                result.add(MutableList(cols) { Cell() })
+            }
+        }
+        return result
+    }
+
+    /** 向上滚动回看历史 */
+    fun scrollHistoryUp(lines: Int) {
+        val maxScroll = scrollbackBuffer.size
+        scrollOffset = (scrollOffset + lines).coerceAtMost(maxScroll)
+        onScreenUpdated?.invoke()
+    }
+
+    /** 向下滚动回到最新 */
+    fun scrollHistoryDown(lines: Int) {
+        scrollOffset = (scrollOffset - lines).coerceAtLeast(0)
+        onScreenUpdated?.invoke()
+    }
+
+    /** 是否正在回看历史 */
+    fun isScrollbackActive(): Boolean = scrollOffset > 0
+
     /** 获取指定行 */
     fun getRow(row: Int): List<Cell> {
         return if (row in 0 until rows) screen[row] else emptyList()
@@ -727,6 +775,7 @@ class TerminalEmulator(
 
         rows = newRows
         cols = newCols
+        scrollOffset = 0
 
         // 重新初始化 tab 停止位
         if (newCols > tabStops.size) {
@@ -773,6 +822,7 @@ class TerminalEmulator(
         savedCursorRow = 0
         savedCursorCol = 0
         scrollbackBuffer.clear()
+        scrollOffset = 0
         utf8Reset()
         parseState = ParseState.NORMAL
         notifyUpdate()

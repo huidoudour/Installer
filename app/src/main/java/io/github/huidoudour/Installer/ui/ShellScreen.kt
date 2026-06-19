@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -65,6 +65,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -78,6 +79,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.util.CommandBookmarks
 import io.github.huidoudour.Installer.util.ShellExecutor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -99,17 +101,23 @@ fun ShellScreen(
 
     var showQuickCommandsDialog by remember { mutableStateOf(false) }
 
-    // 终端尺寸计算 (增大字符尺寸提升可读性)
-    val charWidth = 11f
-    val charHeight = 24f
+    // 终端尺寸计算 - 与 TerminalView 固定 cell 尺寸保持一致
+    val density = LocalDensity.current
+    val fontSizePx = with(density) { 12f.sp.toPx() }
+    val charWidth = fontSizePx * 0.6f
+    val charHeight = fontSizePx * 1.25f
     var terminalWidth by remember { mutableIntStateOf(0) }
     var terminalHeight by remember { mutableIntStateOf(0) }
 
-    // 当终端区域尺寸变化时，更新 PTY 窗口大小
+    // 减去 TerminalView 4dp 上下 padding，使 rows 匹配实际 Canvas 绘制区域
+    val terminalPaddingPx = with(density) { 8.dp.toPx() }
+
+    // 终端尺寸随可用空间变化实时调整 (包括键盘弹出/收起)
+    // 使用固定字体尺寸，resize 不会导致文本缩放
     LaunchedEffect(terminalWidth, terminalHeight) {
         if (terminalWidth > 0 && terminalHeight > 0) {
-            val cols = (terminalWidth / charWidth).toInt().coerceAtLeast(20)
-            val rows = (terminalHeight / charHeight).toInt().coerceAtLeast(4)
+            val cols = ((terminalWidth - terminalPaddingPx) / charWidth).toInt().coerceAtLeast(20)
+            val rows = ((terminalHeight - terminalPaddingPx) / charHeight).toInt().coerceAtLeast(4)
             viewModel.setTerminalSize(rows, cols)
         }
     }
@@ -117,6 +125,7 @@ fun ShellScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .navigationBarsPadding()
             .imePadding()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {

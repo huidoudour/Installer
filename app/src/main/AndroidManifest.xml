@@ -157,7 +157,7 @@
                 android:value="26" />
         <meta-data
                 android:name="me.huidoudour.core.version"
-                android:value="27" />
+                android:value="29" />
     </application>
 
 </manifest>
