@@ -183,6 +183,7 @@ Please try installing Chrome, Firefox or other browser apps.</string>
 <string name="extract_xapk">Extracting XAPK (using native compression library)...</string>
 <string name="shizuku_not_running">Not running/not installed</string>
 <string name="shizuku_not_connected">Shizuku not connected.</string>
+<string name="not_running">Not Running</string>
 <string name="version_too_low">Version too low</string>
 <string name="shizuku_version_too_low">Shizuku version too low.</string>
 <string name="permission_granted">Permission granted</string>

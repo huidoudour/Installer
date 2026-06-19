@@ -181,6 +181,7 @@
     <string name="receive_install_intent">接收到安裝意圖，URI: %s</string>
     <string name="shizuku_not_running">未運行/未安裝</string>
     <string name="shizuku_not_connected">Shizuku 未連接.</string>
+    <string name="not_running">未運行</string>
     <string name="version_too_low">版本過低</string>
     <string name="shizuku_version_too_low">Shizuku 版本過低.</string>
     <string name="permission_granted">已授予</string>

@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -588,13 +589,9 @@ private fun PrivilegeSelectionDialog(
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_shizuku),
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                            tint = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
-                                MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant
+                        AppIcon(
+                            packageName = "moe.shizuku.privileged.api",
+                            size = 40
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -644,10 +641,7 @@ private fun PrivilegeSelectionDialog(
                     ) {
                         AppIcon(
                             packageName = "com.rosan.dhizuku",
-                            size = 40,
-                            tint = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
-                                MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant
+                            size = 40
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
@@ -806,12 +800,14 @@ fun AppIcon(
     tint: Color = Color.Unspecified
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
+    val pxSize = with(density) { size.dp.roundToPx() }
     val iconBitmap = remember(packageName) {
         try {
             val drawable = context.packageManager.getApplicationIcon(packageName)
-            val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            val bmp = Bitmap.createBitmap(pxSize, pxSize, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bmp)
-            drawable.setBounds(0, 0, size, size)
+            drawable.setBounds(0, 0, pxSize, pxSize)
             drawable.draw(canvas)
             bmp.asImageBitmap()
         } catch (e: Exception) {
@@ -823,10 +819,7 @@ fun AppIcon(
         Image(
             bitmap = iconBitmap,
             contentDescription = null,
-            modifier = Modifier.size(size.dp),
-            colorFilter = if (tint != Color.Unspecified)
-                androidx.compose.ui.graphics.ColorFilter.tint(tint)
-            else null
+            modifier = Modifier.size(size.dp)
         )
     } else {
         Icon(

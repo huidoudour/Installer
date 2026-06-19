@@ -8,6 +8,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +17,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -50,6 +53,8 @@ fun AppTheme(
 ) {
     val themeState = themeStateHolder.state
 
+    val context = LocalContext.current
+
     // 判断是否为深色模式
     val isDark = when (themeState.themeMode) {
         ThemeMode.LIGHT -> false
@@ -57,17 +62,16 @@ fun AppTheme(
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
     }
 
-    // 确定主题颜色来源
-    val keyColor = if (themeState.useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        // Android 12+ 使用系统动态颜色
-        Color(0xFF4A672D) // fallback
+    // 生成调色板：Android 12+ 动态色使用系统 API，否则使用 materialKolor
+    val colorScheme = if (themeState.useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        remember(isDark) {
+            if (isDark) dynamicDarkColorScheme(context)
+            else dynamicLightColorScheme(context)
+        }
     } else {
-        themeState.seedColor
-    }
-
-    // 生成调色板
-    val colorScheme = remember(keyColor, isDark, themeState.paletteStyle) {
-        generateColorScheme(keyColor, isDark)
+        remember(themeState.seedColor, isDark, themeState.paletteStyle) {
+            generateColorScheme(themeState.seedColor, isDark)
+        }
     }
 
     // 动画过渡 - 使用更平滑的动画

@@ -187,6 +187,7 @@
     <string name="dhizuku_not_running">Not Running/Not Installed</string>
     <string name="shizuku_not_connected">Shizuku not connected.</string>
     <string name="dhizuku_not_connected">Dhizuku not connected.</string>
+    <string name="not_running">Not Running</string>
     <string name="version_too_low">Version too low</string>
     <string name="shizuku_version_too_low">Shizuku version too low.</string>
     <string name="dhizuku_version_too_low">Dhizuku version too low.</string>

@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.util.LanguageManager
 import io.github.huidoudour.Installer.util.PrivilegeHelper
 import io.github.huidoudour.Installer.util.ThemeManager
@@ -129,11 +130,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      */
     fun getStatusText(status: PrivilegeHelper.PrivilegeStatus): String {
         return when (status) {
-            PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> "已授权"
-            PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> "未授权"
-            PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> "未安装"
-            PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> "未运行"
-            PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> "版本过低"
+            PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> context.getString(R.string.authorized)
+            PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> context.getString(R.string.not_authorized)
+            PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> context.getString(R.string.not_installed)
+            PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> context.getString(R.string.not_running)
+            PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> context.getString(R.string.version_too_low)
         }
     }
 }

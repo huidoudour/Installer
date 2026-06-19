@@ -189,6 +189,7 @@
     <string name="extract_xapk">Извлечение XAPK (используется нативная библиотека сжатия)...</string>
     <string name="shizuku_not_running">Не запущен/не установлен</string>
     <string name="shizuku_not_connected">Shizuku не подключен.</string>
+    <string name="not_running">Не запущено</string>
     <string name="version_too_low">Версия слишком низкая</string>
     <string name="shizuku_version_too_low">Версия Shizuku слишком низкая.</string>
     <string name="permission_granted">Разрешение предоставлено</string>

@@ -184,6 +184,7 @@
     <string name="receive_install_intent">接收到安装意图喵，URI: %s</string>
     <string name="shizuku_not_running">未运行/未安装喵</string>
     <string name="shizuku_not_connected">Shizuku 未连接喵.</string>
+    <string name="not_running">未运行喵</string>
     <string name="version_too_low">版本过低喵</string>
     <string name="shizuku_version_too_low">Shizuku 版本过低喵.</string>
     <string name="permission_granted">已授予喵</string>

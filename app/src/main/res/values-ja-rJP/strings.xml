@@ -186,6 +186,7 @@
     <string name="extract_xapk">XAPKを解凍中（ネイティブ圧縮ライブラリを使用）...</string>
     <string name="shizuku_not_running">未実行/未インストール</string>
     <string name="shizuku_not_connected">Shizukuが接続されていません。</string>
+    <string name="not_running">未実行</string>
     <string name="version_too_low">バージョンが低すぎます</string>
     <string name="shizuku_version_too_low">Shizukuのバージョンが低すぎます。</string>
     <string name="permission_granted">許可されました</string>
