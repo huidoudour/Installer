@@ -21,10 +21,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+    - name: Check if commit is tagged
+      id: tag_check
+      run: |
+        if [ -n "$(git tag --points-at HEAD)" ]; then
+          echo "skip=true" >> $GITHUB_OUTPUT
+        else
+          echo "skip=false" >> $GITHUB_OUTPUT
+        fi
     - name: Get short commit hash
+      if: steps.tag_check.outputs.skip != 'true'
       id: short_hash
       run: echo "hash=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
     - name: set up JDK 21
+      if: steps.tag_check.outputs.skip != 'true'
       uses: actions/setup-java@v5
       with:
         java-version: '21'
@@ -32,15 +42,18 @@ jobs:
         cache: gradle
 
     - name: Grant execute permission for gradlew
+      if: steps.tag_check.outputs.skip != 'true'
       run: chmod +x gradlew
     
     - name: Create debug keystore file
+      if: steps.tag_check.outputs.skip != 'true'
       run: |
         echo "${{ secrets.DEBUG_KEY_STORE_B64 }}" | base64 -d > debug_sign_key
         ls -lh debug_sign_key
         file debug_sign_key
     
     - name: Build Debug APK with signing
+      if: steps.tag_check.outputs.skip != 'true'
       run: |
         ./gradlew assembleDebug \
           -Pandroid.injected.signing.store.file=$(pwd)/debug_sign_key \
@@ -50,10 +63,12 @@ jobs:
           --stacktrace
     
     - name: Rename Debug APK
+      if: steps.tag_check.outputs.skip != 'true'
       run: |
         mv app/build/outputs/apk/debug/app-universal-debug.apk \
            app/build/outputs/apk/debug/Installer-U-D-${{ steps.short_hash.outputs.hash }}.apk
     - name: Upload Debug APK as artifact
+      if: steps.tag_check.outputs.skip != 'true'
       uses: actions/upload-artifact@v5
       with:
         name: Installer-U-D-${{ steps.short_hash.outputs.hash }}
@@ -61,7 +76,7 @@ jobs:
         if-no-files-found: error
     
     - name: Clean up debug keystore
-      if: always()
+      if: always() && steps.tag_check.outputs.skip != 'true'
       run: rm -f debug_sign_key
 
   build-release:
@@ -69,10 +84,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+    - name: Check if commit is tagged
+      id: tag_check
+      run: |
+        if [ -n "$(git tag --points-at HEAD)" ]; then
+          echo "skip=true" >> $GITHUB_OUTPUT
+        else
+          echo "skip=false" >> $GITHUB_OUTPUT
+        fi
     - name: Get short commit hash
+      if: steps.tag_check.outputs.skip != 'true'
       id: short_hash
       run: echo "hash=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
     - name: set up JDK 21
+      if: steps.tag_check.outputs.skip != 'true'
       uses: actions/setup-java@v5
       with:
         java-version: '21'
@@ -80,15 +105,18 @@ jobs:
         cache: gradle
 
     - name: Grant execute permission for gradlew
+      if: steps.tag_check.outputs.skip != 'true'
       run: chmod +x gradlew
     
     - name: Create release keystore file
+      if: steps.tag_check.outputs.skip != 'true'
       run: |
         echo "${{ secrets.SIGN_KEY_STORE_B64 }}" | base64 -d > sign_key
         ls -lh sign_key
         file sign_key
     
     - name: Build Release APK
+      if: steps.tag_check.outputs.skip != 'true'
       run: |
         ./gradlew assembleRelease \
           -Pandroid.injected.signing.store.file=$(pwd)/sign_key \
@@ -98,15 +126,18 @@ jobs:
           --stacktrace
     
     - name: Verify APK signature
+      if: steps.tag_check.outputs.skip != 'true'
       run: |
         echo "APK build completed. Files in output directory:"
         find app/build/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
     
     - name: Rename Release APK
+      if: steps.tag_check.outputs.skip != 'true'
       run: |
         mv app/build/outputs/apk/release/app-universal-release.apk \
            app/build/outputs/apk/release/Installer-U-R-${{ steps.short_hash.outputs.hash }}.apk
     - name: Upload Release APK as artifact
+      if: steps.tag_check.outputs.skip != 'true'
       uses: actions/upload-artifact@v5
       with:
         name: Installer-U-R-${{ steps.short_hash.outputs.hash }}
@@ -114,5 +145,5 @@ jobs:
         if-no-files-found: error
     
     - name: Clean up keystore
-      if: always()
+      if: always() && steps.tag_check.outputs.skip != 'true'
       run: rm -f sign_key
