@@ -1,6 +1,7 @@
 package io.github.huidoudour.Installer.ui
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -186,10 +187,10 @@ fun SettingsScreen(
             currentLanguage = viewModel.currentLanguage.value,
             onDismiss = { showLanguageDialog = false },
             onConfirm = { newLanguage ->
-                viewModel.setLanguage(newLanguage)
+                viewModel.setLanguage(newLanguage, context as? Activity)
                 showLanguageDialog = false
                 Toast.makeText(context, context.getString(R.string.toast_language_changed), Toast.LENGTH_LONG).show()
-                // AppCompatDelegate.setApplicationLocales() 会自动触发 Activity 重建
+                // AppCompatDelegate.setApplicationLocales() 会自动触发 Activity 重建（带淡入淡出动画）
             },
             getDisplayName = { langCode ->
                 viewModel.getLanguageDisplayName(langCode)

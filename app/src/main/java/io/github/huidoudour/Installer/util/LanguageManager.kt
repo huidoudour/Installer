@@ -1,6 +1,9 @@
 package io.github.huidoudour.Installer.util
 
+import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
@@ -38,9 +41,11 @@ object LanguageManager {
 
     /**
      * 应用指定语言
-     * 使用 AppCompatDelegate.setApplicationLocales() 自动处理 Activity 重建和配置更新
+     * 当提供 Activity 时，直接配置 locale + 手动重建 + 淡入淡出过渡动画
+     * 否则回退到 AppCompatDelegate.setApplicationLocales() 自动重建
+     * @param activity 可选，用于手动重建并设置过渡动画
      */
-    fun applyLanguage(languageCode: String) {
+    fun applyLanguage(languageCode: String, activity: Activity? = null) {
         try {
             val localeList = when (languageCode) {
                 LANGUAGE_FOLLOW_SYSTEM -> LocaleListCompat.getEmptyLocaleList()
@@ -49,7 +54,47 @@ object LanguageManager {
                     LocaleListCompat.create(locale)
                 }
             }
-            AppCompatDelegate.setApplicationLocales(localeList)
+
+            if (activity != null) {
+                // 手动重建路径：直接应用 locale，避免 AppCompat 自动重建导致黑屏
+                val locale = if (localeList.isEmpty) {
+                    java.util.Locale.getDefault()
+                } else {
+                    localeList[0]!!
+                }
+
+                // 更新应用全局 Context 的 locale 配置
+                @Suppress("DEPRECATION")
+                val appContext = activity.applicationContext
+                @Suppress("DEPRECATION")
+                val appConfig = appContext.resources.configuration
+                @Suppress("DEPRECATION")
+                appConfig.setLocale(locale)
+                @Suppress("DEPRECATION")
+                appContext.resources.updateConfiguration(appConfig, appContext.resources.displayMetrics)
+
+                // 更新当前 Activity 的 base context locale
+                @Suppress("DEPRECATION")
+                val baseConfig = activity.baseContext.resources.configuration
+                @Suppress("DEPRECATION")
+                baseConfig.setLocale(locale)
+                @Suppress("DEPRECATION")
+                activity.baseContext.resources.updateConfiguration(baseConfig, activity.baseContext.resources.displayMetrics)
+
+                // 手动重建 Activity，带淡入淡出动画
+                val intent = Intent(activity, activity::class.java)
+                @Suppress("DEPRECATION")
+                val options = ActivityOptions.makeCustomAnimation(
+                    activity,
+                    io.github.huidoudour.Installer.R.anim.fade_in,
+                    io.github.huidoudour.Installer.R.anim.fade_out
+                ).toBundle()
+                activity.startActivity(intent, options)
+                activity.finish()
+            } else {
+                // 无 Activity 时回退到 AppCompat 自动重建
+                AppCompatDelegate.setApplicationLocales(localeList)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to apply language: ${e.message}")
         }

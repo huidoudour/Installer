@@ -1,5 +1,6 @@
 package io.github.huidoudour.Installer.ui
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
@@ -66,10 +67,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     /**
      * 切换语言
      * 使用 AppCompatDelegate.setApplicationLocales() 自动触发 Activity 重建
+     * @param activity 用于设置淡入淡出过渡动画
      */
-    fun setLanguage(languageCode: String) {
+    fun setLanguage(languageCode: String, activity: Activity? = null) {
         LanguageManager.saveUserLanguage(context, languageCode)
-        LanguageManager.applyLanguage(languageCode)
+        LanguageManager.applyLanguage(languageCode, activity)
         // 注意：applyLanguage 会触发 Activity 重建，无需手动更新 _currentLanguage
     }
 

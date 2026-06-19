@@ -79,7 +79,7 @@ class ColorPickerActivity : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         val currentColor = intent.getIntExtra(EXTRA_CURRENT_COLOR, 0xFF4A672D.toInt())
         val useDynamicColor = intent.getBooleanExtra(EXTRA_USE_DYNAMIC, true)
         
