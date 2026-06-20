@@ -38,6 +38,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -197,8 +198,14 @@ fun TerminalView(
                 color = Color.Transparent
             ),
             keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.None,
+                imeAction = ImeAction.Done,
                 keyboardType = KeyboardType.Ascii
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    onKeyInput(byteArrayOf(0x0A))
+                    if (needLocalEcho) terminal.feed(byteArrayOf(0x0A), 1)
+                }
             )
         )
 
