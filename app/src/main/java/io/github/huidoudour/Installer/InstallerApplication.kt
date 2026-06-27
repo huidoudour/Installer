@@ -1,11 +1,13 @@
 package io.github.huidoudour.Installer
 
 import android.app.Application
+import android.os.Build
 import io.github.huidoudour.Installer.util.LanguageManager
 import io.github.huidoudour.Installer.util.LogManager
 import io.github.huidoudour.Installer.util.NativeCrashHandler
 import io.github.huidoudour.Installer.util.PrivilegeHelper
 import io.github.huidoudour.Installer.util.ThemeManager
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 /**
  * 应用 Application 类
@@ -17,6 +19,11 @@ class InstallerApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+
+        // 解除 Android 隐藏 API 限制（必须最早执行，让后续所有代码都能访问隐藏 API）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            HiddenApiBypass.addHiddenApiExemptions("")
+        }
 
         // 初始化崩溃处理器
         crashHandler = NativeCrashHandler(this)
