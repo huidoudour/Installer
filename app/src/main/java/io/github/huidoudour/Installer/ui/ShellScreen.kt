@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -71,6 +69,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import android.graphics.Typeface as AndroidTypeface
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,11 +100,22 @@ fun ShellScreen(
 
     var showQuickCommandsDialog by remember { mutableStateOf(false) }
 
-    // 终端尺寸计算 - 与 TerminalView 固定 cell 尺寸保持一致
+    // 终端尺寸计算 - 与 TerminalView 保持一致的 cell 尺寸
     val density = LocalDensity.current
     val fontSizePx = with(density) { 12f.sp.toPx() }
-    val charWidth = fontSizePx * 0.6f
-    val charHeight = fontSizePx * 1.25f
+    // 等宽字体实测 advance 宽度 (drawText 内部字符间距), 替代硬编码 0.67
+    val (charWidth, charHeight) = remember(fontSizePx) {
+        val paint = android.text.TextPaint().apply {
+            isAntiAlias = true
+            typeface = AndroidTypeface.MONOSPACE
+            textSize = fontSizePx
+        }
+        val widths = FloatArray(1)
+        paint.getTextWidths("M", widths)
+        val w = widths[0].coerceAtLeast(1f)
+        val h = fontSizePx * 1.25f
+        Pair(w, h)
+    }
     var terminalWidth by remember { mutableIntStateOf(0) }
     var terminalHeight by remember { mutableIntStateOf(0) }
 

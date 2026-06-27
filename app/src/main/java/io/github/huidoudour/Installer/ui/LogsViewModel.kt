@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
+import io.github.huidoudour.Installer.util.LogEntry
 import io.github.huidoudour.Installer.util.LogManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,14 +24,14 @@ class LogsViewModel(application: Application) : AndroidViewModel(application) {
     private val context: Context get() = getApplication()
     private val logManager = LogManager.getInstance()
 
-    private val _logs = MutableStateFlow<List<String>>(emptyList())
-    val logs: StateFlow<List<String>> = _logs.asStateFlow()
+    private val _logs = MutableStateFlow<List<LogEntry>>(emptyList())
+    val logs: StateFlow<List<LogEntry>> = _logs.asStateFlow()
 
     private val _logCount = MutableStateFlow(0)
     val logCount: StateFlow<Int> = _logCount.asStateFlow()
 
     private val listener = object : LogManager.LogListener {
-        override fun onLogAdded(log: String, index: Int) {
+        override fun onLogAdded(log: LogEntry, index: Int) {
             _logs.value = logManager.getLogsSnapshot()
             _logCount.value = logManager.getLogCount()
         }

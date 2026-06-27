@@ -60,7 +60,7 @@ android {
     // NDK 构建配置 (libtermux_bridge.so - PTY 子进程管理)
     externalNativeBuild {
         cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
+            path = file("CMakeLists.txt")
             version = "3.22.1"
         }
     }

@@ -5,26 +5,26 @@ import android.view.Choreographer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.isAltPressed
@@ -47,14 +47,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 /**
  * Compose 终端视图 - 渲染 TerminalEmulator 的字符网格
  *
  * 双通道输入:
- * 1. 隐藏 BasicTextField - 捕获 IME (软键盘) 输入
+ * 1. 全尺寸隐藏 BasicTextField - 捕获 IME (软键盘) 输入
  * 2. onKeyEvent - 捕获硬件键盘特殊键 (方向键、Ctrl组合等)
+ *
+ * IME 输入采用累积 buffer + 同步消费:
+ * - onValueChange 中同步处理新字符 / 删除，保持光标实时同步
+ * - 不清空 buffer (只累积)，避免打断 Android 14 IME 组合态
+ * - buffer 超过 256 字符时由 snapshotFlow 异步重置
  */
 @Composable
 fun TerminalView(
@@ -69,8 +75,19 @@ fun TerminalView(
     val textFieldFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    // 隐藏 TextField 输入缓冲区
-    var imeBuffer by remember { mutableStateOf("") }
+    // IME 输入缓冲区 — onValueChange 同步处理输入，不清空 buffer 以防打断 IME 组合态
+    var imeText by remember { mutableStateOf("") }
+    var imeConsumedLen by remember { mutableIntStateOf(0) }
+
+    // 定期重置 buffer 以防内存无限增长 (远大于单次输入，不会在组合中触发)
+    LaunchedEffect(Unit) {
+        snapshotFlow { imeText }
+            .filter { it.length > 256 }
+            .collect {
+                imeText = ""
+                imeConsumedLen = 0
+            }
+    }
 
     // 注册终端更新 + 光标闪烁 (帧同步限流防卡顿)
     val choreographer = remember { Choreographer.getInstance() }
@@ -118,18 +135,28 @@ fun TerminalView(
     // 固定单元格尺寸 (不随 Canvas 大小变化，消除键盘弹出时的缩放效果)
     val density = LocalDensity.current
     val fixedFontSizePx = with(density) { 12f.sp.toPx() }
-    val fixedCellWidth = fixedFontSizePx * 0.6f
+
+    // 渲染用 TextPaint — 与 Canvas drawText 共享同一实例
+    val textPaint = remember {
+        android.text.TextPaint().apply {
+            isAntiAlias = true
+            typeface = Typeface.MONOSPACE
+        }
+    }
+
+    // 等宽字体字符 advance 宽度 (含 bearing) — drawText 内部依此间距放置字符
+    val fixedCellWidth = remember(fixedFontSizePx) {
+        textPaint.textSize = fixedFontSizePx
+        val widths = FloatArray(1)
+        textPaint.getTextWidths("M", widths)
+        widths[0].coerceAtLeast(1f)
+    }
     val fixedCellHeight = fixedFontSizePx * 1.25f
 
     Box(
         modifier = modifier
             .clipToBounds()
             .background(Color(0xFF1E1E1E))
-            .onFocusChanged {
-                if (it.isFocused) {
-                    textFieldFocusRequester.requestFocus()
-                }
-            }
             .onKeyEvent { event ->
                 // 硬件键盘特殊键 (方向键、Ctrl组合、F功能键等)
                 if (event.type == KeyEventType.KeyDown) {
@@ -137,9 +164,11 @@ fun TerminalView(
                     if (bytes != null) {
                         onKeyInput(bytes)
                         if (needLocalEcho) {
-                            // 本地回显 Enter→LF，普通字母回显自身
+                            // 本地回显: 将发送到 PTY 的字节同步喂给模拟器
                             when (event.key) {
                                 Key.Enter -> terminal.feed(byteArrayOf(0x0A), 1)
+                                Key.Backspace, Key.Delete ->
+                                    terminal.feed(bytes, bytes.size) // 0x7F
                                 in letterKeys -> {
                                     val char = charFor(event.key)
                                     if (char != null) {
@@ -158,13 +187,23 @@ fun TerminalView(
                 } else false
             }
     ) {
-        // ====== 隐藏的 TextField 用于捕获软键盘输入 ======
+        // ====== Layer 1: 全尺寸隐藏 BasicTextField 捕获 IME ======
+        // 全尺寸确保 IME 框架正确路由输入，Canvas 渲染在上层遮盖
         BasicTextField(
-            value = imeBuffer,
+            value = imeText,
             onValueChange = { newValue ->
-                if (newValue.length > imeBuffer.length) {
-                    // 新输入的字符
-                    val typed = newValue.substring(imeBuffer.length)
+                val consumed = imeConsumedLen
+
+                if (newValue.length < consumed) {
+                    // IME 直接删除了 buffer 内的字符 (backspace 等)
+                    val deletedCount = consumed - newValue.length
+                    repeat(deletedCount) {
+                        onKeyInput(byteArrayOf(0x7F))
+                        if (needLocalEcho) terminal.feed(byteArrayOf(0x7F), 1)
+                    }
+                } else if (newValue.length > consumed) {
+                    // 有新输入的字符
+                    val typed = newValue.substring(consumed)
                     for (char in typed) {
                         when (char) {
                             // IME Enter → LF (0x0A)
@@ -177,6 +216,7 @@ fun TerminalView(
                             }
                             '\b' -> {
                                 onKeyInput(byteArrayOf(0x7F))
+                                if (needLocalEcho) terminal.feed(byteArrayOf(0x7F), 1)
                             }
                             else -> {
                                 val bytes = char.toString().toByteArray(Charsets.UTF_8)
@@ -186,20 +226,23 @@ fun TerminalView(
                         }
                     }
                 }
-                // 清空缓冲区以接收下一批输入
-                imeBuffer = ""
+                // 不在此清空 buffer，只更新消费位 — 避免打断 IME 组合
+                imeConsumedLen = newValue.length
+                imeText = newValue
             },
             modifier = Modifier
-                .size(1.dp)            // 不可见 (但必须存在才能接收 IME)
+                .fillMaxSize()
                 .focusRequester(textFieldFocusRequester),
             singleLine = true,
             textStyle = TextStyle(
-                fontSize = 1.sp,        // 极小字体确保不可见
+                fontSize = 1.sp,
                 color = Color.Transparent
             ),
+            cursorBrush = SolidColor(Color.Transparent),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done,
-                keyboardType = KeyboardType.Ascii
+                keyboardType = KeyboardType.Ascii,
+                autoCorrectEnabled = false
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
@@ -209,24 +252,17 @@ fun TerminalView(
             )
         )
 
-        // ====== 终端 Canvas 渲染 ======
-        val paint = remember {
-            android.text.TextPaint().apply {
-                isAntiAlias = true
-                typeface = Typeface.MONOSPACE
-            }
-        }
-
+        // ====== Layer 2: 终端 Canvas 渲染 ======
         androidx.compose.foundation.Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
-            // 固定单元格尺寸 (不随 Canvas 变化，消除缩放)
+            // 使用已测量的实际字符宽度，与光标/终端尺寸计算保持一致
             val cellWidth = fixedCellWidth
             val cellHeight = fixedCellHeight
             val visibleRows = (size.height / cellHeight).toInt().coerceAtLeast(1)
                 .coerceAtMost(termRows)
 
-            paint.textSize = fixedFontSizePx
+            textPaint.textSize = fixedFontSizePx
             val baseline = cellHeight * 0.78f
 
             for (row in 0 until visibleRows) {
@@ -262,10 +298,10 @@ fun TerminalView(
                     }
                     val text = sb.toString()
                     if (text.isNotEmpty() && text.any { it != ' ' }) {
-                        paint.color = cellFg or (0xFF shl 24)
-                        paint.isFakeBoldText = cellBold
+                        textPaint.color = cellFg or (0xFF shl 24)
+                        textPaint.isFakeBoldText = cellBold
                         drawContext.canvas.nativeCanvas.drawText(
-                            text, startCol * cellWidth, y + baseline, paint
+                            text, startCol * cellWidth, y + baseline, textPaint
                         )
                     }
                 }
@@ -280,10 +316,10 @@ fun TerminalView(
                     )
                     if (curCol < termCols && curCol < rowCells.size) {
                         val cursorCell = rowCells[curCol]
-                        paint.color = android.graphics.Color.BLACK
-                        paint.isFakeBoldText = cursorCell.bold
+                        textPaint.color = android.graphics.Color.BLACK
+                        textPaint.isFakeBoldText = cursorCell.bold
                         drawContext.canvas.nativeCanvas.drawText(
-                            cursorCell.char.toString(), cursorX, y + baseline, paint
+                            cursorCell.char.toString(), cursorX, y + baseline, textPaint
                         )
                     }
                 }

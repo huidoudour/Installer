@@ -177,11 +177,12 @@ class TerminalEmulator(
         // 标准字节处理（ASCII 和控制字符）
         when (b) {
             0x07 -> {} // BEL
-            0x08 -> backspace()
+            0x08 -> backspace()  // BS (Ctrl+H)
             0x09 -> tab()
             0x0A, 0x0B, 0x0C -> lineFeed()
             0x0D -> carriageReturn()
             0x1B -> parseState = ParseState.ESC
+            0x7F -> backspace()  // DEL — Unix 默认擦除字符
             in 0x20..0x7E -> putChar(b.toChar())
             else -> {} // 忽略无效字节
         }
@@ -387,7 +388,12 @@ class TerminalEmulator(
     }
 
     private fun backspace() {
-        if (cursorCol > 0) cursorCol--
+        if (cursorCol > 0) {
+            cursorCol--
+            // 擦除光标新位置上的字符 (本地回显用)
+            screen[cursorRow][cursorCol] = Cell()
+            notifyUpdate()
+        }
     }
 
     private fun tab() {

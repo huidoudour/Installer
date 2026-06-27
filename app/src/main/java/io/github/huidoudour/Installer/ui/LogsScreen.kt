@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.ui.theme.SmallShape
+import io.github.huidoudour.Installer.util.LogEntry
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -58,7 +59,7 @@ fun LogsScreen(
     viewModel: LogsViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val logs: List<String> by viewModel.logs.collectAsState()
+    val logs: List<LogEntry> by viewModel.logs.collectAsState()
     val logCount: Int by viewModel.logCount.collectAsState()
 
     val listState = rememberLazyListState()
@@ -268,9 +269,9 @@ fun LogsScreen(
                         ) {
                             items(
                                 items = logs,
-                                key = { index -> "log_$index" }
+                                key = { log -> log.id }
                             ) { log ->
-                                LogEntryItem(log = log)
+                                LogEntryItem(log = log.text)
                             }
                         }
                     }

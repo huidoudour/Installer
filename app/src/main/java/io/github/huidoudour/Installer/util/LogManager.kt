@@ -10,6 +10,16 @@ import java.text.SimpleDateFormat
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
+
+/**
+ * 日志条目，携带唯一 ID 用于 LazyColumn key 避免重复 key 崩溃
+ */
+data class LogEntry(
+    val id: String = UUID.randomUUID().toString(),
+    val text: String,
+    val timestamp: String
+)
 
 /**
  * 全局日志管理器
@@ -32,14 +42,14 @@ class LogManager private constructor() {
         }
     }
 
-    private val logs = mutableListOf<String>()
+    private val logs = mutableListOf<LogEntry>()
     private val listeners = mutableListOf<LogListener>()
     private val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     private var context: Context? = null
     private var logFile: File? = null
 
     interface LogListener {
-        fun onLogAdded(log: String, index: Int)
+        fun onLogAdded(log: LogEntry, index: Int)
         fun onLogCleared()
     }
 
@@ -57,7 +67,9 @@ class LogManager private constructor() {
             BufferedReader(FileReader(file)).use { reader ->
                 var line: String?
                 while (reader.readLine().also { line = it } != null) {
-                    if (line != null) logs.add(line!!)
+                    if (line != null) {
+                        logs.add(LogEntry(text = line!!, timestamp = ""))
+                    }
                 }
             }
             // 如果历史日志超过上限，从头部裁剪
@@ -79,7 +91,7 @@ class LogManager private constructor() {
             try {
                 BufferedWriter(FileWriter(file, false)).use { writer ->
                     for (log in logs) {
-                        writer.write(log)
+                        writer.write(log.text)
                         writer.newLine()
                     }
                 }
@@ -97,7 +109,8 @@ class LogManager private constructor() {
         val timestamp = dateFormat.format(Date())
         val logMessage = if (tag != null) "$timestamp [$tag]: $message" else "$timestamp: $message"
 
-        logs.add(logMessage)
+        val entry = LogEntry(text = logMessage, timestamp = timestamp)
+        logs.add(entry)
         // 超出上限时移除最旧条目
         while (logs.size > MAX_LOG_ENTRIES) {
             logs.removeAt(0)
@@ -106,7 +119,7 @@ class LogManager private constructor() {
 
         // 通知所有监听器
         for (listener in ArrayList(listeners)) {
-            listener.onLogAdded(logMessage, insertedIndex)
+            listener.onLogAdded(entry, insertedIndex)
         }
 
         // 持久化保存
@@ -130,12 +143,12 @@ class LogManager private constructor() {
         }
         val sb = StringBuilder()
         for (log in logs) {
-            sb.append(log).append("\n")
+            sb.append(log.text).append("\n")
         }
         return sb.toString()
     }
 
-    fun getLogsSnapshot(): List<String> {
+    fun getLogsSnapshot(): List<LogEntry> {
         return Collections.unmodifiableList(ArrayList(logs))
     }
 

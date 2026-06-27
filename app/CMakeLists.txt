@@ -22,7 +22,7 @@ set(CMAKE_SHARED_LINKER_FLAGS_X86_64 "${CMAKE_SHARED_LINKER_FLAGS_X86_64} -Wl,-z
 add_library(
     termux_bridge
     SHARED
-    termux_bridge.c
+    src/main/cpp/termux_bridge.c
 )
 
 # 链接必要的系统库
