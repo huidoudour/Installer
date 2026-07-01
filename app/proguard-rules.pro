@@ -55,12 +55,6 @@
 -keepclassmembers class android.content.pm.PackageInstaller {
     public <init>(...);
 }
--keepclassmembers class android.content.pm.PackageInstaller$SessionParams {
-    int installFlags;
-}
--keepclassmembers class android.content.pm.PackageInstaller$Session {
-    *** mSession;
-}
 -keepclassmembers class android.content.IntentSender {
     public <init>(android.content.IIntentSender);
 }
