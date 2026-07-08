@@ -6,7 +6,7 @@ pluginManagement {
         maven { url = uri("https://jitpack.io") }
     }
 }
-
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     repositories {
         google()
@@ -16,4 +16,3 @@ dependencyResolutionManagement {
 }
 include(":app")
 include(":hidden-api")
-include(":hidden-api:demo")

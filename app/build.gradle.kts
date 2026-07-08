@@ -19,6 +19,7 @@ android {
         versionName = "v26.06.691" //版本名称
 
         // NDK ABI 配置 - 构建 libtermux_bridge.so 支持的架构
+        @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
                 // 匹配 ABI 分块配置
@@ -46,7 +47,7 @@ android {
     buildTypes {
         debug {
             isDebuggable = true
-            applicationIdSuffix = ".debug"
+            // applicationIdSuffix = ".debug"
         }
         release {
             isMinifyEnabled = true
@@ -57,7 +58,7 @@ android {
             )
         }
     }
-    // NDK 构建配置 (libtermux_bridge.so - PTY 子进程管理)
+    // NDK 构建配置
     externalNativeBuild {
         cmake {
             path = file("CMakeLists.txt")
