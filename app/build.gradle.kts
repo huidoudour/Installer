@@ -1,45 +1,25 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "io.github.huidoudour.Installer"
-    compileSdk = 36
+    compileSdk = 37
 
-    // NDK 版本配置 - PTY 子进程管理
     ndkVersion = "30.0.14904198"
 
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
-        targetSdk = 36 //Android 16
-        versionCode = 690 //版本代码
-        versionName = "v26.06.692" //版本名称
+        targetSdk = 37 //Android 17
+        versionCode = 690 //版本号
+        versionName = "v26.06.699" //版本名
 
-        // NDK ABI 配置 - 构建 libtermux_bridge.so 支持的架构
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
-                // 匹配 ABI 分块配置
                 abiFilters += setOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
-            }
-        }
-
-        // === 完整的 16KB 页面大小支持配置 ===
-        // 确保整个 APK 在 16KB 页面大小的设备上正常运行 (Android 15+)
-        packaging {
-            // 配置资源压缩选项
-            resources {
-                // 排除不需要的元数据
-                excludes += setOf(
-                    "META-INF/DEPENDENCIES",
-                    "META-INF/LICENSE",
-                    "META-INF/LICENSE.txt",
-                    "META-INF/NOTICE",
-                    "META-INF/NOTICE.txt"
-                )
             }
         }
     }
@@ -159,7 +139,7 @@ dependencies {
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
     // Dhizuku
-    implementation("io.github.iamr0s:Dhizuku-API:2.5.4")
+    implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
 
     // 绕过隐式 API
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")

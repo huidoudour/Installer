@@ -14,6 +14,7 @@ on:
       - 'hidden-api/build.gradle.kts'
       - 'build.gradle.kts'
       - 'settings.gradle.kts'
+      - 'gradle/**'
 
 jobs:
   # 先行检查：commit 是否已打 tag → 已打则跳过构建（避免与 Release Build 重复）
