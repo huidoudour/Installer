@@ -13,7 +13,7 @@ android {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 37 //Android 17
-        versionCode = 690 //版本号
+        versionCode = 699 //版本号
         versionName = "v26.06.699" //版本名
 
         @Suppress("UnstableApiUsage")
