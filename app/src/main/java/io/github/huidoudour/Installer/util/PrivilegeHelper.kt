@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import com.rosan.dhizuku.api.Dhizuku
+import com.rosan.dhizuku.api.DhizukuRequestPermissionListener
 import io.github.huidoudour.Installer.R
 import rikka.shizuku.Shizuku
 
@@ -143,25 +144,38 @@ object PrivilegeHelper {
 
     /**
      * 请求 Dhizuku 授权
+     * @param onResult 可选回调，授权完成后调用，参数为是否授权成功
      */
-    fun requestDhizukuPermission(context: Context) {
+    fun requestDhizukuPermission(context: Context, onResult: ((Boolean) -> Unit)? = null) {
         try {
             if (!Dhizuku.init(context.applicationContext)) {
                 android.util.Log.e(TAG, "Dhizuku init failed when requesting permission")
+                onResult?.invoke(false)
                 return
             }
 
-            // Dhizuku 的权限请求需要通过 Intent
-            val intent = android.content.Intent("moe.someone.test.Dhizuku")
-            intent.setPackage(DHIZUKU_PACKAGE)
-            try {
-                context.startActivity(intent)
-            } catch (e: Exception) {
-                android.util.Log.e(TAG, "Failed to start Dhizuku permission activity: ${e.message}")
+            if (Dhizuku.isPermissionGranted()) {
+                android.util.Log.d(TAG, "Dhizuku permission already granted")
+                onResult?.invoke(true)
+                return
             }
+
+            // 使用 Dhizuku API 内置的权限请求方法
+            Dhizuku.requestPermission(object : DhizukuRequestPermissionListener() {
+                override fun onRequestPermission(grantResult: Int) {
+                    val granted = grantResult == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    if (granted) {
+                        android.util.Log.d(TAG, "Dhizuku permission granted")
+                    } else {
+                        android.util.Log.w(TAG, "Dhizuku permission denied")
+                    }
+                    onResult?.invoke(granted)
+                }
+            })
         } catch (e: Exception) {
             android.util.Log.e(TAG, "Error requesting Dhizuku permission: ${e.message}")
             e.printStackTrace()
+            onResult?.invoke(false)
         }
     }
 

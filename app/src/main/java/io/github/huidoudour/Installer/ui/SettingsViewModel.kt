@@ -102,7 +102,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                             PrivilegeHelper.requestShizukuPermission(123)
                         }
                         PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
-                            PrivilegeHelper.requestDhizukuPermission(context)
+                            PrivilegeHelper.requestDhizukuPermission(context) { _ ->
+                                viewModelScope.launch(Dispatchers.IO) {
+                                    val status = PrivilegeHelper.getStatus(context, PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                                    withContext(Dispatchers.Main) {
+                                        _privilegeStatus.value = status
+                                    }
+                                }
+                            }
                         }
                     }
                 }

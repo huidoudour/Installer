@@ -44,13 +44,18 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,6 +72,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
+import kotlinx.coroutines.launch
 import io.github.huidoudour.Installer.ui.dialogs.InstallerPackageDialog
 import io.github.huidoudour.Installer.ui.dialogs.LanguageSelectionDialog
 import io.github.huidoudour.Installer.ui.dialogs.ThemeSelectionDialog
@@ -91,6 +97,18 @@ fun SettingsScreen(
     var showInstallerPackageDialog by remember { mutableStateOf(false) }
     var showPrivilegeDialog by remember { mutableStateOf(false) }
     var showNotificationDialog by remember { mutableStateOf(false) }
+
+    // 从后台返回时自动刷新权限状态（处理 Dhizuku 手动授权/撤权场景）
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshPrivilegeStatus()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     // 注意：语言切换使用 AppCompatDelegate.setApplicationLocales() 自动触发 Activity 重建，无需手动 recreate
 
@@ -663,8 +681,13 @@ private fun PrivilegeSelectionDialog(
                             )
                         }
                         if (dhizukuStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
+                            val scope = rememberCoroutineScope()
                             TextButton(onClick = {
-                                PrivilegeHelper.requestDhizukuPermission(context)
+                                PrivilegeHelper.requestDhizukuPermission(context) { _ ->
+                                    scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                        dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
+                                    }
+                                }
                             }) {
                                 Text(stringResource(R.string.request_authorization))
                             }

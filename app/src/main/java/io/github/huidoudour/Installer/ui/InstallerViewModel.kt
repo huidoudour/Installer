@@ -176,7 +176,15 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                             }
                         }
                         PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
-                            PrivilegeHelper.requestDhizukuPermission(context)
+                            PrivilegeHelper.requestDhizukuPermission(context) { _ ->
+                                viewModelScope.launch(Dispatchers.IO) {
+                                    val status = PrivilegeHelper.getStatus(context, PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                                    withContext(Dispatchers.Main) {
+                                        _privilegeStatus.value = status
+                                        updateInstallButtonState()
+                                    }
+                                }
+                            }
                         }
                     }
                 }
