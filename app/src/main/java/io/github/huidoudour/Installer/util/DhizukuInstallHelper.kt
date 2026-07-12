@@ -8,6 +8,7 @@ import android.content.pm.PackageInstaller
 import android.os.IBinder
 import android.os.ServiceManager
 import com.rosan.dhizuku.api.Dhizuku
+import io.github.huidoudour.Installer.util.PrivilegeHelper
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
@@ -71,7 +72,12 @@ object DhizukuInstallHelper {
                 callback.onProgress("Starting APK installation...")
 
                 if (!Dhizuku.init(context.applicationContext)) {
-                    throw Exception("Dhizuku not initialized")
+                    val installedPkg = PrivilegeHelper.getInstalledDhizukuPackage(context)
+                    if (installedPkg == PrivilegeHelper.DHIZUKU_PACKAGE_CLONE) {
+                        throw Exception("Dhizuku API 无法连接克隆版服务($installedPkg)，请确认克隆版保持了原始 Service/Provider authority")
+                    } else {
+                        throw Exception("Dhizuku not initialized")
+                    }
                 }
 
                 // 主方案：通过 IBinder 包装直接使用 PackageInstaller.Session API
@@ -118,7 +124,7 @@ object DhizukuInstallHelper {
         )
 
         // 3. 通过反射创建 PackageInstaller 实例（隐藏构造函数）
-        val installerPackageName = "com.rosan.dhizuku"
+        val installerPackageName = PrivilegeHelper.getActiveDhizukuPackage(context) ?: PrivilegeHelper.DHIZUKU_PACKAGE
         val userId = android.os.Process.myUid() / 100000
 
         val packageInstaller: PackageInstaller = try {
@@ -295,7 +301,7 @@ object DhizukuInstallHelper {
         createCmd.append(" --user 0")
         if (replaceExisting) createCmd.append(" -r")
         if (grantPermissions) createCmd.append(" -g")
-        createCmd.append(" -i com.rosan.dhizuku")
+        createCmd.append(" -i ${PrivilegeHelper.getActiveDhizukuPackage(context) ?: PrivilegeHelper.DHIZUKU_PACKAGE}")
 
         callback.onProgress("Creating install session (shell): $createCmd")
         val createOutput = executeCommand(context, createCmd.toString())
@@ -366,7 +372,7 @@ object DhizukuInstallHelper {
             val cmd = StringBuilder("pm install")
             if (replaceExisting) cmd.append(" -r")
             if (grantPermissions) cmd.append(" -g")
-            cmd.append(" -i com.rosan.dhizuku")
+            cmd.append(" -i ${PrivilegeHelper.getActiveDhizukuPackage(context) ?: PrivilegeHelper.DHIZUKU_PACKAGE}")
             cmd.append(" --user 0")
             cmd.append(" \"$path\"")
             return cmd.toString()
@@ -439,7 +445,7 @@ object DhizukuInstallHelper {
                     Dhizuku.binderWrapper(packageManager.packageInstaller.asBinder())
                 )
 
-                val installerPackageName = "com.rosan.dhizuku"
+                val installerPackageName = PrivilegeHelper.getActiveDhizukuPackage(context) ?: PrivilegeHelper.DHIZUKU_PACKAGE
                 val userId = android.os.Process.myUid() / 100000
 
                 val packageInstaller: PackageInstaller = try {

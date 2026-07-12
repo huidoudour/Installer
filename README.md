@@ -6,31 +6,11 @@
  - 迁移至 Kotlin
  - 使用 JetPack Compose
 
-### Shell 功能
-- Shizuku 授权的 Shell 安装器
-- 定义了多个安装类型 (APK/APKS/XAPK)
-- 定义了几个安装请求者参数，可通过设置调整
-- 允许使用 shell 命令终端
-> 未进行过对 APKS&XAPK 的多种测试
+### 安装器
+ - 使用Shizuku授权安装
+ - 使用Dhizuku授权安装
 
-### 原生库
-- ✅ 支持架构: arm64-v8a, x86_64 等
-> 实际并无有效功能，仅用于测试原生库的集成。
-
-### APP 本身
-
-#### 语言切换
-- ✅ 简体中文
-- ✅ 繁体中文
-- ✅ 英语翻译
-- ✅ 俄语翻译
-- ✅ 日语翻译
-> 外加一个整活翻译
-
-#### 主题切换功能
-- ✅ 跟随系统
-- ✅ 亮色模式
-- ✅ 暗色模式
+> 个人修改版本授权器
 
 ## Supported Versions
 [![Android](https://img.shields.io/badge/Android-9--16-3DDC84.svg?logo=android&logoColor=white)]()[![Min SDK](https://img.shields.io/badge/Min%20SDK-28-important.svg)]()[![Target SDK](https://img.shields.io/badge/Target%20SDK-36-blue.svg)]()

@@ -75,6 +75,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            @Suppress("UnstableApiUsage")
             optimization {
                 enable = false
             }
@@ -187,6 +188,8 @@ dependencies {
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
     // Dhizuku
+    // 原版 Dhizuku API（用于 com.rosan.dhizuku）
+    // 如果使用克隆版 (me.huidoudour.dhizuku)，需从 Dhizuku 源码构建自定义 API 模块替代此行
     implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
 
     // 绕过隐式 API

@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.GET_PACKAGE_SIZE" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
     
+    <!-- Dhizuku 权限（原版 + 克隆版） -->
+    <uses-permission android:name="com.rosan.dhizuku.permission.API" />
+    <uses-permission android:name="me.huidoudour.dhizuku.permission.API" />
+    
     <!-- 通知权限 (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     
@@ -24,8 +28,11 @@
         <!-- Shizuku 应用 -->
         <package android:name="moe.shizuku.privileged.api" />
         
-        <!-- Dhizuku 应用 -->
+        <!-- Dhizuku 应用（原版） -->
         <package android:name="com.rosan.dhizuku" />
+        
+        <!-- Dhizuku 应用（克隆版） -->
+        <package android:name="me.huidoudour.dhizuku" />
         
         
         

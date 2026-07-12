@@ -662,7 +662,7 @@ private fun PrivilegeSelectionDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         AppIcon(
-                            packageName = "com.rosan.dhizuku",
+                            packageName = PrivilegeHelper.getInstalledDhizukuPackage(context) ?: "com.rosan.dhizuku",
                             size = 40
                         )
                         Spacer(modifier = Modifier.width(12.dp))

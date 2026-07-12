@@ -820,8 +820,13 @@ private fun InstallPrivilegeDialog(
             
             try {
                 val pm = context.packageManager
-                val dhizukuInfo = pm.getPackageInfo("com.rosan.dhizuku", 0)
-                dhizukuIcon = dhizukuInfo.applicationInfo?.loadIcon(pm)
+                val dhizukuPackage = PrivilegeHelper.getInstalledDhizukuPackage(context)
+                if (dhizukuPackage != null) {
+                    val dhizukuInfo = pm.getPackageInfo(dhizukuPackage, 0)
+                    dhizukuIcon = dhizukuInfo.applicationInfo?.loadIcon(pm)
+                } else {
+                    dhizukuIcon = null
+                }
             } catch (e: Exception) {
                 dhizukuIcon = null
             }
