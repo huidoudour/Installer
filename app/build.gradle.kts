@@ -168,7 +168,7 @@ dependencies {
     implementation(libs.compose.runtime)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
-    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
@@ -177,8 +177,6 @@ dependencies {
 
     // Material Kolor - 动态主题颜色生成
     implementation(libs.material.kolor)
-
-    debugImplementation(libs.compose.ui.tooling)
 
     // ====== 必要依赖开始 ======
     // Hidden API for Dhizuku binder wrapper
@@ -189,7 +187,6 @@ dependencies {
     implementation("dev.rikka.shizuku:provider:13.1.5")
     // Dhizuku
     // 原版 Dhizuku API（用于 com.rosan.dhizuku）
-    // 如果使用克隆版 (me.huidoudour.dhizuku)，需从 Dhizuku 源码构建自定义 API 模块替代此行
     implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
 
     // 绕过隐式 API
@@ -200,9 +197,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
     implementation("androidx.core:core-ktx:1.15.0")
     // ====== 必要依赖结束 ======
-    // Jetpack Graphics 原生库 - 用于高性能图形渲染
-    implementation("androidx.graphics:graphics-path:1.0.1")
-    implementation("androidx.graphics:graphics-core:1.0.1")
     // 测试依赖
     // MTDataFilesProvider,documentfile
     debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")

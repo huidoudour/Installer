@@ -161,10 +161,10 @@
 
         <meta-data
                 android:name="io.github.huidoudour.zjs.version"
-                android:value="26" />
+                android:value="29" />
         <meta-data
                 android:name="me.huidoudour.core.version"
-                android:value="29" />
+                android:value="37" />
     </application>
 
 </manifest>
