@@ -64,7 +64,7 @@
     </queries>
 
     <application
-        android:name=".InstallerApplication"
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -73,7 +73,7 @@
         android:theme="@style/Theme.Installer"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -85,7 +85,7 @@
 
         <!-- 独立的安装对话框 Activity -->
         <activity
-            android:name=".InstallDialogActivity"
+            android:name=".ui.installer.InstallDialogActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer.Dialog"
             android:windowSoftInputMode="adjustResize"
@@ -135,7 +135,7 @@
 
         <!-- 我页面 Activity -->
         <activity
-            android:name=".ui.MeActivity"
+            android:name=".ui.me.MeActivity"
             android:exported="false"
             android:theme="@style/Theme.Installer" />
 
