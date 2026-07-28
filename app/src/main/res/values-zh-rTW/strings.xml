@@ -125,6 +125,8 @@
     <string name="custom_package_name_setting_changed">自訂包名設定：%s</string>
     <string name="replace_existing_app_setting_changed">替換現有應用設定：%s</string>
     <string name="auto_grant_permissions_setting_changed">自動授予權限設定：%s</string>
+    <string name="allow_test_packages">允許安裝測試包 (-t)</string>
+    <string name="allow_test_packages_setting_changed">允許安裝測試包設定：%s</string>
     <string name="enabled">已啟用</string>
     <string name="disabled">已禁用</string>
     <string name="install_apk">安裝 APK</string>
@@ -585,6 +587,14 @@
     <string name="current_installer_package">當前安裝器包</string>
     <string name="current_app">當前應用</string>
     <string name="installer_package_changed">安裝器包已變更</string>
+
+    <!-- Requester package settings -->
+    <string name="requester_options">請求者選項</string>
+    <string name="enable_custom_requester_package">啟用自定義請求者</string>
+    <string name="switch_requester_package">切換請求者</string>
+    <string name="requester_package_settings">請求者包</string>
+    <string name="requester_package_changed">請求者包已變更</string>
+    <string name="custom_requester_package_setting_changed">自定義請求者包：%s</string>
 
     <string name="previous_step">上一步</string>
     <string name="next_step">下一步</string>

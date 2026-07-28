@@ -125,6 +125,8 @@
     <string name="custom_package_name_setting_changed">Custom package name setting: %s</string>
     <string name="replace_existing_app_setting_changed">Replace existing app setting: %s</string>
     <string name="auto_grant_permissions_setting_changed">Auto grant permissions setting: %s</string>
+    <string name="allow_test_packages">Allow Test Packages (-t)</string>
+    <string name="allow_test_packages_setting_changed">Allow test packages setting: %s</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
     <string name="install_apk">Install APK</string>
@@ -585,6 +587,14 @@
     <string name="current_installer_package">Current Installer Package</string>
     <string name="current_app">Current App</string>
     <string name="installer_package_changed">Installer package changed</string>
+
+    <!-- Requester package settings -->
+    <string name="requester_options">Requester Options</string>
+    <string name="enable_custom_requester_package">Enable Custom Requester</string>
+    <string name="switch_requester_package">Switch Requester</string>
+    <string name="requester_package_settings">Requester Package</string>
+    <string name="requester_package_changed">Requester package changed</string>
+    <string name="custom_requester_package_setting_changed">Custom requester package: %s</string>
 
     <string name="previous_step">Previous</string>
     <string name="next_step">Next</string>

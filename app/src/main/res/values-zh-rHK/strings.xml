@@ -125,6 +125,8 @@
     <string name="custom_package_name_setting_changed">自定义包名设置喵：%s</string>
     <string name="replace_existing_app_setting_changed">替换现有应用设置喵：%s</string>
     <string name="auto_grant_permissions_setting_changed">自动授予权限设置喵：%s</string>
+    <string name="allow_test_packages">允许安装测试包 (-t) 喵</string>
+    <string name="allow_test_packages_setting_changed">允许安装测试包设置喵：%s</string>
     <string name="enabled">已启用喵</string>
     <string name="disabled">已禁用喵</string>
     <string name="install_apk">安装 APK 喵</string>
@@ -585,6 +587,14 @@
     <string name="current_installer_package">当前安装器包喵</string>
     <string name="current_app">当前应用喵</string>
     <string name="installer_package_changed">安装器包已变更喵</string>
+
+    <!-- Requester package settings -->
+    <string name="requester_options">请求者选项喵</string>
+    <string name="enable_custom_requester_package">启用自定义请求者喵</string>
+    <string name="switch_requester_package">切换请求者喵</string>
+    <string name="requester_package_settings">请求者包喵</string>
+    <string name="requester_package_changed">请求者包已变更喵</string>
+    <string name="custom_requester_package_setting_changed">自定义请求者包：%s 喵</string>
 
     <string name="previous_step">返回喵</string>
     <string name="next_step">确认喵</string>

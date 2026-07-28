@@ -125,6 +125,8 @@
     <string name="custom_package_name_setting_changed">Настройка имени пакета: %s</string>
     <string name="replace_existing_app_setting_changed">Настройка замены приложения: %s</string>
     <string name="auto_grant_permissions_setting_changed">Настройка авто-разрешений: %s</string>
+    <string name="allow_test_packages">Разрешить тестовые пакеты (-t)</string>
+    <string name="allow_test_packages_setting_changed">Настройка тестовых пакетов: %s</string>
     <string name="enabled">Включено</string>
     <string name="disabled">Отключено</string>
     <string name="install_apk">Установить APK</string>
@@ -585,6 +587,14 @@
     <string name="current_installer_package">Текущий пакет установщика</string>
     <string name="current_app">Текущее приложение</string>
     <string name="installer_package_changed">Пакет установщика изменен</string>
+
+    <!-- Requester package settings -->
+    <string name="requester_options">Параметры запрашивающего</string>
+    <string name="enable_custom_requester_package">Включить своего запрашивающего</string>
+    <string name="switch_requester_package">Сменить запрашивающего</string>
+    <string name="requester_package_settings">Пакет запрашивающего</string>
+    <string name="requester_package_changed">Пакет запрашивающего изменен</string>
+    <string name="custom_requester_package_setting_changed">Свой пакет запрашивающего: %s</string>
 
     <string name="previous_step">Предыдущий</string>
     <string name="next_step">Следующий</string>

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.IPackageInstaller
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInstaller
+import android.content.pm.PackageManager
 import android.os.IBinder
 import android.os.ServiceManager
 import com.rosan.dhizuku.api.Dhizuku
@@ -182,6 +183,9 @@ object DhizukuInstallHelper {
             }
         }
 
+        // 设置请求者 UID（originating Uid）
+        applyRequesterUid(context, params, callback)
+
         // 设置 APK 大小
         params.setSize(apkFile.length())
 
@@ -244,6 +248,69 @@ object DhizukuInstallHelper {
         } else {
             val msg = resultIntent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
             callback.onError("Install failed (status=$status): $msg")
+        }
+    }
+
+    /**
+     * 根据用户配置的请求者包名，设置 SessionParams 的 originating UID。
+     * 用于权限审计追溯，让系统记录"这个安装是由谁发起的"。
+     *
+     * 注意：此功能仅在 Dhizuku 路径下生效（使用 PackageInstaller.Session API），
+     * Shizuku 的 shell pm 命令不支持 originating UID。
+     */
+    private fun applyRequesterUid(
+        context: Context,
+        params: PackageInstaller.SessionParams,
+        callback: InstallCallback
+    ) {
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        val enableCustomRequester = prefs.getBoolean("enable_custom_requester_package", false)
+
+        if (!enableCustomRequester) {
+            callback.onProgress("Requester: disabled")
+            return
+        }
+
+        val requesterPackage = prefs.getString("requester_package", null)?.ifEmpty { null }
+        if (requesterPackage.isNullOrEmpty()) {
+            callback.onProgress("Requester: no package configured")
+            return
+        }
+
+        try {
+            val uid = context.packageManager.getPackageUid(requesterPackage, 0)
+            if (uid < 0) {
+                callback.onProgress("Requester: $requesterPackage UID not found (package not installed?)")
+                return
+            }
+
+            // 方式一：直接设置 originatingUid 字段（public @hide field，比 method 更不容易被隐藏 API 限制拦截）
+            try {
+                val originatingUidField = PackageInstaller.SessionParams::class.java
+                    .getDeclaredField("originatingUid")
+                originatingUidField.isAccessible = true
+                originatingUidField.setInt(params, uid)
+                callback.onProgress("Requester UID set (field): $requesterPackage -> uid=$uid")
+                return
+            } catch (fieldError: Exception) {
+                android.util.Log.w("DhizukuInstallHelper",
+                    "Field approach failed for originatingUid: ${fieldError.message}, trying method...")
+            }
+
+            // 方式二：回退到 setOriginatingUid 方法
+            try {
+                val setOriginatingUidMethod = PackageInstaller.SessionParams::class.java
+                    .getDeclaredMethod("setOriginatingUid", Int::class.javaPrimitiveType!!)
+                setOriginatingUidMethod.isAccessible = true
+                setOriginatingUidMethod.invoke(params, uid)
+                callback.onProgress("Requester UID set (method): $requesterPackage -> uid=$uid")
+            } catch (methodError: Exception) {
+                callback.onProgress("Requester: setOriginatingUid not available on this device: ${methodError.message}")
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            callback.onProgress("Requester: package '$requesterPackage' is not installed on this device")
+        } catch (e: Exception) {
+            callback.onProgress("Requester: failed to resolve UID for $requesterPackage: ${e.message}")
         }
     }
 
@@ -479,6 +546,9 @@ object DhizukuInstallHelper {
                 installFlagsField.setInt(params, flags)
 
                 params.setSize(extractedApks.sumOf { it.length() })
+
+                // 设置请求者 UID
+                applyRequesterUid(context, params, callback)
 
                 callback.onProgress("Creating install session via Binder...")
                 val sessionId = packageInstaller.createSession(params)

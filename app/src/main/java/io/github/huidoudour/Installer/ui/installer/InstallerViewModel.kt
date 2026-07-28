@@ -66,6 +66,10 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     private val _enableCustomPackageName = MutableStateFlow(true)
     val enableCustomPackageName: StateFlow<Boolean> = _enableCustomPackageName.asStateFlow()
 
+    // 是否允许安装测试包（pm install -t，仅 Shizuku 模式生效）
+    private val _allowTestPackages = MutableStateFlow(false)
+    val allowTestPackages: StateFlow<Boolean> = _allowTestPackages.asStateFlow()
+
     // 安装器包名选项
     data class InstallerPackageOption(
         val packageName: String,
@@ -80,6 +84,20 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _selectedInstallerPackage = MutableStateFlow("io.github.huidoudour.Installer")
     val selectedInstallerPackage: StateFlow<String> = _selectedInstallerPackage.asStateFlow()
+
+    // 请求者包名选项（requester）
+    val requesterPackageOptions = listOf(
+        InstallerPackageOption("io.github.huidoudour.Installer", "Installer"),
+        InstallerPackageOption("me.huidoudour.core", "Huidoudour Core"),
+        InstallerPackageOption("io.github.huidoudour.zjs", "ZJS"),
+        InstallerPackageOption("com.android.shell", "Shell"),
+    )
+
+    private val _enableCustomRequesterPackage = MutableStateFlow(false)
+    val enableCustomRequesterPackage: StateFlow<Boolean> = _enableCustomRequesterPackage.asStateFlow()
+
+    private val _selectedRequesterPackage = MutableStateFlow("me.huidoudour.core")
+    val selectedRequesterPackage: StateFlow<String> = _selectedRequesterPackage.asStateFlow()
 
     // replaceExisting 固定为 true，grantPermissions 固定为 false
     private val _replaceExisting = MutableStateFlow(true)
@@ -360,18 +378,27 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun loadSwitchStates() {
         _enableCustomPackageName.value = prefs.getBoolean("enable_custom_package_name", true)
+        _allowTestPackages.value = prefs.getBoolean("allow_test_packages", false)
         // replaceExisting 和 grantPermissions 固定值，不从 prefs 加载
         _replaceExisting.value = true
         _grantPermissions.value = false
         // 加载安装器包名选择
         val savedPackage = prefs.getString("installer_package", "")?.ifEmpty { "io.github.huidoudour.Installer" } ?: "io.github.huidoudour.Installer"
         _selectedInstallerPackage.value = savedPackage
+
+        // 加载请求者包名选择
+        _enableCustomRequesterPackage.value = prefs.getBoolean("enable_custom_requester_package", false)
+        val savedRequesterPackage = prefs.getString("requester_package", "")?.ifEmpty { "me.huidoudour.core" } ?: "me.huidoudour.core"
+        _selectedRequesterPackage.value = savedRequesterPackage
     }
 
     fun saveSwitchStates() {
         prefs.edit()
             .putBoolean("enable_custom_package_name", _enableCustomPackageName.value)
+            .putBoolean("allow_test_packages", _allowTestPackages.value)
             .putString("installer_package", _selectedInstallerPackage.value)
+            .putBoolean("enable_custom_requester_package", _enableCustomRequesterPackage.value)
+            .putString("requester_package", _selectedRequesterPackage.value)
             .apply()
     }
 
@@ -385,6 +412,21 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun setSelectedInstallerPackage(packageName: String) {
         _selectedInstallerPackage.value = packageName
+        saveSwitchStates()
+    }
+
+    fun setAllowTestPackages(value: Boolean) {
+        _allowTestPackages.value = value
+        saveSwitchStates()
+    }
+
+    fun setEnableCustomRequesterPackage(value: Boolean) {
+        _enableCustomRequesterPackage.value = value
+        saveSwitchStates()
+    }
+
+    fun setSelectedRequesterPackage(packageName: String) {
+        _selectedRequesterPackage.value = packageName
         saveSwitchStates()
     }
 }

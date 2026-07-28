@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.ui.dialogs.InstallerPackageDialog
+import io.github.huidoudour.Installer.ui.dialogs.RequesterPackageDialog
 import io.github.huidoudour.Installer.ui.theme.SmallShape
 import io.github.huidoudour.Installer.auth.PrivilegeHelper
 
@@ -86,6 +87,7 @@ fun InstallerScreen(
     val scrollState = rememberScrollState()
 
     var showInstallerPackageDialog by remember { mutableStateOf(false) }
+    var showRequesterPackageDialog by remember { mutableStateOf(false) }
 
     val privilegeStatus: PrivilegeHelper.PrivilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
@@ -96,7 +98,10 @@ fun InstallerScreen(
     val isInstalling by viewModel.isInstalling.collectAsState()
     val installCompleted by viewModel.installCompleted.collectAsState()
     val enableCustomPackageName by viewModel.enableCustomPackageName.collectAsState()
+    val allowTestPackages by viewModel.allowTestPackages.collectAsState()
     val selectedInstallerPackage by viewModel.selectedInstallerPackage.collectAsState()
+    val enableCustomRequesterPackage by viewModel.enableCustomRequesterPackage.collectAsState()
+    val selectedRequesterPackage by viewModel.selectedRequesterPackage.collectAsState()
 
     // 从后台返回时自动刷新权限状态（处理 Dhizuku 手动授权/撤权场景）
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -193,7 +198,35 @@ fun InstallerScreen(
                         android.widget.Toast.LENGTH_SHORT
                     ).show()
                 },
-                onSwitchInstallerPackage = { showInstallerPackageDialog = true }
+                allowTestPackages = allowTestPackages,
+                onAllowTestPackagesChange = { enabled ->
+                    viewModel.setAllowTestPackages(enabled)
+                    android.widget.Toast.makeText(
+                        context,
+                        context.getString(
+                            R.string.allow_test_packages_setting_changed,
+                            context.getString(if (enabled) R.string.enabled else R.string.disabled)
+                        ),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                },
+                // Dhizuku 走 PackageInstaller.Session AIDL，不支持 -t 参数
+                isTestPackagesOptionEnabled = privilegeMode != PrivilegeHelper.PrivilegeMode.DHIZUKU,
+                onSwitchInstallerPackage = { showInstallerPackageDialog = true },
+                // 请求者参数
+                enableCustomRequesterPackage = enableCustomRequesterPackage,
+                onEnableCustomRequesterPackageChange = { enabled ->
+                    viewModel.setEnableCustomRequesterPackage(enabled)
+                    android.widget.Toast.makeText(
+                        context,
+                        context.getString(
+                            R.string.custom_requester_package_setting_changed,
+                            context.getString(if (enabled) R.string.enabled else R.string.disabled)
+                        ),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                },
+                onSwitchRequesterPackage = { showRequesterPackageDialog = true }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -210,6 +243,22 @@ fun InstallerScreen(
                 android.widget.Toast.makeText(
                     context,
                     context.getString(R.string.installer_package_changed),
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+    }
+
+    if (showRequesterPackageDialog) {
+        RequesterPackageDialog(
+            context = context,
+            onDismiss = { showRequesterPackageDialog = false },
+            onConfirmed = {
+                showRequesterPackageDialog = false
+                viewModel.setSelectedRequesterPackage(it)
+                android.widget.Toast.makeText(
+                    context,
+                    context.getString(R.string.requester_package_changed),
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
             }
@@ -515,7 +564,13 @@ fun FileSelectionCard(
 fun InstallOptionsCard(
     enableCustomPackageName: Boolean,
     onEnableCustomPackageNameChange: (Boolean) -> Unit,
-    onSwitchInstallerPackage: () -> Unit
+    allowTestPackages: Boolean,
+    onAllowTestPackagesChange: (Boolean) -> Unit,
+    isTestPackagesOptionEnabled: Boolean,
+    onSwitchInstallerPackage: () -> Unit,
+    enableCustomRequesterPackage: Boolean = false,
+    onEnableCustomRequesterPackageChange: (Boolean) -> Unit = {},
+    onSwitchRequesterPackage: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -590,6 +645,69 @@ fun InstallOptionsCard(
                     checked = false,
                     onCheckedChange = {},
                     enabled = false
+                )
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline
+                )
+                // 允许安装测试包 (-t) — Dhizuku 模式下不可用
+                SwitchRow(
+                    title = stringResource(R.string.allow_test_packages),
+                    checked = allowTestPackages && isTestPackagesOptionEnabled,
+                    onCheckedChange = onAllowTestPackagesChange,
+                    enabled = isTestPackagesOptionEnabled
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Requester section title row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.requester_options),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+
+            // Switch requester button - TonalButton style
+            Surface(
+                shape = SmallShape,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                onClick = onSwitchRequesterPackage
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.switch_requester_package),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Requester options - bordered container
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column {
+                SwitchRow(
+                    title = stringResource(R.string.enable_custom_requester_package),
+                    checked = enableCustomRequesterPackage,
+                    onCheckedChange = onEnableCustomRequesterPackageChange
                 )
             }
         }
