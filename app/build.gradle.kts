@@ -1,20 +1,54 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
 }
 
+// 共用版本号与版本名
+val baseVersionCode = 699
+val baseVersionName = "v26.07"
+
+// 构建时的日期+时间
+fun getBuildDateTime(): String {
+    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmm"))
+}
+
+// 获取 git 总提交数
+fun getGitCommitCount(): Int {
+    return try {
+        providers.exec {
+            commandLine("git", "rev-list", "--count", "HEAD")
+        }.standardOutput.asText.get().trim().toInt()
+    } catch (_: Exception) {
+        baseVersionCode
+    }
+}
+
+// 获取 git 短哈希
+fun getGitCommitHash(): String {
+    return try {
+        providers.exec {
+            commandLine("git", "rev-parse", "--short=7", "HEAD")
+        }.standardOutput.asText.get().trim()
+    } catch (_: Exception) {
+        getBuildDateTime()
+    }
+}
+
 android {
     namespace = "io.github.huidoudour.Installer"
     compileSdk = 37
-
     ndkVersion = "30.0.14904198"
 
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28 //Android 9
         targetSdk = 37 //Android 17
-        versionCode = 699 //版本号
-        versionName = "v26.06.699" //版本名
+        versionCode = baseVersionCode // 自定义版本号
+        // 重组版本名: 基础版本.总提交数.短哈希
+        versionName = "${baseVersionName}.${getGitCommitCount()}.${getGitCommitHash()}"
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
@@ -24,7 +58,7 @@ android {
         }
     }
 
-        val useSignKey = rootProject.hasProperty("storeFile") &&
+    val useSignKey = rootProject.hasProperty("storeFile") &&
         rootProject.hasProperty("storePassword") &&
         rootProject.hasProperty("keyAlias") &&
         rootProject.hasProperty("keyPassword")
