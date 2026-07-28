@@ -588,6 +588,11 @@
     <string name="current_app">Текущее приложение</string>
     <string name="installer_package_changed">Пакет установщика изменен</string>
 
+    <!-- Unified package dialog -->
+    <string name="package_select_title">Выбор пакета</string>
+    <string name="installer_section_title">Установщик</string>
+    <string name="requester_section_title">Запрашивающий</string>
+
     <!-- Requester package settings -->
     <string name="requester_options">Параметры запрашивающего</string>
     <string name="enable_custom_requester_package">Включить своего запрашивающего</string>

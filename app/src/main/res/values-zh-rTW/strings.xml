@@ -588,10 +588,15 @@
     <string name="current_app">當前應用</string>
     <string name="installer_package_changed">安裝器包已變更</string>
 
+    <!-- Unified package dialog -->
+    <string name="package_select_title">選擇包名</string>
+    <string name="installer_section_title">執行者</string>
+    <string name="requester_section_title">請求者</string>
+
     <!-- Requester package settings -->
     <string name="requester_options">請求者選項</string>
-    <string name="enable_custom_requester_package">啟用自定義請求者</string>
-    <string name="switch_requester_package">切換請求者</string>
+    <string name="enable_custom_requester_package">自定義請求者</string>
+    <string name="switch_requester_package">切換</string>
     <string name="requester_package_settings">請求者包</string>
     <string name="requester_package_changed">請求者包已變更</string>
     <string name="custom_requester_package_setting_changed">自定義請求者包：%s</string>

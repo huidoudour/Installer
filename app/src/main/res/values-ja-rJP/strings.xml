@@ -588,6 +588,11 @@
     <string name="current_app">現在のアプリ</string>
     <string name="installer_package_changed">インストーラーパッケージが変更されました</string>
 
+    <!-- Unified package dialog -->
+    <string name="package_select_title">パッケージ選択</string>
+    <string name="installer_section_title">インストーラー</string>
+    <string name="requester_section_title">リクエスター</string>
+
     <!-- Requester package settings -->
     <string name="requester_options">リクエスターオプション</string>
     <string name="enable_custom_requester_package">カスタムリクエスターを有効化</string>

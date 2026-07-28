@@ -118,8 +118,8 @@
     <string name="no_file_selected">未选择文件</string>
     <string name="select_apk_file">选择 APK 文件</string>
     <string name="install_options">安装选项</string>
-    <string name="enable_custom_package_name">启用自定义包名</string>
-    <string name="switch_installer_package">切换安装器</string>
+    <string name="enable_custom_package_name">自定义执行者</string>
+    <string name="switch_installer_package">切换</string>
     <string name="replace_existing_app">替换现有应用</string>
     <string name="auto_grant_permissions">自动授予权限</string>
     <string name="custom_package_name_setting_changed">自定义包名设置：%s</string>
@@ -588,10 +588,15 @@
     <string name="current_app">当前应用</string>
     <string name="installer_package_changed">安装器包已变更</string>
 
+    <!-- Unified package dialog -->
+    <string name="package_select_title">选择包名</string>
+    <string name="installer_section_title">执行者</string>
+    <string name="requester_section_title">请求者</string>
+
     <!-- Requester package settings -->
     <string name="requester_options">请求者选项</string>
-    <string name="enable_custom_requester_package">启用自定义请求者</string>
-    <string name="switch_requester_package">切换请求者</string>
+    <string name="enable_custom_requester_package">自定义请求者</string>
+    <string name="switch_requester_package">切换</string>
     <string name="requester_package_settings">请求者包</string>
     <string name="requester_package_changed">请求者包已变更</string>
     <string name="custom_requester_package_setting_changed">自定义请求者包：%s</string>

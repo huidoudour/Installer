@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -63,8 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.Installer.R
-import io.github.huidoudour.Installer.ui.dialogs.InstallerPackageDialog
-import io.github.huidoudour.Installer.ui.dialogs.RequesterPackageDialog
+import io.github.huidoudour.Installer.ui.dialogs.InstallerRequesterPackageDialog
 import io.github.huidoudour.Installer.ui.theme.SmallShape
 import io.github.huidoudour.Installer.auth.PrivilegeHelper
 
@@ -86,8 +84,7 @@ fun InstallerScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    var showInstallerPackageDialog by remember { mutableStateOf(false) }
-    var showRequesterPackageDialog by remember { mutableStateOf(false) }
+    var showPackageDialog by remember { mutableStateOf(false) }
 
     val privilegeStatus: PrivilegeHelper.PrivilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
@@ -140,8 +137,7 @@ fun InstallerScreen(
     // MD3 背景包裹，恢复原有样式
     Surface(
         modifier = Modifier
-            .fillMaxSize()
-            .navigationBarsPadding(),
+            .fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column(
@@ -212,7 +208,7 @@ fun InstallerScreen(
                 },
                 // Dhizuku 走 PackageInstaller.Session AIDL，不支持 -t 参数
                 isTestPackagesOptionEnabled = privilegeMode != PrivilegeHelper.PrivilegeMode.DHIZUKU,
-                onSwitchInstallerPackage = { showInstallerPackageDialog = true },
+                onSwitchPackage = { showPackageDialog = true },
                 // 请求者参数
                 enableCustomRequesterPackage = enableCustomRequesterPackage,
                 onEnableCustomRequesterPackageChange = { enabled ->
@@ -225,36 +221,26 @@ fun InstallerScreen(
                         ),
                         android.widget.Toast.LENGTH_SHORT
                     ).show()
-                },
-                onSwitchRequesterPackage = { showRequesterPackageDialog = true }
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 
-    if (showInstallerPackageDialog) {
-        InstallerPackageDialog(
+    if (showPackageDialog) {
+        InstallerRequesterPackageDialog(
             context = context,
-            onDismiss = { showInstallerPackageDialog = false },
-            onConfirmed = {
-                showInstallerPackageDialog = false
+            onDismiss = { showPackageDialog = false },
+            onInstallerConfirmed = {
                 viewModel.setSelectedInstallerPackage(it)
                 android.widget.Toast.makeText(
                     context,
                     context.getString(R.string.installer_package_changed),
                     android.widget.Toast.LENGTH_SHORT
                 ).show()
-            }
-        )
-    }
-
-    if (showRequesterPackageDialog) {
-        RequesterPackageDialog(
-            context = context,
-            onDismiss = { showRequesterPackageDialog = false },
-            onConfirmed = {
-                showRequesterPackageDialog = false
+            },
+            onRequesterConfirmed = {
                 viewModel.setSelectedRequesterPackage(it)
                 android.widget.Toast.makeText(
                     context,
@@ -567,17 +553,16 @@ fun InstallOptionsCard(
     allowTestPackages: Boolean,
     onAllowTestPackagesChange: (Boolean) -> Unit,
     isTestPackagesOptionEnabled: Boolean,
-    onSwitchInstallerPackage: () -> Unit,
+    onSwitchPackage: () -> Unit,
     enableCustomRequesterPackage: Boolean = false,
-    onEnableCustomRequesterPackageChange: (Boolean) -> Unit = {},
-    onSwitchRequesterPackage: () -> Unit = {}
+    onEnableCustomRequesterPackageChange: (Boolean) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
-        // Title row
+        // Title row with single 切换 button
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -589,29 +574,23 @@ fun InstallOptionsCard(
                     fontWeight = FontWeight.SemiBold
                 )
             )
-
-            // Switch installer button - TonalButton style
             Surface(
                 shape = SmallShape,
                 color = MaterialTheme.colorScheme.secondaryContainer,
-                onClick = onSwitchInstallerPackage
+                onClick = onSwitchPackage
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.switch_installer_package),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
+                Text(
+                    text = stringResource(R.string.switch_installer_package),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Switch options - bordered container with horizontal dividers
+        // Single card with all option rows
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -624,90 +603,35 @@ fun InstallOptionsCard(
                     checked = enableCustomPackageName,
                     onCheckedChange = onEnableCustomPackageNameChange
                 )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outline
+                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline)
+                SwitchRow(
+                    title = stringResource(R.string.enable_custom_requester_package),
+                    checked = enableCustomRequesterPackage,
+                    onCheckedChange = onEnableCustomRequesterPackageChange
                 )
-                // 替换现有应用 — 锁定开启
+                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline)
+                // 替换现有应用 — locked ON
                 SwitchRow(
                     title = stringResource(R.string.replace_existing_app),
                     checked = true,
                     onCheckedChange = {},
                     enabled = false
                 )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outline
-                )
-                // 自动授予权限 — 锁定关闭
+                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline)
+                // 自动授予权限 — locked OFF
                 SwitchRow(
                     title = stringResource(R.string.auto_grant_permissions),
                     checked = false,
                     onCheckedChange = {},
                     enabled = false
                 )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outline
-                )
-                // 允许安装测试包 (-t) — Dhizuku 模式下不可用
+                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline)
+                // 允许安装测试包 (-t)
                 SwitchRow(
                     title = stringResource(R.string.allow_test_packages),
                     checked = allowTestPackages && isTestPackagesOptionEnabled,
                     onCheckedChange = onAllowTestPackagesChange,
                     enabled = isTestPackagesOptionEnabled
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Requester section title row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.requester_options),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-            // Switch requester button - TonalButton style
-            Surface(
-                shape = SmallShape,
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                onClick = onSwitchRequesterPackage
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.switch_requester_package),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Requester options - bordered container
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            color = MaterialTheme.colorScheme.surface
-        ) {
-            Column {
-                SwitchRow(
-                    title = stringResource(R.string.enable_custom_requester_package),
-                    checked = enableCustomRequesterPackage,
-                    onCheckedChange = onEnableCustomRequesterPackageChange
                 )
             }
         }
@@ -768,3 +692,4 @@ private fun SwitchRow(
         }
     }
 }
+

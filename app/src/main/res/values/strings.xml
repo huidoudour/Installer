@@ -118,8 +118,8 @@
     <string name="no_file_selected">No file selected</string>
     <string name="select_apk_file">Select APK File</string>
     <string name="install_options">Install Options</string>
-    <string name="enable_custom_package_name">Enable Custom PackageName</string>
-    <string name="switch_installer_package">Switch Installer</string>
+    <string name="enable_custom_package_name">Custom Installer</string>
+    <string name="switch_installer_package">Switch</string>
     <string name="replace_existing_app">Replace Existing App</string>
     <string name="auto_grant_permissions">Auto Grant Permissions</string>
     <string name="custom_package_name_setting_changed">Custom package name setting: %s</string>
@@ -587,6 +587,11 @@
     <string name="current_installer_package">Current Installer Package</string>
     <string name="current_app">Current App</string>
     <string name="installer_package_changed">Installer package changed</string>
+
+    <!-- Unified package dialog -->
+    <string name="package_select_title">Select Package</string>
+    <string name="installer_section_title">Installer</string>
+    <string name="requester_section_title">Requester</string>
 
     <!-- Requester package settings -->
     <string name="requester_options">Requester Options</string>
