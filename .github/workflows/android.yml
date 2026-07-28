@@ -24,6 +24,9 @@ jobs:
       should-run: ${{ steps.check.outputs.should-run }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          # 默认浅克隆不拉取 tags, 会导致 git tag --points-at 永远为空
+          fetch-tags: true
       - id: check
         run: |
           if [ -n "$(git tag --points-at HEAD)" ]; then
