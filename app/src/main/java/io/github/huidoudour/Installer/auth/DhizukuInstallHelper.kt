@@ -390,7 +390,7 @@ object DhizukuInstallHelper {
 
         try {
             val process = Dhizuku.newProcess(arrayOf("pm", "install-write",
-                "-S", apkSize.toString(), sessionId.toString(), "base.apk", "-"), null, null)
+                "-S", apkSize.toString(), sessionId, "base.apk", "-"), null, null)
             val os = process.outputStream
             FileInputStream(apkFile).use { fis ->
                 val buffer = ByteArray(65536)

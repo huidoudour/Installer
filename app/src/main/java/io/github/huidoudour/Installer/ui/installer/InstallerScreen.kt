@@ -234,6 +234,7 @@ fun InstallerScreen(
             onDismiss = { showPackageDialog = false },
             onInstallerConfirmed = {
                 viewModel.setSelectedInstallerPackage(it)
+                showPackageDialog = false
                 android.widget.Toast.makeText(
                     context,
                     context.getString(R.string.installer_package_changed),
@@ -242,6 +243,7 @@ fun InstallerScreen(
             },
             onRequesterConfirmed = {
                 viewModel.setSelectedRequesterPackage(it)
+                showPackageDialog = false
                 android.widget.Toast.makeText(
                     context,
                     context.getString(R.string.requester_package_changed),

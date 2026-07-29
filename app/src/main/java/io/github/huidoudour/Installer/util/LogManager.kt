@@ -68,7 +68,7 @@ class LogManager private constructor() {
                 var line: String?
                 while (reader.readLine().also { line = it } != null) {
                     if (line != null) {
-                        logs.add(LogEntry(text = line!!, timestamp = ""))
+                        logs.add(LogEntry(text = line, timestamp = ""))
                     }
                 }
             }

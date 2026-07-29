@@ -119,46 +119,8 @@ private fun generateColorScheme(
         isDark = isDark
     )
 
-    // 将 materialKolor 的 ColorScheme 转换为 Material3 ColorScheme
-    // Material3 1.3.1 有更多属性，我们用默认值填充
-    return ColorScheme(
-        primary = dynamicColorScheme.primary,
-        onPrimary = dynamicColorScheme.onPrimary,
-        primaryContainer = dynamicColorScheme.primaryContainer,
-        onPrimaryContainer = dynamicColorScheme.onPrimaryContainer,
-        secondary = dynamicColorScheme.secondary,
-        onSecondary = dynamicColorScheme.onSecondary,
-        secondaryContainer = dynamicColorScheme.secondaryContainer,
-        onSecondaryContainer = dynamicColorScheme.onSecondaryContainer,
-        tertiary = dynamicColorScheme.tertiary,
-        onTertiary = dynamicColorScheme.onTertiary,
-        tertiaryContainer = dynamicColorScheme.tertiaryContainer,
-        onTertiaryContainer = dynamicColorScheme.onTertiaryContainer,
-        error = dynamicColorScheme.error,
-        onError = dynamicColorScheme.onError,
-        errorContainer = dynamicColorScheme.errorContainer,
-        onErrorContainer = dynamicColorScheme.onErrorContainer,
-        background = dynamicColorScheme.background,
-        onBackground = dynamicColorScheme.onBackground,
-        surface = dynamicColorScheme.surface,
-        onSurface = dynamicColorScheme.onSurface,
-        surfaceVariant = dynamicColorScheme.surfaceVariant,
-        onSurfaceVariant = dynamicColorScheme.onSurfaceVariant,
-        outline = dynamicColorScheme.outline,
-        outlineVariant = dynamicColorScheme.outlineVariant,
-        scrim = dynamicColorScheme.scrim,
-        inverseSurface = dynamicColorScheme.inverseSurface,
-        inverseOnSurface = dynamicColorScheme.inverseOnSurface,
-        inversePrimary = dynamicColorScheme.inversePrimary,
-        surfaceTint = dynamicColorScheme.surfaceTint,
-        surfaceBright = dynamicColorScheme.surfaceBright,
-        surfaceDim = dynamicColorScheme.surfaceDim,
-        surfaceContainer = dynamicColorScheme.surfaceContainer,
-        surfaceContainerHigh = dynamicColorScheme.surfaceContainerHigh,
-        surfaceContainerHighest = dynamicColorScheme.surfaceContainerHighest,
-        surfaceContainerLow = dynamicColorScheme.surfaceContainerLow,
-        surfaceContainerLowest = dynamicColorScheme.surfaceContainerLowest
-    )
+    // materialKolor 返回的已经是 ColorScheme，无需手动逐字段转换
+    return dynamicColorScheme
 }
 
 /**

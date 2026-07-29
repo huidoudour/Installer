@@ -204,6 +204,7 @@ dependencies {
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
     implementation(libs.accompanist.drawablepainter)
@@ -226,14 +227,12 @@ dependencies {
     // 绕过隐式 API
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
     // ACRA - 崩溃捕获
-    implementation("ch.acra:acra-core:5.11.3")
-    // Kotlin support
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
-    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("ch.acra:acra-core:5.13.1")
+    implementation("androidx.core:core-ktx:1.19.0")
     // ====== 必要依赖结束 ======
     // 测试依赖
     // MTDataFilesProvider,documentfile
     debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
-    debugImplementation("androidx.documentfile:documentfile:1.0.1")
+    debugImplementation("androidx.documentfile:documentfile:1.1.0")
     debugImplementation(libs.compose.ui.tooling.preview)
 }

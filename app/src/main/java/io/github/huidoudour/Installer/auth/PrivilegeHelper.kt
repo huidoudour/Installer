@@ -156,7 +156,7 @@ object PrivilegeHelper {
                     }
                     try {
                         val process = Dhizuku.newProcess(arrayOf("echo", "test"), null, null)
-                        process?.destroy()
+                        process.destroy()
                         return PrivilegeStatus.AUTHORIZED
                     } catch (e: Exception) {
                         return PrivilegeStatus.NOT_AUTHORIZED
@@ -175,7 +175,7 @@ object PrivilegeHelper {
                 }
                 try {
                     val process = Dhizuku.newProcess(arrayOf("echo", "test"), null, null)
-                    process?.destroy()
+                    process.destroy()
                     return PrivilegeStatus.AUTHORIZED
                 } catch (e: Exception) {
                     return PrivilegeStatus.NOT_AUTHORIZED
@@ -326,7 +326,6 @@ object PrivilegeHelper {
             PrivilegeStatus.NOT_AUTHORIZED -> context.getString(R.string.privilege_status_not_authorized)
             PrivilegeStatus.AUTHORIZED -> context.getString(R.string.privilege_status_authorized)
             PrivilegeStatus.VERSION_TOO_LOW -> context.getString(R.string.privilege_status_version_too_low)
-            else -> context.getString(R.string.privilege_status_unknown)
         }
     }
 

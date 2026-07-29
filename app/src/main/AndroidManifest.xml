@@ -159,6 +159,11 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- 移除 ACRA 未使用的 ContentProvider（消除 manifest merger 警告） -->
+        <provider
+            android:name="org.acra.attachment.AcraContentProvider"
+            tools:node="remove" />
+
         <meta-data
                 android:name="io.github.huidoudour.zjs.version"
                 android:value="29" />

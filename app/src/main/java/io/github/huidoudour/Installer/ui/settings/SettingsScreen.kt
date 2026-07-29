@@ -15,7 +15,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -348,7 +347,6 @@ private fun PrivilegeSettingsCard(
     }
 }
 
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun AboutAppCard(
     context: android.content.Context,
@@ -383,7 +381,7 @@ private fun AboutAppCard(
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
         )
 
-        // About Developer button - click→Me, long press→DeveloperTest
+        // About Developer button - click→Me
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -395,12 +393,6 @@ private fun AboutAppCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .combinedClickable(
-                        onClick = onNavigateToMe,
-                        onLongClick = {
-                            Toast.makeText(context, context.getString(R.string.easter_egg_text), Toast.LENGTH_SHORT).show()
-                        }
-                    )
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center

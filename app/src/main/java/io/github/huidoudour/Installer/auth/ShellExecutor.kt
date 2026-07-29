@@ -439,19 +439,20 @@ object ShellExecutor {
                         try {
                             var line: String?
                             while (persistentShellStdout!!.readLine().also { line = it } != null && !commandEnded[0]) {
+                                val currentLine = line ?: continue
                                 when {
-                                    line == endMarker -> {
+                                    currentLine == endMarker -> {
                                         commandEnded[0] = true
                                         break
                                     }
-                                    line!!.startsWith(exitCodeMarker) -> {
+                                    currentLine.startsWith(exitCodeMarker) -> {
                                         try {
-                                            exitCode[0] = line!!.substring(exitCodeMarker.length).toInt()
+                                            exitCode[0] = currentLine.substring(exitCodeMarker.length).toInt()
                                         } catch (e: Exception) {
                                             exitCode[0] = 0
                                         }
                                     }
-                                    else -> callback.onOutput(line!!)
+                                    else -> callback.onOutput(currentLine)
                                 }
                             }
                         } catch (e: Exception) {
