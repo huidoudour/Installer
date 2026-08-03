@@ -3,6 +3,7 @@ package io.github.huidoudour.Installer.util
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 
 /**
  * 文件选择器辅助工具
@@ -34,6 +35,9 @@ object FilePickerHelper {
         return Intent(Intent.ACTION_GET_CONTENT).apply {
             type = mimeType
             addCategory(Intent.CATEGORY_OPENABLE)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
             if (isFileManagerInstalled(context)) {
                 setPackage(FILE_MANAGER_PACKAGE)
             }

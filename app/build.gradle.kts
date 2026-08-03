@@ -7,7 +7,7 @@ plugins {
 }
 
 // 共用版本号与版本名
-val baseVersionCode = 699
+val baseVersionCode = 8000
 val baseVersionName = "26.08"
 
 // 构建时的日期+时间
@@ -37,6 +37,9 @@ fun getGitCommitHash(): String {
     }
 }
 
+val appVersionCode = baseVersionCode + getGitCommitCount()
+val appVersionName = "${baseVersionName}.${getGitCommitCount()}.${getGitCommitHash()}"
+
 android {
     namespace = "io.github.huidoudour.Installer"
     compileSdk = 37
@@ -44,11 +47,10 @@ android {
 
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer"
-        minSdk = 28 //Android 9
-        targetSdk = 37 //Android 17
-        versionCode = baseVersionCode // 自定义版本号
-        // 重组版本名: 基础版本.总提交数.短哈希
-        versionName = "${baseVersionName}.${getGitCommitCount()}.${getGitCommitHash()}"
+        minSdk = 28
+        targetSdk = 37
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
