@@ -15,6 +15,7 @@ on:
       - 'build.gradle.kts'
       - 'settings.gradle.kts'
       - 'gradle/**'
+      - '.github/workflows/android.yml'
 
 jobs:
   # 先行检查：commit 是否已打 tag → 已打则跳过构建（避免与 Release Build 重复）
@@ -43,6 +44,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
     - name: Get short commit hash
       id: short_hash
       run: echo "hash=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
@@ -97,6 +100,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
     - name: Get short commit hash
       id: short_hash
       run: echo "hash=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
