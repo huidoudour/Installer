@@ -34,7 +34,8 @@
         <!-- Dhizuku 应用（克隆版） -->
         <package android:name="me.huidoudour.dhizuku" />
         
-        
+        <!-- 自定义文件管理器（文件选取优先使用） -->
+        <package android:name="me.huidoudour.file.manager" />
         
         <!-- 允许查询所有浏览器应用 -->
         <intent>
@@ -133,7 +134,7 @@
             android:exported="false"
             android:theme="@style/Theme.Installer.Dialog" />
 
-        <!-- 我页面 Activity -->
+        <!-- MeActivity -->
         <activity
             android:name=".ui.me.MeActivity"
             android:exported="false"
@@ -159,17 +160,15 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- 移除 ACRA 未使用的 ContentProvider（消除 manifest merger 警告） -->
-        <provider
-            android:name="org.acra.attachment.AcraContentProvider"
-            tools:node="remove" />
-
         <meta-data
-                android:name="io.github.huidoudour.zjs.version"
-                android:value="29" />
+            android:name="io.github.huidoudour.zjs.version"
+            android:value="29" />
         <meta-data
-                android:name="me.huidoudour.core.version"
-                android:value="37" />
+            android:name="me.huidoudour.core.version"
+            android:value="37" />
+        <meta-data
+            android:name="me.huidoudour.file.manager"
+            android:value="true" />
     </application>
 
 </manifest>

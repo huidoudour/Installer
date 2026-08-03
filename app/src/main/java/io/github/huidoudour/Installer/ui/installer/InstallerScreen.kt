@@ -65,6 +65,7 @@ import io.github.huidoudour.Installer.R
 import io.github.huidoudour.Installer.ui.dialogs.InstallerRequesterPackageDialog
 import io.github.huidoudour.Installer.ui.theme.SmallShape
 import io.github.huidoudour.Installer.auth.PrivilegeHelper
+import io.github.huidoudour.Installer.util.FilePickerHelper
 
 // Brand colors matching source project button tints
 private val ButtonPrimaryBlue = Color(0xFF2196F3)
@@ -113,8 +114,9 @@ fun InstallerScreen(
     }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val uri = result.data?.data
         viewModel.onFileSelected(uri)
     }
 
@@ -122,7 +124,7 @@ fun InstallerScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            filePickerLauncher.launch("*/*")
+            filePickerLauncher.launch(FilePickerHelper.createFilePickerIntent(context))
         }
     }
 
@@ -130,7 +132,7 @@ fun InstallerScreen(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()) {
-            filePickerLauncher.launch("*/*")
+            filePickerLauncher.launch(FilePickerHelper.createFilePickerIntent(context))
         }
     }
 
@@ -163,7 +165,7 @@ fun InstallerScreen(
                 onSelectFile = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         if (Environment.isExternalStorageManager()) {
-                            filePickerLauncher.launch("*/*")
+                            filePickerLauncher.launch(FilePickerHelper.createFilePickerIntent(context))
                         } else {
                             val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                             intent.data = Uri.parse("package:${context.packageName}")

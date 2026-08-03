@@ -8,7 +8,7 @@ plugins {
 
 // 共用版本号与版本名
 val baseVersionCode = 699
-val baseVersionName = "26.07"
+val baseVersionName = "26.08"
 
 // 构建时的日期+时间
 fun getBuildDateTime(): String {
@@ -209,8 +209,7 @@ dependencies {
 
     // 绕过隐式 API
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
-    // ACRA - 崩溃捕获
-    implementation("ch.acra:acra-core:5.13.1")
+
     implementation("androidx.core:core-ktx:1.19.0")
     // ====== 必要依赖结束 ======
     // 测试依赖
