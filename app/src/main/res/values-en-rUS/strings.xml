@@ -671,4 +671,7 @@
     <string name="xapk_install_exception">XAPK installation exception: %s</string>
     <string name="xapk_install_success_msg">XAPK installation successful! %d APKs installed in total</string>
 
+    <string name="loader_animation_settings">Loading Animation</string>
+    <string name="loader_animation_graphic">Graphic</string>
+    <string name="loader_animation_wave">Wavy progress bar</string>
 </resources>

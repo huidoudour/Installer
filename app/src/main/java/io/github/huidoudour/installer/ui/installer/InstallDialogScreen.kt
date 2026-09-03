@@ -52,6 +52,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import io.github.huidoudour.installer.util.LoaderAnimationMode
+import io.github.huidoudour.installer.util.LoaderAnimationPrefs
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -486,41 +488,48 @@ fun InstallingButtons(
         label = "InstallProgressAnimation"
     )
 
+    val loaderMode = LoaderAnimationPrefs.getMode(LocalContext.current)
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 图形加载动画 - Material 3 包含式加载指示器（中心稳定，无漂移）
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            ContainedLoadingIndicator(
-                modifier = Modifier.size(40.dp),
-                indicatorColor = indicatorColor,
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            )
-        }
-
-        // 安装进度 - 线性波浪进度条（Material 3 Expressive，参考 InstallerX 安装对话框）
-        if (progress > 0) {
-            LinearWavyProgressIndicator(
-                progress = { animatedProgress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp),
-                color = indicatorColor,
-                trackColor = trackColor
-            )
-        } else {
-            LinearWavyProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp),
-                color = indicatorColor,
-                trackColor = trackColor
-            )
+        when (loaderMode) {
+            LoaderAnimationMode.GRAPHIC -> {
+                // 图形加载动画 - Material 3 包含式加载指示器（中心稳定，无漂移）
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ContainedLoadingIndicator(
+                        modifier = Modifier.size(40.dp),
+                        indicatorColor = indicatorColor,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                    )
+                }
+            }
+            LoaderAnimationMode.WAVE -> {
+                // 安装进度 - 线性波浪进度条（Material 3 Expressive，参考 InstallerX 安装对话框）
+                if (progress > 0) {
+                    LinearWavyProgressIndicator(
+                        progress = { animatedProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp),
+                        color = indicatorColor,
+                        trackColor = trackColor
+                    )
+                } else {
+                    LinearWavyProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp),
+                        color = indicatorColor,
+                        trackColor = trackColor
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

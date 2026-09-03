@@ -671,4 +671,7 @@
     <string name="xapk_install_exception">Исключение установки XAPK: %s</string>
     <string name="xapk_install_success_msg">XAPK успешно установлен! Всего установлено %d APK</string>
 
+    <string name="loader_animation_settings">Анимация загрузки</string>
+    <string name="loader_animation_graphic">Графическая</string>
+    <string name="loader_animation_wave">Волнистый индикатор</string>
 </resources>

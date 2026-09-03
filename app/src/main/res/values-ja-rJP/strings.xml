@@ -671,4 +671,7 @@
     <string name="xapk_install_exception">XAPKインストール例外: %s</string>
     <string name="xapk_install_success_msg">XAPKのインストールに成功しました！合計 %d 個のAPKがインストールされました</string>
 
+    <string name="loader_animation_settings">読み込みアニメーション</string>
+    <string name="loader_animation_graphic">グラフィック</string>
+    <string name="loader_animation_wave">波状プログレスバー</string>
 </resources>

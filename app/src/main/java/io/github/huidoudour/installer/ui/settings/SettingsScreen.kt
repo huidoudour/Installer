@@ -30,9 +30,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Autorenew
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -81,6 +84,7 @@ import io.github.huidoudour.installer.ui.theme.SmallShape
 import io.github.huidoudour.installer.ui.theme.segmentedShape
 import io.github.huidoudour.installer.ui.theme.singleShape
 import io.github.huidoudour.installer.auth.PrivilegeHelper
+import io.github.huidoudour.installer.util.LoaderAnimationMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,6 +99,8 @@ fun SettingsScreen(
     var showInstallerPackageDialog by remember { mutableStateOf(false) }
     var showPrivilegeDialog by remember { mutableStateOf(false) }
     var showNotificationDialog by remember { mutableStateOf(false) }
+    var showLoaderAnimationDialog by remember { mutableStateOf(false) }
+    val loaderMode by viewModel.currentLoaderMode.collectAsState()
 
     // 从后台返回时自动刷新权限状态（处理 Dhizuku 手动授权/撤权场景）
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -151,7 +157,9 @@ fun SettingsScreen(
             onThemeClick = { showThemeDialog = true },
             onLanguageClick = { showLanguageDialog = true },
             onNotificationClick = { showNotificationDialog = true },
-            onInstallerPackageClick = { showInstallerPackageDialog = true }
+            onInstallerPackageClick = { showInstallerPackageDialog = true },
+            loaderMode = loaderMode,
+            onLoaderAnimationClick = { showLoaderAnimationDialog = true }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -231,6 +239,18 @@ fun SettingsScreen(
             notificationPermissionLauncher = notificationPermissionLauncher
         )
     }
+
+    // Loader animation selection dialog
+    if (showLoaderAnimationDialog) {
+        LoaderAnimationSelectionDialog(
+            currentMode = loaderMode,
+            onDismiss = { showLoaderAnimationDialog = false },
+            onConfirm = { mode ->
+                viewModel.setLoaderMode(mode)
+                showLoaderAnimationDialog = false
+            }
+        )
+    }
 }
 
 @Composable
@@ -238,9 +258,15 @@ private fun AppSettingsCard(
     onThemeClick: () -> Unit,
     onLanguageClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onInstallerPackageClick: () -> Unit = {}
+    onInstallerPackageClick: () -> Unit = {},
+    loaderMode: LoaderAnimationMode,
+    onLoaderAnimationClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val loaderModeName = when (loaderMode) {
+        LoaderAnimationMode.GRAPHIC -> stringResource(R.string.loader_animation_graphic)
+        LoaderAnimationMode.WAVE -> stringResource(R.string.loader_animation_wave)
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -284,6 +310,13 @@ private fun AppSettingsCard(
                 subtitle = getCurrentInstallerPackage(context),
                 colorPreview = null,
                 onClick = onInstallerPackageClick
+            ),
+            SettingItemData(
+                icon = Icons.Default.Autorenew,
+                title = stringResource(R.string.loader_animation_settings),
+                subtitle = loaderModeName,
+                colorPreview = null,
+                onClick = onLoaderAnimationClick
             )
         )
 
@@ -846,4 +879,61 @@ fun AppIcon(
             tint = tint
         )
     }
+}
+
+@Composable
+private fun LoaderAnimationSelectionDialog(
+    currentMode: LoaderAnimationMode,
+    onDismiss: () -> Unit,
+    onConfirm: (LoaderAnimationMode) -> Unit
+) {
+    val options = listOf(
+        LoaderAnimationMode.GRAPHIC to stringResource(R.string.loader_animation_graphic),
+        LoaderAnimationMode.WAVE to stringResource(R.string.loader_animation_wave)
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = {
+            Text(stringResource(R.string.loader_animation_settings), fontWeight = FontWeight.SemiBold)
+        },
+        text = {
+            Column {
+                options.forEach { (mode, label) ->
+                    val selected = mode == currentMode
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                if (selected) MaterialTheme.colorScheme.surfaceContainerHigh
+                                else Color.Transparent
+                            )
+                            .clickable { onConfirm(mode) }
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (selected) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
