@@ -165,7 +165,7 @@
             android:value="29" />
         <meta-data
             android:name="me.huidoudour.core.version"
-            android:value="37" />
+            android:value="40" />
         <meta-data
             android:name="me.huidoudour.file.manager"
             android:value="true" />

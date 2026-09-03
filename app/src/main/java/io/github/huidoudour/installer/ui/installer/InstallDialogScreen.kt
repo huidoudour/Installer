@@ -27,12 +27,15 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -210,6 +213,7 @@ private fun InstallDialogContent(
                     state.isInstalling -> {
                         // 安装进度按钮
                         InstallingButtons(
+                            progress = state.installProgress,
                             onCancel = {
                                 state = state.copy(isInstalling = false)
                             }
@@ -463,31 +467,63 @@ fun InstallButtons(
     }
 }
 
-/**
- * 安装进度按钮区域 - 完全匹配 dialog_install.xml 布局
- */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun InstallingButtons(
+    progress: Int,
     onCancel: () -> Unit
 ) {
     // 默认回退色：淡蓝 0xFF29B6F6；若启用壁纸莫奈动态色(Android 12+)，则跟随主题 primary
     val useMonet = LocalThemeStateHolder.current.state.useDynamicColor &&
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val indicatorColor = if (useMonet) MaterialTheme.colorScheme.primary else Color(0xFF29B6F6)
+    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+
+    // 平滑过渡进度值（与 InstallerX 安装对话框一致）
+    val animatedProgress by animateFloatAsState(
+        targetValue = (progress / 100f).coerceIn(0f, 1f),
+        animationSpec = tween(durationMillis = 300),
+        label = "InstallProgressAnimation"
+    )
 
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Material 3 Expressive 加载指示器 - 居中显示（替换原假线性进度条）
+        // 图形加载动画 - Material 3 包含式加载指示器（中心稳定，无漂移）
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
             contentAlignment = Alignment.Center
         ) {
-            LoadingIndicator(color = indicatorColor)
+            ContainedLoadingIndicator(
+                modifier = Modifier.size(40.dp),
+                indicatorColor = indicatorColor,
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            )
         }
+
+        // 安装进度 - 线性波浪进度条（Material 3 Expressive，参考 InstallerX 安装对话框）
+        if (progress > 0) {
+            LinearWavyProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+                color = indicatorColor,
+                trackColor = trackColor
+            )
+        } else {
+            LinearWavyProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+                color = indicatorColor,
+                trackColor = trackColor
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
         
         // 取消按钮 - OutlinedButton，圆角16dp，边框2dp，高度48dp
         OutlinedButton(

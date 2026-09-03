@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import io.github.huidoudour.installer.R
+import io.github.huidoudour.installer.ui.theme.AppTheme
 import io.github.huidoudour.installer.util.LanguageManager
 import io.github.huidoudour.installer.auth.ShellExecutor
 import io.github.huidoudour.installer.util.ThemeManager
@@ -60,22 +61,24 @@ class InstallDialogActivity : AppCompatActivity() {
         }
 
         setContent {
-            if (installUri != null) {
-                InstallDialog(
-                    installUri = installUri,
-                    onDismiss = {
-                        finish()
-                    },
-                    onInstallComplete = {
-                        finish()
-                    },
-                    onOpenApp = { packageName ->
-                        // 使用 Shizuku Shell 启动应用，绕过系统链式启动拦截
-                        launchAppViaShizuku(packageName)
-                    }
-                )
-            } else {
-                finish()
+            AppTheme {
+                if (installUri != null) {
+                    InstallDialog(
+                        installUri = installUri,
+                        onDismiss = {
+                            finish()
+                        },
+                        onInstallComplete = {
+                            finish()
+                        },
+                        onOpenApp = { packageName ->
+                            // 使用 Shizuku Shell 启动应用，绕过系统链式启动拦截
+                            launchAppViaShizuku(packageName)
+                        }
+                    )
+                } else {
+                    finish()
+                }
             }
         }
     }
