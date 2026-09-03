@@ -9,9 +9,9 @@ navigationFragment = "2.9.8"
 navigationUi = "2.9.8"
 lifecycleLivedataKtx = "2.11.0"
 lifecycleViewmodelKtx = "2.11.0"
-composeBom = "2026.06.01"
-composeRuntime = "1.11.4"
-composeUi = "1.11.4"
+composeBom = "2026.08.00"
+composeRuntime = "1.12.0"
+composeUi = "1.12.0"
 composeMaterial3 = "1.4.0"
 navigationCompose = "2.9.8"
 accompanist = "0.37.3"
@@ -30,7 +30,6 @@ compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = 
 compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "composeRuntime" }
 compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "composeUi" }
 compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "composeUi" }
-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "composeUi" }
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "composeUi" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "composeMaterial3" }
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
