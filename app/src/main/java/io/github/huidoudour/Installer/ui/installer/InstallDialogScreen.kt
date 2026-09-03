@@ -11,6 +11,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,8 +30,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -207,7 +209,6 @@ private fun InstallDialogContent(
                     state.isInstalling -> {
                         // 安装进度按钮
                         InstallingButtons(
-                            progress = state.installProgress,
                             onCancel = {
                                 state = state.copy(isInstalling = false)
                             }
@@ -464,24 +465,23 @@ fun InstallButtons(
 /**
  * 安装进度按钮区域 - 完全匹配 dialog_install.xml 布局
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun InstallingButtons(
-    progress: Int,
     onCancel: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 线性进度条 - trackThickness=8dp, trackCornerRadius=4dp
-        LinearProgressIndicator(
+        // Material 3 Expressive 加载指示器 - 居中显示（替换原假线性进度条）
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
-            gapSize = 0.dp
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            LoadingIndicator()
+        }
         
         // 取消按钮 - OutlinedButton，圆角16dp，边框2dp，高度48dp
         OutlinedButton(
