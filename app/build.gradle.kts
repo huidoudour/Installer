@@ -40,6 +40,12 @@ fun getGitCommitHash(): String {
 val appVersionCode = baseVersionCode + getGitCommitCount()
 val appVersionName = "${baseVersionName}.${getGitCommitCount()}.${getGitCommitHash()}"
 
+tasks.matching { it.name.startsWith("assemble") || it.name.startsWith("bundle") }.configureEach {
+    doLast {
+        println(">>> Installer-[$name]: $appVersionName($appVersionCode) <<<")
+    }
+}
+
 android {
     namespace = "io.github.huidoudour.installer"
     compileSdk = 37
