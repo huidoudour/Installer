@@ -190,6 +190,7 @@ dependencies {
     implementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.extended)
+    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
     implementation(libs.accompanist.drawablepainter)
@@ -218,5 +219,5 @@ dependencies {
     // MTDataFilesProvider,documentfile
     debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
     debugImplementation("androidx.documentfile:documentfile:1.1.0")
-    debugImplementation(libs.compose.ui.tooling.preview)
+
 }
