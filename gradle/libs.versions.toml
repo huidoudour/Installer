@@ -16,6 +16,7 @@ composeMaterial3 = "1.4.0"
 navigationCompose = "2.9.8"
 accompanist = "0.37.3"
 materialKolor = "5.0.0"
+composeUiPreview = "1.13.0-alpha02"
 
 [libraries]
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -37,6 +38,7 @@ activity-compose = { group = "androidx.activity", name = "activity-compose", ver
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 accompanist-drawablepainter = { group = "com.google.accompanist", name = "accompanist-drawablepainter", version.ref = "accompanist" }
 material-kolor = { group = "com.materialkolor", name = "material-kolor-android", version.ref = "materialKolor" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "composeUiPreview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
