@@ -41,7 +41,7 @@ val appVersionCode = baseVersionCode + getGitCommitCount()
 val appVersionName = "${baseVersionName}.${getGitCommitCount()}.${getGitCommitHash()}"
 
 android {
-    namespace = "io.github.huidoudour.Installer"
+    namespace = "io.github.huidoudour.installer"
     compileSdk = 37
     ndkVersion = "30.0.14904198"
 
