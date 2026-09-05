@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import io.github.huidoudour.installer.R
+import io.github.huidoudour.installer.auth.ShellExecutor
 import io.github.huidoudour.installer.ui.theme.AppTheme
 import io.github.huidoudour.installer.util.LanguageManager
-import io.github.huidoudour.installer.auth.ShellExecutor
 import io.github.huidoudour.installer.util.ThemeManager
 
 /**

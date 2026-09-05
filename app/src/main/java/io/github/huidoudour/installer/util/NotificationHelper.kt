@@ -7,8 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import io.github.huidoudour.installer.ui.MainActivity
 import io.github.huidoudour.installer.R
+import io.github.huidoudour.installer.ui.MainActivity
 
 /**
  * 通知助手类

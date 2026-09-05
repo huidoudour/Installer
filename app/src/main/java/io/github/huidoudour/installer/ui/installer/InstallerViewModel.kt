@@ -9,10 +9,10 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.huidoudour.installer.auth.DhizukuInstallHelper
-import io.github.huidoudour.installer.util.LogManager
 import io.github.huidoudour.installer.auth.PrivilegeHelper
 import io.github.huidoudour.installer.auth.ShizukuInstallHelper
 import io.github.huidoudour.installer.install.XapkInstaller
+import io.github.huidoudour.installer.util.LogManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

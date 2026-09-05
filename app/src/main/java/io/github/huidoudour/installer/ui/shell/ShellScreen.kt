@@ -58,14 +58,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import android.graphics.Typeface as AndroidTypeface
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.installer.R
-import io.github.huidoudour.installer.terminal.CommandBookmarks
 import io.github.huidoudour.installer.auth.ShellExecutor
+import io.github.huidoudour.installer.terminal.CommandBookmarks
+import android.graphics.Typeface as AndroidTypeface
 
 /**
  * 终端 Shell 页面 - 类似 Termux 的全屏终端模拟器

@@ -6,11 +6,11 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.huidoudour.installer.R
-import io.github.huidoudour.installer.util.LanguageManager
 import io.github.huidoudour.installer.auth.PrivilegeHelper
-import io.github.huidoudour.installer.util.ThemeManager
+import io.github.huidoudour.installer.util.LanguageManager
 import io.github.huidoudour.installer.util.LoaderAnimationMode
 import io.github.huidoudour.installer.util.LoaderAnimationPrefs
+import io.github.huidoudour.installer.util.ThemeManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

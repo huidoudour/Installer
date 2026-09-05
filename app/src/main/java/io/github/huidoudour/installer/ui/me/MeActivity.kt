@@ -1,9 +1,9 @@
 package io.github.huidoudour.installer.ui.me
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import io.github.huidoudour.installer.ui.theme.AppTheme
 import io.github.huidoudour.installer.util.LanguageManager

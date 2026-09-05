@@ -48,9 +48,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,11 +57,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.installer.R
+import io.github.huidoudour.installer.auth.PrivilegeHelper
 import io.github.huidoudour.installer.ui.dialogs.InstallerRequesterPackageDialog
 import io.github.huidoudour.installer.ui.theme.SmallShape
-import io.github.huidoudour.installer.auth.PrivilegeHelper
 import io.github.huidoudour.installer.util.FilePickerHelper
 
 // Brand colors matching source project button tints

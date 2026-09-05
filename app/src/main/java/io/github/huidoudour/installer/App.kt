@@ -2,10 +2,10 @@ package io.github.huidoudour.installer
 
 import android.app.Application
 import android.os.Build
+import io.github.huidoudour.installer.auth.PrivilegeHelper
 import io.github.huidoudour.installer.util.LanguageManager
 import io.github.huidoudour.installer.util.LogManager
 import io.github.huidoudour.installer.util.NativeCrashHandler
-import io.github.huidoudour.installer.auth.PrivilegeHelper
 import io.github.huidoudour.installer.util.ThemeManager
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 

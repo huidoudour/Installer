@@ -54,26 +54,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.huidoudour.installer.R
-import kotlinx.coroutines.launch
+import io.github.huidoudour.installer.auth.PrivilegeHelper
 import io.github.huidoudour.installer.ui.dialogs.InstallerPackageDialog
 import io.github.huidoudour.installer.ui.dialogs.LanguageSelectionDialog
 import io.github.huidoudour.installer.ui.dialogs.ThemeSelectionDialog
@@ -83,8 +83,8 @@ import io.github.huidoudour.installer.ui.theme.SegmentedGap
 import io.github.huidoudour.installer.ui.theme.SmallShape
 import io.github.huidoudour.installer.ui.theme.segmentedShape
 import io.github.huidoudour.installer.ui.theme.singleShape
-import io.github.huidoudour.installer.auth.PrivilegeHelper
 import io.github.huidoudour.installer.util.LoaderAnimationMode
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
