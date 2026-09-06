@@ -75,6 +75,41 @@ jobs:
           fi
           echo "TAG_NAME=$tag" >> $GITHUB_ENV
 
+      - name: Generate changelog from preceding tag
+        id: changelog
+        run: |
+          CURRENT_TAG="${{ env.TAG_NAME }}"
+
+          # 仅取纯数字版本号的正式 tag，排除 beta/rc/alpha/pre/test 等预发布标签
+          TAGS=$(git tag --sort=-version:refname --list 'v*' | grep -E '^v[0-9]+(\.[0-9]+)*$')
+
+          PREV_TAG=""
+          if [ "${{ github.event_name }}" == "push" ]; then
+            # 推送 tag 触发：找当前 tag 之前最近的一个正式 tag
+            PREV_TAG=$(echo "$TAGS" | awk -v cur="$CURRENT_TAG" '$0==cur{found=1;next} found==1{print;exit}')
+          fi
+          # 手动触发或首个正式 tag 时，回退为最新的正式 tag
+          if [ -z "$PREV_TAG" ]; then
+            echo "No preceding stable tag found, falling back to latest stable tag."
+            PREV_TAG=$(echo "$TAGS" | head -n1)
+          fi
+
+          echo "CURRENT_TAG=$CURRENT_TAG"
+          echo "PREV_TAG=${PREV_TAG:-<none>}"
+
+          if [ -n "$PREV_TAG" ] && [ "$PREV_TAG" != "$CURRENT_TAG" ]; then
+            COMMITS=$(git log --oneline --no-merges "$PREV_TAG..HEAD")
+          else
+            COMMITS=$(git log --oneline --no-merges)
+          fi
+
+          # 去掉 commit hash，仅保留提交描述，并生成 Markdown 列表
+          FORMATTED=$(echo "$COMMITS" | sed -E 's/^[0-9a-f]{7,40}[[:space:]]+//' | sed 's/^/- /')
+
+          echo "commits<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$FORMATTED" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
       - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
@@ -83,7 +118,16 @@ jobs:
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            ## 更新内容
+            ${{ steps.changelog.outputs.commits }}
 
+            ### 安装说明
+            下载并安装 APK 文件即可使用。
+            
+            > [!TIP]
+            > 此app需要使用到ADB权限
+            > 此app需要使用授予的设备所有者权限
       - name: Upload APKs to Release
         run: |
           assets_dir="app/build/outputs/apk/release"
