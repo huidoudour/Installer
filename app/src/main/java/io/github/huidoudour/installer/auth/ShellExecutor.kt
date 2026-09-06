@@ -619,7 +619,7 @@ object ShellExecutor {
             ptySession = null
             shizukuSession = session
             session
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e(TAG, "Failed to start Shizuku session", e)
             callback.onError("Shizuku init failed: ${e.message}")
             null
@@ -646,7 +646,8 @@ object ShellExecutor {
             session.startReading()
             ptySession = session
             session
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            // 捕获 Error (如原生库缺失/符号不匹配抛出的 UnsatisfiedLinkError)，避免终端页崩溃
             Log.e(TAG, "Failed to start PTY session", e)
             callback.onError("PTY init failed: ${e.message}")
             null
