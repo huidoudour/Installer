@@ -8,7 +8,7 @@ plugins {
 
 // 共用版本号与版本名
 val baseVersionCode = 8000
-val baseVersionName = "26.09.2"
+val baseVersionName = "26.09.3"
 
 // 构建时的日期+时间
 fun getBuildDateTime(): String {

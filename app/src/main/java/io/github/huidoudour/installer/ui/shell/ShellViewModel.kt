@@ -47,7 +47,8 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         val welcome = buildString {
             append("Type help for command list\n")
         }
-        terminal.feed(welcome.toByteArray(), welcome.toByteArray().size)
+        val welcomeBytes = welcome.toByteArray()
+        terminal.feed(welcomeBytes, welcomeBytes.size)
 
         // 尝试启动 PTY 会话
         initPtySession()
@@ -58,27 +59,32 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             callback = object : ShellExecutor.ExecuteCallback {
                 override fun onOutput(line: String) {
                     // PTY 输出直接喂入终端模拟器 (已包含 \n, 不额外追加)
-                    terminal.feed(line.toByteArray(Charsets.UTF_8), line.toByteArray(Charsets.UTF_8).size)
+                    val bytes = line.toByteArray(Charsets.UTF_8)
+                    terminal.feed(bytes, bytes.size)
                 }
                 override fun onError(error: String) {
-                    terminal.feed(error.toByteArray(Charsets.UTF_8), error.toByteArray(Charsets.UTF_8).size)
+                    val bytes = error.toByteArray(Charsets.UTF_8)
+                    terminal.feed(bytes, bytes.size)
                 }
                 override fun onComplete(exitCode: Int) {}
             },
             rows = ptyRowCount,
-            cols = ptyColCount
+            cols = ptyColCount,
+            cwd = ShellExecutor.defaultShellCwd(getApplication())
         )
         if (session != null) {
             ptyMode = true
             ptySupported = true
             val mode = if (ShellExecutor.isShizukuAvailable()) "Shizuku" else "PTY"
             val msg = "[*] $mode terminal mode enabled\n"
-            terminal.feed(msg.toByteArray(Charsets.UTF_8), msg.toByteArray(Charsets.UTF_8).size)
+            val msgBytes = msg.toByteArray(Charsets.UTF_8)
+            terminal.feed(msgBytes, msgBytes.size)
         } else {
             ptyMode = false
             ptySupported = false
             val msg = "[!] Terminal unavailable\n"
-            terminal.feed(msg.toByteArray(Charsets.UTF_8), msg.toByteArray(Charsets.UTF_8).size)
+            val msgBytes = msg.toByteArray(Charsets.UTF_8)
+            terminal.feed(msgBytes, msgBytes.size)
         }
     }
 

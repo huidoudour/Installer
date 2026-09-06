@@ -10,6 +10,7 @@ import io.github.huidoudour.installer.terminal.TermuxBridge
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.BufferedWriter
+import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 
@@ -581,6 +582,18 @@ object ShellExecutor {
     // ========== PTY / Shizuku 会话公共 API ==========
 
     /**
+     * 计算终端会话的默认工作目录:
+     *  - Shizuku 可用: /data/local/tmp (shell UID 权限)
+     *  - 否则: app 私有目录 (app 对其拥有完全读写权限, 避免 Scoped Storage 下无法访问 /sdcard)
+     */
+    fun defaultShellCwd(context: Context): String {
+        if (isShizukuAvailable()) return "/data/local/tmp"
+        val home = File(context.filesDir, "home")
+        if (!home.exists()) home.mkdirs()
+        return home.absolutePath
+    }
+
+    /**
      * 启动终端会话 (自动选择模式):
      * - Shizuku 可用: ShizukuShellSession (shell UID 权限, pipe I/O)
      * - Shizuku 不可用: PtyShellSession (app UID, 真 PTY)
@@ -589,7 +602,7 @@ object ShellExecutor {
         callback: ExecuteCallback,
         rows: Int = 24,
         cols: Int = 80,
-        cwd: String = if (isShizukuAvailable()) "/data/local/tmp" else "/sdcard"
+        cwd: String = if (isShizukuAvailable()) "/data/local/tmp" else "/"
     ): Any? {
         destroyPtySession()
 
@@ -634,7 +647,7 @@ object ShellExecutor {
         callback: ExecuteCallback,
         rows: Int = 24,
         cols: Int = 80,
-        cwd: String = if (isShizukuAvailable()) "/data/local/tmp" else "/sdcard"
+        cwd: String = if (isShizukuAvailable()) "/data/local/tmp" else "/"
     ): PtyShellSession? {
         // 清理旧会话
         destroyPtySession()

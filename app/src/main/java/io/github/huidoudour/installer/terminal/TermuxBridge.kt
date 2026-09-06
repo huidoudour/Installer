@@ -1,6 +1,7 @@
 package io.github.huidoudour.installer.terminal
 
 import android.util.Log
+import java.io.File
 
 /**
  * TermuxBridge - PTY 子进程管理桥接库
@@ -206,11 +207,30 @@ object TermuxBridge {
         // 使用标准的 sh，直接传递 sh 作为命令
         // 通过 PTY 交互
         val processId = IntArray(1)
+        // 通过 sh 的 ENV 机制在启动时静默加载 .mkshrc，设置简洁提示符。
+        // 设备 sh (mksh/ash) 不解析 PS1 的 \w 转义，故用命令替换 (POSIX 标准) 动态计算:
+        //   $HOME 下显示 ~，其子目录显示 ~/xx，其它目录显示完整路径
+        val rcFile = File(cwd, ".mkshrc")
+        try {
+            rcFile.writeText(
+                "export PS1='\$(case \"\$PWD\" in \"\$HOME\") printf \"~ \$ \";; \"\$HOME\"/*) printf \"~%s \$ \" \"\${PWD#\$HOME}\";; *) printf \"%s \$ \" \"\$PWD\";; esac)'\n"
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to write .mkshrc", e)
+        }
+        // 提供基础环境变量，避免 C 层 clearenv() 后 shell 无 PATH/HOME，导致命令与提示符异常
+        val envVars = arrayOf(
+            "PATH=/system/bin:/system/xbin:/vendor/bin:/sbin:/su/bin",
+            "HOME=$cwd",
+            "TERM=xterm-256color",
+            "PWD=$cwd",
+            "ENV=${rcFile.absolutePath}"
+        )
         val ptyFd = nativeCreateSubprocess(
             cmd = "sh",
             cwd = cwd,
             args = arrayOf("sh"),
-            envVars = null,
+            envVars = envVars,
             processId = processId,
             rows = rows,
             cols = cols
