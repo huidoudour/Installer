@@ -675,4 +675,6 @@
     <string name="loader_animation_settings">Анимация загрузки</string>
     <string name="loader_animation_graphic">Графическая</string>
     <string name="loader_animation_wave">Волнистый индикатор</string>
+    <string name="changelog_title">Журнал изменений</string>
+    <string name="changelog_empty">Записей пока нет</string>
 </resources>

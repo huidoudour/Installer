@@ -675,4 +675,6 @@
     <string name="loader_animation_settings">読み込みアニメーション</string>
     <string name="loader_animation_graphic">グラフィック</string>
     <string name="loader_animation_wave">波状プログレスバー</string>
+    <string name="changelog_title">更新ログ</string>
+    <string name="changelog_empty">コミット記録はありません</string>
 </resources>

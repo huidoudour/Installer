@@ -46,6 +46,28 @@ tasks.matching { it.name.startsWith("assemble") || it.name.startsWith("bundle") 
     }
 }
 
+// 生成 Git 提交记录（markdown，最新提交在最上方）到 assets，供更新日志页面渲染
+val generateGitLog = tasks.register("generateGitLog") {
+    description = "ChangeLog"
+    doLast {
+        val outputFile = file("src/main/assets/git_commits.md")
+        val text = try {
+            providers.exec {
+                commandLine("git", "log", "--pretty=format:### %s%n%b%n")
+                workingDir(rootProject.projectDir)
+            }.standardOutput.asText.get()
+        } catch (_: Exception) {
+            "# 暂无提交记录"
+        }
+        outputFile.parentFile?.mkdirs()
+        outputFile.writeText(text, Charsets.UTF_8)
+    }
+}
+
+tasks.named("preBuild") {
+    dependsOn(generateGitLog)
+}
+
 android {
     namespace = "io.github.huidoudour.installer"
     compileSdk = 37
@@ -220,6 +242,9 @@ dependencies {
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
 
     implementation("androidx.core:core-ktx:1.19.0")
+
+    // Markdown 渲染（更新日志页面）
+    implementation(libs.markwon.core)
     // ====== 必要依赖结束 ======
     // 测试依赖
     // MTDataFilesProvider,documentfile

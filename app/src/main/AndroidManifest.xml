@@ -143,6 +143,12 @@
             android:exported="false"
             android:theme="@style/Theme.Installer" />
 
+        <!-- ChangelogActivity -->
+        <activity
+            android:name=".ui.changelog.ChangelogActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Installer" />
+
         <!-- Shizuku provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"

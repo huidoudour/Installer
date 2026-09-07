@@ -675,4 +675,6 @@
     <string name="loader_animation_settings">載入動畫</string>
     <string name="loader_animation_graphic">圖形載入</string>
     <string name="loader_animation_wave">線性波浪條</string>
+    <string name="changelog_title">更新日誌喵</string>
+    <string name="changelog_empty">咩提交記錄</string>
 </resources>

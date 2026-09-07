@@ -675,4 +675,6 @@
     <string name="loader_animation_settings">Loading Animation</string>
     <string name="loader_animation_graphic">Graphic</string>
     <string name="loader_animation_wave">Wavy progress bar</string>
+    <string name="changelog_title">Changelog</string>
+    <string name="changelog_empty">No commits yet</string>
 </resources>

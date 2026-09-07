@@ -90,6 +90,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsScreen(
     onNavigateToMe: () -> Unit = {},
+    onNavigateToChangelog: () -> Unit = {},
     viewModel: SettingsViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -172,10 +173,11 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // About App card - with Easter egg and Me navigation
+        // About App card - with Easter egg, Changelog and Me navigation
         AboutAppCard(
             context = context,
-            onNavigateToMe = onNavigateToMe
+            onNavigateToMe = onNavigateToMe,
+            onNavigateToChangelog = onNavigateToChangelog
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -383,7 +385,8 @@ private fun PrivilegeSettingsCard(
 @Composable
 private fun AboutAppCard(
     context: android.content.Context,
-    onNavigateToMe: () -> Unit
+    onNavigateToMe: () -> Unit,
+    onNavigateToChangelog: () -> Unit
 ) {
     val versionDisplayText = try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -394,10 +397,9 @@ private fun AboutAppCard(
         context.getString(R.string.unknown)
     }
 
-    // Easter egg: tap version 6 times within 2 seconds
+    // 彩蛋：点击版本号 6 次（2 秒内）静默进入更新日志页面
     var tapCount by remember { mutableIntStateOf(0) }
     var lastTapTime by remember { mutableStateOf(0L) }
-    var showEasterEgg by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -459,8 +461,9 @@ private fun AboutAppCard(
                     if (now - lastTapTime < 2000) {
                         tapCount++
                         if (tapCount >= 6) {
-                            showEasterEgg = true
                             tapCount = 0
+                            // 点击进入前后无需任何提示，直接静默跳转
+                            onNavigateToChangelog()
                         }
                     } else {
                         tapCount = 1
@@ -477,13 +480,6 @@ private fun AboutAppCard(
         Spacer(modifier = Modifier.height(4.dp))
     }
 
-    // Easter egg toast
-    if (showEasterEgg) {
-        LaunchedEffect(Unit) {
-            Toast.makeText(context, context.getString(R.string.easter_egg_text), Toast.LENGTH_SHORT).show()
-            showEasterEgg = false
-        }
-    }
 }
 
 private data class SettingItemData(

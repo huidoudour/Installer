@@ -34,6 +34,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.huidoudour.installer.R
+import io.github.huidoudour.installer.ui.changelog.ChangelogActivity
 import io.github.huidoudour.installer.ui.installer.InstallerScreen
 import io.github.huidoudour.installer.ui.logs.LogsScreen
 import io.github.huidoudour.installer.ui.me.MeActivity
@@ -140,6 +141,10 @@ fun MainScreen() {
                 SettingsScreen(
                     onNavigateToMe = {
                         val intent = Intent(context, MeActivity::class.java)
+                        context.startActivity(intent)
+                    },
+                    onNavigateToChangelog = {
+                        val intent = Intent(context, ChangelogActivity::class.java)
                         context.startActivity(intent)
                     }
                 )

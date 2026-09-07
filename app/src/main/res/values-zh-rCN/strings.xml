@@ -675,4 +675,6 @@
     <string name="loader_animation_settings">加载动画</string>
     <string name="loader_animation_graphic">图形加载</string>
     <string name="loader_animation_wave">线性波浪条</string>
+    <string name="changelog_title">更新日志</string>
+    <string name="changelog_empty">暂无提交记录</string>
 </resources>
