@@ -11,6 +11,7 @@
     <string name="authorization_method">認証方式</string>
     <string name="shizuku">Shizuku</string>
     <string name="dhizuku">Dhizuku</string>
+    <string name="axmanager">AxManager</string>
     <string name="grant">付与</string>
     <string name="install_dialog_title">インストールダイアログ</string>
     <string name="select_apk">APKを選択</string>

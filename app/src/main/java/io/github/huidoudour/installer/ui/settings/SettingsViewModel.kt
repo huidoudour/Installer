@@ -122,7 +122,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED,
                 PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> {
                     when (_privilegeMode.value) {
-                        PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
+                        // AxManager 对 rikka 客户端表现为 Shizuku v3 服务，请求授权方式相同
+                        PrivilegeHelper.PrivilegeMode.SHIZUKU,
+                        PrivilegeHelper.PrivilegeMode.AXMANAGER -> {
                             PrivilegeHelper.requestShizukuPermission(123)
                         }
                         PrivilegeHelper.PrivilegeMode.DHIZUKU -> {

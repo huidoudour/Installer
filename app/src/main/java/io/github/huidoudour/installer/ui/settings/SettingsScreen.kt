@@ -596,11 +596,13 @@ private fun PrivilegeSelectionDialog(
 
     var shizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
     var dhizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
+    var axmanagerStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
 
     LaunchedEffect(Unit) {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             shizukuStatus = PrivilegeHelper.checkShizukuStatus()
             dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
+            axmanagerStatus = PrivilegeHelper.checkAxManagerStatus(context)
         }
     }
 
@@ -717,12 +719,65 @@ private fun PrivilegeSelectionDialog(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // AxManager 卡片（Shizuku v3 兼容服务，可作为原版 Shizuku 的替代）
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.AXMANAGER },
+                    shape = SmallShape,
+                    color = if (selectedMode == PrivilegeHelper.PrivilegeMode.AXMANAGER)
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    else MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = if (selectedMode == PrivilegeHelper.PrivilegeMode.AXMANAGER)
+                        androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AppIcon(
+                            packageName = PrivilegeHelper.AXMANAGER_PACKAGE,
+                            size = 40
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(stringResource(R.string.axmanager), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
+                            Text(
+                                text = when (axmanagerStatus) {
+                                    PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> stringResource(R.string.privilege_status_authorized)
+                                    PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> stringResource(R.string.privilege_status_not_authorized)
+                                    PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> stringResource(R.string.privilege_status_not_installed)
+                                    PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> stringResource(R.string.privilege_status_not_running)
+                                    PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> stringResource(R.string.privilege_status_version_too_low)
+                                    else -> stringResource(R.string.checking)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (axmanagerStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
+                            TextButton(onClick = {
+                                PrivilegeHelper.requestShizukuPermission(456)
+                            }) {
+                                Text(stringResource(R.string.request_authorization))
+                            }
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
             TextButton(onClick = {
                 if (selectedMode != privilegeMode) {
-                    viewModel.switchPrivilegeMode()
+                    // 三个授权器选项：直接持久化所选授权器（不再依赖单步循环切换）
+                    PrivilegeHelper.saveCurrentMode(context, selectedMode)
+                    viewModel.refreshPrivilegeStatus()
                 }
                 onDismiss()
             }) {
