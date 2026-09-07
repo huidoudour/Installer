@@ -229,7 +229,6 @@ dependencies {
 
     // ====== 必要依赖开始 ======
     // Hidden API for Dhizuku binder wrapper
-    // (compileOnly - uses system framework at runtime)
     compileOnly(project(":hidden-api"))
     // Shizuku api/provider
     implementation("dev.rikka.shizuku:api:13.1.5")
@@ -243,8 +242,6 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.19.0")
 
-    // Markdown 渲染（更新日志页面）
-    implementation(libs.markwon.core)
     // ====== 必要依赖结束 ======
     // 测试依赖
     // MTDataFilesProvider,documentfile

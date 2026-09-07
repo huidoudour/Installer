@@ -2,10 +2,6 @@
 
 ## 特性介绍
 
-### 迁移
- - 迁移至 Kotlin
- - 使用 JetPack Compose
-
 ### 安装器
  - 使用Shizuku授权安装
  - 使用Dhizuku授权安装
@@ -29,5 +25,6 @@
 - [DP-Hridayan/aShellYou](https://github.com/DP-Hridayan/aShellYou)<br>
 - [sunilpaulmathew/ashell](https://gitlab.com/sunilpaulmathew/ashell)<br>
 - [termux/termux-app](https://github.com/termux/termux-app)<br>
+- [fahrez182/AxManager](https://github.com/fahrez182/AxManager)<br>
 
 > 若有任何涉及到侵权的地方，请联系我。

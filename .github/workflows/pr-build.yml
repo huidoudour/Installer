@@ -3,16 +3,6 @@ name: PR compile build
 on:
   pull_request:
     branches: [ master ]
-    paths:
-      - 'app/src/**'
-      - 'app/build.gradle.kts'
-      - 'app/CMakeLists.txt'
-      - 'gradle/**'
-      - 'gradle.properties'
-      - 'gradlew'
-      - 'gradlew.bat'
-      - 'settings.gradle.kts'
-      - 'build.gradle.kts'
 
 permissions:
   contents: read

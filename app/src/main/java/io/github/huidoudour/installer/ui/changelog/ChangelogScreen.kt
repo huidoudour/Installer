@@ -1,14 +1,15 @@
 package io.github.huidoudour.installer.ui.changelog
 
-import android.widget.TextView
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -16,25 +17,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import io.github.huidoudour.installer.R
-import io.noties.markwon.Markwon
 
 /**
  * 更新日志页面
- * 读取构建时由 generateGitLog 生成的 assets/git_commits.md，并通过 Markwon 渲染为 Markdown。
- * 每个提交为一个独立块（卡片），块内单行不换行、可独立横向滑动，不显示文本选择/链接等互动条。
+ * 读取构建时由 generateGitLog 生成的 assets/git_commits.md。
+ * 参考 app-base 的做法，用轻量文本解析替代昂贵的 Markwon 渲染，避免列表滚动卡顿：
+ * 每个提交为一个独立块，块内单行不换行、可独立横向滑动，无文本选择/链接交互。
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,11 +50,9 @@ fun ChangelogScreen(onNavigateBack: () -> Unit) {
         }
     }
 
-    val markwon = remember { Markwon.create(context) }
-    val textColor = MaterialTheme.colorScheme.onSurface
-
-    // 每个以 "### " 开头的提交拆分为一个独立块
+    // 轻量拆分：把 markdown 解析为结构化提交块，替代 Markwon 的整套渲染
     val blocks = remember(mdText) { parseBlocks(mdText) }
+    val textColor = MaterialTheme.colorScheme.onSurface
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -74,63 +70,88 @@ fun ChangelogScreen(onNavigateBack: () -> Unit) {
             )
         }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 16.dp)
         ) {
-            blocks.forEach { block ->
-                ChangelogBlock(md = block, markwon = markwon, textColor = textColor)
+            // 懒加载：只组合可见的块；用索引作 key 保证唯一，即使存在内容重复的提交块也不会崩溃
+            itemsIndexed(blocks) { index, block ->
+                ChangelogBlock(index = index, block = block, textColor = textColor)
             }
         }
     }
 }
 
 /**
- * 单个提交块：卡片内一个单行、可横向滑动且不换行的 Markdown 渲染视图
+ * 单个提交块：单行不换行、可横向滑动的文本（无卡片包裹，与参考实现一致）
  */
 @Composable
 private fun ChangelogBlock(
-    md: String,
-    markwon: Markwon,
-    textColor: Color
+    index: Int,
+    block: MdBlock,
+    textColor: androidx.compose.ui.graphics.Color
 ) {
-    val scrollState = rememberScrollState()
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainerLow
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(top = if (index == 0) 0.dp else 12.dp, bottom = 8.dp)
     ) {
-        AndroidView(
-            modifier = Modifier
-                .horizontalScroll(scrollState)
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            factory = { ctx ->
-                TextView(ctx).apply {
-                    // 保留多行换行显示；每行文字超出屏幕宽度时不自动折行，
-                    // 而是靠外层 horizontalScroll 横向滑动查看完整的一行
-                    setHorizontallyScrolling(true)
-                    setTextColor(textColor.toArgb())
-                    textSize = 15f
-                    setTextIsSelectable(false)
-                    setText(markwon.toMarkdown(md))
-                }
-            }
+        Text(
+            text = block.header,
+            fontWeight = FontWeight.Bold,
+            color = textColor,
+            softWrap = false
         )
+        Spacer(modifier = Modifier.height(4.dp))
+        block.items.forEach { item ->
+            Text(
+                text = "• $item",
+                color = textColor,
+                softWrap = false,
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
+        }
     }
 }
 
+/** 一个提交块：标题 + 若干正文行 */
+private data class MdBlock(val header: String, val items: List<String>)
+
 /**
- * 将整份 markdown 日志按 "### " 提交标题拆分为多个独立块
+ * 将整份 markdown 日志按 "### " 提交标题拆分为多个结构化块。
+ * 只解析标题与列表项，避免 Markwon 对整份文本做沉重的 Markdown 解析。
  */
-private fun parseBlocks(md: String): List<String> {
+private fun parseBlocks(md: String): List<MdBlock> {
     val trimmed = md.trim()
     if (trimmed.isBlank()) return emptyList()
-    return trimmed.split(Regex("(?m)(?=^### )"))
-        .map { it.trim() }
-        .filter { it.isNotEmpty() }
+
+    val blocks = mutableListOf<MdBlock>()
+    var header: String? = null
+    val items = mutableListOf<String>()
+
+    fun flush() {
+        val h = header ?: return
+        blocks.add(MdBlock(h, items.toList()))
+        items.clear()
+        header = null
+    }
+
+    for (line in trimmed.lines()) {
+        val t = line.trim()
+        when {
+            t.startsWith("### ") -> {
+                flush()
+                header = t.removePrefix("### ").trim()
+            }
+
+            t.startsWith("- ") -> items.add(t.removePrefix("- ").trim())
+            t.isBlank() -> flush()
+            else -> items.add(t)
+        }
+    }
+    flush()
+    return blocks
 }
