@@ -70,11 +70,15 @@ tasks.named("preBuild") {
 
 android {
     namespace = "io.github.huidoudour.installer"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
     ndkVersion = "30.0.14904198"
 
     defaultConfig {
-        applicationId = "io.github.huidoudour.Installer"
+        applicationId = namespace
         minSdk = 28
         targetSdk = 37
         versionCode = appVersionCode
