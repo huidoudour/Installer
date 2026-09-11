@@ -11,7 +11,6 @@
     <string name="authorization_method">Authorization Method</string>
     <string name="shizuku">Shizuku</string>
     <string name="dhizuku">Dhizuku</string>
-    <string name="axmanager">AxManager</string>
     <string name="grant">Grant</string>
     <string name="install_dialog_title">Installation Dialog</string>
     <string name="select_apk">Select APK File</string>

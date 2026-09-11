@@ -28,9 +28,6 @@
         <!-- Shizuku 应用 -->
         <package android:name="moe.shizuku.privileged.api" />
 
-        <!-- AxManager（Shizuku v3 兼容服务，frb.axeron.manager） -->
-        <package android:name="frb.axeron.manager" />
-
         <!-- Dhizuku 应用（原版） -->
         <package android:name="com.rosan.dhizuku" />
         
@@ -68,7 +65,7 @@
     </queries>
 
     <application
-        android:name=".App"
+        android:name="dev.huidoudour.installer.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -77,7 +74,7 @@
         android:theme="@style/Theme.Installer"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".ui.MainActivity"
+            android:name="dev.huidoudour.installer.ui.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -89,7 +86,7 @@
 
         <!-- 独立的安装对话框 Activity -->
         <activity
-            android:name=".ui.installer.InstallDialogActivity"
+            android:name="dev.huidoudour.installer.ui.installer.InstallDialogActivity"
             android:exported="true"
             android:theme="@style/Theme.Installer.Dialog"
             android:windowSoftInputMode="adjustResize"
@@ -133,19 +130,19 @@
 
         <!-- 颜色选择 Activity -->
         <activity
-            android:name=".ui.theme.ColorPickerActivity"
+            android:name="dev.huidoudour.installer.ui.theme.ColorPickerActivity"
             android:exported="false"
             android:theme="@style/Theme.Installer.Dialog" />
 
         <!-- MeActivity -->
         <activity
-            android:name=".ui.me.MeActivity"
+            android:name="dev.huidoudour.installer.ui.me.MeActivity"
             android:exported="false"
             android:theme="@style/Theme.Installer" />
 
         <!-- ChangelogActivity -->
         <activity
-            android:name=".ui.changelog.ChangelogActivity"
+            android:name="dev.huidoudour.installer.ui.changelog.ChangelogActivity"
             android:exported="false"
             android:theme="@style/Theme.Installer" />
 
