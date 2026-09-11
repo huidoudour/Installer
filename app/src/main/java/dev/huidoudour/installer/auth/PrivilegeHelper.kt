@@ -13,7 +13,7 @@ import rikka.shizuku.Shizuku
 
 /**
  * 统一的权限管理工具类
- * 支持 Shizuku / Dhizuku / AxManager 授权方式
+ * 支持 Shizuku / Dhizuku 授权方式
  */
 object PrivilegeHelper {
 
@@ -26,23 +26,12 @@ object PrivilegeHelper {
     const val DHIZUKU_PACKAGE_CLONE = "me.huidoudour.dhizuku"
     private const val DHIZUKU_GITHUB_URL = "https://github.com/iamr0s/Dhizuku"
 
-    /**
-     * AxManager 包名。
-     * AxManager (frb.axeron.manager) 内建的 axeron_server 会伪装成 Shizuku v3 服务
-     * （同样的 IShizukuService、v13 事务码），把 binder 推送给持有 API_V23 + <pkg>.shizuku
-     * provider 的客户端。因此 Installer 无需引入任何 Axeron 依赖，
-     * 直接复用 rikka.shizuku 客户端即可把它当 Shizuku 使用。
-     */
-    const val AXMANAGER_PACKAGE = "frb.axeron.manager"
-    private const val AXMANAGER_GITHUB_URL = "https://github.com/fahrez182/AxManager"
-
     private const val PREFS_NAME = "privilege_settings"
     private const val KEY_CURRENT_MODE = "current_mode"
 
     enum class PrivilegeMode {
         SHIZUKU,
-        DHIZUKU,
-        AXMANAGER
+        DHIZUKU
     }
 
     enum class PrivilegeStatus {
@@ -115,7 +104,6 @@ object PrivilegeHelper {
         return when (mode) {
             PrivilegeMode.SHIZUKU -> isPackageInstalled(context, SHIZUKU_PACKAGE)
             PrivilegeMode.DHIZUKU -> getInstalledDhizukuPackage(context) != null
-            PrivilegeMode.AXMANAGER -> isPackageInstalled(context, AXMANAGER_PACKAGE)
         }
     }
 
@@ -142,24 +130,6 @@ object PrivilegeHelper {
         } catch (e: Exception) {
             PrivilegeStatus.NOT_RUNNING
         }
-    }
-
-    /**
-     * 检查 AxManager 状态
-     *
-     * AxManager 授权后，其 axeron_server 会以 Shizuku v3 兼容层对外提供 binder。
-     * 因此「是否运行 / 是否授权」完全复用了 [checkShizukuStatus] 的 rikka 客户端判定，
-     * 唯一差别是本方法先确认 frb.axeron.manager 已安装。
-     *
-     * 注：Shizuku 与 AxManager 对客户端暴露的是同一个 IShizukuService 协议，
-     * rikka 客户端层面无法区分 binder 来源；若两者同时在跑，取推送方（通常是后启动者）。
-     * 对以 AxManager 作为 Shizuku 替代品的用户（未装原版 Shizuku）无影响。
-     */
-    fun checkAxManagerStatus(context: Context): PrivilegeStatus {
-        if (!isPackageInstalled(context, AXMANAGER_PACKAGE)) {
-            return PrivilegeStatus.NOT_INSTALLED
-        }
-        return checkShizukuStatus()
     }
 
     /**
@@ -242,7 +212,6 @@ object PrivilegeHelper {
         return when (mode) {
             PrivilegeMode.SHIZUKU -> checkShizukuStatus()
             PrivilegeMode.DHIZUKU -> checkDhizukuStatus(context)
-            PrivilegeMode.AXMANAGER -> checkAxManagerStatus(context)
         }
     }
 
@@ -327,7 +296,6 @@ object PrivilegeHelper {
                 Log.e(TAG, "No Dhizuku installed, cannot open")
                 return
             }
-            PrivilegeMode.AXMANAGER -> AXMANAGER_PACKAGE
         }
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
         intent?.let {
@@ -343,7 +311,6 @@ object PrivilegeHelper {
         val url = when (mode) {
             PrivilegeMode.SHIZUKU -> SHIZUKU_GITHUB_URL
             PrivilegeMode.DHIZUKU -> DHIZUKU_GITHUB_URL
-            PrivilegeMode.AXMANAGER -> AXMANAGER_GITHUB_URL
         }
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -370,7 +337,6 @@ object PrivilegeHelper {
         return when (mode) {
             PrivilegeMode.SHIZUKU -> "Shizuku"
             PrivilegeMode.DHIZUKU -> "Dhizuku"
-            PrivilegeMode.AXMANAGER -> "AxManager"
         }
     }
 
@@ -402,8 +368,7 @@ object PrivilegeHelper {
         val currentMode = getCurrentMode(context)
         val newMode = when (currentMode) {
             PrivilegeMode.SHIZUKU -> PrivilegeMode.DHIZUKU
-            PrivilegeMode.DHIZUKU -> PrivilegeMode.AXMANAGER
-            PrivilegeMode.AXMANAGER -> PrivilegeMode.SHIZUKU
+            PrivilegeMode.DHIZUKU -> PrivilegeMode.SHIZUKU
         }
         saveCurrentMode(context, newMode)
         return newMode

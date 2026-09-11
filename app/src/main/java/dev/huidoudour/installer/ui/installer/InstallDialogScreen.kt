@@ -766,10 +766,7 @@ private fun performRealInstallation(
     val mainHandler = Handler(Looper.getMainLooper())
 
     when (mode) {
-        // AxManager 以 Shizuku v3 兼容层提供 binder，安装走与 Shizuku 完全相同的
-        // ShizukuBinderWrapper + PackageInstaller.Session 路径
-        PrivilegeHelper.PrivilegeMode.SHIZUKU,
-        PrivilegeHelper.PrivilegeMode.AXMANAGER -> {
+        PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
             val callback = object : ShizukuInstallHelper.InstallCallback {
                 override fun onProgress(message: String) {
                     Log.d("InstallDialog", message)
@@ -860,14 +857,11 @@ private fun InstallPrivilegeDialog(
     var dhizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
     var shizukuIcon by remember { mutableStateOf<Drawable?>(null) }
     var dhizukuIcon by remember { mutableStateOf<Drawable?>(null) }
-    var axmanagerStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
-    var axmanagerIcon by remember { mutableStateOf<Drawable?>(null) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             shizukuStatus = PrivilegeHelper.checkShizukuStatus()
             dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
-            axmanagerStatus = PrivilegeHelper.checkAxManagerStatus(context)
 
             // 动态获取已安装授权器的图标
             try {
@@ -889,14 +883,6 @@ private fun InstallPrivilegeDialog(
                 }
             } catch (e: Exception) {
                 dhizukuIcon = null
-            }
-
-            try {
-                val pm = context.packageManager
-                val axInfo = pm.getPackageInfo(PrivilegeHelper.AXMANAGER_PACKAGE, 0)
-                axmanagerIcon = axInfo.applicationInfo?.loadIcon(pm)
-            } catch (e: Exception) {
-                axmanagerIcon = null
             }
         }
     }
@@ -1032,52 +1018,6 @@ private fun InstallPrivilegeDialog(
                             }
                         }
                         
-                        // AxManager 卡片（Shizuku v3 兼容，可替代原版 Shizuku）
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 12.dp)
-                                .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.AXMANAGER },
-                            shape = RoundedCornerShape(12.dp),
-                            color = if (selectedMode == PrivilegeHelper.PrivilegeMode.AXMANAGER)
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                            else MaterialTheme.colorScheme.surfaceContainerLow,
-                            border = if (selectedMode == PrivilegeHelper.PrivilegeMode.AXMANAGER)
-                                BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                            else null
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Image(
-                                    painter = if (axmanagerIcon != null) {
-                                        rememberDrawablePainter(drawable = axmanagerIcon!!)
-                                    } else {
-                                        rememberDrawablePainter(drawable = ContextCompat.getDrawable(
-                                            context,
-                                            R.drawable.ic_warning
-                                        ))
-                                    },
-                                    contentDescription = stringResource(R.string.axmanager),
-                                    modifier = Modifier.size(40.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = stringResource(R.string.axmanager),
-                                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-                                    )
-                                    Text(
-                                        text = getPrivilegeStatusText(axmanagerStatus),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-
                         Spacer(modifier = Modifier.height(16.dp))
 
                         // 按钮行

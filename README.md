@@ -25,6 +25,5 @@
 - [DP-Hridayan/aShellYou](https://github.com/DP-Hridayan/aShellYou)<br>
 - [sunilpaulmathew/ashell](https://gitlab.com/sunilpaulmathew/ashell)<br>
 - [termux/termux-app](https://github.com/termux/termux-app)<br>
-- [fahrez182/AxManager](https://github.com/fahrez182/AxManager)<br>
 
 > 若有任何涉及到侵权的地方，请联系我。

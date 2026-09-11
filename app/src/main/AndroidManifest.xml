@@ -28,9 +28,6 @@
         <!-- Shizuku 应用 -->
         <package android:name="moe.shizuku.privileged.api" />
 
-        <!-- AxManager（Shizuku v3 兼容服务，frb.axeron.manager） -->
-        <package android:name="frb.axeron.manager" />
-
         <!-- Dhizuku 应用（原版） -->
         <package android:name="com.rosan.dhizuku" />
         

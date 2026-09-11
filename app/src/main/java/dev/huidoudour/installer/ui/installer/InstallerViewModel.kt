@@ -185,9 +185,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                 PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED,
                 PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> {
                     when (_privilegeMode.value) {
-                        // AxManager 对 rikka 客户端表现为 Shizuku v3 服务，请求授权方式相同
-                        PrivilegeHelper.PrivilegeMode.SHIZUKU,
-                        PrivilegeHelper.PrivilegeMode.AXMANAGER -> {
+                        PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
                             try {
                                 if (Shizuku.pingBinder()) {
                                     Shizuku.requestPermission(123)
@@ -335,10 +333,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                             File(path), _replaceExisting.value, _grantPermissions.value, callback)
                     }
                 }
-                // AxManager 以 Shizuku v3 兼容层提供 binder，安装走与 Shizuku 完全相同的
-                // ShizukuBinderWrapper + PackageInstaller.Session 路径
-                PrivilegeHelper.PrivilegeMode.SHIZUKU,
-                PrivilegeHelper.PrivilegeMode.AXMANAGER -> {
+                PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
                     val callback = object : ShizukuInstallHelper.InstallCallback {
                         override fun onProgress(message: String) { logManager.addLog(message) }
                         override fun onSuccess(message: String) {
