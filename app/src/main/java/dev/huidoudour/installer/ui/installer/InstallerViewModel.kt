@@ -9,20 +9,28 @@ import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import dev.huidoudour.installer.auth.DhizukuInstallHelper
+import dev.huidoudour.installer.R
+import dev.huidoudour.installer.auth.Authorizer
+import dev.huidoudour.installer.auth.InstallDispatcher
 import dev.huidoudour.installer.auth.PrivilegeHelper
-import dev.huidoudour.installer.auth.ShizukuInstallHelper
+import dev.huidoudour.installer.auth.SmartAuthorizer
+import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
+import dev.huidoudour.installer.signature.SignatureHelper
+import dev.huidoudour.installer.signature.SignatureMatchStatus
+import dev.huidoudour.installer.signature.SignatureSummary
 import dev.huidoudour.installer.util.LogManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.coroutines.resume
 
 /**
  * InstallerScreen ViewModel
@@ -63,6 +71,10 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _installProgress = MutableStateFlow(0)
     val installProgress: StateFlow<Int> = _installProgress.asStateFlow()
+
+    // 签名校验摘要（仅 .apk；XAPK/APKS 为不适用）
+    private val _signatureSummary = MutableStateFlow<SignatureSummary?>(null)
+    val signatureSummary: StateFlow<SignatureSummary?> = _signatureSummary.asStateFlow()
 
     private val _enableCustomPackageName = MutableStateFlow(true)
     val enableCustomPackageName: StateFlow<Boolean> = _enableCustomPackageName.asStateFlow()
@@ -233,7 +245,13 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                         _selectedFileName.value = fileName
                         _isXapkFile.value = isXapk
                         _fileType.value = type
+                        _signatureSummary.value = null
                         updateInstallButtonState()
+                    }
+
+                    val summary = runCatching { computeSignatureSummary(path, isXapk) }.getOrNull()
+                    withContext(Dispatchers.Main) {
+                        _signatureSummary.value = summary
                     }
 
                     logManager.addLog("File selected: $path")
@@ -292,83 +310,137 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    /**
+     * 快速解析待安装 APK 的签名并与已安装同包名应用比对。
+     * XAPK/APKS 容器暂标记为不适用。
+     */
+    private fun computeSignatureSummary(path: String, isXapk: Boolean): SignatureSummary {
+        if (isXapk) {
+            return SignatureSummary(
+                applicable = false,
+                status = SignatureMatchStatus.NOT_INSTALLED,
+                packageName = null,
+                apkSha256 = null,
+                apkSignature = null,
+                installedSignature = null,
+            )
+        }
+
+        val packageName = try {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageArchiveInfo(path, 0)?.packageName
+        } catch (e: Exception) {
+            null
+        }
+
+        val result = SignatureHelper.match(context, File(path), packageName)
+        return SignatureSummary(
+            applicable = true,
+            status = result.status,
+            packageName = packageName,
+            apkSha256 = result.apkSha256,
+            apkSignature = result.apkSignature,
+            installedSignature = result.installedSignature,
+        )
+    }
+
     fun install() {
         val path = _selectedFilePath.value ?: return
 
-        if (_privilegeStatus.value != PrivilegeHelper.PrivilegeStatus.AUTHORIZED) {
-            logManager.addLog("Privilege not authorized")
+        val currentAuthorizer = if (_privilegeMode.value == PrivilegeHelper.PrivilegeMode.DHIZUKU) {
+            Authorizer.Dhizuku
+        } else {
+            Authorizer.Shizuku
+        }
+        val installed = PackageInfoHelper.isApkInstalled(context, path)
+        val ordered: List<Authorizer> =
+            SmartAuthorizer.resolveInstallPlan(context, currentAuthorizer, installed)
+
+        if (ordered.isEmpty()) {
+            logManager.addLog("No available authorizer for install")
+            Toast.makeText(
+                context,
+                context.getString(R.string.install_failed, "no available authorizer"),
+                Toast.LENGTH_LONG
+            ).show()
             return
         }
 
+        val isXapk = _isXapkFile.value
         _isInstalling.value = true
         _installProgress.value = 0
 
         viewModelScope.launch(Dispatchers.IO) {
-            val mode = _privilegeMode.value
-            when (mode) {
-                PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
-                    val callback = object : DhizukuInstallHelper.InstallCallback {
-                        override fun onProgress(message: String) { logManager.addLog(message) }
-                        override fun onSuccess(message: String) {
-                            logManager.addLog(message)
-                            viewModelScope.launch(Dispatchers.Main) {
-                                _isInstalling.value = false
-                                _installCompleted.value = true
-                                clearSelection()
-                                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                            }
-                        }
-                        override fun onError(error: String) {
-                            logManager.addLog("Error: $error")
-                            viewModelScope.launch(Dispatchers.Main) {
-                                _isInstalling.value = false
-                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                            }
-                        }
+            var lastError: String? = null
+
+            for (authorizer in ordered) {
+                logManager.addLog("Trying authorizer: ${context.getString(authorizer.displayNameRes)}")
+                val result = runCatching { tryInstall(path, isXapk, authorizer) }
+
+                if (result.isSuccess) {
+                    val message = result.getOrNull()
+                        ?: context.getString(R.string.install_success_simple)
+                    logManager.addLog(message)
+                    withContext(Dispatchers.Main) {
+                        _isInstalling.value = false
+                        _installCompleted.value = true
+                        clearSelection()
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                     }
-                    if (_isXapkFile.value) {
-                        DhizukuInstallHelper.installXapk(context, path, _replaceExisting.value, _grantPermissions.value, callback)
-                    } else {
-                        DhizukuInstallHelper.installSingleApk(context,
-                            File(path), _replaceExisting.value, _grantPermissions.value, callback)
-                    }
+                    return@launch
+                } else {
+                    lastError = result.exceptionOrNull()?.message
+                    logManager.addLog("Authorizer failed: $lastError")
+                    _installProgress.value = 0
                 }
-                PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
-                    val callback = object : ShizukuInstallHelper.InstallCallback {
-                        override fun onProgress(message: String) { logManager.addLog(message) }
-                        override fun onSuccess(message: String) {
-                            logManager.addLog(message)
-                            viewModelScope.launch(Dispatchers.Main) {
-                                _isInstalling.value = false
-                                _installCompleted.value = true
-                                clearSelection()
-                                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                            }
-                        }
-                        override fun onError(error: String) {
-                            logManager.addLog("Error: $error")
-                            viewModelScope.launch(Dispatchers.Main) {
-                                _isInstalling.value = false
-                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    }
-                    if (_isXapkFile.value) {
-                        ShizukuInstallHelper.installXapk(context, path, _replaceExisting.value, _grantPermissions.value, callback)
-                    } else {
-                        ShizukuInstallHelper.installSingleApk(context,
-                            File(path), _replaceExisting.value, _grantPermissions.value, callback)
-                    }
-                }
+            }
+
+            withContext(Dispatchers.Main) {
+                _isInstalling.value = false
+                Toast.makeText(
+                    context,
+                    lastError ?: context.getString(R.string.install_failed, ""),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
+
+    /**
+     * 使用单个授权方式安装，并用协程挂起等待其回调结果。
+     * 失败时抛出异常，供回退循环捕获并尝试下一个授权方式。
+     */
+    private suspend fun tryInstall(path: String, isXapk: Boolean, authorizer: Authorizer): String =
+        suspendCancellableCoroutine { cont ->
+            InstallDispatcher.install(
+                context = context,
+                authorizer = authorizer,
+                filePath = path,
+                isXapk = isXapk,
+                replaceExisting = _replaceExisting.value,
+                grantPermissions = _grantPermissions.value,
+                callback = object : InstallDispatcher.Callback {
+                    override fun onProgress(message: String) {
+                        logManager.addLog(message)
+                    }
+
+                    override fun onSuccess(message: String) {
+                        if (cont.isActive) cont.resume(message)
+                    }
+
+                    override fun onError(error: String) {
+                        if (cont.isActive) cont.resumeWith(Result.failure(Exception(error)))
+                    }
+                }
+            )
+        }
 
     fun clearSelection() {
         _selectedFilePath.value = null
         _selectedFileName.value = null
         _fileType.value = null
         _isXapkFile.value = false
+        _signatureSummary.value = null
         updateInstallButtonState()
     }
 

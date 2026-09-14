@@ -66,7 +66,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.ui.dialogs.InstallerRequesterPackageDialog
 import dev.huidoudour.installer.ui.theme.SmallShape
+import dev.huidoudour.installer.signature.SignatureSummary
 import dev.huidoudour.installer.util.FilePickerHelper
+import dev.huidoudour.installer.util.SignaturePrefs
 import dev.huidoudour.installer.R
 
 // Brand colors matching source project button tints
@@ -88,6 +90,10 @@ fun InstallerScreen(
     val scrollState = rememberScrollState()
 
     var showPackageDialog by remember { mutableStateOf(false) }
+    var showSignatureDialog by remember { mutableStateOf(false) }
+
+    val checkSignature = SignaturePrefs.isCheckEnabled(context)
+    val showSignatureDetails = SignaturePrefs.isShowDetailsEnabled(context)
 
     val privilegeStatus: PrivilegeHelper.PrivilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
@@ -97,6 +103,7 @@ fun InstallerScreen(
     val isInstallEnabled by viewModel.isInstallEnabled.collectAsState()
     val isInstalling by viewModel.isInstalling.collectAsState()
     val installCompleted by viewModel.installCompleted.collectAsState()
+    val signatureSummary by viewModel.signatureSummary.collectAsState()
     val enableCustomPackageName by viewModel.enableCustomPackageName.collectAsState()
     val allowTestPackages by viewModel.allowTestPackages.collectAsState()
     val selectedInstallerPackage by viewModel.selectedInstallerPackage.collectAsState()
@@ -181,7 +188,10 @@ fun InstallerScreen(
                 onInstall = { viewModel.install() },
                 isInstallEnabled = isInstallEnabled,
                 isInstalling = isInstalling,
-                installCompleted = installCompleted
+                installCompleted = installCompleted,
+                signatureSummary = if (checkSignature) signatureSummary else null,
+                showSignatureDetails = showSignatureDetails,
+                onSignatureClick = { showSignatureDialog = true }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -255,6 +265,16 @@ fun InstallerScreen(
                 ).show()
             }
         )
+    }
+
+    if (showSignatureDialog) {
+        val sigSummary = signatureSummary
+        if (sigSummary != null) {
+            SignatureDetailsDialog(
+                summary = sigSummary,
+                onDismiss = { showSignatureDialog = false }
+            )
+        }
     }
 }
 
@@ -393,7 +413,10 @@ fun FileSelectionCard(
     onInstall: () -> Unit,
     isInstallEnabled: Boolean,
     isInstalling: Boolean,
-    installCompleted: Boolean = false
+    installCompleted: Boolean = false,
+    signatureSummary: SignatureSummary? = null,
+    showSignatureDetails: Boolean = false,
+    onSignatureClick: () -> Unit = {}
 ) {
     val hasFile = selectedFileName != null
 
@@ -490,6 +513,16 @@ fun FileSelectionCard(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        // Signature status row (仅在选择文件且开启校验时显示)
+        if (signatureSummary != null) {
+            SignatureStatusRow(
+                summary = signatureSummary,
+                showDetails = showSignatureDetails,
+                onClick = onSignatureClick
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         // Select file button - matching source project button_primary (blue)
         Button(

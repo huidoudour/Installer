@@ -676,4 +676,39 @@
     <string name="loader_animation_wave">Wavy progress bar</string>
     <string name="changelog_title">Changelog</string>
     <string name="changelog_empty">No commits yet</string>
+
+    <!-- Lab / Smart authorizer / Signature verification -->
+    <string name="lab">Lab</string>
+    <string name="lab_tip">Experimental features. Use with caution.</string>
+    <string name="lab_authorizer_section">Smart Authorization</string>
+    <string name="lab_try_multiple_authorizers">Try multiple authorizers on install</string>
+    <string name="lab_try_multiple_authorizers_desc">Automatically switch to the next available authorizer on failure</string>
+    <string name="lab_smart_authorizer">Smart Authorization</string>
+    <string name="lab_smart_authorizer_fallback_list">Fallback authorizer list</string>
+    <string name="lab_smart_authorizer_fallback_list_desc">Drag to reorder. Enabled authorizers are tried in order.</string>
+    <string name="lab_authorizer_must_choose_one">Keep at least one authorizer enabled</string>
+    <string name="lab_signature_section">Signature Verification</string>
+    <string name="lab_check_signature">Verify signature before install</string>
+    <string name="lab_check_signature_desc">Quickly read and compare the APK signing certificate</string>
+    <string name="lab_show_signature_details">Show signature details</string>
+    <string name="authorizer_none">System installer</string>
+    <string name="signature_status_match">Signature matches</string>
+    <string name="signature_status_mismatch">Signature mismatch</string>
+    <string name="signature_status_not_installed">Not installed</string>
+    <string name="signature_status_rotation">Rotation compatible</string>
+    <string name="signature_status_unknown">Signature unavailable</string>
+    <string name="signature_status_na">Not applicable</string>
+    <string name="signature_details_title">Signature details</string>
+    <string name="signature_sha256">SHA-256</string>
+    <string name="signature_sha1">SHA-1</string>
+    <string name="signature_subject">Subject</string>
+    <string name="signature_issuer">Issuer</string>
+    <string name="signature_serial">Serial number</string>
+    <string name="signature_valid_from">Valid from</string>
+    <string name="signature_valid_until">Valid until</string>
+
+    <!-- Advanced settings card & authorizer-by-install-state -->
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="lab_authorizer_by_install_state">Choose authorizer by install state</string>
+    <string name="lab_authorizer_by_install_state_desc">Installed → Shizuku, new install → Dhizuku</string>
 </resources>

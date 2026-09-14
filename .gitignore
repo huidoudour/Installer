@@ -17,6 +17,7 @@ MarsCodeWorkspaceAppSettings.xml
 *.log
 /.qoder/
 /clone_cache/
+/cache/
 /GITHUB_WORKFLOW_SETUP.md
 /.workbuddy/
 

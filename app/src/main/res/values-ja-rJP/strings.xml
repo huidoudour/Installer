@@ -676,4 +676,39 @@
     <string name="loader_animation_wave">波状プログレスバー</string>
     <string name="changelog_title">更新ログ</string>
     <string name="changelog_empty">コミット記録はありません</string>
+
+    <!-- Lab / Smart authorizer / Signature verification -->
+    <string name="lab">ラボ</string>
+    <string name="lab_tip">実験的な機能です。注意してご利用ください。</string>
+    <string name="lab_authorizer_section">スマート認証</string>
+    <string name="lab_try_multiple_authorizers">インストール時に複数の認証方法を試す</string>
+    <string name="lab_try_multiple_authorizers_desc">失敗した場合、利用可能な次の認証方法に自動的に切り替えます</string>
+    <string name="lab_smart_authorizer">スマート認証</string>
+    <string name="lab_smart_authorizer_fallback_list">フォールバック認証リスト</string>
+    <string name="lab_smart_authorizer_fallback_list_desc">ドラッグで並べ替え。有効な認証方法が順番に試されます。</string>
+    <string name="lab_authorizer_must_choose_one">少なくとも1つの認証方法を有効にしてください</string>
+    <string name="lab_signature_section">署名検証</string>
+    <string name="lab_check_signature">インストール前に署名を検証</string>
+    <string name="lab_check_signature_desc">APKの署名証明書を高速で読み取り比較します</string>
+    <string name="lab_show_signature_details">署名の詳細を表示</string>
+    <string name="authorizer_none">システムインストーラー</string>
+    <string name="signature_status_match">署名が一致</string>
+    <string name="signature_status_mismatch">署名が一致しません</string>
+    <string name="signature_status_not_installed">未インストール</string>
+    <string name="signature_status_rotation">ローテーション互換</string>
+    <string name="signature_status_unknown">署名を取得できません</string>
+    <string name="signature_status_na">対象外</string>
+    <string name="signature_details_title">署名の詳細</string>
+    <string name="signature_sha256">SHA-256</string>
+    <string name="signature_sha1">SHA-1</string>
+    <string name="signature_subject">サブジェクト</string>
+    <string name="signature_issuer">発行者</string>
+    <string name="signature_serial">シリアル番号</string>
+    <string name="signature_valid_from">有効開始</string>
+    <string name="signature_valid_until">有効期限</string>
+
+    <!-- Advanced settings card & authorizer-by-install-state -->
+    <string name="advanced_settings">詳細設定</string>
+    <string name="lab_authorizer_by_install_state">インストール状態で認証方法を選択</string>
+    <string name="lab_authorizer_by_install_state_desc">インストール済み → Shizuku、新規 → Dhizuku</string>
 </resources>

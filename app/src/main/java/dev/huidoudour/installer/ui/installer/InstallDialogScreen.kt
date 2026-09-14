@@ -62,18 +62,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import dev.huidoudour.installer.auth.DhizukuInstallHelper
+import dev.huidoudour.installer.auth.Authorizer
+import dev.huidoudour.installer.auth.InstallDispatcher
 import dev.huidoudour.installer.auth.PrivilegeHelper
-import dev.huidoudour.installer.auth.ShizukuInstallHelper
+import dev.huidoudour.installer.auth.SmartAuthorizer
+import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
+import dev.huidoudour.installer.signature.SignatureHelper
+import dev.huidoudour.installer.signature.SignatureMatchStatus
+import dev.huidoudour.installer.signature.SignatureSummary
 import dev.huidoudour.installer.ui.theme.LocalThemeStateHolder
 import dev.huidoudour.installer.util.LoaderAnimationMode
 import dev.huidoudour.installer.util.LoaderAnimationPrefs
+import dev.huidoudour.installer.util.SignaturePrefs
 import dev.huidoudour.installer.R
 import dev.huidoudour.installer.util.LogManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.concurrent.CountDownLatch
 
 /**
  * 安装对话框状态
@@ -92,6 +99,7 @@ data class InstallDialogState(
     val installProgress: Int = 0,
     val isComplete: Boolean = false,
     val errorMessage: String? = null,
+    val signature: SignatureSummary? = null,
     val isInfoLoaded: Boolean = false
 )
 
@@ -141,12 +149,23 @@ private fun InstallDialogContent(
     var currentPrivilegeMode by remember { mutableStateOf(PrivilegeHelper.getCurrentMode(context)) }
     var showPrivilegeDialog by remember { mutableStateOf(false) }
 
+    // 签名校验
+    val checkSignature = SignaturePrefs.isCheckEnabled(context)
+    val showSignatureDetails = SignaturePrefs.isShowDetailsEnabled(context)
+    var showSignatureDialog by remember { mutableStateOf(false) }
+
     // 从 APK 解析信息
     LaunchedEffect(installUri) {
         if (installUri != null) {
             withContext(Dispatchers.IO) {
                 try {
                     val apkInfo = parseApkInfo(context, installUri)
+                    val filePath = getFilePathFromUri(context, installUri)
+                    val signature = if (filePath != null) {
+                        runCatching {
+                            computeDialogSignature(context, filePath, apkInfo?.packageName)
+                        }.getOrNull()
+                    } else null
                     if (apkInfo != null) {
                         state = state.copy(
                             appName = apkInfo.appName,
@@ -158,6 +177,7 @@ private fun InstallDialogContent(
                             appIcon = apkInfo.appIcon,
                             isUpgrade = apkInfo.isUpgrade,
                             installedVersion = apkInfo.installedVersion,
+                            signature = signature,
                             isInfoLoaded = true
                         )
                     }
@@ -200,6 +220,16 @@ private fun InstallDialogContent(
             ) {
                 // 应用信息区域 - 始终显示
                 InstallInfoHeader(state = state)
+
+                val sigSummary = if (checkSignature) state.signature else null
+                if (sigSummary != null && sigSummary.applicable) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    SignatureStatusRow(
+                        summary = sigSummary,
+                        showDetails = showSignatureDetails,
+                        onClick = { showSignatureDialog = true }
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(20.dp))
                 
@@ -275,6 +305,17 @@ private fun InstallDialogContent(
                 showPrivilegeDialog = false
             }
         )
+    }
+
+    // 签名详情对话框
+    if (showSignatureDialog) {
+        val sig = state.signature
+        if (sig != null) {
+            SignatureDetailsDialog(
+                summary = sig,
+                onDismiss = { showSignatureDialog = false }
+            )
+        }
     }
 }
 
@@ -765,54 +806,101 @@ private fun performRealInstallation(
     val logManager = LogManager.getInstance()
     val mainHandler = Handler(Looper.getMainLooper())
 
-    when (mode) {
-        PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
-            val callback = object : ShizukuInstallHelper.InstallCallback {
-                override fun onProgress(message: String) {
-                    Log.d("InstallDialog", message)
-                    logManager.addLog(message, "Dialog")
-                }
-                override fun onSuccess(message: String) {
-                    Log.d("InstallDialog", message)
-                    logManager.addLog(message, "Dialog")
-                    mainHandler.post { onSuccess() }
-                }
-                override fun onError(error: String) {
-                    Log.e("InstallDialog", error)
-                    logManager.addLog("Error: $error", "Dialog")
-                    mainHandler.post { onError(error) }
-                }
-            }
-            if (isXapk) {
-                ShizukuInstallHelper.installXapk(context, filePath, true, true, callback)
-            } else {
-                ShizukuInstallHelper.installApk(context, filePath, true, true, callback)
-            }
-        }
-        PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
-            val callback = object : DhizukuInstallHelper.InstallCallback {
-                override fun onProgress(message: String) {
-                    Log.d("InstallDialog", message)
-                    logManager.addLog(message, "Dialog")
-                }
-                override fun onSuccess(message: String) {
-                    Log.d("InstallDialog", message)
-                    logManager.addLog(message, "Dialog")
-                    mainHandler.post { onSuccess() }
-                }
-                override fun onError(error: String) {
-                    Log.e("InstallDialog", error)
-                    logManager.addLog("Error: $error", "Dialog")
-                    mainHandler.post { onError(error) }
-                }
-            }
-            if (isXapk) {
-                DhizukuInstallHelper.installXapk(context, filePath, true, true, callback)
-            } else {
-                DhizukuInstallHelper.installSingleApk(context, File(filePath), true, true, callback)
-            }
-        }
+    // 智能授权：按安装状态选首选 + 回退列表逐个尝试
+    val currentAuthorizer = if (mode == PrivilegeHelper.PrivilegeMode.DHIZUKU) {
+        Authorizer.Dhizuku
+    } else {
+        Authorizer.Shizuku
     }
+    val installed = PackageInfoHelper.isApkInstalled(context, filePath)
+    val ordered: List<Authorizer> =
+        SmartAuthorizer.resolveInstallPlan(context, currentAuthorizer, installed)
+
+    if (ordered.isEmpty()) {
+        onError(context.getString(R.string.install_failed, "no available authorizer"))
+        return
+    }
+
+    Thread {
+        var lastError: String? = null
+
+        for (authorizer in ordered) {
+            val latch = CountDownLatch(1)
+            var succeeded = false
+            var errorMessage: String? = null
+
+            InstallDispatcher.install(
+                context = context,
+                authorizer = authorizer,
+                filePath = filePath,
+                isXapk = isXapk,
+                replaceExisting = true,
+                grantPermissions = true,
+                callback = object : InstallDispatcher.Callback {
+                    override fun onProgress(message: String) {
+                        Log.d("InstallDialog", message)
+                        logManager.addLog(message, "Dialog")
+                    }
+
+                    override fun onSuccess(message: String) {
+                        Log.d("InstallDialog", message)
+                        logManager.addLog(message, "Dialog")
+                        succeeded = true
+                        latch.countDown()
+                    }
+
+                    override fun onError(error: String) {
+                        Log.e("InstallDialog", error)
+                        logManager.addLog("Error: $error", "Dialog")
+                        errorMessage = error
+                        latch.countDown()
+                    }
+                }
+            )
+
+            latch.await()
+
+            if (succeeded) {
+                mainHandler.post { onSuccess() }
+                return@Thread
+            } else {
+                lastError = errorMessage
+            }
+        }
+
+        val finalError = lastError ?: context.getString(R.string.install_failed, "")
+        mainHandler.post { onError(finalError) }
+    }.start()
+}
+
+/**
+ * 快速解析对话框待安装文件的签名摘要（XAPK/APKS 标记为不适用）。
+ */
+private fun computeDialogSignature(
+    context: Context,
+    filePath: String,
+    packageName: String?
+): SignatureSummary {
+    if (XapkInstaller.isXapkFile(filePath)) {
+        return SignatureSummary(
+            applicable = false,
+            status = SignatureMatchStatus.NOT_INSTALLED,
+            packageName = null,
+            apkSha256 = null,
+            apkSignature = null,
+            installedSignature = null,
+        )
+    }
+
+    val result = SignatureHelper.match(context, File(filePath), packageName)
+    return SignatureSummary(
+        applicable = true,
+        status = result.status,
+        packageName = packageName,
+        apkSha256 = result.apkSha256,
+        apkSignature = result.apkSignature,
+        installedSignature = result.installedSignature,
+    )
 }
 
 /**

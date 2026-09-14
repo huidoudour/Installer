@@ -18,7 +18,7 @@
 
 
 ## 部分设计参考和依赖
-- [wxxsfxyzm/InstallerX-Revived](https://github.com/wxxsfxyzm/InstallerX-Revived)<br>
+- **[wxxsfxyzm/InstallerX-Revived](https://github.com/wxxsfxyzm/InstallerX-Revived)<br>**
 - [iamr0s/InstallerX](https://github.com/iamr0s/InstallerX)<br>
 - [RikkaApps/Shizuku](https://github.com/RikkaApps/Shizuku)<br>
 - [iamr0s/Dhizuku](https://github.com/iamr0s/Dhizuku)<br>

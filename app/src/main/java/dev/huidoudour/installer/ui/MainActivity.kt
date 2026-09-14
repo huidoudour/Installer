@@ -35,6 +35,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dev.huidoudour.installer.ui.changelog.ChangelogActivity
 import dev.huidoudour.installer.ui.installer.InstallerScreen
+import dev.huidoudour.installer.ui.lab.LabScreen
 import dev.huidoudour.installer.ui.logs.LogsScreen
 import dev.huidoudour.installer.ui.me.MeActivity
 import dev.huidoudour.installer.ui.settings.SettingsScreen
@@ -146,8 +147,12 @@ fun MainScreen() {
                     onNavigateToChangelog = {
                         val intent = Intent(context, ChangelogActivity::class.java)
                         context.startActivity(intent)
-                    }
+                    },
+                    onNavigateToLab = { navController.navigate(Screen.Lab.route) }
                 )
+            }
+            composable(Screen.Lab.route) {
+                LabScreen(onBack = { navController.popBackStack() })
             }
         }
     }

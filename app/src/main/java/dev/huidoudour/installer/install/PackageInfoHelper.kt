@@ -59,6 +59,26 @@ object PackageInfoHelper {
     }
 
     /**
+     * 解析 APK 文件内的包名（无法解析时返回 null，如 XAPK/APKS 容器）。
+     */
+    fun getApkPackageName(context: Context, apkPath: String): String? {
+        return try {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageArchiveInfo(apkPath, 0)?.packageName
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * 判断 APK 对应的应用是否已安装（无法解析包名时视为未安装）。
+     */
+    fun isApkInstalled(context: Context, apkPath: String): Boolean {
+        val packageName = getApkPackageName(context, apkPath) ?: return false
+        return isAppInstalled(context, packageName)
+    }
+
+    /**
      * 获取已安装应用的包名列表
      */
     fun getInstalledPackages(context: Context): List<String> {

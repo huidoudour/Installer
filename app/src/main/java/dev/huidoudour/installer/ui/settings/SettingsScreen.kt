@@ -97,6 +97,7 @@ import kotlinx.coroutines.withContext
 fun SettingsScreen(
     onNavigateToMe: () -> Unit = {},
     onNavigateToChangelog: () -> Unit = {},
+    onNavigateToLab: () -> Unit = {},
     viewModel: SettingsViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -176,6 +177,11 @@ fun SettingsScreen(
             viewModel = viewModel,
             onClick = { showPrivilegeDialog = true }
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Lab entry
+        LabEntryCard(onClick = onNavigateToLab)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -354,6 +360,41 @@ private fun AppSettingsCard(
 }
 
 @Composable
+private fun LabEntryCard(onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(CardShape)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+    ) {
+        Text(
+            text = stringResource(R.string.advanced_settings),
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.SemiBold
+            ),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+        )
+
+        SettingListItem(
+            item = SettingItemData(
+                icon = ImageVector.vectorResource(R.drawable.ic_science),
+                title = stringResource(R.string.lab),
+                subtitle = stringResource(R.string.lab_tip),
+                colorPreview = null,
+                onClick = onClick
+            ),
+            shape = singleShape,
+            isFirst = true,
+            isLast = true,
+            showArrow = true
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+}
+
+@Composable
 private fun PrivilegeSettingsCard(
     viewModel: SettingsViewModel,
     onClick: () -> Unit
@@ -500,7 +541,7 @@ private fun AboutAppCard(
 
 }
 
-private data class SettingItemData(
+internal data class SettingItemData(
     val icon: ImageVector,
     val title: String,
     val subtitle: String?,
@@ -509,7 +550,7 @@ private data class SettingItemData(
 )
 
 @Composable
-private fun SettingListItem(
+internal fun SettingListItem(
     item: SettingItemData,
     shape: Shape,
     isFirst: Boolean,
@@ -760,6 +801,8 @@ fun SettingsSwitchItem(
     subtitle: String? = null,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    shape: Shape = SmallShape,
+    isLast: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -777,8 +820,9 @@ fun SettingsSwitchItem(
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .padding(horizontal = 12.dp)
             .height(56.dp),
-        shape = SmallShape,
+        shape = shape,
         color = backgroundColor,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         onClick = { onCheckedChange(!checked) },
@@ -811,6 +855,10 @@ fun SettingsSwitchItem(
                 onCheckedChange = onCheckedChange
             )
         }
+    }
+
+    if (!isLast) {
+        Spacer(modifier = Modifier.height(SegmentedGap))
     }
 }
 

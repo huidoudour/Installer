@@ -676,4 +676,39 @@
     <string name="loader_animation_wave">Волнистый индикатор</string>
     <string name="changelog_title">Журнал изменений</string>
     <string name="changelog_empty">Записей пока нет</string>
+
+    <!-- Lab / Smart authorizer / Signature verification -->
+    <string name="lab">Лаборатория</string>
+    <string name="lab_tip">Экспериментальные функции. Используйте с осторожностью.</string>
+    <string name="lab_authorizer_section">Умная авторизация</string>
+    <string name="lab_try_multiple_authorizers">Пробовать несколько авторизаторов при установке</string>
+    <string name="lab_try_multiple_authorizers_desc">Автоматически переключаться на следующий доступный авторизатор при сбое</string>
+    <string name="lab_smart_authorizer">Умная авторизация</string>
+    <string name="lab_smart_authorizer_fallback_list">Список резервных авторизаторов</string>
+    <string name="lab_smart_authorizer_fallback_list_desc">Перетащите для изменения порядка. Включённые авторизаторы пробуются по порядку.</string>
+    <string name="lab_authorizer_must_choose_one">Оставьте хотя бы один авторизатор включённым</string>
+    <string name="lab_signature_section">Проверка подписи</string>
+    <string name="lab_check_signature">Проверять подпись перед установкой</string>
+    <string name="lab_check_signature_desc">Быстрое чтение и сравнение сертификата подписи APK</string>
+    <string name="lab_show_signature_details">Показывать детали подписи</string>
+    <string name="authorizer_none">Системный установщик</string>
+    <string name="signature_status_match">Подпись совпадает</string>
+    <string name="signature_status_mismatch">Подпись не совпадает</string>
+    <string name="signature_status_not_installed">Не установлено</string>
+    <string name="signature_status_rotation">Совместимо с ротацией</string>
+    <string name="signature_status_unknown">Подпись недоступна</string>
+    <string name="signature_status_na">Не применимо</string>
+    <string name="signature_details_title">Детали подписи</string>
+    <string name="signature_sha256">SHA-256</string>
+    <string name="signature_sha1">SHA-1</string>
+    <string name="signature_subject">Субъект</string>
+    <string name="signature_issuer">Издатель</string>
+    <string name="signature_serial">Серийный номер</string>
+    <string name="signature_valid_from">Действительно с</string>
+    <string name="signature_valid_until">Действительно до</string>
+
+    <!-- Advanced settings card & authorizer-by-install-state -->
+    <string name="advanced_settings">Дополнительные настройки</string>
+    <string name="lab_authorizer_by_install_state">Выбирать авторизатор по состоянию установки</string>
+    <string name="lab_authorizer_by_install_state_desc">Установлено → Shizuku, новая установка → Dhizuku</string>
 </resources>

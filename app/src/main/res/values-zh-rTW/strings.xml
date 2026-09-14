@@ -676,4 +676,39 @@
     <string name="loader_animation_wave">線性波浪條</string>
     <string name="changelog_title">更新日誌</string>
     <string name="changelog_empty">目前沒有提交記錄</string>
+
+    <!-- Lab / Smart authorizer / Signature verification -->
+    <string name="lab">實驗室</string>
+    <string name="lab_tip">實驗性功能，請謹慎使用。</string>
+    <string name="lab_authorizer_section">智慧授權</string>
+    <string name="lab_try_multiple_authorizers">安裝時嘗試多個授權方式</string>
+    <string name="lab_try_multiple_authorizers_desc">失敗時自動切換到下一個可用授權方式</string>
+    <string name="lab_smart_authorizer">智慧授權</string>
+    <string name="lab_smart_authorizer_fallback_list">回退授權清單</string>
+    <string name="lab_smart_authorizer_fallback_list_desc">長按拖曳排序，啟用的授權方式會依序嘗試。</string>
+    <string name="lab_authorizer_must_choose_one">請至少保留一個啟用的授權方式</string>
+    <string name="lab_signature_section">簽章驗證</string>
+    <string name="lab_check_signature">安裝前驗證簽章</string>
+    <string name="lab_check_signature_desc">快速讀取並比對 APK 簽章憑證</string>
+    <string name="lab_show_signature_details">顯示簽章詳細資料</string>
+    <string name="authorizer_none">系統安裝程式</string>
+    <string name="signature_status_match">簽章相符</string>
+    <string name="signature_status_mismatch">簽章不符</string>
+    <string name="signature_status_not_installed">未安裝</string>
+    <string name="signature_status_rotation">輪替相容</string>
+    <string name="signature_status_unknown">無法取得簽章</string>
+    <string name="signature_status_na">不適用</string>
+    <string name="signature_details_title">簽章詳細資料</string>
+    <string name="signature_sha256">SHA-256</string>
+    <string name="signature_sha1">SHA-1</string>
+    <string name="signature_subject">主體</string>
+    <string name="signature_issuer">簽發者</string>
+    <string name="signature_serial">序號</string>
+    <string name="signature_valid_from">生效時間</string>
+    <string name="signature_valid_until">失效時間</string>
+
+    <!-- Advanced settings card & authorizer-by-install-state -->
+    <string name="advanced_settings">進階設定</string>
+    <string name="lab_authorizer_by_install_state">依安裝狀態選擇授權方式</string>
+    <string name="lab_authorizer_by_install_state_desc">已安裝 → Shizuku，全新安裝 → Dhizuku</string>
 </resources>
