@@ -8,7 +8,7 @@ plugins {
 
 // 共用版本号与版本名
 val baseVersionCode = 8000
-val baseVersionName = "26.09.3"
+val baseVersionName = "26.09.14"
 
 // 构建时的日期+时间
 fun getBuildDateTime(): String {
@@ -123,10 +123,6 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
             optimization {
                 enable = true
             }
@@ -192,7 +188,6 @@ android {
             "FragmentTagUsage",        // 允许使用fragment标签
             "GradleDependency",        // 不强制更新依赖
             "NewerVersionAvailable"    // 不强制更新到最新版本
-            // 注意: 已移除 "Aligned16KB"，因为我们已正确配置 16KB 对齐
         )
         // 仅检查致命错误
         checkOnly += setOf(
@@ -222,11 +217,12 @@ dependencies {
     implementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.extended)
-    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
     implementation(libs.accompanist.drawablepainter)
     implementation("androidx.palette:palette:1.0.0")
+
+    debugImplementation(libs.compose.ui.tooling.preview)
 
     // Material Kolor - 动态主题颜色生成
     implementation(libs.material.kolor)

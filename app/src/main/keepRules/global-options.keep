@@ -1,0 +1,21 @@
+# R8 全局选项（非 keep 规则）
+# AGP 9.3+ 会把 src/main/keepRules/*.keep 原样作为 R8 配置文件传入，
+# 因此全局选项（-dontwarn、-keepattributes 等）可在此统一维护。
+
+# Dhizuku 内部通过反射访问隐藏 API
+-dontwarn android.app.ActivityThread
+
+# auto-service 注解处理器，仅编译期使用
+-dontwarn javax.annotation.processing.**
+
+# ========== 隐藏 API stubs (反射调用) ==========
+# 这些类在编译期是 stub，运行时使用系统框架真类
+-dontwarn android.content.pm.IPackageInstaller
+-dontwarn android.content.pm.IPackageInstallerSession
+-dontwarn android.content.pm.IPackageManager
+-dontwarn android.content.pm.PackageInstaller
+-dontwarn android.content.pm.PackageInstaller$Session
+-dontwarn android.content.pm.PackageInstaller$SessionParams
+-dontwarn android.content.IIntentSender
+-dontwarn android.content.IIntentReceiver
+-dontwarn android.os.ServiceManager
