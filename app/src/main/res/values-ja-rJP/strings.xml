@@ -132,6 +132,7 @@
     <string name="install_apk">APKをインストール</string>
     <string name="select_package">パッケージを選択</string>
     <string name="select_package_file">パッケージを選択 (APK/XAPK/APKS)</string>
+    <string name="clear_selected_package">選択したパッケージをクリアしました</string>
     <string name="installing_progress">インストール中...</string>
     <string name="preparing">準備中...</string>
     <string name="progress_count">0/0</string>
@@ -491,7 +492,7 @@
     <string name="privilege_mode_shizuku">Shizuku</string>
 
     <!-- Native library test related strings -->
-    <string name="execute_command_failed">コマンドの実行に失敗しました</string>
+    <string name="execute_command_failed">コマンドの実行に失敗しました: %s</string>
     
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== ネイティブライブラリテスト ===</string>
@@ -693,6 +694,7 @@
     <string name="lab_check_signature_desc">APKの署名と内容ダイジェストを完全に検証してから証明書を比較します</string>
     <string name="lab_show_signature_details">署名の詳細を表示</string>
     <string name="authorizer_none">システムインストーラー</string>
+    <string name="system_installer_launched">システムインストーラーを起動しました</string>
     <string name="signature_status_match">署名が一致</string>
     <string name="signature_status_mismatch">署名が一致しません</string>
     <string name="signature_status_not_installed">未インストール</string>
@@ -717,4 +719,14 @@
     <string name="advanced_settings">詳細設定</string>
     <string name="lab_authorizer_by_install_state">インストール状態で認証方法を選択</string>
     <string name="lab_authorizer_by_install_state_desc">インストール済み → Shizuku、新規 → Dhizuku</string>
+    <!-- Install / authorizer runtime messages -->
+    <string name="dhizuku_not_initialized">Dhizukuが初期化されていません</string>
+    <string name="dhizuku_clone_service_unavailable">Dhizuku APIがクローン版サービス（%s）に接続できません。クローン版が元のService/Provider authorityを保持しているか確認してください。</string>
+    <string name="install_requires_user_action">インストールにはユーザーの操作が必要です: %s</string>
+    <string name="install_failed_status">インストールに失敗しました（ステータス=%1$d）: %2$s</string>
+    <string name="session_create_failed">セッションの作成に失敗しました: %s</string>
+    <string name="install_write_failed">書き込みに失敗しました: %s</string>
+    <string name="file_not_found">ファイルが見つかりません: %s</string>
+    <string name="system_installer_failed">システムインストーラーを起動できませんでした: %s</string>
+    <string name="no_available_authorizer">利用可能な認証方式がありません</string>
 </resources>

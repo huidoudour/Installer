@@ -268,10 +268,7 @@ private fun InstallDialogContent(
                         // 安装完成按钮
                         CompletionButtons(
                             onOpenApp = { onOpenApp(state.packageName) },
-                            onFinish = onDismiss,
-                            onBack = {
-                                state = state.copy(isComplete = false)
-                            }
+                            onFinish = onDismiss
                         )
                     }
                     state.isInstalling -> {
@@ -370,7 +367,7 @@ private fun PackageLoadingIndicator() {
         when (loaderMode) {
             LoaderAnimationMode.GRAPHIC -> {
                 ContainedLoadingIndicator(
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(56.dp),
                     indicatorColor = indicatorColor,
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                 )
@@ -379,7 +376,7 @@ private fun PackageLoadingIndicator() {
                 LinearWavyProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp),
+                        .height(12.dp),
                     color = indicatorColor,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
@@ -683,8 +680,7 @@ fun InstallingButtons(
 @Composable
 fun CompletionButtons(
     onOpenApp: () -> Unit,
-    onFinish: () -> Unit,
-    onBack: () -> Unit
+    onFinish: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -712,51 +708,23 @@ fun CompletionButtons(
         
         Spacer(modifier = Modifier.height(8.dp))
         
-        // 按钮行：返回和完成 - 等高48dp
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+        // 完成按钮 - 48dp高度，圆角12dp，占满整行
+        Button(
+            onClick = onFinish,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF4CAF50),  // button_secondary_tint green
+                contentColor = Color.White
+            ),
+            contentPadding = PaddingValues(0.dp)
         ) {
-            // 返回按钮 - OutlinedButton，圆角12dp，边框2dp
-            OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(
-                    width = 2.dp,
-                    color = MaterialTheme.colorScheme.outline
-                ),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.back),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            
-            Spacer(modifier = Modifier.width(8.dp))
-            
-            // 完成按钮 - 圆角12dp
-            Button(
-                onClick = onFinish,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50),  // button_secondary_tint green
-                    contentColor = Color.White
-                ),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.finish),
-                    fontSize = 14.sp
-                )
-            }
+            Text(
+                text = stringResource(R.string.finish),
+                fontSize = 14.sp
+            )
         }
     }
 }
@@ -879,7 +847,7 @@ private fun performRealInstallation(
         SmartAuthorizer.resolveInstallPlan(context, currentAuthorizer, installed)
 
     if (ordered.isEmpty()) {
-        onError(context.getString(R.string.install_failed, "no available authorizer"))
+        onError(context.getString(R.string.no_available_authorizer))
         return
     }
 

@@ -132,6 +132,7 @@
     <string name="install_apk">Установить APK</string>
     <string name="select_package">Выбрать пакет</string>
     <string name="select_package_file">Выбрать пакет (APK/XAPK/APKS)</string>
+    <string name="clear_selected_package">Выбранный пакет сброшен</string>
     <string name="installing_progress">Установка...</string>
     <string name="preparing">Подготовка...</string>
     <string name="progress_count">0/0</string>
@@ -491,7 +492,7 @@
     <string name="privilege_mode_shizuku">Shizuku</string>
 
     <!-- Native library test related strings -->
-    <string name="execute_command_failed">Не удалось выполнить команду</string>
+    <string name="execute_command_failed">Не удалось выполнить команду: %s</string>
     
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== Тесты нативной библиотеки ===</string>
@@ -693,6 +694,7 @@
     <string name="lab_check_signature_desc">Полная проверка подписи и дайджеста APK перед сравнением сертификатов</string>
     <string name="lab_show_signature_details">Показывать детали подписи</string>
     <string name="authorizer_none">Системный установщик</string>
+    <string name="system_installer_launched">Системный установщик запущен</string>
     <string name="signature_status_match">Подпись совпадает</string>
     <string name="signature_status_mismatch">Подпись не совпадает</string>
     <string name="signature_status_not_installed">Не установлено</string>
@@ -717,4 +719,14 @@
     <string name="advanced_settings">Дополнительные настройки</string>
     <string name="lab_authorizer_by_install_state">Выбирать авторизатор по состоянию установки</string>
     <string name="lab_authorizer_by_install_state_desc">Установлено → Shizuku, новая установка → Dhizuku</string>
+    <!-- Install / authorizer runtime messages -->
+    <string name="dhizuku_not_initialized">Dhizuku не инициализирован</string>
+    <string name="dhizuku_clone_service_unavailable">Dhizuku API не может подключиться к службе клонированной версии (%s). Убедитесь, что клон сохранил исходные authority Service/Provider.</string>
+    <string name="install_requires_user_action">Для установки требуется действие пользователя: %s</string>
+    <string name="install_failed_status">Ошибка установки (статус=%1$d): %2$s</string>
+    <string name="session_create_failed">Не удалось создать сессию: %s</string>
+    <string name="install_write_failed">Не удалось записать данные: %s</string>
+    <string name="file_not_found">Файл не найден: %s</string>
+    <string name="system_installer_failed">Не удалось запустить системный установщик: %s</string>
+    <string name="no_available_authorizer">Нет доступного способа авторизации</string>
 </resources>

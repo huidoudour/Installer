@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -180,6 +181,15 @@ fun InstallerScreen(
                     }
                 },
                 onRefreshFileInfo = { viewModel.refreshFileInfo() },
+                // 长按选择安装包按钮：清除当前已选中的安装包
+                onClearFile = {
+                    viewModel.clearSelection()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.clear_selected_package),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
                 onInstall = { viewModel.install() },
                 isInstallEnabled = isInstallEnabled,
                 isInstalling = isInstalling,
@@ -393,6 +403,7 @@ fun FileSelectionCard(
     selectedFileName: String?,
     fileType: String?,
     onSelectFile: () -> Unit,
+    onClearFile: () -> Unit,
     onRefreshFileInfo: () -> Unit,
     onInstall: () -> Unit,
     isInstallEnabled: Boolean,
@@ -497,24 +508,32 @@ fun FileSelectionCard(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Select file button - matching source project button_primary (blue)
-        Button(
-            onClick = onSelectFile,
+        // 已选中安装包时长按按钮可清除当前选择（Button 不支持长按，故改用 combinedClickable）
+        val selectButtonEnabled = !isLoadingPackage
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            // 加载安装包期间禁止重复选择，避免状态错乱
-            enabled = !isLoadingPackage,
+                .height(52.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .combinedClickable(
+                    enabled = selectButtonEnabled,
+                    onLongClick = if (hasFile) onClearFile else null,
+                    onClick = onSelectFile
+                ),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = ButtonPrimaryBlue,
-                contentColor = Color.White
-            ),
-            contentPadding = PaddingValues(16.dp)
+            color = if (selectButtonEnabled) ButtonPrimaryBlue
+            else ButtonPrimaryBlue.copy(alpha = 0.5f),
+            contentColor = Color.White
         ) {
-            Text(
-                text = stringResource(R.string.select_package_file),
-                fontSize = 14.sp
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.select_package_file),
+                    fontSize = 14.sp
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))

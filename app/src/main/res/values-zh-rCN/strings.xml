@@ -132,6 +132,7 @@
     <string name="install_apk">安装 APK</string>
     <string name="select_package">选择安装包</string>
     <string name="select_package_file">选择安装包 (APK/XAPK/APKS)</string>
+    <string name="clear_selected_package">已清除所选安装包</string>
     <string name="installing_progress">正在安装...</string>
     <string name="preparing">很快啦...</string>
     <string name="progress_count">0/0</string>
@@ -491,7 +492,7 @@
     <string name="privilege_mode_shizuku">Shizuku</string>
 
     <!-- Native library test related strings -->
-    <string name="execute_command_failed">执行命令失败</string>
+    <string name="execute_command_failed">执行命令失败：%s</string>
     
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== 原生库测试 ===</string>
@@ -655,22 +656,22 @@
 
     <!-- Missing default strings (defined in language-specific folders) -->
     <string name="apk_name_failed" formatted="false">%s failed: %s</string>
-    <string name="apk_not_exist">APK file does not exist</string>
+    <string name="apk_not_exist">APK 文件不存在</string>
     <string name="apk_progress" formatted="false">[%d/%d] %s</string>
     <string name="create_session">Create installation session: %s</string>
     <string name="extract_complete">Extraction complete, %d APKs in total</string>
     <string name="extract_xapk">Extracting XAPK (using native compression library)…</string>
-    <string name="install_exception">Installation exception: %s</string>
-    <string name="install_failed">Installation failed: %s</string>
+    <string name="install_exception">安装异常：%s</string>
+    <string name="install_failed">安装失败：%s</string>
     <string name="install_failed_error">Installation failed: %s</string>
-    <string name="install_success_simple">Installation successful!</string>
+    <string name="install_success_simple">安装成功！</string>
     <string name="session_id">Session ID: %s</string>
     <string name="start_apk_install">Start APK installation…</string>
     <string name="submit_install">Submit installation…</string>
     <string name="submitting_install">Submitting installation…</string>
     <string name="write_apk_data">Writing APK data…</string>
-    <string name="xapk_install_exception">XAPK installation exception: %s</string>
-    <string name="xapk_install_success_msg">XAPK installation successful! %d APKs installed in total</string>
+    <string name="xapk_install_exception">XAPK 安装异常：%s</string>
+    <string name="xapk_install_success_msg">XAPK 安装成功！共安装 %d 个 APK</string>
 
     <string name="loader_animation_settings">加载动画</string>
     <string name="loader_animation_graphic">图形加载</string>
@@ -693,6 +694,7 @@
     <string name="lab_check_signature_desc">完整校验 APK 签名与内容摘要后比对证书</string>
     <string name="lab_show_signature_details">显示签名详情</string>
     <string name="authorizer_none">系统安装器</string>
+    <string name="system_installer_launched">已拉起系统安装器</string>
     <string name="signature_status_match">签名一致</string>
     <string name="signature_status_mismatch">签名不一致</string>
     <string name="signature_status_not_installed">未安装</string>
@@ -717,4 +719,14 @@
     <string name="advanced_settings">高级设置</string>
     <string name="lab_authorizer_by_install_state">按安装状态选择授权方式</string>
     <string name="lab_authorizer_by_install_state_desc">已安装 → Shizuku，全新安装 → Dhizuku</string>
+    <!-- Install / authorizer runtime messages -->
+    <string name="dhizuku_not_initialized">Dhizuku 未初始化</string>
+    <string name="dhizuku_clone_service_unavailable">Dhizuku API 无法连接克隆版服务（%s），请确认克隆版保留了原始 Service/Provider authority</string>
+    <string name="install_requires_user_action">安装需要用户操作：%s</string>
+    <string name="install_failed_status">安装失败（状态=%1$d）：%2$s</string>
+    <string name="session_create_failed">创建安装会话失败：%s</string>
+    <string name="install_write_failed">写入失败：%s</string>
+    <string name="file_not_found">文件不存在：%s</string>
+    <string name="system_installer_failed">系统安装器启动失败：%s</string>
+    <string name="no_available_authorizer">没有可用的授权方式</string>
 </resources>

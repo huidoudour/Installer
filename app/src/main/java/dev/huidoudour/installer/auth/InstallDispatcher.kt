@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
+import dev.huidoudour.installer.R
 import java.io.File
 
 /**
@@ -90,7 +91,7 @@ object InstallDispatcher {
         try {
             val source = File(filePath)
             if (!source.exists()) {
-                callback.onError("File not found: $filePath")
+                callback.onError(context.getString(R.string.file_not_found, filePath))
                 return
             }
 
@@ -114,7 +115,7 @@ object InstallDispatcher {
 
             try {
                 context.startActivity(installIntent)
-                callback.onSuccess("System installer launched")
+                callback.onSuccess(context.getString(R.string.system_installer_launched))
             } catch (e: ActivityNotFoundException) {
                 val viewIntent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(uri, mime)
@@ -122,10 +123,10 @@ object InstallDispatcher {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 context.startActivity(viewIntent)
-                callback.onSuccess("System installer launched")
+                callback.onSuccess(context.getString(R.string.system_installer_launched))
             }
         } catch (e: Exception) {
-            callback.onError("System installer failed: ${e.message}")
+            callback.onError(context.getString(R.string.system_installer_failed, e.message))
         }
     }
 

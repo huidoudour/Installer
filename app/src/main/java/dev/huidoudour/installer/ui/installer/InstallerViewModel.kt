@@ -238,7 +238,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                 val path = getFilePathFromUri(uri)
                 if (path != null) {
                     val isXapk = XapkInstaller.isXapkFile(path)
-                    val type = XapkInstaller.getFileTypeDescription(path)
+                    val type = XapkInstaller.getFileTypeDescription(context, path)
 
                     withContext(Dispatchers.Main) {
                         _selectedFilePath.value = path
@@ -306,7 +306,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
 
         viewModelScope.launch(Dispatchers.IO) {
             val isXapk = XapkInstaller.isXapkFile(path)
-            val type = XapkInstaller.getFileTypeDescription(path)
+            val type = XapkInstaller.getFileTypeDescription(context, path)
 
             withContext(Dispatchers.Main) {
                 _isXapkFile.value = isXapk
@@ -333,7 +333,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
             logManager.addLog("No available authorizer for install")
             Toast.makeText(
                 context,
-                context.getString(R.string.install_failed, "no available authorizer"),
+                context.getString(R.string.no_available_authorizer),
                 Toast.LENGTH_LONG
             ).show()
             return

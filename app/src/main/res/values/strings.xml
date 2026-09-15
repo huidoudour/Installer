@@ -132,6 +132,7 @@
     <string name="install_apk">Install APK</string>
     <string name="select_package">Select Package</string>
     <string name="select_package_file">Select Package (APK/XAPK/APKS)</string>
+    <string name="clear_selected_package">Cleared selected package</string>
     <string name="installing_progress">Installing...</string>
     <string name="preparing">Preparing...</string>
     <string name="progress_count">0/0</string>
@@ -693,6 +694,7 @@
     <string name="lab_check_signature_desc">Fully verify the APK signature before comparing certificates</string>
     <string name="lab_show_signature_details">Show signature details</string>
     <string name="authorizer_none">System installer</string>
+    <string name="system_installer_launched">System installer launched</string>
     <string name="signature_status_match">Signature matches</string>
     <string name="signature_status_mismatch">Signature mismatch</string>
     <string name="signature_status_not_installed">Not installed</string>
@@ -717,4 +719,14 @@
     <string name="advanced_settings">Advanced Settings</string>
     <string name="lab_authorizer_by_install_state">Choose authorizer by install state</string>
     <string name="lab_authorizer_by_install_state_desc">Installed → Shizuku, new install → Dhizuku</string>
+    <!-- Install / authorizer runtime messages -->
+    <string name="dhizuku_not_initialized">Dhizuku not initialized</string>
+    <string name="dhizuku_clone_service_unavailable">Dhizuku API cannot connect to the cloned service (%s). Make sure the clone keeps the original Service/Provider authority.</string>
+    <string name="install_requires_user_action">Install requires user action: %s</string>
+    <string name="install_failed_status">Install failed (status=%1$d): %2$s</string>
+    <string name="session_create_failed">Session creation failed: %s</string>
+    <string name="install_write_failed">Write failed: %s</string>
+    <string name="file_not_found">File not found: %s</string>
+    <string name="system_installer_failed">System installer failed: %s</string>
+    <string name="no_available_authorizer">No available authorizer</string>
 </resources>

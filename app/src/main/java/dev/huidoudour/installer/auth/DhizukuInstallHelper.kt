@@ -13,6 +13,7 @@ import android.os.Process
 import android.os.ServiceManager
 import android.util.Log
 import com.rosan.dhizuku.api.Dhizuku
+import dev.huidoudour.installer.R
 import dev.huidoudour.installer.install.LocalIntentReceiver
 import dev.huidoudour.installer.install.XapkInstaller
 import java.io.BufferedReader
@@ -45,7 +46,7 @@ object DhizukuInstallHelper {
     fun executeCommand(context: Context, command: String): String {
         return try {
             if (!Dhizuku.init(context.applicationContext)) {
-                throw Exception("Dhizuku not initialized")
+                throw Exception(context.getString(R.string.dhizuku_not_initialized))
             }
             val process = Dhizuku.newProcess(arrayOf("sh", "-c", "$command 2>&1"), null, null)
             val output = StringBuilder()
@@ -58,7 +59,7 @@ object DhizukuInstallHelper {
             process.waitFor()
             output.toString().trim()
         } catch (e: Exception) {
-            throw Exception("执行命令失败: ${e.message}", e)
+            throw Exception(context.getString(R.string.execute_command_failed, e.message), e)
         }
     }
 
@@ -81,9 +82,9 @@ object DhizukuInstallHelper {
                 if (!Dhizuku.init(context.applicationContext)) {
                     val installedPkg = PrivilegeHelper.getInstalledDhizukuPackage(context)
                     if (installedPkg == PrivilegeHelper.DHIZUKU_PACKAGE_CLONE) {
-                        throw Exception("Dhizuku API 无法连接克隆版服务($installedPkg)，请确认克隆版保持了原始 Service/Provider authority")
+                        throw Exception(context.getString(R.string.dhizuku_clone_service_unavailable, installedPkg))
                     } else {
-                        throw Exception("Dhizuku not initialized")
+                        throw Exception(context.getString(R.string.dhizuku_not_initialized))
                     }
                 }
 
@@ -96,7 +97,7 @@ object DhizukuInstallHelper {
                 try {
                     installViaShell(context, apkFile, replaceExisting, grantPermissions, callback)
                 } catch (shellError: Exception) {
-                    callback.onError("Install exception: ${shellError.message}")
+                    callback.onError(context.getString(R.string.install_exception, shellError.message))
                 }
             }
         }.start()
@@ -226,7 +227,7 @@ object DhizukuInstallHelper {
         )
 
         if (status == PackageInstaller.STATUS_SUCCESS) {
-            callback.onSuccess("Installation successful!")
+            callback.onSuccess(context.getString(R.string.install_success))
         } else if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
             // 需要用户确认（如安装未知来源应用），启动确认界面
             @Suppress("DEPRECATION")
@@ -241,18 +242,18 @@ object DhizukuInstallHelper {
                     PackageInstaller.STATUS_FAILURE
                 )
                 if (retryStatus == PackageInstaller.STATUS_SUCCESS) {
-                    callback.onSuccess("Installation successful!")
+                    callback.onSuccess(context.getString(R.string.install_success))
                 } else {
                     val msg = retryIntent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                    callback.onError("Install failed: $msg")
+                    callback.onError(context.getString(R.string.install_failed, msg))
                 }
             } else {
                 val msg = resultIntent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                callback.onError("Install requires user action: $msg")
+                callback.onError(context.getString(R.string.install_requires_user_action, msg))
             }
         } else {
             val msg = resultIntent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-            callback.onError("Install failed (status=$status): $msg")
+            callback.onError(context.getString(R.string.install_failed_status, status, msg))
         }
     }
 
@@ -350,14 +351,14 @@ object DhizukuInstallHelper {
         callback: InstallCallback
     ) {
         if (!Dhizuku.init(context.applicationContext)) {
-            throw Exception("Dhizuku not initialized")
+            throw Exception(context.getString(R.string.dhizuku_not_initialized))
         }
 
         // 方案 2a：单命令 pm install（最可靠，无 pipe 问题）
         try {
             callback.onProgress("Trying single-command install via shell...")
             installWithSingleCommand(context, apkFile, replaceExisting, grantPermissions)
-            callback.onSuccess("Installation successful!")
+            callback.onSuccess(context.getString(R.string.install_success))
             return
         } catch (e: Exception) {
             Log.w("DhizukuInstallHelper",
@@ -380,7 +381,7 @@ object DhizukuInstallHelper {
         val createOutput = executeCommand(context, createCmd.toString())
 
         if (!createOutput.contains("Success")) {
-            throw Exception("Session create failed: $createOutput")
+            throw Exception(context.getString(R.string.session_create_failed, createOutput))
         }
 
         val sessionId = createOutput.substring(
@@ -411,11 +412,11 @@ object DhizukuInstallHelper {
             val exitCode = process.waitFor()
 
             if (exitCode != 0 || !writeOutput.contains("Success")) {
-                throw Exception("Write failed (exit=$exitCode): $writeOutput")
+                throw Exception(context.getString(R.string.install_write_failed, "$exitCode: $writeOutput"))
             }
         } catch (e: IOException) {
             // EPIPE 等 IO 异常视为写失败
-            throw Exception("Write failed (pipe error): ${e.message}")
+            throw Exception(context.getString(R.string.install_write_failed, e.message))
         }
 
         // 提交安装
@@ -423,9 +424,9 @@ object DhizukuInstallHelper {
         val commitOutput = executeCommand(context, "pm install-commit $sessionId")
 
         if (commitOutput.lowercase().contains("success")) {
-            callback.onSuccess("Installation successful!")
+            callback.onSuccess(context.getString(R.string.install_success))
         } else {
-            callback.onError("Install failed: $commitOutput")
+            callback.onError(context.getString(R.string.install_failed, commitOutput))
         }
     }
 
@@ -475,13 +476,13 @@ object DhizukuInstallHelper {
             try {
                 val retryOutput = executeCommand(context, buildInstallCmd(tempPath))
                 if (!retryOutput.lowercase().contains("success")) {
-                    throw Exception("Install failed: $retryOutput")
+                    throw Exception(context.getString(R.string.install_failed, retryOutput))
                 }
             } finally {
                 executeCommand(context, "rm -f $tempPath")
             }
         } else {
-            throw Exception("Install failed: $installOutput")
+            throw Exception(context.getString(R.string.install_failed, installOutput))
         }
     }
 
@@ -507,7 +508,7 @@ object DhizukuInstallHelper {
                 callback.onProgress("Extraction complete, ${extractedApks.size} APKs found")
 
                 if (!Dhizuku.init(context.applicationContext)) {
-                    throw Exception("Dhizuku not initialized")
+                    throw Exception(context.getString(R.string.dhizuku_not_initialized))
                 }
 
                 // 1. 获取 PackageInstaller
@@ -584,14 +585,16 @@ object DhizukuInstallHelper {
                 )
 
                 if (status == PackageInstaller.STATUS_SUCCESS) {
-                    callback.onSuccess("XAPK installation successful! ${extractedApks.size} APKs installed")
+                    callback.onSuccess(
+                        context.getString(R.string.xapk_install_success_msg, extractedApks.size)
+                    )
                 } else {
                     val msg = resultIntent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                    callback.onError("Install failed: $msg")
+                    callback.onError(context.getString(R.string.install_failed, msg))
                 }
 
             } catch (e: Exception) {
-                callback.onError("XAPK install exception: ${e.message}")
+                callback.onError(context.getString(R.string.xapk_install_exception, e.message))
             } finally {
                 extractedApks?.let { XapkInstaller.cleanupTempFiles(it) }
             }

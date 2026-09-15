@@ -2,6 +2,7 @@ package dev.huidoudour.installer.install
 
 import android.content.Context
 import android.util.Log
+import dev.huidoudour.installer.R
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipFile
@@ -51,7 +52,7 @@ object XapkInstaller {
     /**
      * 获取文件类型描述
      */
-    fun getFileTypeDescription(filePath: String): String {
+    fun getFileTypeDescription(context: Context, filePath: String): String {
         val file = File(filePath)
         val extension = file.extension.lowercase()
 
@@ -60,7 +61,7 @@ object XapkInstaller {
             "apks" -> "APKS"
             "apk" -> "APK"
             else -> {
-                if (isXapkFile(filePath)) "XAPK" else "Unknown"
+                if (isXapkFile(filePath)) "XAPK" else context.getString(R.string.unknown_file_format)
             }
         }
     }

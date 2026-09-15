@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.IInterface
 import android.os.ServiceManager
 import android.util.Log
+import dev.huidoudour.installer.R
 import dev.huidoudour.installer.install.LocalIntentReceiver
 import dev.huidoudour.installer.install.XapkInstaller
 import rikka.shizuku.ShizukuBinderWrapper
@@ -41,7 +42,7 @@ object ShizukuInstallHelper {
      * 执行 Shizuku 命令
      */
     @Throws(Exception::class)
-    fun executeCommand(command: String): String {
+    fun executeCommand(context: Context, command: String): String {
         return try {
             val shizukuClass = Class.forName("rikka.shizuku.Shizuku")
             val newProcessMethod = shizukuClass.getDeclaredMethod(
@@ -70,7 +71,7 @@ object ShizukuInstallHelper {
             process.waitFor()
             output.toString().trim()
         } catch (e: Exception) {
-            throw Exception("执行命令失败: ${e.message}", e)
+            throw Exception(context.getString(R.string.execute_command_failed, e.message), e)
         }
     }
 
@@ -78,7 +79,7 @@ object ShizukuInstallHelper {
      * 执行 Shizuku 命令并传入文件数据
      */
     @Throws(Exception::class)
-    fun executeCommandWithInput(command: String, inputFile: File): String {
+    fun executeCommandWithInput(context: Context, command: String, inputFile: File): String {
         return try {
             val shizukuClass = Class.forName("rikka.shizuku.Shizuku")
             val newProcessMethod = shizukuClass.getDeclaredMethod(
@@ -118,13 +119,8 @@ object ShizukuInstallHelper {
             process.waitFor()
             output.toString().trim()
         } catch (e: Exception) {
-            throw Exception("执行命令失败: ${e.message}", e)
+            throw Exception(context.getString(R.string.execute_command_failed, e.message), e)
         }
-    }
-
-    @Throws(Exception::class)
-    fun executeCommand(context: Context, command: String): String {
-        return executeCommand(command)
     }
 
     // ==================== Binder-based Session API（主方案） ====================
@@ -147,14 +143,14 @@ object ShizukuInstallHelper {
 
                 // 主方案：通过 ShizukuBinderWrapper + PackageInstaller.Session API
                 installViaPackageInstaller(context, listOf(apkFile), callback)
-                callback.onSuccess("Installation successful!")
+                callback.onSuccess(context.getString(R.string.install_success))
             } catch (binderError: Exception) {
                 Log.w("ShizukuInstallHelper",
                     "Binder approach failed, falling back to shell: ${binderError.message}")
                 try {
                     installSingleApkViaShell(context, apkFile, replaceExisting, grantPermissions, callback)
                 } catch (shellError: Exception) {
-                    callback.onError("Install exception: ${shellError.message}")
+                    callback.onError(context.getString(R.string.install_exception, shellError.message))
                 }
             }
         }.start()
@@ -181,14 +177,16 @@ object ShizukuInstallHelper {
 
                 // 主方案：通过 ShizukuBinderWrapper + PackageInstaller.Session API
                 installViaPackageInstaller(context, extractedApks, callback)
-                callback.onSuccess("XAPK installation successful! ${extractedApks.size} APKs installed")
+                callback.onSuccess(
+                    context.getString(R.string.xapk_install_success_msg, extractedApks.size)
+                )
             } catch (binderError: Exception) {
                 Log.w("ShizukuInstallHelper",
                     "Binder approach failed, falling back to shell: ${binderError.message}")
                 try {
                     installXapkViaShell(context, xapkPath, replaceExisting, grantPermissions, callback)
                 } catch (shellError: Exception) {
-                    callback.onError("XAPK install exception: ${shellError.message}")
+                    callback.onError(context.getString(R.string.xapk_install_exception, shellError.message))
                 }
             } finally {
                 extractedApks?.let { XapkInstaller.cleanupTempFiles(it) }
@@ -206,12 +204,12 @@ object ShizukuInstallHelper {
         try {
             val apkFile = File(apkPath)
             if (!apkFile.exists()) {
-                callback.onError("APK file does not exist")
+                callback.onError(context.getString(R.string.apk_not_exist))
                 return
             }
             installSingleApk(context, apkFile, replaceExisting, grantPermissions, callback)
         } catch (e: Exception) {
-            callback.onError("Install exception: ${e.message}")
+            callback.onError(context.getString(R.string.install_exception, e.message))
         }
     }
 
@@ -307,7 +305,7 @@ object ShizukuInstallHelper {
 
         if (status != PackageInstaller.STATUS_SUCCESS) {
             val msg = resultIntent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-            throw Exception("Install failed (status=$status): $msg")
+            throw Exception(context.getString(R.string.install_failed_status, status, msg))
         }
     }
 
@@ -446,7 +444,7 @@ object ShizukuInstallHelper {
         val createOutput = executeCommand(context, createCmd.toString())
 
         if (!createOutput.contains("Success")) {
-            throw Exception("Install failed: $createOutput")
+            throw Exception(context.getString(R.string.install_failed, createOutput))
         }
 
         val sessionId = createOutput.substring(
@@ -457,17 +455,17 @@ object ShizukuInstallHelper {
 
         val writeCmd = "pm install-write -S ${apkFile.length()} $sessionId base.apk -"
         callback.onProgress("Writing APK data...")
-        val writeOutput = executeCommandWithInput(writeCmd, apkFile)
+        val writeOutput = executeCommandWithInput(context, writeCmd, apkFile)
 
         if (!writeOutput.contains("Success")) {
-            throw Exception("Install failed: $writeOutput")
+            throw Exception(context.getString(R.string.install_failed, writeOutput))
         }
 
         callback.onProgress("Submitting install...")
         val commitOutput = executeCommand(context, "pm install-commit $sessionId")
 
         if (!commitOutput.lowercase().contains("success")) {
-            throw Exception("Install failed: $commitOutput")
+            throw Exception(context.getString(R.string.install_failed, commitOutput))
         }
     }
 
@@ -496,7 +494,7 @@ object ShizukuInstallHelper {
         val createOutput = executeCommand(context, createCmd.toString())
 
         if (!createOutput.contains("Success")) {
-            throw Exception("Install failed: $createOutput")
+            throw Exception(context.getString(R.string.install_failed, createOutput))
         }
 
         val sessionId = createOutput.substring(
@@ -508,9 +506,9 @@ object ShizukuInstallHelper {
         for ((index, apkFile) in extractedApks.withIndex()) {
             callback.onProgress("[${index + 1}/${extractedApks.size}] ${apkFile.name}")
             val writeCmd = "pm install-write -S ${apkFile.length()} $sessionId ${apkFile.name} -"
-            val writeOutput = executeCommandWithInput(writeCmd, apkFile)
+            val writeOutput = executeCommandWithInput(context, writeCmd, apkFile)
             if (!writeOutput.contains("Success")) {
-                throw Exception("Install failed: ${apkFile.name} failed: $writeOutput")
+                throw Exception(context.getString(R.string.install_failed, "${apkFile.name}: $writeOutput"))
             }
         }
 
@@ -518,7 +516,7 @@ object ShizukuInstallHelper {
         val commitOutput = executeCommand(context, "pm install-commit $sessionId")
 
         if (!commitOutput.lowercase().contains("success")) {
-            throw Exception("Install failed: $commitOutput")
+            throw Exception(context.getString(R.string.install_failed, commitOutput))
         }
     }
 
