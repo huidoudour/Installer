@@ -16,11 +16,7 @@ import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.auth.SmartAuthorizer
 import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
-import dev.huidoudour.installer.signature.SignatureHelper
-import dev.huidoudour.installer.signature.SignatureMatchStatus
-import dev.huidoudour.installer.signature.SignatureSummary
 import dev.huidoudour.installer.util.LogManager
-import dev.huidoudour.installer.util.SignaturePrefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -72,10 +68,6 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _installProgress = MutableStateFlow(0)
     val installProgress: StateFlow<Int> = _installProgress.asStateFlow()
-
-    // 签名校验摘要（仅 .apk；XAPK/APKS 为不适用）
-    private val _signatureSummary = MutableStateFlow<SignatureSummary?>(null)
-    val signatureSummary: StateFlow<SignatureSummary?> = _signatureSummary.asStateFlow()
 
     private val _enableCustomPackageName = MutableStateFlow(true)
     val enableCustomPackageName: StateFlow<Boolean> = _enableCustomPackageName.asStateFlow()
@@ -246,16 +238,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                         _selectedFileName.value = fileName
                         _isXapkFile.value = isXapk
                         _fileType.value = type
-                        _signatureSummary.value = null
                         updateInstallButtonState()
-                    }
-
-                    // 仅在开启“安装前校验签名”时才做完整校验（apksig 需要读取整个 APK）
-                    if (SignaturePrefs.isCheckEnabled(context)) {
-                        val summary = runCatching { computeSignatureSummary(path, isXapk) }.getOrNull()
-                        withContext(Dispatchers.Main) {
-                            _signatureSummary.value = summary
-                        }
                     }
 
                     logManager.addLog("File selected: $path")
@@ -321,35 +304,6 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
 
             logManager.addLog("File info refreshed")
         }
-    }
-
-    /**
-     * 快速解析待安装 APK 的签名并与已安装同包名应用比对。
-     * XAPK/APKS 容器暂标记为不适用。
-     */
-    private fun computeSignatureSummary(path: String, isXapk: Boolean): SignatureSummary {
-        if (isXapk) {
-            return SignatureSummary(
-                applicable = false,
-                status = SignatureMatchStatus.NOT_INSTALLED,
-                packageName = null,
-                apkSha256 = null,
-                apkSignature = null,
-                installedSignature = null,
-            )
-        }
-
-        val packageName = SignatureHelper.readArchivePackageName(context, File(path))
-
-        val result = SignatureHelper.match(context, File(path), packageName)
-        return SignatureSummary(
-            applicable = true,
-            status = result.status,
-            packageName = packageName,
-            apkSha256 = result.apkSha256,
-            apkSignature = result.apkSignature,
-            installedSignature = result.installedSignature,
-        )
     }
 
     fun install() {
@@ -448,7 +402,6 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
         _selectedFileName.value = null
         _fileType.value = null
         _isXapkFile.value = false
-        _signatureSummary.value = null
         updateInstallButtonState()
     }
 

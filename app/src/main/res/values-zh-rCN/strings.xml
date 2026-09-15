@@ -612,6 +612,7 @@
     <!-- Additional hardcoded strings found -->
     <string name="package_name_label_colon">包名：</string>
     <string name="current_version_label">当前版本：</string>
+    <string name="fresh_install">全新安装</string>
     <string name="upgrade_version_label">升级版本：</string>
     <string name="min_sdk_label">最低SDK：</string>
     <string name="target_sdk_label">目标SDK：</string>

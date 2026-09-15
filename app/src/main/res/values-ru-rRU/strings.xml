@@ -612,6 +612,7 @@
     <!-- Additional hardcoded strings found -->
     <string name="package_name_label_colon">Имя пакета: </string>
     <string name="current_version_label">Текущая версия: </string>
+    <string name="fresh_install">Новая установка</string>
     <string name="upgrade_version_label">Версия обновления: </string>
     <string name="min_sdk_label">Мин. SDK: </string>
     <string name="target_sdk_label">Целевой SDK: </string>

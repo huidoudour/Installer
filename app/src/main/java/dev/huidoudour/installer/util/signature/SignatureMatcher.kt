@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.signature
+package dev.huidoudour.installer.util.signature
 
 /**
  * 比对待安装 APK 与已安装应用的签名，判定是否兼容。

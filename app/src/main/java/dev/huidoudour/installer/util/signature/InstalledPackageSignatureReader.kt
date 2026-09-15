@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.signature
+package dev.huidoudour.installer.util.signature
 
 import android.content.Context
 import android.content.pm.PackageInfo

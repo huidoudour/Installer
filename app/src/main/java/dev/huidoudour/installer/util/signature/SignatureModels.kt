@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.signature
+package dev.huidoudour.installer.util.signature
 
 /**
  * 单个签名证书的格式化信息

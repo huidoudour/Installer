@@ -30,10 +30,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.huidoudour.installer.signature.AppSignatureInfo
-import dev.huidoudour.installer.signature.SignatureMatchStatus
-import dev.huidoudour.installer.signature.SignatureSummary
-import dev.huidoudour.installer.signature.SignatureVerificationStatus
+import dev.huidoudour.installer.util.signature.AppSignatureInfo
+import dev.huidoudour.installer.util.signature.SignatureMatchStatus
+import dev.huidoudour.installer.util.signature.SignatureSummary
+import dev.huidoudour.installer.util.signature.SignatureVerificationStatus
 import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.R
 

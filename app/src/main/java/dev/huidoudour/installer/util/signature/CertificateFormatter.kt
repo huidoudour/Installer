@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.signature
+package dev.huidoudour.installer.util.signature
 
 import android.content.pm.Signature
 import java.io.ByteArrayInputStream
@@ -6,6 +6,7 @@ import java.security.MessageDigest
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
@@ -56,7 +57,7 @@ object CertificateFormatter {
         return digest.digest(this).joinToString("") { "%02x".format(it) }
     }
 
-    private fun java.util.Date.formatUtc(): String {
+    private fun Date.formatUtc(): String {
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'", Locale.US)
         formatter.timeZone = TimeZone.getTimeZone("UTC")
         return formatter.format(this)

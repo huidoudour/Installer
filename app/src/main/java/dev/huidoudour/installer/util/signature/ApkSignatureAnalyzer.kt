@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.signature
+package dev.huidoudour.installer.util.signature
 
 import android.os.Build
 import android.util.Log

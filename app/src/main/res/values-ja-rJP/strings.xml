@@ -612,6 +612,7 @@
     <!-- Additional hardcoded strings found -->
     <string name="package_name_label_colon">パッケージ名：</string>
     <string name="current_version_label">現在のバージョン：</string>
+    <string name="fresh_install">新規インストール</string>
     <string name="upgrade_version_label">アップグレードバージョン：</string>
     <string name="min_sdk_label">最小SDK：</string>
     <string name="target_sdk_label">ターゲットSDK：</string>

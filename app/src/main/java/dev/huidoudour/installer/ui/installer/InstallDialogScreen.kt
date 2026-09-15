@@ -69,9 +69,9 @@ import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.auth.SmartAuthorizer
 import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
-import dev.huidoudour.installer.signature.SignatureHelper
-import dev.huidoudour.installer.signature.SignatureMatchStatus
-import dev.huidoudour.installer.signature.SignatureSummary
+import dev.huidoudour.installer.util.signature.SignatureHelper
+import dev.huidoudour.installer.util.signature.SignatureMatchStatus
+import dev.huidoudour.installer.util.signature.SignatureSummary
 import dev.huidoudour.installer.ui.theme.LocalThemeStateHolder
 import dev.huidoudour.installer.util.LoaderAnimationMode
 import dev.huidoudour.installer.util.LoaderAnimationPrefs
@@ -763,9 +763,10 @@ private fun parseApkInfo(context: Context, path: String): ApkInfo? {
             false
         }
         
+        // 未安装时显示“全新安装”，已安装时显示“版本名 (版本号)”
         val installedVersion = installedPkg?.let {
             "${it.versionName ?: context.getString(R.string.unknown)} (${it.longVersionCode})"
-        } ?: ""
+        } ?: context.getString(R.string.fresh_install)
         
         ApkInfo(
             appName = appName,
