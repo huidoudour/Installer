@@ -133,7 +133,7 @@
     <string name="select_package">选择安装包喵</string>
     <string name="select_package_file">选择安装包 (APK/XAPK/APKS) 喵</string>
     <string name="installing_progress">正在安装喵...</string>
-    <string name="preparing">准备中喵...</string>
+    <string name="preparing">快了喵...</string>
     <string name="progress_count">0/0</string>
     <string name="full_log">完整日志喵</string>
     <string name="clear">清空喵</string>

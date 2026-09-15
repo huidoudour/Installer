@@ -97,6 +97,8 @@ fun InstallerScreen(
     val isInstallEnabled by viewModel.isInstallEnabled.collectAsState()
     val isInstalling by viewModel.isInstalling.collectAsState()
     val installCompleted by viewModel.installCompleted.collectAsState()
+    // 正在物化所选安装包（大包耗时较长，期间安装按钮切换为加载动画）
+    val isLoadingPackage by viewModel.isLoadingPackage.collectAsState()
     val enableCustomPackageName by viewModel.enableCustomPackageName.collectAsState()
     val allowTestPackages by viewModel.allowTestPackages.collectAsState()
     val selectedInstallerPackage by viewModel.selectedInstallerPackage.collectAsState()
@@ -181,7 +183,8 @@ fun InstallerScreen(
                 onInstall = { viewModel.install() },
                 isInstallEnabled = isInstallEnabled,
                 isInstalling = isInstalling,
-                installCompleted = installCompleted
+                installCompleted = installCompleted,
+                isLoadingPackage = isLoadingPackage
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -394,7 +397,8 @@ fun FileSelectionCard(
     onInstall: () -> Unit,
     isInstallEnabled: Boolean,
     isInstalling: Boolean,
-    installCompleted: Boolean = false
+    installCompleted: Boolean = false,
+    isLoadingPackage: Boolean = false
 ) {
     val hasFile = selectedFileName != null
 
@@ -498,6 +502,8 @@ fun FileSelectionCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
+            // 加载安装包期间禁止重复选择，避免状态错乱
+            enabled = !isLoadingPackage,
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = ButtonPrimaryBlue,
@@ -513,10 +519,12 @@ fun FileSelectionCard(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        // 加载安装包 / 安装进行中都属于忙碌态：按钮不可点击并展示加载动画
+        val isBusy = isLoadingPackage || isInstalling
         // Install button - green when ready, blue after complete
         val installButtonColor = when {
             installCompleted -> ButtonPrimaryBlue
-            isInstallEnabled -> ButtonSecondaryGreen
+            isInstallEnabled || isBusy -> ButtonSecondaryGreen
             else -> MaterialTheme.colorScheme.surfaceVariant
         }
         Button(
@@ -524,19 +532,26 @@ fun FileSelectionCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            enabled = isInstallEnabled && !isInstalling,
+            enabled = isInstallEnabled && !isBusy,
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = installButtonColor,
                 contentColor = Color.White,
-                disabledContainerColor = if (installCompleted) ButtonPrimaryBlue.copy(alpha = 0.5f)
-                    else MaterialTheme.colorScheme.surfaceVariant,
-                disabledContentColor = if (installCompleted) Color.White.copy(alpha = 0.7f)
-                    else MaterialTheme.colorScheme.onSurfaceVariant
+                // 忙碌态保留主题色（半透明），避免禁用底色上指示器与文字看不清
+                disabledContainerColor = when {
+                    installCompleted -> ButtonPrimaryBlue.copy(alpha = 0.5f)
+                    isBusy -> ButtonSecondaryGreen.copy(alpha = 0.6f)
+                    else -> MaterialTheme.colorScheme.surfaceVariant
+                },
+                disabledContentColor = when {
+                    installCompleted -> Color.White.copy(alpha = 0.7f)
+                    isBusy -> Color.White
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                }
             ),
             contentPadding = PaddingValues(16.dp)
         ) {
-            if (isInstalling) {
+            if (isBusy) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
                     color = Color.White,
@@ -545,8 +560,11 @@ fun FileSelectionCard(
                 Spacer(modifier = Modifier.width(8.dp))
             }
             Text(
-                text = if (isInstalling) stringResource(R.string.installing_progress)
-                else stringResource(R.string.install_apk),
+                text = when {
+                    isLoadingPackage -> stringResource(R.string.preparing)
+                    isInstalling -> stringResource(R.string.installing_progress)
+                    else -> stringResource(R.string.install_apk)
+                },
                 fontSize = 15.sp
             )
         }

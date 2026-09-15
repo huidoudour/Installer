@@ -69,6 +69,10 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     private val _installProgress = MutableStateFlow(0)
     val installProgress: StateFlow<Int> = _installProgress.asStateFlow()
 
+    // 正在把选中的安装包物化到缓存（大包耗时较长，期间安装按钮切换为加载动画）
+    private val _isLoadingPackage = MutableStateFlow(false)
+    val isLoadingPackage: StateFlow<Boolean> = _isLoadingPackage.asStateFlow()
+
     private val _enableCustomPackageName = MutableStateFlow(true)
     val enableCustomPackageName: StateFlow<Boolean> = _enableCustomPackageName.asStateFlow()
 
@@ -226,6 +230,9 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                 withContext(Dispatchers.Main) {
                     _selectedFileName.value = fileName
                     _installCompleted.value = false
+                    // 大安装包物化耗时较长，先进入加载态：安装按钮禁用并显示加载动画
+                    _isLoadingPackage.value = true
+                    updateInstallButtonState()
                 }
 
                 val path = getFilePathFromUri(uri)
@@ -238,13 +245,17 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                         _selectedFileName.value = fileName
                         _isXapkFile.value = isXapk
                         _fileType.value = type
-                        updateInstallButtonState()
                     }
 
                     logManager.addLog("File selected: $path")
                 }
             } catch (e: Exception) {
                 logManager.addLog("Error selecting file: ${e.message}")
+            } finally {
+                withContext(Dispatchers.Main) {
+                    _isLoadingPackage.value = false
+                    updateInstallButtonState()
+                }
             }
         }
     }
@@ -409,7 +420,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
         val path = _selectedFilePath.value
         val fileSelected = !path.isNullOrEmpty()
         val privilegeReady = _privilegeStatus.value == PrivilegeHelper.PrivilegeStatus.AUTHORIZED
-        _isInstallEnabled.value = privilegeReady && fileSelected && !_isInstalling.value
+        _isInstallEnabled.value = privilegeReady && fileSelected && !_isInstalling.value && !_isLoadingPackage.value
     }
 
     private fun loadSwitchStates() {

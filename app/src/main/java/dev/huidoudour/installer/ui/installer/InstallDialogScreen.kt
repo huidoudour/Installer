@@ -101,7 +101,9 @@ data class InstallDialogState(
     val isComplete: Boolean = false,
     val errorMessage: String? = null,
     val signature: SignatureSummary? = null,
-    val isInfoLoaded: Boolean = false
+    val isInfoLoaded: Boolean = false,
+    // 正在物化文件 / 解析安装包信息（用于展示加载动画）
+    val isLoading: Boolean = true
 )
 
 /**
@@ -198,8 +200,14 @@ private fun InstallDialogContent(
                     }
                 } catch (e: Exception) {
                     Log.e("InstallDialog", "Failed to parse APK", e)
+                } finally {
+                    // 解析结束（成功或失败）后收起加载动画
+                    state = state.copy(isLoading = false)
                 }
             }
+        } else {
+            // 无安装包来源（installUri 为空）时同样结束加载态，避免一直停在加载动画
+            state = state.copy(isLoading = false)
         }
     }
 
@@ -233,6 +241,12 @@ private fun InstallDialogContent(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
+                // 加载安装包信息期间：整卡切换为加载动画（参考 InstallerX 的 Preparing/Analysing 阶段）
+                if (state.isLoading) {
+                    PackageLoadingIndicator()
+                    return@Column
+                }
+
                 // 应用信息区域 - 始终显示
                 InstallInfoHeader(state = state)
 
@@ -331,6 +345,54 @@ private fun InstallDialogContent(
                 onDismiss = { showSignatureDialog = false }
             )
         }
+    }
+}
+
+/**
+ * 加载安装包信息的动画（物化文件 + 解析 APK 期间展示，参考 InstallerX 的 Preparing 阶段）
+ * 图形模式使用包含式指示器，波浪模式使用不定量线性波浪条。
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun PackageLoadingIndicator() {
+    val context = LocalContext.current
+    val useMonet = LocalThemeStateHolder.current.state.useDynamicColor &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val indicatorColor = if (useMonet) MaterialTheme.colorScheme.primary else Color(0xFF29B6F6)
+    val loaderMode = LoaderAnimationPrefs.getMode(context)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        when (loaderMode) {
+            LoaderAnimationMode.GRAPHIC -> {
+                ContainedLoadingIndicator(
+                    modifier = Modifier.size(40.dp),
+                    indicatorColor = indicatorColor,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                )
+            }
+            LoaderAnimationMode.WAVE -> {
+                LinearWavyProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    color = indicatorColor,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.preparing),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
