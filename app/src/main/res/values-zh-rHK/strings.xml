@@ -11,7 +11,6 @@
     <string name="authorization_method">授权方式喵</string>
     <string name="shizuku">Shizuku 喵</string>
     <string name="dhizuku">Dhizuku 喵</string>
-    <string name="axmanager">AxManager 喵</string>
     <string name="grant">授予喵</string>
     <string name="install_dialog_title">安装对话框喵</string>
     <string name="select_apk">选择 APK 喵</string>
@@ -133,8 +132,9 @@
     <string name="install_apk">安装 APK 喵</string>
     <string name="select_package">选择安装包喵</string>
     <string name="select_package_file">选择安装包 (APK/XAPK/APKS) 喵</string>
+    <string name="clear_selected_package">已清除所选安装包喵</string>
     <string name="installing_progress">正在安装喵...</string>
-    <string name="preparing">准备中喵...</string>
+    <string name="preparing">快了喵...</string>
     <string name="progress_count">0/0</string>
     <string name="full_log">完整日志喵</string>
     <string name="clear">清空喵</string>
@@ -492,7 +492,7 @@
     <string name="privilege_mode_shizuku">Shizuku</string>
 
     <!-- Native library test related strings -->
-    <string name="execute_command_failed">执行命令失败喵</string>
+    <string name="execute_command_failed">執行命令失敗喵：%s</string>
     
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== 原生库测试喵 ===</string>
@@ -613,6 +613,7 @@
     <!-- Additional hardcoded strings found -->
     <string name="package_name_label_colon">包名喵：</string>
     <string name="current_version_label">当前版本喵：</string>
+    <string name="fresh_install">全新安裝喵</string>
     <string name="upgrade_version_label">升级版本喵：</string>
     <string name="min_sdk_label">最低SDK喵：</string>
     <string name="target_sdk_label">目标SDK喵：</string>
@@ -655,26 +656,77 @@
 
     <!-- Missing default strings (defined in language-specific folders) -->
     <string name="apk_name_failed" formatted="false">%s failed: %s</string>
-    <string name="apk_not_exist">APK file does not exist</string>
+    <string name="apk_not_exist">APK 檔案唔存在喵</string>
     <string name="apk_progress" formatted="false">[%d/%d] %s</string>
     <string name="create_session">Create installation session: %s</string>
     <string name="extract_complete">Extraction complete, %d APKs in total</string>
     <string name="extract_xapk">Extracting XAPK (using native compression library)…</string>
-    <string name="install_exception">Installation exception: %s</string>
-    <string name="install_failed">Installation failed: %s</string>
+    <string name="install_exception">安裝異常喵：%s</string>
+    <string name="install_failed">安裝失敗喵：%s</string>
     <string name="install_failed_error">Installation failed: %s</string>
-    <string name="install_success_simple">Installation successful!</string>
+    <string name="install_success_simple">安装成功喵！</string>
     <string name="session_id">Session ID: %s</string>
     <string name="start_apk_install">Start APK installation…</string>
     <string name="submit_install">Submit installation…</string>
     <string name="submitting_install">Submitting installation…</string>
     <string name="write_apk_data">Writing APK data…</string>
-    <string name="xapk_install_exception">XAPK installation exception: %s</string>
-    <string name="xapk_install_success_msg">XAPK installation successful! %d APKs installed in total</string>
+    <string name="xapk_install_exception">XAPK 安裝異常喵：%s</string>
+    <string name="xapk_install_success_msg">XAPK 安装成功喵！共安装 %d 个 APK 喵</string>
 
     <string name="loader_animation_settings">載入動畫</string>
     <string name="loader_animation_graphic">圖形載入</string>
     <string name="loader_animation_wave">線性波浪條</string>
     <string name="changelog_title">更新日誌喵</string>
     <string name="changelog_empty">咩提交記錄</string>
+
+    <!-- Lab / Smart authorizer / Signature verification -->
+    <string name="lab">實驗室喵</string>
+    <string name="lab_tip">實驗性功能喵，請小心使用喵。</string>
+    <string name="lab_authorizer_section">智能授權喵</string>
+    <string name="lab_try_multiple_authorizers">安裝時嘗試多個授權方式喵</string>
+    <string name="lab_try_multiple_authorizers_desc">失敗時自動切換到下一個可用授權方式喵</string>
+    <string name="lab_smart_authorizer">智能授權喵</string>
+    <string name="lab_smart_authorizer_fallback_list">回退授權列表喵</string>
+    <string name="lab_smart_authorizer_fallback_list_desc">長按拖動排序喵，啟用的授權方式會按順序嘗試喵。</string>
+    <string name="lab_authorizer_must_choose_one">請至少保留一個啟用的授權方式喵</string>
+    <string name="lab_signature_section">簽名校驗喵</string>
+    <string name="lab_check_signature">安裝前校驗簽名喵</string>
+    <string name="lab_check_signature_desc">完整校驗 APK 簽名同內容摘要後再比對證書喵</string>
+    <string name="lab_show_signature_details">顯示簽名詳情喵</string>
+    <string name="authorizer_none">系統安裝器喵</string>
+    <string name="system_installer_launched">已拉起系統安裝器喵</string>
+    <string name="signature_status_match">簽名一致喵</string>
+    <string name="signature_status_mismatch">簽名不一致喵</string>
+    <string name="signature_status_not_installed">未安裝喵</string>
+    <string name="signature_status_rotation">輪換兼容喵</string>
+    <string name="signature_status_unknown">無法獲取簽名喵</string>
+    <string name="signature_status_na">不適用喵</string>
+    <string name="signature_details_title">簽名詳情喵</string>
+    <string name="signature_sha256">SHA-256</string>
+    <string name="signature_sha1">SHA-1</string>
+    <string name="signature_subject">主體喵</string>
+    <string name="signature_issuer">頒發者喵</string>
+    <string name="signature_serial">序列號喵</string>
+    <string name="signature_valid_from">生效時間喵</string>
+    <string name="signature_valid_until">失效時間喵</string>
+    <string name="signature_verification_status">校驗狀態喵</string>
+    <string name="signature_verification_verified">已通過完整校驗喵</string>
+    <string name="signature_verification_signing_block_only">未完整校驗（僅簽名塊聲明）喵</string>
+    <string name="signature_verification_failed">校驗失敗喵</string>
+    <string name="signature_verification_issues">校驗問題喵</string>
+
+    <!-- Advanced settings card & authorizer-by-install-state -->
+    <string name="advanced_settings">高級設定喵</string>
+    <string name="lab_authorizer_by_install_state">按安裝狀態選擇授權方式喵</string>
+    <string name="lab_authorizer_by_install_state_desc">已安裝 → Shizuku，全新安裝 → Dhizuku喵</string>
+    <!-- Install / authorizer runtime messages -->
+    <string name="dhizuku_not_initialized">Dhizuku 未初始化喵</string>
+    <string name="dhizuku_clone_service_unavailable">Dhizuku API 連接唔到複製版服務（%s）喵，請確認複製版保留咗原本嘅 Service/Provider authority</string>
+    <string name="install_requires_user_action">安裝需要用戶操作喵：%s</string>
+    <string name="install_failed_status">安裝失敗（狀態=%1$d）喵：%2$s</string>
+    <string name="session_create_failed">建立安裝工作階段失敗喵：%s</string>
+    <string name="install_write_failed">寫入失敗喵：%s</string>
+    <string name="file_not_found">檔案唔存在喵：%s</string>
+    <string name="system_installer_failed">系統安裝器啟動失敗喵：%s</string>
+    <string name="no_available_authorizer">冇可用嘅授權方式喵</string>
 </resources>

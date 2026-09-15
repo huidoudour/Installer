@@ -11,7 +11,6 @@
     <string name="authorization_method">授權方式</string>
     <string name="shizuku">Shizuku</string>
     <string name="dhizuku">Dhizuku</string>
-    <string name="axmanager">AxManager</string>
     <string name="grant">授予</string>
     <string name="install_dialog_title">安裝對話框</string>
     <string name="select_apk">選擇 APK</string>
@@ -133,6 +132,7 @@
     <string name="install_apk">安裝 APK</string>
     <string name="select_package">選擇安裝包</string>
     <string name="select_package_file">選擇安裝包 (APK/XAPK/APKS)</string>
+    <string name="clear_selected_package">已清除所選安裝包</string>
     <string name="installing_progress">正在安裝...</string>
     <string name="preparing">準備中...</string>
     <string name="progress_count">0/0</string>
@@ -492,7 +492,7 @@
     <string name="privilege_mode_shizuku">Shizuku</string>
 
     <!-- Native library test related strings -->
-    <string name="execute_command_failed">執行命令失敗</string>
+    <string name="execute_command_failed">執行命令失敗：%s</string>
     
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== 原生庫測試 ===</string>
@@ -613,6 +613,7 @@
     <!-- Additional hardcoded strings found -->
     <string name="package_name_label_colon">套件名稱：</string>
     <string name="current_version_label">目前版本：</string>
+    <string name="fresh_install">全新安裝</string>
     <string name="upgrade_version_label">升級版本：</string>
     <string name="min_sdk_label">最低SDK：</string>
     <string name="target_sdk_label">目標SDK：</string>
@@ -655,26 +656,77 @@
 
     <!-- Missing default strings (defined in language-specific folders) -->
     <string name="apk_name_failed" formatted="false">%s failed: %s</string>
-    <string name="apk_not_exist">APK file does not exist</string>
+    <string name="apk_not_exist">APK 檔案不存在</string>
     <string name="apk_progress" formatted="false">[%d/%d] %s</string>
     <string name="create_session">Create installation session: %s</string>
     <string name="extract_complete">Extraction complete, %d APKs in total</string>
     <string name="extract_xapk">Extracting XAPK (using native compression library)…</string>
-    <string name="install_exception">Installation exception: %s</string>
-    <string name="install_failed">Installation failed: %s</string>
+    <string name="install_exception">安裝異常：%s</string>
+    <string name="install_failed">安裝失敗：%s</string>
     <string name="install_failed_error">Installation failed: %s</string>
-    <string name="install_success_simple">Installation successful!</string>
+    <string name="install_success_simple">安裝成功！</string>
     <string name="session_id">Session ID: %s</string>
     <string name="start_apk_install">Start APK installation…</string>
     <string name="submit_install">Submit installation…</string>
     <string name="submitting_install">Submitting installation…</string>
     <string name="write_apk_data">Writing APK data…</string>
-    <string name="xapk_install_exception">XAPK installation exception: %s</string>
-    <string name="xapk_install_success_msg">XAPK installation successful! %d APKs installed in total</string>
+    <string name="xapk_install_exception">XAPK 安裝異常：%s</string>
+    <string name="xapk_install_success_msg">XAPK 安裝成功！共安裝 %d 個 APK</string>
 
     <string name="loader_animation_settings">載入動畫</string>
     <string name="loader_animation_graphic">圖形載入</string>
     <string name="loader_animation_wave">線性波浪條</string>
     <string name="changelog_title">更新日誌</string>
     <string name="changelog_empty">目前沒有提交記錄</string>
+
+    <!-- Lab / Smart authorizer / Signature verification -->
+    <string name="lab">實驗室</string>
+    <string name="lab_tip">實驗性功能，請謹慎使用。</string>
+    <string name="lab_authorizer_section">智慧授權</string>
+    <string name="lab_try_multiple_authorizers">安裝時嘗試多個授權方式</string>
+    <string name="lab_try_multiple_authorizers_desc">失敗時自動切換到下一個可用授權方式</string>
+    <string name="lab_smart_authorizer">智慧授權</string>
+    <string name="lab_smart_authorizer_fallback_list">回退授權清單</string>
+    <string name="lab_smart_authorizer_fallback_list_desc">長按拖曳排序，啟用的授權方式會依序嘗試。</string>
+    <string name="lab_authorizer_must_choose_one">請至少保留一個啟用的授權方式</string>
+    <string name="lab_signature_section">簽章驗證</string>
+    <string name="lab_check_signature">安裝前驗證簽章</string>
+    <string name="lab_check_signature_desc">完整驗證 APK 簽章與內容摘要後再比對憑證</string>
+    <string name="lab_show_signature_details">顯示簽章詳細資料</string>
+    <string name="authorizer_none">系統安裝程式</string>
+    <string name="system_installer_launched">已拉起系統安裝程式</string>
+    <string name="signature_status_match">簽章相符</string>
+    <string name="signature_status_mismatch">簽章不符</string>
+    <string name="signature_status_not_installed">未安裝</string>
+    <string name="signature_status_rotation">輪替相容</string>
+    <string name="signature_status_unknown">無法取得簽章</string>
+    <string name="signature_status_na">不適用</string>
+    <string name="signature_details_title">簽章詳細資料</string>
+    <string name="signature_sha256">SHA-256</string>
+    <string name="signature_sha1">SHA-1</string>
+    <string name="signature_subject">主體</string>
+    <string name="signature_issuer">簽發者</string>
+    <string name="signature_serial">序號</string>
+    <string name="signature_valid_from">生效時間</string>
+    <string name="signature_valid_until">失效時間</string>
+    <string name="signature_verification_status">驗證狀態</string>
+    <string name="signature_verification_verified">已通過完整驗證</string>
+    <string name="signature_verification_signing_block_only">未完整驗證（僅簽章區塊宣告）</string>
+    <string name="signature_verification_failed">驗證失敗</string>
+    <string name="signature_verification_issues">驗證問題</string>
+
+    <!-- Advanced settings card & authorizer-by-install-state -->
+    <string name="advanced_settings">進階設定</string>
+    <string name="lab_authorizer_by_install_state">依安裝狀態選擇授權方式</string>
+    <string name="lab_authorizer_by_install_state_desc">已安裝 → Shizuku，全新安裝 → Dhizuku</string>
+    <!-- Install / authorizer runtime messages -->
+    <string name="dhizuku_not_initialized">Dhizuku 未初始化</string>
+    <string name="dhizuku_clone_service_unavailable">Dhizuku API 無法連接複製版服務（%s），請確認複製版保留了原始 Service/Provider authority</string>
+    <string name="install_requires_user_action">安裝需要使用者操作：%s</string>
+    <string name="install_failed_status">安裝失敗（狀態=%1$d）：%2$s</string>
+    <string name="session_create_failed">建立安裝工作階段失敗：%s</string>
+    <string name="install_write_failed">寫入失敗：%s</string>
+    <string name="file_not_found">找不到檔案：%s</string>
+    <string name="system_installer_failed">系統安裝程式啟動失敗：%s</string>
+    <string name="no_available_authorizer">沒有可用的授權方式</string>
 </resources>

@@ -5,7 +5,7 @@ env:
 
 on:
   push:
-    branches: [ "master" , "dev" , "ccrh"]
+    branches: [ "master" , "ccrh"]
     paths:
       - 'app/src/**'
       - 'app/build.gradle.kts'

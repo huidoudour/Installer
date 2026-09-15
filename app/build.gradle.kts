@@ -8,7 +8,7 @@ plugins {
 
 // 共用版本号与版本名
 val baseVersionCode = 8000
-val baseVersionName = "26.09.3"
+val baseVersionName = "26.09.16"
 
 // 构建时的日期+时间
 fun getBuildDateTime(): String {
@@ -69,8 +69,12 @@ tasks.named("preBuild") {
 }
 
 android {
-    namespace = "io.github.huidoudour.installer"
-    compileSdk = 37
+    namespace = "dev.huidoudour.installer"
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
     ndkVersion = "30.0.14904198"
 
     defaultConfig {
@@ -119,10 +123,6 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
             optimization {
                 enable = true
             }
@@ -188,7 +188,6 @@ android {
             "FragmentTagUsage",        // 允许使用fragment标签
             "GradleDependency",        // 不强制更新依赖
             "NewerVersionAvailable"    // 不强制更新到最新版本
-            // 注意: 已移除 "Aligned16KB"，因为我们已正确配置 16KB 对齐
         )
         // 仅检查致命错误
         checkOnly += setOf(
@@ -218,11 +217,12 @@ dependencies {
     implementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.extended)
-    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
     implementation(libs.accompanist.drawablepainter)
     implementation("androidx.palette:palette:1.0.0")
+
+    debugImplementation(libs.compose.ui.tooling.preview)
 
     // Material Kolor - 动态主题颜色生成
     implementation(libs.material.kolor)
@@ -242,8 +242,12 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.19.0")
 
+    // APK 签名校验（apksig：完整校验 v1/v2/v3/v3.1/v4 签名方案）
+    implementation(libs.apksig)
+
     // ====== 必要依赖结束 ======
     // 测试依赖
+    testImplementation("junit:junit:4.13.2")
     // MTDataFilesProvider,documentfile
     debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
     debugImplementation("androidx.documentfile:documentfile:1.1.0")

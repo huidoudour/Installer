@@ -1,0 +1,479 @@
+package dev.huidoudour.installer.ui.installer
+
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.OpenableColumns
+import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import dev.huidoudour.installer.R
+import dev.huidoudour.installer.auth.Authorizer
+import dev.huidoudour.installer.auth.InstallDispatcher
+import dev.huidoudour.installer.auth.PrivilegeHelper
+import dev.huidoudour.installer.auth.SmartAuthorizer
+import dev.huidoudour.installer.install.PackageInfoHelper
+import dev.huidoudour.installer.install.XapkInstaller
+import dev.huidoudour.installer.util.LogManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import rikka.shizuku.Shizuku
+import java.io.File
+import java.io.FileOutputStream
+import kotlin.coroutines.resume
+
+/**
+ * InstallerScreen ViewModel
+ */
+class InstallerViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val context: Context get() = getApplication()
+
+    private val prefs: SharedPreferences = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+
+    // 状态 - 使用 StateFlow 供 Compose 观察
+    private val _privilegeStatus = MutableStateFlow<PrivilegeHelper.PrivilegeStatus>(PrivilegeHelper.PrivilegeStatus.NOT_RUNNING)
+    val privilegeStatus: StateFlow<PrivilegeHelper.PrivilegeStatus> = _privilegeStatus.asStateFlow()
+
+    private val _privilegeMode = MutableStateFlow(PrivilegeHelper.getCurrentMode(context))
+    val privilegeMode: StateFlow<PrivilegeHelper.PrivilegeMode> = _privilegeMode.asStateFlow()
+
+    private val _selectedFilePath = MutableStateFlow<String?>(null)
+    val selectedFilePath: StateFlow<String?> = _selectedFilePath.asStateFlow()
+
+    private val _selectedFileName = MutableStateFlow<String?>(null)
+    val selectedFileName: StateFlow<String?> = _selectedFileName.asStateFlow()
+
+    private val _fileType = MutableStateFlow<String?>(null)
+    val fileType: StateFlow<String?> = _fileType.asStateFlow()
+
+    private val _isXapkFile = MutableStateFlow(false)
+    val isXapkFile: StateFlow<Boolean> = _isXapkFile.asStateFlow()
+
+    private val _isInstallEnabled = MutableStateFlow(false)
+    val isInstallEnabled: StateFlow<Boolean> = _isInstallEnabled.asStateFlow()
+
+    private val _isInstalling = MutableStateFlow(false)
+    val isInstalling: StateFlow<Boolean> = _isInstalling.asStateFlow()
+
+    private val _installCompleted = MutableStateFlow(false)
+    val installCompleted: StateFlow<Boolean> = _installCompleted.asStateFlow()
+
+    private val _installProgress = MutableStateFlow(0)
+    val installProgress: StateFlow<Int> = _installProgress.asStateFlow()
+
+    // 正在把选中的安装包物化到缓存（大包耗时较长，期间安装按钮切换为加载动画）
+    private val _isLoadingPackage = MutableStateFlow(false)
+    val isLoadingPackage: StateFlow<Boolean> = _isLoadingPackage.asStateFlow()
+
+    private val _enableCustomPackageName = MutableStateFlow(true)
+    val enableCustomPackageName: StateFlow<Boolean> = _enableCustomPackageName.asStateFlow()
+
+    // 是否允许安装测试包（pm install -t，仅 Shizuku 模式生效）
+    private val _allowTestPackages = MutableStateFlow(false)
+    val allowTestPackages: StateFlow<Boolean> = _allowTestPackages.asStateFlow()
+
+    // 安装器包名选项
+    data class InstallerPackageOption(
+        val packageName: String,
+        val displayName: String
+    )
+
+    val installerPackageOptions = listOf(
+        InstallerPackageOption("io.github.huidoudour.Installer", "Installer"),
+        InstallerPackageOption("me.huidoudour.core", "Huidoudour Core"),
+        InstallerPackageOption("io.github.huidoudour.zjs", "ZJS")
+    )
+
+    private val _selectedInstallerPackage = MutableStateFlow("io.github.huidoudour.Installer")
+    val selectedInstallerPackage: StateFlow<String> = _selectedInstallerPackage.asStateFlow()
+
+    // 请求者包名选项（requester）
+    val requesterPackageOptions = listOf(
+        InstallerPackageOption("io.github.huidoudour.Installer", "Installer"),
+        InstallerPackageOption("me.huidoudour.core", "Huidoudour Core"),
+        InstallerPackageOption("io.github.huidoudour.zjs", "ZJS"),
+        InstallerPackageOption("com.android.shell", "Shell"),
+    )
+
+    private val _enableCustomRequesterPackage = MutableStateFlow(false)
+    val enableCustomRequesterPackage: StateFlow<Boolean> = _enableCustomRequesterPackage.asStateFlow()
+
+    private val _selectedRequesterPackage = MutableStateFlow("me.huidoudour.core")
+    val selectedRequesterPackage: StateFlow<String> = _selectedRequesterPackage.asStateFlow()
+
+    // replaceExisting 固定为 true，grantPermissions 固定为 false
+    private val _replaceExisting = MutableStateFlow(true)
+    val replaceExisting: StateFlow<Boolean> = _replaceExisting.asStateFlow()
+
+    private val _grantPermissions = MutableStateFlow(false)
+    val grantPermissions: StateFlow<Boolean> = _grantPermissions.asStateFlow()
+
+    private val logManager = LogManager.getInstance()
+
+    private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
+        refreshPrivilegeStatus()
+    }
+
+    private val binderDeadListener = Shizuku.OnBinderDeadListener {
+        refreshPrivilegeStatus()
+    }
+
+    private val shizukuPermissionListener = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
+        if (requestCode == 123) {
+            val msg = if (grantResult == PackageManager.PERMISSION_GRANTED) "Shizuku permission granted" else "Shizuku permission denied"
+            logManager.addLog(msg)
+            refreshPrivilegeStatus()
+        }
+    }
+
+    init {
+        loadSwitchStates()
+        refreshPrivilegeStatus()
+
+        try {
+            Shizuku.addBinderReceivedListener(binderReceivedListener)
+            Shizuku.addBinderDeadListener(binderDeadListener)
+            Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
+        } catch (e: Exception) {
+            logManager.addLog("Shizuku listener registration failed: ${e.message}")
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        try {
+            Shizuku.removeBinderReceivedListener(binderReceivedListener)
+            Shizuku.removeBinderDeadListener(binderDeadListener)
+            Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener)
+        } catch (_: Exception) {}
+    }
+
+    fun refreshPrivilegeStatus() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val mode = PrivilegeHelper.getCurrentMode(context)
+            val status = PrivilegeHelper.getStatus(context, mode)
+            withContext(Dispatchers.Main) {
+                _privilegeMode.value = mode
+                _privilegeStatus.value = status
+                updateInstallButtonState()
+            }
+        }
+    }
+
+    fun switchPrivilegeMode() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newMode = PrivilegeHelper.switchMode(context)
+            val status = PrivilegeHelper.getStatus(context, newMode)
+            withContext(Dispatchers.Main) {
+                _privilegeMode.value = newMode
+                _privilegeStatus.value = status
+                logManager.addLog("Switched to ${PrivilegeHelper.getModeName(newMode)}")
+            }
+        }
+    }
+
+    fun requestPrivilegePermission() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (_privilegeStatus.value) {
+                PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> {
+                    PrivilegeHelper.openGithubPage(context, _privilegeMode.value)
+                    logManager.addLog("${PrivilegeHelper.getModeName(_privilegeMode.value)} not installed")
+                }
+                PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> {
+                    PrivilegeHelper.openPrivilegeApp(context, _privilegeMode.value)
+                    logManager.addLog("Opening ${PrivilegeHelper.getModeName(_privilegeMode.value)}")
+                }
+                PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED,
+                PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> {
+                    when (_privilegeMode.value) {
+                        PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
+                            try {
+                                if (Shizuku.pingBinder()) {
+                                    Shizuku.requestPermission(123)
+                                }
+                            } catch (e: Exception) {
+                                logManager.addLog("Shizuku error: ${e.message}")
+                            }
+                        }
+                        PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
+                            PrivilegeHelper.requestDhizukuPermission(context) { _ ->
+                                viewModelScope.launch(Dispatchers.IO) {
+                                    val status = PrivilegeHelper.getStatus(context, PrivilegeHelper.PrivilegeMode.DHIZUKU)
+                                    withContext(Dispatchers.Main) {
+                                        _privilegeStatus.value = status
+                                        updateInstallButtonState()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
+
+    fun onFileSelected(uri: Uri?) {
+        if (uri == null) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val fileName = getFileNameFromUri(uri)
+                withContext(Dispatchers.Main) {
+                    _selectedFileName.value = fileName
+                    _installCompleted.value = false
+                    // 大安装包物化耗时较长，先进入加载态：安装按钮禁用并显示加载动画
+                    _isLoadingPackage.value = true
+                    updateInstallButtonState()
+                }
+
+                val path = getFilePathFromUri(uri)
+                if (path != null) {
+                    val isXapk = XapkInstaller.isXapkFile(path)
+                    val type = XapkInstaller.getFileTypeDescription(context, path)
+
+                    withContext(Dispatchers.Main) {
+                        _selectedFilePath.value = path
+                        _selectedFileName.value = fileName
+                        _isXapkFile.value = isXapk
+                        _fileType.value = type
+                    }
+
+                    logManager.addLog("File selected: $path")
+                }
+            } catch (e: Exception) {
+                logManager.addLog("Error selecting file: ${e.message}")
+            } finally {
+                withContext(Dispatchers.Main) {
+                    _isLoadingPackage.value = false
+                    updateInstallButtonState()
+                }
+            }
+        }
+    }
+
+    private fun getFilePathFromUri(uri: Uri): String? {
+        return try {
+            if (uri.scheme == "file") {
+                return uri.path
+            }
+
+            val cacheFile = File(context.cacheDir, getFileNameFromUri(uri) ?: "file.apk")
+            // 先删除旧副本：复制失败时不能把上一次的同名缓存文件当成待安装包
+            cacheFile.delete()
+
+            val copied = context.contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(cacheFile).use { output ->
+                    input.copyTo(output)
+                }
+                true
+            } ?: false
+
+            if (!copied) {
+                logManager.addLog("Error getting file path: cannot open $uri")
+                return null
+            }
+            cacheFile.absolutePath
+        } catch (e: Exception) {
+            logManager.addLog("Error getting file path: ${e.message}")
+            null
+        }
+    }
+
+    private fun getFileNameFromUri(uri: Uri): String? {
+        return try {
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex >= 0) cursor.getString(nameIndex) else null
+                } else null
+            } ?: uri.lastPathSegment
+        } catch (e: Exception) {
+            uri.lastPathSegment
+        }
+    }
+
+    fun refreshFileInfo() {
+        val path = _selectedFilePath.value ?: return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val isXapk = XapkInstaller.isXapkFile(path)
+            val type = XapkInstaller.getFileTypeDescription(context, path)
+
+            withContext(Dispatchers.Main) {
+                _isXapkFile.value = isXapk
+                _fileType.value = type
+            }
+
+            logManager.addLog("File info refreshed")
+        }
+    }
+
+    fun install() {
+        val path = _selectedFilePath.value ?: return
+
+        val currentAuthorizer = if (_privilegeMode.value == PrivilegeHelper.PrivilegeMode.DHIZUKU) {
+            Authorizer.Dhizuku
+        } else {
+            Authorizer.Shizuku
+        }
+        val installed = PackageInfoHelper.isApkInstalled(context, path)
+        val ordered: List<Authorizer> =
+            SmartAuthorizer.resolveInstallPlan(context, currentAuthorizer, installed)
+
+        if (ordered.isEmpty()) {
+            logManager.addLog("No available authorizer for install")
+            Toast.makeText(
+                context,
+                context.getString(R.string.no_available_authorizer),
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        val isXapk = _isXapkFile.value
+        _isInstalling.value = true
+        _installProgress.value = 0
+
+        viewModelScope.launch(Dispatchers.IO) {
+            var lastError: String? = null
+
+            for (authorizer in ordered) {
+                logManager.addLog("Trying authorizer: ${context.getString(authorizer.displayNameRes)}")
+                val result = runCatching { tryInstall(path, isXapk, authorizer) }
+
+                if (result.isSuccess) {
+                    val message = result.getOrNull()
+                        ?: context.getString(R.string.install_success_simple)
+                    logManager.addLog(message)
+                    withContext(Dispatchers.Main) {
+                        _isInstalling.value = false
+                        _installCompleted.value = true
+                        clearSelection()
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                    }
+                    return@launch
+                } else {
+                    lastError = result.exceptionOrNull()?.message
+                    logManager.addLog("Authorizer failed: $lastError")
+                    _installProgress.value = 0
+                }
+            }
+
+            withContext(Dispatchers.Main) {
+                _isInstalling.value = false
+                Toast.makeText(
+                    context,
+                    lastError ?: context.getString(R.string.install_failed, ""),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    /**
+     * 使用单个授权方式安装，并用协程挂起等待其回调结果。
+     * 失败时抛出异常，供回退循环捕获并尝试下一个授权方式。
+     */
+    private suspend fun tryInstall(path: String, isXapk: Boolean, authorizer: Authorizer): String =
+        suspendCancellableCoroutine { cont ->
+            InstallDispatcher.install(
+                context = context,
+                authorizer = authorizer,
+                filePath = path,
+                isXapk = isXapk,
+                replaceExisting = _replaceExisting.value,
+                grantPermissions = _grantPermissions.value,
+                callback = object : InstallDispatcher.Callback {
+                    override fun onProgress(message: String) {
+                        logManager.addLog(message)
+                    }
+
+                    override fun onSuccess(message: String) {
+                        if (cont.isActive) cont.resume(message)
+                    }
+
+                    override fun onError(error: String) {
+                        if (cont.isActive) cont.resumeWith(Result.failure(Exception(error)))
+                    }
+                }
+            )
+        }
+
+    fun clearSelection() {
+        _selectedFilePath.value = null
+        _selectedFileName.value = null
+        _fileType.value = null
+        _isXapkFile.value = false
+        updateInstallButtonState()
+    }
+
+    private fun updateInstallButtonState() {
+        val path = _selectedFilePath.value
+        val fileSelected = !path.isNullOrEmpty()
+        val privilegeReady = _privilegeStatus.value == PrivilegeHelper.PrivilegeStatus.AUTHORIZED
+        _isInstallEnabled.value = privilegeReady && fileSelected && !_isInstalling.value && !_isLoadingPackage.value
+    }
+
+    private fun loadSwitchStates() {
+        _enableCustomPackageName.value = prefs.getBoolean("enable_custom_package_name", true)
+        _allowTestPackages.value = prefs.getBoolean("allow_test_packages", false)
+        // replaceExisting 和 grantPermissions 固定值，不从 prefs 加载
+        _replaceExisting.value = true
+        _grantPermissions.value = false
+        // 加载安装器包名选择
+        val savedPackage = prefs.getString("installer_package", "")?.ifEmpty { "io.github.huidoudour.Installer" } ?: "io.github.huidoudour.Installer"
+        _selectedInstallerPackage.value = savedPackage
+
+        // 加载请求者包名选择
+        _enableCustomRequesterPackage.value = prefs.getBoolean("enable_custom_requester_package", false)
+        val savedRequesterPackage = prefs.getString("requester_package", "")?.ifEmpty { "me.huidoudour.core" } ?: "me.huidoudour.core"
+        _selectedRequesterPackage.value = savedRequesterPackage
+    }
+
+    fun saveSwitchStates() {
+        prefs.edit()
+            .putBoolean("enable_custom_package_name", _enableCustomPackageName.value)
+            .putBoolean("allow_test_packages", _allowTestPackages.value)
+            .putString("installer_package", _selectedInstallerPackage.value)
+            .putBoolean("enable_custom_requester_package", _enableCustomRequesterPackage.value)
+            .putString("requester_package", _selectedRequesterPackage.value)
+            .apply()
+    }
+
+    fun setEnableCustomPackageName(value: Boolean) {
+        _enableCustomPackageName.value = value
+        if (!value) {
+            // 关闭时固定为 com.android.shell（install helper 中已处理）
+        }
+        saveSwitchStates()
+    }
+
+    fun setSelectedInstallerPackage(packageName: String) {
+        _selectedInstallerPackage.value = packageName
+        saveSwitchStates()
+    }
+
+    fun setAllowTestPackages(value: Boolean) {
+        _allowTestPackages.value = value
+        saveSwitchStates()
+    }
+
+    fun setEnableCustomRequesterPackage(value: Boolean) {
+        _enableCustomRequesterPackage.value = value
+        saveSwitchStates()
+    }
+
+    fun setSelectedRequesterPackage(packageName: String) {
+        _selectedRequesterPackage.value = packageName
+        saveSwitchStates()
+    }
+}

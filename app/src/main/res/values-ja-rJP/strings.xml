@@ -11,7 +11,6 @@
     <string name="authorization_method">認証方式</string>
     <string name="shizuku">Shizuku</string>
     <string name="dhizuku">Dhizuku</string>
-    <string name="axmanager">AxManager</string>
     <string name="grant">付与</string>
     <string name="install_dialog_title">インストールダイアログ</string>
     <string name="select_apk">APKを選択</string>
@@ -133,6 +132,7 @@
     <string name="install_apk">APKをインストール</string>
     <string name="select_package">パッケージを選択</string>
     <string name="select_package_file">パッケージを選択 (APK/XAPK/APKS)</string>
+    <string name="clear_selected_package">選択したパッケージをクリアしました</string>
     <string name="installing_progress">インストール中...</string>
     <string name="preparing">準備中...</string>
     <string name="progress_count">0/0</string>
@@ -492,7 +492,7 @@
     <string name="privilege_mode_shizuku">Shizuku</string>
 
     <!-- Native library test related strings -->
-    <string name="execute_command_failed">コマンドの実行に失敗しました</string>
+    <string name="execute_command_failed">コマンドの実行に失敗しました: %s</string>
     
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== ネイティブライブラリテスト ===</string>
@@ -613,6 +613,7 @@
     <!-- Additional hardcoded strings found -->
     <string name="package_name_label_colon">パッケージ名：</string>
     <string name="current_version_label">現在のバージョン：</string>
+    <string name="fresh_install">新規インストール</string>
     <string name="upgrade_version_label">アップグレードバージョン：</string>
     <string name="min_sdk_label">最小SDK：</string>
     <string name="target_sdk_label">ターゲットSDK：</string>
@@ -677,4 +678,55 @@
     <string name="loader_animation_wave">波状プログレスバー</string>
     <string name="changelog_title">更新ログ</string>
     <string name="changelog_empty">コミット記録はありません</string>
+
+    <!-- Lab / Smart authorizer / Signature verification -->
+    <string name="lab">ラボ</string>
+    <string name="lab_tip">実験的な機能です。注意してご利用ください。</string>
+    <string name="lab_authorizer_section">スマート認証</string>
+    <string name="lab_try_multiple_authorizers">インストール時に複数の認証方法を試す</string>
+    <string name="lab_try_multiple_authorizers_desc">失敗した場合、利用可能な次の認証方法に自動的に切り替えます</string>
+    <string name="lab_smart_authorizer">スマート認証</string>
+    <string name="lab_smart_authorizer_fallback_list">フォールバック認証リスト</string>
+    <string name="lab_smart_authorizer_fallback_list_desc">ドラッグで並べ替え。有効な認証方法が順番に試されます。</string>
+    <string name="lab_authorizer_must_choose_one">少なくとも1つの認証方法を有効にしてください</string>
+    <string name="lab_signature_section">署名検証</string>
+    <string name="lab_check_signature">インストール前に署名を検証</string>
+    <string name="lab_check_signature_desc">APKの署名と内容ダイジェストを完全に検証してから証明書を比較します</string>
+    <string name="lab_show_signature_details">署名の詳細を表示</string>
+    <string name="authorizer_none">システムインストーラー</string>
+    <string name="system_installer_launched">システムインストーラーを起動しました</string>
+    <string name="signature_status_match">署名が一致</string>
+    <string name="signature_status_mismatch">署名が一致しません</string>
+    <string name="signature_status_not_installed">未インストール</string>
+    <string name="signature_status_rotation">ローテーション互換</string>
+    <string name="signature_status_unknown">署名を取得できません</string>
+    <string name="signature_status_na">対象外</string>
+    <string name="signature_details_title">署名の詳細</string>
+    <string name="signature_sha256">SHA-256</string>
+    <string name="signature_sha1">SHA-1</string>
+    <string name="signature_subject">サブジェクト</string>
+    <string name="signature_issuer">発行者</string>
+    <string name="signature_serial">シリアル番号</string>
+    <string name="signature_valid_from">有効開始</string>
+    <string name="signature_valid_until">有効期限</string>
+    <string name="signature_verification_status">検証状態</string>
+    <string name="signature_verification_verified">完全に検証済み</string>
+    <string name="signature_verification_signing_block_only">未完全検証（署名ブロックの宣言のみ）</string>
+    <string name="signature_verification_failed">検証に失敗</string>
+    <string name="signature_verification_issues">検証の問題</string>
+
+    <!-- Advanced settings card & authorizer-by-install-state -->
+    <string name="advanced_settings">詳細設定</string>
+    <string name="lab_authorizer_by_install_state">インストール状態で認証方法を選択</string>
+    <string name="lab_authorizer_by_install_state_desc">インストール済み → Shizuku、新規 → Dhizuku</string>
+    <!-- Install / authorizer runtime messages -->
+    <string name="dhizuku_not_initialized">Dhizukuが初期化されていません</string>
+    <string name="dhizuku_clone_service_unavailable">Dhizuku APIがクローン版サービス（%s）に接続できません。クローン版が元のService/Provider authorityを保持しているか確認してください。</string>
+    <string name="install_requires_user_action">インストールにはユーザーの操作が必要です: %s</string>
+    <string name="install_failed_status">インストールに失敗しました（ステータス=%1$d）: %2$s</string>
+    <string name="session_create_failed">セッションの作成に失敗しました: %s</string>
+    <string name="install_write_failed">書き込みに失敗しました: %s</string>
+    <string name="file_not_found">ファイルが見つかりません: %s</string>
+    <string name="system_installer_failed">システムインストーラーを起動できませんでした: %s</string>
+    <string name="no_available_authorizer">利用可能な認証方式がありません</string>
 </resources>

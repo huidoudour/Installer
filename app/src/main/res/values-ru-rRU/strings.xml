@@ -11,7 +11,6 @@
     <string name="authorization_method">Способ авторизации</string>
     <string name="shizuku">Shizuku</string>
     <string name="dhizuku">Dhizuku</string>
-    <string name="axmanager">AxManager</string>
     <string name="grant">Предоставить</string>
     <string name="install_dialog_title">Диалог установки</string>
     <string name="select_apk">Выбрать APK</string>
@@ -133,6 +132,7 @@
     <string name="install_apk">Установить APK</string>
     <string name="select_package">Выбрать пакет</string>
     <string name="select_package_file">Выбрать пакет (APK/XAPK/APKS)</string>
+    <string name="clear_selected_package">Выбранный пакет сброшен</string>
     <string name="installing_progress">Установка...</string>
     <string name="preparing">Подготовка...</string>
     <string name="progress_count">0/0</string>
@@ -492,7 +492,7 @@
     <string name="privilege_mode_shizuku">Shizuku</string>
 
     <!-- Native library test related strings -->
-    <string name="execute_command_failed">Не удалось выполнить команду</string>
+    <string name="execute_command_failed">Не удалось выполнить команду: %s</string>
     
     <!-- 原生库测试相关字符串 -->
     <string name="native_test_title">=== Тесты нативной библиотеки ===</string>
@@ -613,6 +613,7 @@
     <!-- Additional hardcoded strings found -->
     <string name="package_name_label_colon">Имя пакета: </string>
     <string name="current_version_label">Текущая версия: </string>
+    <string name="fresh_install">Новая установка</string>
     <string name="upgrade_version_label">Версия обновления: </string>
     <string name="min_sdk_label">Мин. SDK: </string>
     <string name="target_sdk_label">Целевой SDK: </string>
@@ -677,4 +678,55 @@
     <string name="loader_animation_wave">Волнистый индикатор</string>
     <string name="changelog_title">Журнал изменений</string>
     <string name="changelog_empty">Записей пока нет</string>
+
+    <!-- Lab / Smart authorizer / Signature verification -->
+    <string name="lab">Лаборатория</string>
+    <string name="lab_tip">Экспериментальные функции. Используйте с осторожностью.</string>
+    <string name="lab_authorizer_section">Умная авторизация</string>
+    <string name="lab_try_multiple_authorizers">Пробовать несколько авторизаторов при установке</string>
+    <string name="lab_try_multiple_authorizers_desc">Автоматически переключаться на следующий доступный авторизатор при сбое</string>
+    <string name="lab_smart_authorizer">Умная авторизация</string>
+    <string name="lab_smart_authorizer_fallback_list">Список резервных авторизаторов</string>
+    <string name="lab_smart_authorizer_fallback_list_desc">Перетащите для изменения порядка. Включённые авторизаторы пробуются по порядку.</string>
+    <string name="lab_authorizer_must_choose_one">Оставьте хотя бы один авторизатор включённым</string>
+    <string name="lab_signature_section">Проверка подписи</string>
+    <string name="lab_check_signature">Проверять подпись перед установкой</string>
+    <string name="lab_check_signature_desc">Полная проверка подписи и дайджеста APK перед сравнением сертификатов</string>
+    <string name="lab_show_signature_details">Показывать детали подписи</string>
+    <string name="authorizer_none">Системный установщик</string>
+    <string name="system_installer_launched">Системный установщик запущен</string>
+    <string name="signature_status_match">Подпись совпадает</string>
+    <string name="signature_status_mismatch">Подпись не совпадает</string>
+    <string name="signature_status_not_installed">Не установлено</string>
+    <string name="signature_status_rotation">Совместимо с ротацией</string>
+    <string name="signature_status_unknown">Подпись недоступна</string>
+    <string name="signature_status_na">Не применимо</string>
+    <string name="signature_details_title">Детали подписи</string>
+    <string name="signature_sha256">SHA-256</string>
+    <string name="signature_sha1">SHA-1</string>
+    <string name="signature_subject">Субъект</string>
+    <string name="signature_issuer">Издатель</string>
+    <string name="signature_serial">Серийный номер</string>
+    <string name="signature_valid_from">Действительно с</string>
+    <string name="signature_valid_until">Действительно до</string>
+    <string name="signature_verification_status">Статус проверки</string>
+    <string name="signature_verification_verified">Полностью проверено</string>
+    <string name="signature_verification_signing_block_only">Проверено не полностью (только объявления блока подписи)</string>
+    <string name="signature_verification_failed">Проверка не удалась</string>
+    <string name="signature_verification_issues">Проблемы проверки</string>
+
+    <!-- Advanced settings card & authorizer-by-install-state -->
+    <string name="advanced_settings">Дополнительные настройки</string>
+    <string name="lab_authorizer_by_install_state">Выбирать авторизатор по состоянию установки</string>
+    <string name="lab_authorizer_by_install_state_desc">Установлено → Shizuku, новая установка → Dhizuku</string>
+    <!-- Install / authorizer runtime messages -->
+    <string name="dhizuku_not_initialized">Dhizuku не инициализирован</string>
+    <string name="dhizuku_clone_service_unavailable">Dhizuku API не может подключиться к службе клонированной версии (%s). Убедитесь, что клон сохранил исходные authority Service/Provider.</string>
+    <string name="install_requires_user_action">Для установки требуется действие пользователя: %s</string>
+    <string name="install_failed_status">Ошибка установки (статус=%1$d): %2$s</string>
+    <string name="session_create_failed">Не удалось создать сессию: %s</string>
+    <string name="install_write_failed">Не удалось записать данные: %s</string>
+    <string name="file_not_found">Файл не найден: %s</string>
+    <string name="system_installer_failed">Не удалось запустить системный установщик: %s</string>
+    <string name="no_available_authorizer">Нет доступного способа авторизации</string>
 </resources>

@@ -1,0 +1,14 @@
+# apksig 内部使用运行时注解与反射构建 ASN.1 模型，
+# R8 full mode 会在 release 构建中剥离这些注解导致签名解析失败。
+#
+# 说明：这里只使用 allowoptimization / allowobfuscation 这两个通用修饰符。
+# 访问修饰符放宽由全局选项 -allowaccessmodification 负责（AGP 的
+# proguard-android-optimize.txt 已包含），因此无需在 keep 规则里重复声明，
+# 重复声明还会被 IDE 的 ProGuard 语法检查判为意外关键字。
+-keep,allowoptimization,allowobfuscation @com.android.apksig.internal.asn1.Asn1Class class com.android.apksig.internal.** {
+    public <init>();
+}
+
+-keepclassmembers,allowoptimization,allowobfuscation class com.android.apksig.internal.** {
+    @com.android.apksig.internal.asn1.Asn1Field <fields>;
+}

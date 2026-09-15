@@ -26,6 +26,9 @@ jobs:
       - name: Set up Gradle with cache
         uses: gradle/actions/setup-gradle@v6
 
+      - name: Accept Android SDK Licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
       - name: Compile Kotlin sources
         run: |
           chmod +x gradlew

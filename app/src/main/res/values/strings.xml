@@ -11,7 +11,6 @@
     <string name="authorization_method">Authorization Method</string>
     <string name="shizuku">Shizuku</string>
     <string name="dhizuku">Dhizuku</string>
-    <string name="axmanager">AxManager</string>
     <string name="grant">Grant</string>
     <string name="install_dialog_title">Installation Dialog</string>
     <string name="select_apk">Select APK File</string>
@@ -133,6 +132,7 @@
     <string name="install_apk">Install APK</string>
     <string name="select_package">Select Package</string>
     <string name="select_package_file">Select Package (APK/XAPK/APKS)</string>
+    <string name="clear_selected_package">Cleared selected package</string>
     <string name="installing_progress">Installing...</string>
     <string name="preparing">Preparing...</string>
     <string name="progress_count">0/0</string>
@@ -613,6 +613,7 @@
     <!-- Additional hardcoded strings found -->
     <string name="package_name_label_colon">包名：</string>
     <string name="current_version_label">当前版本：</string>
+    <string name="fresh_install">全新安装</string>
     <string name="upgrade_version_label">升级版本：</string>
     <string name="min_sdk_label">最低SDK：</string>
     <string name="target_sdk_label">目标SDK：</string>
@@ -677,4 +678,55 @@
     <string name="loader_animation_wave">Wavy progress bar</string>
     <string name="changelog_title">Changelog</string>
     <string name="changelog_empty">No commits yet</string>
+
+    <!-- Lab / Smart authorizer / Signature verification -->
+    <string name="lab">Lab</string>
+    <string name="lab_tip">Experimental features. Use with caution.</string>
+    <string name="lab_authorizer_section">Smart Authorization</string>
+    <string name="lab_try_multiple_authorizers">Try multiple authorizers on install</string>
+    <string name="lab_try_multiple_authorizers_desc">Automatically switch to the next available authorizer on failure</string>
+    <string name="lab_smart_authorizer">Smart Authorization</string>
+    <string name="lab_smart_authorizer_fallback_list">Fallback authorizer list</string>
+    <string name="lab_smart_authorizer_fallback_list_desc">Drag to reorder. Enabled authorizers are tried in order.</string>
+    <string name="lab_authorizer_must_choose_one">Keep at least one authorizer enabled</string>
+    <string name="lab_signature_section">Signature Verification</string>
+    <string name="lab_check_signature">Verify signature before install</string>
+    <string name="lab_check_signature_desc">Fully verify the APK signature before comparing certificates</string>
+    <string name="lab_show_signature_details">Show signature details</string>
+    <string name="authorizer_none">System installer</string>
+    <string name="system_installer_launched">System installer launched</string>
+    <string name="signature_status_match">Signature matches</string>
+    <string name="signature_status_mismatch">Signature mismatch</string>
+    <string name="signature_status_not_installed">Not installed</string>
+    <string name="signature_status_rotation">Rotation compatible</string>
+    <string name="signature_status_unknown">Signature unavailable</string>
+    <string name="signature_status_na">Not applicable</string>
+    <string name="signature_details_title">Signature details</string>
+    <string name="signature_sha256">SHA-256</string>
+    <string name="signature_sha1">SHA-1</string>
+    <string name="signature_subject">Subject</string>
+    <string name="signature_issuer">Issuer</string>
+    <string name="signature_serial">Serial number</string>
+    <string name="signature_valid_from">Valid from</string>
+    <string name="signature_valid_until">Valid until</string>
+    <string name="signature_verification_status">Verification status</string>
+    <string name="signature_verification_verified">Fully verified</string>
+    <string name="signature_verification_signing_block_only">Not fully verified (signing block declarations only)</string>
+    <string name="signature_verification_failed">Verification failed</string>
+    <string name="signature_verification_issues">Verification issues</string>
+
+    <!-- Advanced settings card & authorizer-by-install-state -->
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="lab_authorizer_by_install_state">Choose authorizer by install state</string>
+    <string name="lab_authorizer_by_install_state_desc">Installed → Shizuku, new install → Dhizuku</string>
+    <!-- Install / authorizer runtime messages -->
+    <string name="dhizuku_not_initialized">Dhizuku not initialized</string>
+    <string name="dhizuku_clone_service_unavailable">Dhizuku API cannot connect to the cloned service (%s). Make sure the clone keeps the original Service/Provider authority.</string>
+    <string name="install_requires_user_action">Install requires user action: %s</string>
+    <string name="install_failed_status">Install failed (status=%1$d): %2$s</string>
+    <string name="session_create_failed">Session creation failed: %s</string>
+    <string name="install_write_failed">Write failed: %s</string>
+    <string name="file_not_found">File not found: %s</string>
+    <string name="system_installer_failed">System installer failed: %s</string>
+    <string name="no_available_authorizer">No available authorizer</string>
 </resources>
