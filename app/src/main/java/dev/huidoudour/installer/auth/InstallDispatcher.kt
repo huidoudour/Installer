@@ -107,6 +107,7 @@ object InstallDispatcher {
 
             callback.onProgress("Launching system installer...")
 
+            @Suppress("DEPRECATION")
             val installIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
                 setDataAndType(uri, mime)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
