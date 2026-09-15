@@ -30,8 +30,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.huidoudour.installer.signature.AppSignatureInfo
 import dev.huidoudour.installer.signature.SignatureMatchStatus
 import dev.huidoudour.installer.signature.SignatureSummary
+import dev.huidoudour.installer.signature.SignatureVerificationStatus
 import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.R
 
@@ -41,6 +43,10 @@ private val SignatureWarnOrange = Color(0xFFFF9800)
 private val SignatureErrorRed = Color(0xFFD32F2F)
 private val SignatureInfoBlue = Color(0xFF1976D2)
 private val SignatureNeutralGray = Color(0xFF757575)
+
+/** 签名详情里最多展示的校验问题条数（apksig 对 v1-only 包可能产生上百条告警） */
+private const val MAX_SHOWN_ISSUES = 5
+private const val ELLIPSIS = "\n…"
 
 /**
  * 一行签名状态指示（按比对结果着色）。
@@ -150,6 +156,22 @@ fun SignatureDetailsDialog(
                         DetailLine(stringResource(R.string.signature_valid_until), it)
                     }
                 }
+
+                // 校验强度与方案：区分“完整校验”与“仅签名块声明”，避免把弱判定当成确定结论
+                summary.apkSignature?.let { info ->
+                    DetailLine(
+                        stringResource(R.string.signature_verification_status),
+                        verificationStatusText(info)
+                    )
+                    val issues = (info.errors + info.warnings).distinct()
+                    if (issues.isNotEmpty()) {
+                        DetailLine(
+                            stringResource(R.string.signature_verification_issues),
+                            issues.take(MAX_SHOWN_ISSUES).joinToString("\n") +
+                                if (issues.size > MAX_SHOWN_ISSUES) ELLIPSIS else ""
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
@@ -179,6 +201,20 @@ private fun DetailLine(label: String, value: String) {
             color = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+@Composable
+private fun verificationStatusText(info: AppSignatureInfo): String {
+    val label = when (info.verificationStatus) {
+        SignatureVerificationStatus.VERIFIED ->
+            stringResource(R.string.signature_verification_verified)
+        SignatureVerificationStatus.SIGNING_BLOCK_ONLY ->
+            stringResource(R.string.signature_verification_signing_block_only)
+        SignatureVerificationStatus.FAILED ->
+            stringResource(R.string.signature_verification_failed)
+    }
+    val schemes = (info.verifiedSchemes.ifEmpty { info.declaredSchemes }).distinct()
+    return if (schemes.isEmpty()) label else "$label (${schemes.joinToString(", ")})"
 }
 
 @Composable

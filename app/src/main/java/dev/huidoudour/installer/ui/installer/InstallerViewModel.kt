@@ -20,6 +20,7 @@ import dev.huidoudour.installer.signature.SignatureHelper
 import dev.huidoudour.installer.signature.SignatureMatchStatus
 import dev.huidoudour.installer.signature.SignatureSummary
 import dev.huidoudour.installer.util.LogManager
+import dev.huidoudour.installer.util.SignaturePrefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -249,9 +250,12 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                         updateInstallButtonState()
                     }
 
-                    val summary = runCatching { computeSignatureSummary(path, isXapk) }.getOrNull()
-                    withContext(Dispatchers.Main) {
-                        _signatureSummary.value = summary
+                    // 仅在开启“安装前校验签名”时才做完整校验（apksig 需要读取整个 APK）
+                    if (SignaturePrefs.isCheckEnabled(context)) {
+                        val summary = runCatching { computeSignatureSummary(path, isXapk) }.getOrNull()
+                        withContext(Dispatchers.Main) {
+                            _signatureSummary.value = summary
+                        }
                     }
 
                     logManager.addLog("File selected: $path")
@@ -269,10 +273,19 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
             val cacheFile = File(context.cacheDir, getFileNameFromUri(uri) ?: "file.apk")
-            context.contentResolver.openInputStream(uri)?.use { input ->
+            // 先删除旧副本：复制失败时不能把上一次的同名缓存文件当成待安装包
+            cacheFile.delete()
+
+            val copied = context.contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(cacheFile).use { output ->
                     input.copyTo(output)
                 }
+                true
+            } ?: false
+
+            if (!copied) {
+                logManager.addLog("Error getting file path: cannot open $uri")
+                return null
             }
             cacheFile.absolutePath
         } catch (e: Exception) {
@@ -326,12 +339,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
             )
         }
 
-        val packageName = try {
-            @Suppress("DEPRECATION")
-            context.packageManager.getPackageArchiveInfo(path, 0)?.packageName
-        } catch (e: Exception) {
-            null
-        }
+        val packageName = SignatureHelper.readArchivePackageName(context, File(path))
 
         val result = SignatureHelper.match(context, File(path), packageName)
         return SignatureSummary(

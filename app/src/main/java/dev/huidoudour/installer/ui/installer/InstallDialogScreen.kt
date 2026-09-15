@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
@@ -145,6 +146,9 @@ private fun InstallDialogContent(
     val context = LocalContext.current
     var state by remember { mutableStateOf(InstallDialogState()) }
 
+    // installUri 物化到本地后的文件路径（APK 信息解析、签名校验、安装共用同一份缓存文件）
+    var materializedPath by remember { mutableStateOf<String?>(null) }
+
     // 权限模式
     var currentPrivilegeMode by remember { mutableStateOf(PrivilegeHelper.getCurrentMode(context)) }
     var showPrivilegeDialog by remember { mutableStateOf(false) }
@@ -159,14 +163,16 @@ private fun InstallDialogContent(
         if (installUri != null) {
             withContext(Dispatchers.IO) {
                 try {
-                    val apkInfo = parseApkInfo(context, installUri)
+                    // 只物化一次文件：APK 信息解析与签名校验共用同一份缓存文件
                     val filePath = getFilePathFromUri(context, installUri)
-                    val signature = if (filePath != null) {
-                        runCatching {
-                            computeDialogSignature(context, filePath, apkInfo?.packageName)
-                        }.getOrNull()
-                    } else null
+                    if (filePath == null) {
+                        Log.e("InstallDialog", "Failed to materialize install file")
+                        return@withContext
+                    }
+                    materializedPath = filePath
+                    val apkInfo = parseApkInfo(context, filePath)
                     if (apkInfo != null) {
+                        // 先展示 APK 信息，完整的 apksig 签名校验在后台完成后回填
                         state = state.copy(
                             appName = apkInfo.appName,
                             packageName = apkInfo.packageName,
@@ -177,9 +183,18 @@ private fun InstallDialogContent(
                             appIcon = apkInfo.appIcon,
                             isUpgrade = apkInfo.isUpgrade,
                             installedVersion = apkInfo.installedVersion,
-                            signature = signature,
                             isInfoLoaded = true
                         )
+                    }
+
+                    // 仅在开启“安装前校验签名”时才做完整校验（apksig 需要读取整个 APK）
+                    if (checkSignature) {
+                        val signature = runCatching {
+                            computeDialogSignature(context, filePath, apkInfo?.packageName)
+                        }.getOrNull()
+                        if (signature != null) {
+                            state = state.copy(signature = signature)
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e("InstallDialog", "Failed to parse APK", e)
@@ -263,7 +278,7 @@ private fun InstallDialogContent(
                                 state = state.copy(isInstalling = true)
                                 performRealInstallation(
                                     context = context,
-                                    filePath = getFilePathFromUri(context, installUri),
+                                    filePath = materializedPath ?: getFilePathFromUri(context, installUri),
                                     mode = currentPrivilegeMode,
                                     onProgress = { progress ->
                                         state = state.copy(installProgress = progress)
@@ -701,29 +716,13 @@ data class ApkInfo(
 
 /**
  * 解析 APK 信息
+ *
+ * @param path 已物化到本地的 APK 文件路径（由 [getFilePathFromUri] 提供）
  */
-private fun parseApkInfo(context: Context, uri: Uri): ApkInfo? {
+private fun parseApkInfo(context: Context, path: String): ApkInfo? {
     return try {
         val pm = context.packageManager
-        
-        // 将 URI 转换为实际文件路径
-        val path = when (uri.scheme) {
-            "file" -> uri.path
-            "content" -> {
-                // 对于 content:// URI，需要复制到缓存目录
-                val inputStream = context.contentResolver.openInputStream(uri)
-                    ?: return null
-                val cacheFile = File(context.cacheDir, "temp_apk.apk")
-                inputStream.use { input ->
-                    cacheFile.outputStream().use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                cacheFile.absolutePath
-            }
-            else -> uri.path
-        } ?: return null
-        
+
         val packageInfo = pm.getPackageArchiveInfo(
             path,
             PackageManager.GET_ACTIVITIES or PackageManager.GET_PERMISSIONS
@@ -904,25 +903,61 @@ private fun computeDialogSignature(
 }
 
 /**
- * 从 URI 获取文件路径
+ * 从 URI 获取文件路径。
+ *
+ * content:// 等非 file 协议会复制到缓存目录，并**保留原始扩展名**——
+ * 扩展名参与 XAPK/APKS 判定，丢失后会被误当作普通 APK 处理。
  */
 private fun getFilePathFromUri(context: Context, uri: Uri?): String? {
     if (uri == null) return null
     return try {
-        if (uri.scheme == "file") {
-            uri.path
-        } else {
-            val cacheFile = File(context.cacheDir, "temp_install_${System.currentTimeMillis()}.apk")
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                cacheFile.outputStream().use { output ->
-                    input.copyTo(output)
-                }
+        if (uri.scheme == "file") return uri.path
+
+        clearStaleInstallTempFiles(context)
+
+        val suffix = queryDisplayName(context, uri)
+            ?.substringAfterLast('.', "")
+            ?.takeIf { it.isNotBlank() }
+            ?.let { ".${it.lowercase()}" }
+            ?: ".apk"
+        val cacheFile = File(context.cacheDir, "temp_install_${System.currentTimeMillis()}$suffix")
+
+        val copied = context.contentResolver.openInputStream(uri)?.use { input ->
+            cacheFile.outputStream().use { output ->
+                input.copyTo(output)
             }
-            cacheFile.absolutePath
+            true
+        } ?: false
+
+        if (!copied) {
+            cacheFile.delete()
+            Log.e("InstallDialog", "Failed to open install file: $uri")
+            return null
         }
+        cacheFile.absolutePath
     } catch (e: Exception) {
         Log.e("InstallDialog", "Failed to get file path from URI", e)
         null
+    }
+}
+
+private fun queryDisplayName(context: Context, uri: Uri): String? = try {
+    context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (nameIndex >= 0 && cursor.moveToFirst()) cursor.getString(nameIndex) else null
+    }
+} catch (e: Exception) {
+    null
+} ?: uri.lastPathSegment
+
+/**
+ * 清理上一次选择遗留的安装临时文件，避免缓存目录被反复复制的安装包占满。
+ */
+private fun clearStaleInstallTempFiles(context: Context) {
+    runCatching {
+        context.cacheDir.listFiles { file ->
+            file.isFile && (file.name.startsWith("temp_install_") || file.name == "temp_apk.apk")
+        }?.forEach { it.delete() }
     }
 }
 

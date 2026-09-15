@@ -24,26 +24,13 @@
     
     <!-- 通知权限 (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    
-    <!-- 网络权限（彩蛋 WebView 需要） -->
-    <uses-permission android:name="android.permission.INTERNET"
-        tools:node="remove"/>
-    
-    <!-- Android 11+ 包可见性声明 -->
-    <queries>
-        <!-- Shizuku 应用 -->
-        <package android:name="moe.shizuku.privileged.api" />
 
-        <!-- Dhizuku 应用（原版） -->
+    <queries>
+        <package android:name="moe.shizuku.privileged.api" />
         <package android:name="com.rosan.dhizuku" />
-        
-        <!-- Dhizuku 应用（克隆版） -->
         <package android:name="me.huidoudour.dhizuku" />
-        
-        <!-- 自定义文件管理器（文件选取优先使用） -->
         <package android:name="me.huidoudour.file.manager" />
-        
-        <!-- 允许查询所有浏览器应用 -->
+
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />

@@ -689,7 +689,7 @@
     <string name="lab_authorizer_must_choose_one">少なくとも1つの認証方法を有効にしてください</string>
     <string name="lab_signature_section">署名検証</string>
     <string name="lab_check_signature">インストール前に署名を検証</string>
-    <string name="lab_check_signature_desc">APKの署名証明書を高速で読み取り比較します</string>
+    <string name="lab_check_signature_desc">APKの署名と内容ダイジェストを完全に検証してから証明書を比較します</string>
     <string name="lab_show_signature_details">署名の詳細を表示</string>
     <string name="authorizer_none">システムインストーラー</string>
     <string name="signature_status_match">署名が一致</string>
@@ -706,6 +706,11 @@
     <string name="signature_serial">シリアル番号</string>
     <string name="signature_valid_from">有効開始</string>
     <string name="signature_valid_until">有効期限</string>
+    <string name="signature_verification_status">検証状態</string>
+    <string name="signature_verification_verified">完全に検証済み</string>
+    <string name="signature_verification_signing_block_only">未完全検証（署名ブロックの宣言のみ）</string>
+    <string name="signature_verification_failed">検証に失敗</string>
+    <string name="signature_verification_issues">検証の問題</string>
 
     <!-- Advanced settings card & authorizer-by-install-state -->
     <string name="advanced_settings">詳細設定</string>

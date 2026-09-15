@@ -17,6 +17,10 @@ import java.nio.channels.SeekableByteChannel
  * EOCD 与 APK Signing Block）。其结果足以支撑“证书比对 / 与已安装应用签名匹配”，
  * 最终签名校验仍由系统或特权安装器负责。
  *
+ * 注意：[ApkSignatureAnalyzer] 的完整校验才是签名比对的权威来源，本读取器只在
+ * [SignatureHelper.analyzeApk] 无法从完整校验取得证书时作为回退使用；
+ * 它读不到仅 v1（JAR）签名的 APK——这类包没有 APK Signing Block。
+ *
  * 参考 InstallerX Revived 的 LightweightApkSignatureReader。
  */
 object LightweightApkSignatureReader {

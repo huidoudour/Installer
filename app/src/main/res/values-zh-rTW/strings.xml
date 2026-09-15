@@ -689,7 +689,7 @@
     <string name="lab_authorizer_must_choose_one">請至少保留一個啟用的授權方式</string>
     <string name="lab_signature_section">簽章驗證</string>
     <string name="lab_check_signature">安裝前驗證簽章</string>
-    <string name="lab_check_signature_desc">快速讀取並比對 APK 簽章憑證</string>
+    <string name="lab_check_signature_desc">完整驗證 APK 簽章與內容摘要後再比對憑證</string>
     <string name="lab_show_signature_details">顯示簽章詳細資料</string>
     <string name="authorizer_none">系統安裝程式</string>
     <string name="signature_status_match">簽章相符</string>
@@ -706,6 +706,11 @@
     <string name="signature_serial">序號</string>
     <string name="signature_valid_from">生效時間</string>
     <string name="signature_valid_until">失效時間</string>
+    <string name="signature_verification_status">驗證狀態</string>
+    <string name="signature_verification_verified">已通過完整驗證</string>
+    <string name="signature_verification_signing_block_only">未完整驗證（僅簽章區塊宣告）</string>
+    <string name="signature_verification_failed">驗證失敗</string>
+    <string name="signature_verification_issues">驗證問題</string>
 
     <!-- Advanced settings card & authorizer-by-install-state -->
     <string name="advanced_settings">進階設定</string>

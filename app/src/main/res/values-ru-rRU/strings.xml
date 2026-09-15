@@ -689,7 +689,7 @@
     <string name="lab_authorizer_must_choose_one">Оставьте хотя бы один авторизатор включённым</string>
     <string name="lab_signature_section">Проверка подписи</string>
     <string name="lab_check_signature">Проверять подпись перед установкой</string>
-    <string name="lab_check_signature_desc">Быстрое чтение и сравнение сертификата подписи APK</string>
+    <string name="lab_check_signature_desc">Полная проверка подписи и дайджеста APK перед сравнением сертификатов</string>
     <string name="lab_show_signature_details">Показывать детали подписи</string>
     <string name="authorizer_none">Системный установщик</string>
     <string name="signature_status_match">Подпись совпадает</string>
@@ -706,6 +706,11 @@
     <string name="signature_serial">Серийный номер</string>
     <string name="signature_valid_from">Действительно с</string>
     <string name="signature_valid_until">Действительно до</string>
+    <string name="signature_verification_status">Статус проверки</string>
+    <string name="signature_verification_verified">Полностью проверено</string>
+    <string name="signature_verification_signing_block_only">Проверено не полностью (только объявления блока подписи)</string>
+    <string name="signature_verification_failed">Проверка не удалась</string>
+    <string name="signature_verification_issues">Проблемы проверки</string>
 
     <!-- Advanced settings card & authorizer-by-install-state -->
     <string name="advanced_settings">Дополнительные настройки</string>
