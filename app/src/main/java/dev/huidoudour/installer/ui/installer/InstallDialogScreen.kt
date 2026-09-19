@@ -597,57 +597,34 @@ fun InstallingButtons(
     val useMonet = LocalThemeStateHolder.current.state.useDynamicColor &&
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val indicatorColor = if (useMonet) MaterialTheme.colorScheme.primary else Color(0xFF29B6F6)
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
-
-    // 平滑过渡进度值（与 InstallerX 安装对话框一致）
+    // 平滑过渡进度值，与参考项目的安装进度条一致。
     val animatedProgress by animateFloatAsState(
         targetValue = (progress / 100f).coerceIn(0f, 1f),
         animationSpec = tween(durationMillis = 300),
         label = "InstallProgressAnimation"
     )
 
-    val loaderMode = LoaderAnimationPrefs.getMode(LocalContext.current)
-
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        when (loaderMode) {
-            LoaderAnimationMode.GRAPHIC -> {
-                // 图形加载动画 - Material 3 包含式加载指示器（中心稳定，无漂移）
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ContainedLoadingIndicator(
-                        modifier = Modifier.size(40.dp),
-                        indicatorColor = indicatorColor,
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                    )
-                }
-            }
-            LoaderAnimationMode.WAVE -> {
-                // 安装进度 - 线性波浪进度条（Material 3 Expressive，参考 InstallerX 安装对话框）
-                if (progress > 0) {
-                    LinearWavyProgressIndicator(
-                        progress = { animatedProgress },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp),
-                        color = indicatorColor,
-                        trackColor = trackColor
-                    )
-                } else {
-                    LinearWavyProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp),
-                        color = indicatorColor,
-                        trackColor = trackColor
-                    )
-                }
-            }
+        // 安装过程始终采用参考 InstallerX 的线性波浪进度条，不受普通加载动画设置影响。
+        // 尚未获得可量化进度时，以无波纹的线性动画表示 PackageInstaller 正在校验和提交。
+        if (progress > 0) {
+            LinearWavyProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+                color = indicatorColor,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        } else {
+            LinearWavyProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+                amplitude = 0f,
+                color = indicatorColor,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
