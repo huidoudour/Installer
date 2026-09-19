@@ -695,6 +695,8 @@
     <string name="authorizer_none">Системный установщик</string>
     <string name="system_installer_launched">Системный установщик запущен</string>
     <string name="signature_status_match">Подпись совпадает</string>
+    <string name="signature_status_normal">Подпись корректна</string>
+    <string name="signature_status_abnormal">Ошибка подписи</string>
     <string name="signature_status_mismatch">Подпись не совпадает</string>
     <string name="signature_status_not_installed">Не установлено</string>
     <string name="signature_status_rotation">Совместимо с ротацией</string>

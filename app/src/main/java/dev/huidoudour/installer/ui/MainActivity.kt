@@ -1,6 +1,5 @@
 package dev.huidoudour.installer.ui
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -35,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -48,11 +46,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import dev.huidoudour.installer.ui.changelog.ChangelogActivity
+import dev.huidoudour.installer.ui.changelog.ChangelogScreen
+import dev.huidoudour.installer.ui.components.PredictiveBackPage
 import dev.huidoudour.installer.ui.installer.InstallerScreen
 import dev.huidoudour.installer.ui.lab.LabScreen
 import dev.huidoudour.installer.ui.logs.LogsScreen
-import dev.huidoudour.installer.ui.me.MeActivity
+import dev.huidoudour.installer.ui.me.MeScreen
 import dev.huidoudour.installer.ui.settings.SettingsScreen
 import dev.huidoudour.installer.ui.shell.ShellScreen
 import dev.huidoudour.installer.ui.theme.AppTheme
@@ -89,21 +88,28 @@ data class BottomNavItemData(
     val icon: ImageVector
 )
 
+private enum class OverlayPage {
+    None,
+    Lab,
+    Me,
+    Changelog,
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    var showLab by rememberSaveable { mutableStateOf(false) }
-    var labBackProgress by rememberSaveable { mutableFloatStateOf(0f) }
-    val labEnterProgress = remember { Animatable(0f) }
+    var overlayPage by rememberSaveable { mutableStateOf(OverlayPage.None) }
+    var overlayBackProgress by rememberSaveable { mutableFloatStateOf(0f) }
+    val overlayEnterProgress = remember { Animatable(0f) }
     val layoutDirection = LocalLayoutDirection.current
 
-    LaunchedEffect(showLab) {
-        if (showLab) {
-            labEnterProgress.snapTo(0f)
-            labEnterProgress.animateTo(
+    LaunchedEffect(overlayPage) {
+        if (overlayPage != OverlayPage.None) {
+            overlayEnterProgress.snapTo(0f)
+            overlayEnterProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
                     durationMillis = 500,
@@ -111,7 +117,7 @@ fun MainScreen() {
                 )
             )
         } else {
-            labEnterProgress.snapTo(0f)
+            overlayEnterProgress.snapTo(0f)
         }
     }
 
@@ -127,8 +133,8 @@ fun MainScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-                    val coverProgress = if (showLab) {
-                        if (labBackProgress > 0f) 0f else labEnterProgress.value
+                    val coverProgress = if (overlayPage != OverlayPage.None) {
+                        if (overlayBackProgress > 0f) 0f else overlayEnterProgress.value
                     } else {
                         0f
                     }
@@ -188,40 +194,59 @@ fun MainScreen() {
                     LogsScreen()
                 }
                 composable(Screen.Settings.route) {
-                    val context = LocalContext.current
                     SettingsScreen(
                         onNavigateToMe = {
-                            val intent = Intent(context, MeActivity::class.java)
-                            context.startActivity(intent)
+                            overlayBackProgress = 0f
+                            overlayPage = OverlayPage.Me
                         },
                         onNavigateToChangelog = {
-                            val intent = Intent(context, ChangelogActivity::class.java)
-                            context.startActivity(intent)
+                            overlayBackProgress = 0f
+                            overlayPage = OverlayPage.Changelog
                         },
                         onNavigateToLab = {
-                            labBackProgress = 0f
-                            showLab = true
+                            overlayBackProgress = 0f
+                            overlayPage = OverlayPage.Lab
                         }
                     )
                 }
             }
         }
 
-        if (showLab) {
+        if (overlayPage != OverlayPage.None) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        alpha = 0.5f * labEnterProgress.value
+                        alpha = 0.5f * overlayEnterProgress.value
                     }
                     .background(Color.Black)
             )
 
-            LabScreen(
-                enterProgress = labEnterProgress.value,
-                onBackProgressChange = { labBackProgress = it },
-                onBack = { showLab = false }
-            )
+            when (overlayPage) {
+                OverlayPage.Lab -> LabScreen(
+                    enterProgress = overlayEnterProgress.value,
+                    onBackProgressChange = { overlayBackProgress = it },
+                    onBack = { overlayPage = OverlayPage.None }
+                )
+
+                OverlayPage.Me -> PredictiveBackPage(
+                    enterProgress = overlayEnterProgress.value,
+                    onBackProgressChange = { overlayBackProgress = it },
+                    onBack = { overlayPage = OverlayPage.None }
+                ) {
+                    MeScreen()
+                }
+
+                OverlayPage.Changelog -> PredictiveBackPage(
+                    enterProgress = overlayEnterProgress.value,
+                    onBackProgressChange = { overlayBackProgress = it },
+                    onBack = { overlayPage = OverlayPage.None }
+                ) {
+                    ChangelogScreen(onNavigateBack = { overlayPage = OverlayPage.None })
+                }
+
+                OverlayPage.None -> Unit
+            }
         }
     }
 }

@@ -265,7 +265,7 @@ private fun InstallDialogContent(
 
                 val sigSummary = if (checkSignature) state.signature else null
                 if (sigSummary != null && sigSummary.applicable) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     SignatureStatusRow(
                         summary = sigSummary,
                         showDetails = showSignatureDetails,
@@ -276,7 +276,7 @@ private fun InstallDialogContent(
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 
                 // 根据状态显示不同的按钮区域
                 when {
@@ -465,7 +465,7 @@ fun InstallInfoHeader(state: InstallDialogState) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 包名 - 14sp

@@ -695,6 +695,8 @@
     <string name="authorizer_none">系統安裝程式</string>
     <string name="system_installer_launched">已拉起系統安裝程式</string>
     <string name="signature_status_match">簽章相符</string>
+    <string name="signature_status_normal">簽章正常</string>
+    <string name="signature_status_abnormal">簽章異常</string>
     <string name="signature_status_mismatch">簽章不符</string>
     <string name="signature_status_not_installed">未安裝</string>
     <string name="signature_status_rotation">輪替相容</string>

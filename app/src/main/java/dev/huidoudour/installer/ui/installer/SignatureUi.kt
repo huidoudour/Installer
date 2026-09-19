@@ -2,20 +2,14 @@ package dev.huidoudour.installer.ui.installer
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.huidoudour.installer.util.signature.AppSignatureInfo
@@ -39,18 +34,15 @@ import dev.huidoudour.installer.R
 
 // 签名状态指示颜色
 private val SignatureOkGreen = Color(0xFF388E3C)
-private val SignatureWarnOrange = Color(0xFFFF9800)
 private val SignatureErrorRed = Color(0xFFD32F2F)
-private val SignatureInfoBlue = Color(0xFF1976D2)
-private val SignatureNeutralGray = Color(0xFF757575)
 
 /** 签名详情里最多展示的校验问题条数（apksig 对 v1-only 包可能产生上百条告警） */
 private const val MAX_SHOWN_ISSUES = 5
 private const val ELLIPSIS = "\n…"
 
 /**
- * 一行签名状态指示（按比对结果着色）。
- * 仅在 [showDetails] 开启且签名适用时，点击可查看完整证书详情。
+ * 一行简洁的签名状态指示（按比对结果着色）。
+ * 仅在 [showDetails] 开启且签名适用时，点击文本可查看完整证书详情。
  */
 @Composable
 fun SignatureStatusRow(
@@ -62,57 +54,27 @@ fun SignatureStatusRow(
     val statusColor = signatureStatusColor(summary)
     val clickable = showDetails && summary.applicable
 
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(SmallShape)
-            .clickable(enabled = clickable) { onClick() },
-        shape = SmallShape,
-        color = statusColor.copy(alpha = 0.12f),
-        border = BorderStroke(1.dp, statusColor.copy(alpha = 0.5f))
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
     ) {
-        Row(
+        Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .wrapContentWidth()
+                .clip(SmallShape)
+                .clickable(enabled = clickable) { onClick() },
+            shape = SmallShape,
+            color = statusColor.copy(alpha = 0.12f),
+            border = BorderStroke(1.dp, statusColor.copy(alpha = 0.5f))
         ) {
-            Icon(
-                imageVector = Icons.Default.Fingerprint,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = statusColor
+            Text(
+                text = signatureStatusText(summary),
+                modifier = Modifier.padding(horizontal = 4.dp, vertical = 3.dp),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                color = statusColor,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
             )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = signatureStatusText(summary),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                    color = statusColor,
-                    fontWeight = FontWeight.SemiBold
-                )
-                summary.shortSha256?.let { sha ->
-                    Text(
-                        text = "SHA-256: $sha…",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontSize = 11.sp,
-                            fontFamily = FontFamily.Monospace
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            if (clickable) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
     }
 }
@@ -219,26 +181,44 @@ private fun verificationStatusText(info: AppSignatureInfo): String {
 
 @Composable
 private fun signatureStatusText(summary: SignatureSummary): String {
-    if (!summary.applicable) return stringResource(R.string.signature_status_na)
-    return when (summary.status) {
-        SignatureMatchStatus.MATCH -> stringResource(R.string.signature_status_match)
-        SignatureMatchStatus.MISMATCH -> stringResource(R.string.signature_status_mismatch)
-        SignatureMatchStatus.NOT_INSTALLED -> stringResource(R.string.signature_status_not_installed)
-        SignatureMatchStatus.ROTATION_COMPATIBLE,
-        SignatureMatchStatus.CANDIDATE_ROTATION_UNCONFIRMED ->
-            stringResource(R.string.signature_status_rotation)
-        SignatureMatchStatus.UNKNOWN_ERROR -> stringResource(R.string.signature_status_unknown)
+    return when (dialogSignatureStatus(summary)) {
+        DialogSignatureStatus.MATCH -> stringResource(R.string.signature_status_match)
+        DialogSignatureStatus.NORMAL -> stringResource(R.string.signature_status_normal)
+        DialogSignatureStatus.ABNORMAL -> stringResource(R.string.signature_status_abnormal)
     }
 }
 
 private fun signatureStatusColor(summary: SignatureSummary): Color {
-    if (!summary.applicable) return SignatureNeutralGray
+    return when (dialogSignatureStatus(summary)) {
+        DialogSignatureStatus.MATCH,
+        DialogSignatureStatus.NORMAL -> SignatureOkGreen
+        DialogSignatureStatus.ABNORMAL -> SignatureErrorRed
+    }
+}
+
+private enum class DialogSignatureStatus {
+    MATCH,
+    NORMAL,
+    ABNORMAL,
+}
+
+/**
+ * 独立安装对话框只保留三个结论：
+ * 已安装包可确认兼容为“一致”，未安装且 APK 已完整验证为“正常”，
+ * 不能验证、未签名或不兼容时均明确提示“异常”。
+ */
+private fun dialogSignatureStatus(summary: SignatureSummary): DialogSignatureStatus {
+    val apkSignature = summary.apkSignature
+    val isVerified = apkSignature?.verificationStatus == SignatureVerificationStatus.VERIFIED &&
+        apkSignature.signerSha256Set.isNotEmpty()
+    if (!isVerified) return DialogSignatureStatus.ABNORMAL
+
     return when (summary.status) {
         SignatureMatchStatus.MATCH,
-        SignatureMatchStatus.ROTATION_COMPATIBLE -> SignatureOkGreen
-        SignatureMatchStatus.MISMATCH -> SignatureErrorRed
-        SignatureMatchStatus.NOT_INSTALLED -> SignatureInfoBlue
-        SignatureMatchStatus.CANDIDATE_ROTATION_UNCONFIRMED -> SignatureWarnOrange
-        SignatureMatchStatus.UNKNOWN_ERROR -> SignatureNeutralGray
+        SignatureMatchStatus.ROTATION_COMPATIBLE -> DialogSignatureStatus.MATCH
+        SignatureMatchStatus.NOT_INSTALLED -> DialogSignatureStatus.NORMAL
+        SignatureMatchStatus.MISMATCH,
+        SignatureMatchStatus.CANDIDATE_ROTATION_UNCONFIRMED,
+        SignatureMatchStatus.UNKNOWN_ERROR -> DialogSignatureStatus.ABNORMAL
     }
 }

@@ -695,6 +695,8 @@
     <string name="authorizer_none">システムインストーラー</string>
     <string name="system_installer_launched">システムインストーラーを起動しました</string>
     <string name="signature_status_match">署名が一致</string>
+    <string name="signature_status_normal">署名は正常です</string>
+    <string name="signature_status_abnormal">署名に異常があります</string>
     <string name="signature_status_mismatch">署名が一致しません</string>
     <string name="signature_status_not_installed">未インストール</string>
     <string name="signature_status_rotation">ローテーション互換</string>

@@ -695,6 +695,8 @@
     <string name="authorizer_none">系統安裝器喵</string>
     <string name="system_installer_launched">已拉起系統安裝器喵</string>
     <string name="signature_status_match">簽名一致喵</string>
+    <string name="signature_status_normal">簽名正常喵</string>
+    <string name="signature_status_abnormal">簽名異常喵</string>
     <string name="signature_status_mismatch">簽名不一致喵</string>
     <string name="signature_status_not_installed">未安裝喵</string>
     <string name="signature_status_rotation">輪換兼容喵</string>

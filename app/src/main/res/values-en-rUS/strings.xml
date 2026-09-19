@@ -695,6 +695,8 @@
     <string name="authorizer_none">System installer</string>
     <string name="system_installer_launched">System installer launched</string>
     <string name="signature_status_match">Signature matches</string>
+    <string name="signature_status_normal">Signature valid</string>
+    <string name="signature_status_abnormal">Signature invalid</string>
     <string name="signature_status_mismatch">Signature mismatch</string>
     <string name="signature_status_not_installed">Not installed</string>
     <string name="signature_status_rotation">Rotation compatible</string>
