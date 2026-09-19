@@ -119,6 +119,7 @@
     <string name="select_apk_file">Выбрать APK файл</string>
     <string name="install_options">Параметры установки</string>
     <string name="configuration_options">Параметры конфигурации</string>
+    <string name="install_parameters">Параметры установки</string>
     <string name="enable_custom_package_name">Включить пользовательское имя пакета</string>
     <string name="switch_installer_package">Переключить установщик</string>
     <string name="replace_existing_app">Заменить существующее приложение</string>
@@ -674,9 +675,6 @@
     <string name="xapk_install_exception">Исключение установки XAPK: %s</string>
     <string name="xapk_install_success_msg">XAPK успешно установлен! Всего установлено %d APK</string>
 
-    <string name="loader_animation_settings">Анимация загрузки</string>
-    <string name="loader_animation_graphic">Графическая</string>
-    <string name="loader_animation_wave">Волнистый индикатор</string>
     <string name="changelog_title">Журнал изменений</string>
     <string name="changelog_empty">Записей пока нет</string>
 

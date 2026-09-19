@@ -7,8 +7,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.util.LanguageManager
-import dev.huidoudour.installer.util.LoaderAnimationMode
-import dev.huidoudour.installer.util.LoaderAnimationPrefs
 import dev.huidoudour.installer.util.ThemeManager
 import dev.huidoudour.installer.R
 import kotlinx.coroutines.Dispatchers
@@ -33,10 +31,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     // 语言状态
     private val _currentLanguage = MutableStateFlow(LanguageManager.getUserLanguage(context))
     val currentLanguage: StateFlow<String> = _currentLanguage.asStateFlow()
-
-    // 安装加载动画模式状态
-    private val _currentLoaderMode = MutableStateFlow(LoaderAnimationPrefs.getMode(context))
-    val currentLoaderMode: StateFlow<LoaderAnimationMode> = _currentLoaderMode.asStateFlow()
 
     // 权限状态
     private val _privilegeStatus = MutableStateFlow(PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED)
@@ -95,24 +89,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      */
     fun getLanguageDisplayName(languageCode: String): String {
         return LanguageManager.getLanguageDisplayName(context, languageCode)
-    }
-
-    /**
-     * 获取加载动画模式显示名称
-     */
-    fun getLoaderModeName(mode: LoaderAnimationMode): String {
-        return when (mode) {
-            LoaderAnimationMode.GRAPHIC -> context.getString(R.string.loader_animation_graphic)
-            LoaderAnimationMode.WAVE -> context.getString(R.string.loader_animation_wave)
-        }
-    }
-
-    /**
-     * 切换加载动画模式
-     */
-    fun setLoaderMode(mode: LoaderAnimationMode) {
-        LoaderAnimationPrefs.saveMode(context, mode)
-        _currentLoaderMode.value = mode
     }
 
     fun setReplaceExisting(value: Boolean) {

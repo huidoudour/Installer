@@ -34,7 +34,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -73,8 +72,6 @@ import dev.huidoudour.installer.util.signature.SignatureHelper
 import dev.huidoudour.installer.util.signature.SignatureMatchStatus
 import dev.huidoudour.installer.util.signature.SignatureSummary
 import dev.huidoudour.installer.ui.theme.LocalThemeStateHolder
-import dev.huidoudour.installer.util.LoaderAnimationMode
-import dev.huidoudour.installer.util.LoaderAnimationPrefs
 import dev.huidoudour.installer.util.SignaturePrefs
 import dev.huidoudour.installer.R
 import dev.huidoudour.installer.util.LogManager
@@ -347,16 +344,14 @@ private fun InstallDialogContent(
 
 /**
  * 加载安装包信息的动画（物化文件 + 解析 APK 期间展示，参考 InstallerX 的 Preparing 阶段）
- * 图形模式使用包含式指示器，波浪模式使用不定量线性波浪条。
+ * 固定使用参考项目的线性波浪进度条。
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PackageLoadingIndicator() {
-    val context = LocalContext.current
     val useMonet = LocalThemeStateHolder.current.state.useDynamicColor &&
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val indicatorColor = if (useMonet) MaterialTheme.colorScheme.primary else Color(0xFF29B6F6)
-    val loaderMode = LoaderAnimationPrefs.getMode(context)
 
     Column(
         modifier = Modifier
@@ -364,24 +359,13 @@ private fun PackageLoadingIndicator() {
             .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (loaderMode) {
-            LoaderAnimationMode.GRAPHIC -> {
-                ContainedLoadingIndicator(
-                    modifier = Modifier.size(56.dp),
-                    indicatorColor = indicatorColor,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                )
-            }
-            LoaderAnimationMode.WAVE -> {
-                LinearWavyProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(12.dp),
-                    color = indicatorColor,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            }
-        }
+        LinearWavyProgressIndicator(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(12.dp),
+            color = indicatorColor,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 

@@ -31,6 +31,24 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import dev.huidoudour.installer.R
 
+data class InstallerPackageOption(
+    val packageName: String,
+    val displayName: String
+)
+
+fun getCurrentInstallerPackage(context: Context): String =
+    context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        .getString("installer_package", "")
+        ?.ifEmpty { "io.github.huidoudour.Installer" }
+        ?: "io.github.huidoudour.Installer"
+
+fun saveInstallerPackage(context: Context, packageName: String) {
+    context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        .edit()
+        .putString("installer_package", packageName)
+        .apply()
+}
+
 private val installerOptions = listOf(
     InstallerPackageOption("io.github.huidoudour.Installer", "Installer"),
     InstallerPackageOption("me.huidoudour.core", "Huidoudour Core"),

@@ -119,6 +119,7 @@
     <string name="select_apk_file">Select APK File</string>
     <string name="install_options">Install Options</string>
     <string name="configuration_options">Configuration Options</string>
+    <string name="install_parameters">Install parameters</string>
     <string name="enable_custom_package_name">Custom Installer</string>
     <string name="switch_installer_package">Switch</string>
     <string name="replace_existing_app">Replace Existing App</string>
@@ -674,9 +675,6 @@
     <string name="xapk_install_exception">XAPK installation exception: %s</string>
     <string name="xapk_install_success_msg">XAPK installation successful! %d APKs installed in total</string>
 
-    <string name="loader_animation_settings">Loading Animation</string>
-    <string name="loader_animation_graphic">Graphic</string>
-    <string name="loader_animation_wave">Wavy progress bar</string>
     <string name="changelog_title">Changelog</string>
     <string name="changelog_empty">No commits yet</string>
 

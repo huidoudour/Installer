@@ -119,6 +119,7 @@
     <string name="select_apk_file">APKファイルを選択</string>
     <string name="install_options">インストールオプション</string>
     <string name="configuration_options">設定オプション</string>
+    <string name="install_parameters">インストール設定</string>
     <string name="enable_custom_package_name">カスタムパッケージ名を有効化</string>
     <string name="switch_installer_package">インストーラーを切り替え</string>
     <string name="replace_existing_app">既存のアプリを置き換え</string>
@@ -674,9 +675,6 @@
     <string name="xapk_install_exception">XAPKインストール例外: %s</string>
     <string name="xapk_install_success_msg">XAPKのインストールに成功しました！合計 %d 個のAPKがインストールされました</string>
 
-    <string name="loader_animation_settings">読み込みアニメーション</string>
-    <string name="loader_animation_graphic">グラフィック</string>
-    <string name="loader_animation_wave">波状プログレスバー</string>
     <string name="changelog_title">更新ログ</string>
     <string name="changelog_empty">コミット記録はありません</string>
 

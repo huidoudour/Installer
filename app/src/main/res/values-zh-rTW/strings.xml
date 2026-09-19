@@ -119,6 +119,7 @@
     <string name="select_apk_file">選擇 APK 檔案</string>
     <string name="install_options">安裝選項</string>
     <string name="configuration_options">配置選項</string>
+    <string name="install_parameters">安裝參數</string>
     <string name="enable_custom_package_name">啟用自訂包名</string>
     <string name="switch_installer_package">切換安裝器</string>
     <string name="replace_existing_app">替換現有應用</string>
@@ -674,9 +675,6 @@
     <string name="xapk_install_exception">XAPK 安裝異常：%s</string>
     <string name="xapk_install_success_msg">XAPK 安裝成功！共安裝 %d 個 APK</string>
 
-    <string name="loader_animation_settings">載入動畫</string>
-    <string name="loader_animation_graphic">圖形載入</string>
-    <string name="loader_animation_wave">線性波浪條</string>
     <string name="changelog_title">更新日誌</string>
     <string name="changelog_empty">目前沒有提交記錄</string>
 

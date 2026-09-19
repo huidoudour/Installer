@@ -38,7 +38,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Autorenew
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -77,7 +76,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.huidoudour.installer.auth.PrivilegeHelper
-import dev.huidoudour.installer.ui.dialogs.InstallerPackageDialog
+import dev.huidoudour.installer.ui.dialogs.InstallerRequesterPackageDialog
 import dev.huidoudour.installer.ui.dialogs.LanguageSelectionDialog
 import dev.huidoudour.installer.ui.dialogs.ThemeSelectionDialog
 import dev.huidoudour.installer.ui.dialogs.getCurrentInstallerPackage
@@ -86,7 +85,6 @@ import dev.huidoudour.installer.ui.theme.SegmentedGap
 import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.ui.theme.segmentedShape
 import dev.huidoudour.installer.ui.theme.singleShape
-import dev.huidoudour.installer.util.LoaderAnimationMode
 import dev.huidoudour.installer.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -105,10 +103,11 @@ fun SettingsScreen(
     var showThemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showInstallerPackageDialog by remember { mutableStateOf(false) }
+    var showInstallParametersDialog by remember { mutableStateOf(false) }
     var showPrivilegeDialog by remember { mutableStateOf(false) }
     var showNotificationDialog by remember { mutableStateOf(false) }
-    var showLoaderAnimationDialog by remember { mutableStateOf(false) }
-    val loaderMode by viewModel.currentLoaderMode.collectAsState()
+    val replaceExisting by viewModel.replaceExisting.collectAsState()
+    val grantPermissions by viewModel.grantPermissions.collectAsState()
 
     // 从后台返回时自动刷新权限状态（处理 Dhizuku 手动授权/撤权场景）
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -164,9 +163,7 @@ fun SettingsScreen(
         AppSettingsCard(
             onThemeClick = { showThemeDialog = true },
             onLanguageClick = { showLanguageDialog = true },
-            onNotificationClick = { showNotificationDialog = true },
-            loaderMode = loaderMode,
-            onLoaderAnimationClick = { showLoaderAnimationDialog = true }
+            onNotificationClick = { showNotificationDialog = true }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -174,6 +171,7 @@ fun SettingsScreen(
         ConfigurationOptionsCard(
             viewModel = viewModel,
             onInstallerPackageClick = { showInstallerPackageDialog = true },
+            onInstallParametersClick = { showInstallParametersDialog = true },
             onPrivilegeClick = { showPrivilegeDialog = true },
             onAdvancedClick = onNavigateToLab
         )
@@ -210,17 +208,28 @@ fun SettingsScreen(
 
     // Installer package dialog
     if (showInstallerPackageDialog) {
-        InstallerPackageDialog(
+        InstallerRequesterPackageDialog(
             context = context,
             onDismiss = { showInstallerPackageDialog = false },
-            onConfirmed = {
+            onInstallerConfirmed = {
                 showInstallerPackageDialog = false
                 Toast.makeText(
                     context,
                     context.getString(R.string.installer_package_changed),
                     Toast.LENGTH_SHORT
                 ).show()
-            }
+            },
+            onRequesterConfirmed = {}
+        )
+    }
+
+    if (showInstallParametersDialog) {
+        InstallParametersDialog(
+            replaceExisting = replaceExisting,
+            grantPermissions = grantPermissions,
+            onReplaceExistingChange = viewModel::setReplaceExisting,
+            onGrantPermissionsChange = viewModel::setGrantPermissions,
+            onDismiss = { showInstallParametersDialog = false }
         )
     }
 
@@ -261,32 +270,14 @@ fun SettingsScreen(
         )
     }
 
-    // Loader animation selection dialog
-    if (showLoaderAnimationDialog) {
-        LoaderAnimationSelectionDialog(
-            currentMode = loaderMode,
-            onDismiss = { showLoaderAnimationDialog = false },
-            onConfirm = { mode ->
-                viewModel.setLoaderMode(mode)
-                showLoaderAnimationDialog = false
-            }
-        )
-    }
 }
 
 @Composable
 private fun AppSettingsCard(
     onThemeClick: () -> Unit,
     onLanguageClick: () -> Unit,
-    onNotificationClick: () -> Unit,
-    loaderMode: LoaderAnimationMode,
-    onLoaderAnimationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val loaderModeName = when (loaderMode) {
-        LoaderAnimationMode.GRAPHIC -> stringResource(R.string.loader_animation_graphic)
-        LoaderAnimationMode.WAVE -> stringResource(R.string.loader_animation_wave)
-    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -323,13 +314,6 @@ private fun AppSettingsCard(
                 subtitle = null,
                 colorPreview = null,
                 onClick = onNotificationClick
-            ),
-            SettingItemData(
-                icon = Icons.Default.Autorenew,
-                title = stringResource(R.string.loader_animation_settings),
-                subtitle = loaderModeName,
-                colorPreview = null,
-                onClick = onLoaderAnimationClick
             )
         )
 
@@ -350,15 +334,13 @@ private fun AppSettingsCard(
 private fun ConfigurationOptionsCard(
     viewModel: SettingsViewModel,
     onInstallerPackageClick: () -> Unit,
+    onInstallParametersClick: () -> Unit,
     onPrivilegeClick: () -> Unit,
     onAdvancedClick: () -> Unit
 ) {
     val context = LocalContext.current
     val privilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
-    val replaceExisting by viewModel.replaceExisting.collectAsState()
-    val grantPermissions by viewModel.grantPermissions.collectAsState()
-
     LaunchedEffect(Unit) {
         viewModel.refreshPrivilegeStatus()
     }
@@ -390,6 +372,13 @@ private fun ConfigurationOptionsCard(
                 onClick = onInstallerPackageClick
             ),
             SettingItemData(
+                icon = Icons.Default.Autorenew,
+                title = stringResource(R.string.install_parameters),
+                subtitle = null,
+                colorPreview = null,
+                onClick = onInstallParametersClick
+            ),
+            SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_lock),
                 title = stringResource(R.string.privilege_settings),
                 subtitle = "$modeName: $statusText",
@@ -407,42 +396,30 @@ private fun ConfigurationOptionsCard(
 
         SettingListItem(
             item = items[0],
-            shape = segmentedShape(0, 5),
+            shape = segmentedShape(0, items.size),
             isFirst = true,
             isLast = false,
             showArrow = true
         )
 
-        SettingSwitchListItem(
-            icon = Icons.Default.Autorenew,
-            title = stringResource(R.string.replace_existing_app),
-            checked = replaceExisting,
-            onCheckedChange = viewModel::setReplaceExisting,
-            shape = segmentedShape(1, 5),
-            isFirst = false,
-            isLast = false
-        )
-
-        SettingSwitchListItem(
-            icon = ImageVector.vectorResource(R.drawable.ic_lock),
-            title = stringResource(R.string.auto_grant_permissions),
-            checked = grantPermissions,
-            onCheckedChange = viewModel::setGrantPermissions,
-            shape = segmentedShape(2, 5),
-            isFirst = false,
-            isLast = false
-        )
-
         SettingListItem(
             item = items[1],
-            shape = segmentedShape(3, 5),
+            shape = segmentedShape(1, items.size),
             isFirst = false,
-            isLast = false
+            isLast = false,
+            showArrow = true
         )
 
         SettingListItem(
             item = items[2],
-            shape = segmentedShape(4, 5),
+            shape = segmentedShape(2, items.size),
+            isFirst = false,
+            isLast = false
+        )
+
+        SettingListItem(
+            item = items[3],
+            shape = segmentedShape(3, items.size),
             isFirst = false,
             isLast = true,
             showArrow = true
@@ -638,68 +615,6 @@ internal fun SettingListItem(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-        }
-    }
-
-    if (!isLast) {
-        Spacer(modifier = Modifier.height(SegmentedGap))
-    }
-}
-
-@Composable
-private fun SettingSwitchListItem(
-    icon: ImageVector,
-    title: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    shape: Shape,
-    isFirst: Boolean,
-    isLast: Boolean
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isPressed) {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-        } else {
-            MaterialTheme.colorScheme.surfaceBright
-        },
-        label = "settingSwitchBackground"
-    )
-
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .height(56.dp),
-        shape = shape,
-        color = backgroundColor,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        onClick = { onCheckedChange(!checked) },
-        interactionSource = interactionSource
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange
-            )
         }
     }
 
@@ -1021,58 +936,67 @@ fun AppIcon(
 }
 
 @Composable
-private fun LoaderAnimationSelectionDialog(
-    currentMode: LoaderAnimationMode,
-    onDismiss: () -> Unit,
-    onConfirm: (LoaderAnimationMode) -> Unit
+private fun InstallParametersDialog(
+    replaceExisting: Boolean,
+    grantPermissions: Boolean,
+    onReplaceExistingChange: (Boolean) -> Unit,
+    onGrantPermissionsChange: (Boolean) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val options = listOf(
-        LoaderAnimationMode.GRAPHIC to stringResource(R.string.loader_animation_graphic),
-        LoaderAnimationMode.WAVE to stringResource(R.string.loader_animation_wave)
-    )
-
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
         title = {
-            Text(stringResource(R.string.loader_animation_settings), fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.install_parameters), fontWeight = FontWeight.SemiBold)
         },
         text = {
             Column {
-                options.forEach { (mode, label) ->
-                    val selected = mode == currentMode
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                if (selected) MaterialTheme.colorScheme.surfaceContainerHigh
-                                else Color.Transparent
-                            )
-                            .clickable { onConfirm(mode) }
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                            modifier = Modifier.weight(1f)
-                        )
-                        if (selected) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                }
+                InstallParameterSwitchRow(
+                    title = stringResource(R.string.replace_existing_app),
+                    checked = replaceExisting,
+                    onCheckedChange = onReplaceExistingChange
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                InstallParameterSwitchRow(
+                    title = stringResource(R.string.auto_grant_permissions),
+                    checked = grantPermissions,
+                    onCheckedChange = onGrantPermissionsChange
+                )
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
+                Text(stringResource(R.string.ok))
             }
         }
     )
+}
+
+@Composable
+private fun InstallParameterSwitchRow(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        onClick = { onCheckedChange(!checked) }
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange
+            )
+        }
+    }
 }

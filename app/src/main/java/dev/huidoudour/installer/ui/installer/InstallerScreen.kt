@@ -65,6 +65,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.huidoudour.installer.auth.PrivilegeHelper
+import dev.huidoudour.installer.ui.dialogs.InstallerRequesterPackageDialog
 import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.util.FilePickerHelper
 import dev.huidoudour.installer.R
@@ -86,6 +87,7 @@ fun InstallerScreen(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    var showPackageDialog by remember { mutableStateOf(false) }
 
     val privilegeStatus: PrivilegeHelper.PrivilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
@@ -99,6 +101,7 @@ fun InstallerScreen(
     val isLoadingPackage by viewModel.isLoadingPackage.collectAsState()
     val enableCustomPackageName by viewModel.enableCustomPackageName.collectAsState()
     val allowTestPackages by viewModel.allowTestPackages.collectAsState()
+    val selectedInstallerPackage by viewModel.selectedInstallerPackage.collectAsState()
     val enableCustomRequesterPackage by viewModel.enableCustomRequesterPackage.collectAsState()
 
     // 从后台返回时自动刷新权限状态（处理 Dhizuku 手动授权/撤权场景）
@@ -226,6 +229,7 @@ fun InstallerScreen(
                 },
                 // Dhizuku 走 PackageInstaller.Session AIDL，不支持 -t 参数
                 isTestPackagesOptionEnabled = privilegeMode != PrivilegeHelper.PrivilegeMode.DHIZUKU,
+                onSwitchPackage = { showPackageDialog = true },
                 // 请求者参数
                 enableCustomRequesterPackage = enableCustomRequesterPackage,
                 onEnableCustomRequesterPackageChange = { enabled ->
@@ -243,6 +247,23 @@ fun InstallerScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    if (showPackageDialog) {
+        InstallerRequesterPackageDialog(
+            context = context,
+            onDismiss = { showPackageDialog = false },
+            onInstallerConfirmed = {
+                viewModel.setSelectedInstallerPackage(it)
+                showPackageDialog = false
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.installer_package_changed),
+                    Toast.LENGTH_SHORT
+                ).show()
+            },
+            onRequesterConfirmed = { viewModel.setSelectedRequesterPackage(it) }
+        )
     }
 
 }
@@ -572,6 +593,7 @@ fun InstallOptionsCard(
     allowTestPackages: Boolean,
     onAllowTestPackagesChange: (Boolean) -> Unit,
     isTestPackagesOptionEnabled: Boolean,
+    onSwitchPackage: () -> Unit,
     enableCustomRequesterPackage: Boolean = false,
     onEnableCustomRequesterPackageChange: (Boolean) -> Unit = {}
 ) {
@@ -580,12 +602,30 @@ fun InstallOptionsCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
-        Text(
-            text = stringResource(R.string.install_options),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.install_options),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
             )
-        )
+            Surface(
+                shape = SmallShape,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                onClick = onSwitchPackage
+            ) {
+                Text(
+                    text = stringResource(R.string.switch_installer_package),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(12.dp))
 
