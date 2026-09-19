@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
 import dev.huidoudour.installer.R
+import dev.huidoudour.installer.util.LogManager
 import java.io.File
 
 /**
@@ -40,12 +41,43 @@ object InstallDispatcher {
         grantPermissions: Boolean,
         callback: Callback,
     ) {
-        when (authorizer) {
-            Authorizer.Shizuku -> {
+        val logManager = LogManager.getInstance()
+        val sourceFile = File(filePath)
+        val installTarget = sourceFile.name.ifBlank { filePath }
+        val method = context.getString(authorizer.displayNameRes)
+        logManager.addLog(
+            "Install requested: file=$installTarget, type=${if (isXapk) "bundle" else "APK"}, " +
+                "method=$method, replace=$replaceExisting, grantPermissions=$grantPermissions",
+            "Install"
+        )
+
+        // Every installer implementation reports its lifecycle through this callback.  Recording
+        // it here keeps the Logs page complete regardless of whether the request comes from the
+        // main screen, the external install dialog, or a future caller.
+        val recordingCallback = object : Callback {
+            override fun onProgress(message: String) {
+                logManager.addLog(message, "Install/$method")
+                callback.onProgress(message)
+            }
+
+            override fun onSuccess(message: String) {
+                logManager.addLog("Succeeded: $message", "Install/$method")
+                callback.onSuccess(message)
+            }
+
+            override fun onError(error: String) {
+                logManager.addLog("Failed: $error", "Install/$method")
+                callback.onError(error)
+            }
+        }
+
+        try {
+            when (authorizer) {
+                Authorizer.Shizuku -> {
                 val cb = object : ShizukuInstallHelper.InstallCallback {
-                    override fun onProgress(message: String) = callback.onProgress(message)
-                    override fun onSuccess(message: String) = callback.onSuccess(message)
-                    override fun onError(error: String) = callback.onError(error)
+                    override fun onProgress(message: String) = recordingCallback.onProgress(message)
+                    override fun onSuccess(message: String) = recordingCallback.onSuccess(message)
+                    override fun onError(error: String) = recordingCallback.onError(error)
                 }
                 if (isXapk) {
                     ShizukuInstallHelper.installXapk(
@@ -58,11 +90,11 @@ object InstallDispatcher {
                 }
             }
 
-            Authorizer.Dhizuku -> {
+                Authorizer.Dhizuku -> {
                 val cb = object : DhizukuInstallHelper.InstallCallback {
-                    override fun onProgress(message: String) = callback.onProgress(message)
-                    override fun onSuccess(message: String) = callback.onSuccess(message)
-                    override fun onError(error: String) = callback.onError(error)
+                    override fun onProgress(message: String) = recordingCallback.onProgress(message)
+                    override fun onSuccess(message: String) = recordingCallback.onSuccess(message)
+                    override fun onError(error: String) = recordingCallback.onError(error)
                 }
                 if (isXapk) {
                     DhizukuInstallHelper.installXapk(
@@ -75,7 +107,10 @@ object InstallDispatcher {
                 }
             }
 
-            Authorizer.None -> installViaSystemInstaller(context, filePath, callback)
+                Authorizer.None -> installViaSystemInstaller(context, filePath, recordingCallback)
+            }
+        } catch (e: Exception) {
+            recordingCallback.onError("Installation dispatch failed: ${e.message ?: e.javaClass.simpleName}")
         }
     }
 

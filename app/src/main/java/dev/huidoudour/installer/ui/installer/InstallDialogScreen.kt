@@ -38,6 +38,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -143,6 +144,8 @@ private fun InstallDialogContent(
     onOpenApp: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
+    val logManager = LogManager.getInstance()
+    fun logUiAction(action: String) = logManager.addLog(action, "External install UI")
     var state by remember { mutableStateOf(InstallDialogState()) }
 
     // installUri 物化到本地后的文件路径（APK 信息解析、签名校验、安装共用同一份缓存文件）
@@ -162,13 +165,16 @@ private fun InstallDialogContent(
         if (installUri != null) {
             withContext(Dispatchers.IO) {
                 try {
+                    logManager.addLog("Preparing external install file: $installUri", "External install")
                     // 只物化一次文件：APK 信息解析与签名校验共用同一份缓存文件
                     val filePath = getFilePathFromUri(context, installUri)
                     if (filePath == null) {
                         Log.e("InstallDialog", "Failed to materialize install file")
+                        logManager.addLog("Failed to prepare external install file", "External install")
                         return@withContext
                     }
                     materializedPath = filePath
+                    logManager.addLog("Install file ready: $filePath", "External install")
                     val apkInfo = parseApkInfo(context, filePath)
                     if (apkInfo != null) {
                         // 先展示 APK 信息，完整的 apksig 签名校验在后台完成后回填
@@ -184,6 +190,12 @@ private fun InstallDialogContent(
                             installedVersion = apkInfo.installedVersion,
                             isInfoLoaded = true
                         )
+                        logManager.addLog(
+                            "Package parsed: ${apkInfo.packageName} ${apkInfo.version}",
+                            "External install"
+                        )
+                    } else {
+                        logManager.addLog("Could not parse package information", "External install")
                     }
 
                     // 仅在开启“安装前校验签名”时才做完整校验（apksig 需要读取整个 APK）
@@ -193,10 +205,14 @@ private fun InstallDialogContent(
                         }.getOrNull()
                         if (signature != null) {
                             state = state.copy(signature = signature)
+                            logManager.addLog("Package signature check completed", "External install")
+                        } else {
+                            logManager.addLog("Package signature check could not be completed", "External install")
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("InstallDialog", "Failed to parse APK", e)
+                    logManager.addLog("Package preparation failed: ${e.message}", "External install")
                 } finally {
                     // 解析结束（成功或失败）后收起加载动画
                     state = state.copy(isLoading = false)
@@ -253,7 +269,10 @@ private fun InstallDialogContent(
                     SignatureStatusRow(
                         summary = sigSummary,
                         showDetails = showSignatureDetails,
-                        onClick = { showSignatureDialog = true }
+                        onClick = {
+                            logUiAction("Signature details opened")
+                            showSignatureDialog = true
+                        }
                     )
                 }
                 
@@ -264,8 +283,14 @@ private fun InstallDialogContent(
                     state.isComplete -> {
                         // 安装完成按钮
                         CompletionButtons(
-                            onOpenApp = { onOpenApp(state.packageName) },
-                            onFinish = onDismiss
+                            onOpenApp = {
+                                logUiAction("Open installed app pressed: ${state.packageName}")
+                                onOpenApp(state.packageName)
+                            },
+                            onFinish = {
+                                logUiAction("Finish pressed after installation")
+                                onDismiss()
+                            }
                         )
                     }
                     state.isInstalling -> {
@@ -273,6 +298,7 @@ private fun InstallDialogContent(
                         InstallingButtons(
                             progress = state.installProgress,
                             onCancel = {
+                                logUiAction("Cancel pressed while installation is in progress")
                                 state = state.copy(isInstalling = false)
                             }
                         )
@@ -283,6 +309,7 @@ private fun InstallDialogContent(
                             state = state,
                             isInstallEnabled = isInstallEnabled(),
                             onInstall = {
+                                logUiAction("Install confirmation pressed")
                                 state = state.copy(isInstalling = true)
                                 performRealInstallation(
                                     context = context,
@@ -307,8 +334,14 @@ private fun InstallDialogContent(
                                     }
                                 )
                             },
-                            onCancel = onDismiss,
-                            onPrivilege = { showPrivilegeDialog = true }
+                            onCancel = {
+                                logUiAction("External installation cancelled before start")
+                                onDismiss()
+                            },
+                            onPrivilege = {
+                                logUiAction("Privilege selector opened")
+                                showPrivilegeDialog = true
+                            }
                         )
                     }
                 }
@@ -321,10 +354,14 @@ private fun InstallDialogContent(
         InstallPrivilegeDialog(
             context = context,
             currentMode = currentPrivilegeMode,
-            onDismiss = { showPrivilegeDialog = false },
+            onDismiss = {
+                logUiAction("Privilege selector dismissed")
+                showPrivilegeDialog = false
+            },
             onModeSelected = { mode ->
                 currentPrivilegeMode = mode
                 PrivilegeHelper.saveCurrentMode(context, mode)
+                logUiAction("Privilege mode confirmed: ${PrivilegeHelper.getModeName(mode)}")
                 showPrivilegeDialog = false
             }
         )
@@ -336,7 +373,10 @@ private fun InstallDialogContent(
         if (sig != null) {
             SignatureDetailsDialog(
                 summary = sig,
-                onDismiss = { showSignatureDialog = false }
+                onDismiss = {
+                    logUiAction("Signature details dismissed")
+                    showSignatureDialog = false
+                }
             )
         }
     }
@@ -344,7 +384,7 @@ private fun InstallDialogContent(
 
 /**
  * 加载安装包信息的动画（物化文件 + 解析 APK 期间展示，参考 InstallerX 的 Preparing 阶段）
- * 固定使用参考项目的线性波浪进度条。
+ * 该阶段没有可量化进度，使用 Material 3 图形变形加载动画。
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -359,19 +399,18 @@ private fun PackageLoadingIndicator() {
             .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LinearWavyProgressIndicator(
+        ContainedLoadingIndicator(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(12.dp),
-            color = indicatorColor,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
+            .size(56.dp),
+            indicatorColor = indicatorColor,
+            containerColor = indicatorColor.copy(alpha = 0.12f)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
             text = stringResource(R.string.preparing),
-            fontSize = 14.sp,
+            fontSize = 18.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -592,7 +631,7 @@ fun InstallingButtons(
         modifier = Modifier.fillMaxWidth()
     ) {
         // 安装过程始终采用参考 InstallerX 的线性波浪进度条，不受普通加载动画设置影响。
-        // 尚未获得可量化进度时，以无波纹的线性动画表示 PackageInstaller 正在校验和提交。
+        // 尚未获得可量化进度时，以 Material 3 图形变形动画表示 PackageInstaller 正在校验和提交。
         if (progress > 0) {
             LinearWavyProgressIndicator(
                 progress = { animatedProgress },
@@ -603,12 +642,16 @@ fun InstallingButtons(
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         } else {
-            LinearWavyProgressIndicator(
+            Box(
                 modifier = Modifier.fillMaxWidth(),
-                amplitude = 0f,
-                color = indicatorColor,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+                contentAlignment = Alignment.Center
+            ) {
+                ContainedLoadingIndicator(
+                    modifier = Modifier.size(56.dp),
+                    indicatorColor = indicatorColor,
+                    containerColor = indicatorColor.copy(alpha = 0.12f)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -808,6 +851,7 @@ private fun performRealInstallation(
         SmartAuthorizer.resolveInstallPlan(context, currentAuthorizer, installed)
 
     if (ordered.isEmpty()) {
+        logManager.addLog("No authorized installation method is available", "External install")
         onError(context.getString(R.string.no_available_authorizer))
         return
     }
@@ -816,6 +860,10 @@ private fun performRealInstallation(
         var lastError: String? = null
 
         for (authorizer in ordered) {
+            logManager.addLog(
+                "Trying installation method: ${context.getString(authorizer.displayNameRes)}",
+                "External install"
+            )
             val latch = CountDownLatch(1)
             var succeeded = false
             var errorMessage: String? = null
@@ -852,14 +900,17 @@ private fun performRealInstallation(
             latch.await()
 
             if (succeeded) {
+                logManager.addLog("External installation completed", "External install")
                 mainHandler.post { onSuccess() }
                 return@Thread
             } else {
                 lastError = errorMessage
+                logManager.addLog("Installation method failed: $errorMessage", "External install")
             }
         }
 
         val finalError = lastError ?: context.getString(R.string.install_failed, "")
+        logManager.addLog("External installation failed: $finalError", "External install")
         mainHandler.post { onError(finalError) }
     }.start()
 }
@@ -901,9 +952,15 @@ private fun computeDialogSignature(
  * 扩展名参与 XAPK/APKS 判定，丢失后会被误当作普通 APK 处理。
  */
 private fun getFilePathFromUri(context: Context, uri: Uri?): String? {
-    if (uri == null) return null
+    if (uri == null) {
+        LogManager.getInstance().addLog("Cannot prepare file: URI is null", "External install")
+        return null
+    }
     return try {
-        if (uri.scheme == "file") return uri.path
+        if (uri.scheme == "file") {
+            LogManager.getInstance().addLog("Using installation file directly: ${uri.path}", "External install")
+            return uri.path
+        }
 
         clearStaleInstallTempFiles(context)
 
@@ -924,11 +981,14 @@ private fun getFilePathFromUri(context: Context, uri: Uri?): String? {
         if (!copied) {
             cacheFile.delete()
             Log.e("InstallDialog", "Failed to open install file: $uri")
+            LogManager.getInstance().addLog("Could not copy installation file from $uri", "External install")
             return null
         }
+        LogManager.getInstance().addLog("Copied installation file to ${cacheFile.absolutePath}", "External install")
         cacheFile.absolutePath
     } catch (e: Exception) {
         Log.e("InstallDialog", "Failed to get file path from URI", e)
+        LogManager.getInstance().addLog("Could not prepare installation file: ${e.message}", "External install")
         null
     }
 }
@@ -1043,7 +1103,13 @@ private fun InstallPrivilegeDialog(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.SHIZUKU },
+                                .clickable {
+                                    selectedMode = PrivilegeHelper.PrivilegeMode.SHIZUKU
+                                    LogManager.getInstance().addLog(
+                                        "Privilege mode selected: Shizuku",
+                                        "External install UI"
+                                    )
+                                },
                             shape = RoundedCornerShape(12.dp),
                             color = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
                                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -1091,7 +1157,13 @@ private fun InstallPrivilegeDialog(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.DHIZUKU },
+                                .clickable {
+                                    selectedMode = PrivilegeHelper.PrivilegeMode.DHIZUKU
+                                    LogManager.getInstance().addLog(
+                                        "Privilege mode selected: Dhizuku",
+                                        "External install UI"
+                                    )
+                                },
                             shape = RoundedCornerShape(12.dp),
                             color = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
                                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -1140,12 +1212,24 @@ private fun InstallPrivilegeDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
                         ) {
-                            TextButton(onClick = onDismiss) {
+                            TextButton(onClick = {
+                                LogManager.getInstance().addLog(
+                                    "Privilege selector cancel pressed",
+                                    "External install UI"
+                                )
+                                onDismiss()
+                            }) {
                                 Text(stringResource(R.string.cancel))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
-                                onClick = { onModeSelected(selectedMode) },
+                                onClick = {
+                                    LogManager.getInstance().addLog(
+                                        "Privilege selector next step pressed",
+                                        "External install UI"
+                                    )
+                                    onModeSelected(selectedMode)
+                                },
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFF2196F3),

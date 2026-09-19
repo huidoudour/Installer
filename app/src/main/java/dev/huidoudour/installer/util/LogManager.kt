@@ -11,6 +11,7 @@ import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.Executors
 
 /**
  * 日志条目，携带唯一 ID 用于 LazyColumn key 避免重复 key 崩溃
@@ -45,6 +46,7 @@ class LogManager private constructor() {
     private val logs = mutableListOf<LogEntry>()
     private val listeners = mutableListOf<LogListener>()
     private val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    private val persistenceExecutor = Executors.newSingleThreadExecutor()
     private var context: Context? = null
     private var logFile: File? = null
 
@@ -53,6 +55,7 @@ class LogManager private constructor() {
         fun onLogCleared()
     }
 
+    @Synchronized
     fun setContext(context: Context) {
         this.context = context
         this.logFile = File(context.filesDir, LOG_FILE_NAME)
@@ -87,10 +90,13 @@ class LogManager private constructor() {
 
     private fun saveLogsAsync() {
         val file = logFile ?: return
-        Thread {
+        // Keep a stable copy and serialize writes: installation callbacks can arrive from
+        // multiple worker threads, and an older asynchronous write must not overwrite newer logs.
+        val snapshot = ArrayList(logs)
+        persistenceExecutor.execute {
             try {
                 BufferedWriter(FileWriter(file, false)).use { writer ->
-                    for (log in logs) {
+                    for (log in snapshot) {
                         writer.write(log.text)
                         writer.newLine()
                     }
@@ -98,13 +104,15 @@ class LogManager private constructor() {
             } catch (e: Exception) {
                 // 忽略写入错误
             }
-        }.start()
+        }
     }
 
+    @Synchronized
     fun addLog(message: String) {
         addLog(message, "App")
     }
 
+    @Synchronized
     fun addLog(message: String, tag: String?) {
         val timestamp = dateFormat.format(Date())
         val logMessage = if (tag != null) "$timestamp [$tag]: $message" else "$timestamp: $message"
@@ -129,6 +137,7 @@ class LogManager private constructor() {
         println("Installer: $logMessage")
     }
 
+    @Synchronized
     fun clearLogs() {
         logs.clear()
         for (listener in ArrayList(listeners)) {
@@ -137,6 +146,7 @@ class LogManager private constructor() {
         saveLogsAsync()
     }
 
+    @Synchronized
     fun getAllLogs(): String {
         if (logs.isEmpty()) {
             return "Waiting for operation..."
@@ -148,14 +158,17 @@ class LogManager private constructor() {
         return sb.toString()
     }
 
+    @Synchronized
     fun getLogsSnapshot(): List<LogEntry> {
         return Collections.unmodifiableList(ArrayList(logs))
     }
 
+    @Synchronized
     fun getLogCount(): Int {
         return logs.size
     }
 
+    @Synchronized
     fun getLastUpdateTime(): String {
         if (logs.isEmpty()) {
             return "--:--:--"
@@ -163,12 +176,14 @@ class LogManager private constructor() {
         return dateFormat.format(Date())
     }
 
+    @Synchronized
     fun addListener(listener: LogListener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener)
         }
     }
 
+    @Synchronized
     fun removeListener(listener: LogListener) {
         listeners.remove(listener)
     }

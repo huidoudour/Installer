@@ -3,6 +3,7 @@ package dev.huidoudour.installer.install
 import android.content.Context
 import android.util.Log
 import dev.huidoudour.installer.R
+import dev.huidoudour.installer.util.LogManager
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipFile
@@ -13,6 +14,7 @@ import java.util.zip.ZipFile
 object XapkInstaller {
 
     private const val TAG = "XapkInstaller"
+    private val logManager get() = LogManager.getInstance()
 
     /**
      * 检测文件是否为 XAPK 文件
@@ -45,6 +47,7 @@ object XapkInstaller {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error checking XAPK file: ${e.message}")
+            logManager.addLog("Failed to identify package type for $filePath: ${e.message}", "XAPK")
             false
         }
     }
@@ -86,6 +89,7 @@ object XapkInstaller {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error getting APK count: ${e.message}")
+            logManager.addLog("Failed to count APKs in $filePath: ${e.message}", "XAPK")
             0
         }
     }
@@ -98,8 +102,11 @@ object XapkInstaller {
         val tempDir = File(context.cacheDir, "xapk_temp")
 
         try {
+            logManager.addLog("Starting package extraction: $xapkPath", "XAPK")
             if (!tempDir.exists()) {
-                tempDir.mkdirs()
+                if (!tempDir.mkdirs()) {
+                    logManager.addLog("Could not create extraction directory: ${tempDir.absolutePath}", "XAPK")
+                }
             }
 
             val xapkFile = File(xapkPath)
@@ -116,11 +123,14 @@ object XapkInstaller {
                         }
 
                         extractedApks.add(outputFile)
+                        logManager.addLog("Extracted APK: ${outputFile.name}", "XAPK")
                     }
                 }
             }
+            logManager.addLog("Extraction completed: ${extractedApks.size} APK(s)", "XAPK")
         } catch (e: Exception) {
             Log.e(TAG, "Error extracting XAPK: ${e.message}")
+            logManager.addLog("Extraction failed: ${e.message}", "XAPK")
         }
 
         return extractedApks
@@ -135,6 +145,7 @@ object XapkInstaller {
                 file.delete()
             } catch (e: Exception) {
                 Log.e(TAG, "Error deleting temp file: ${e.message}")
+                logManager.addLog("Failed to remove extracted APK ${file.name}: ${e.message}", "XAPK")
             }
         }
 
@@ -145,6 +156,7 @@ object XapkInstaller {
                 tempDir.delete()
             } catch (e: Exception) {
                 Log.e(TAG, "Error deleting temp dir: ${e.message}")
+                logManager.addLog("Failed to remove extraction directory: ${e.message}", "XAPK")
             }
         }
     }

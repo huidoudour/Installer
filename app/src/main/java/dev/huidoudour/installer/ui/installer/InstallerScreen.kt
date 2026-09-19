@@ -126,7 +126,9 @@ fun InstallerScreen(
     val storagePermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
+        viewModel.onStoragePermissionResult(isGranted)
         if (isGranted) {
+            viewModel.requestFilePicker()
             filePickerLauncher.launch(FilePickerHelper.createFilePickerIntent(context))
         }
     }
@@ -134,7 +136,10 @@ fun InstallerScreen(
     val manageStorageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()) {
+        val isGranted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()
+        viewModel.onManageStorageResult(isGranted)
+        if (isGranted) {
+            viewModel.requestFilePicker()
             filePickerLauncher.launch(FilePickerHelper.createFilePickerIntent(context))
         }
     }
@@ -168,20 +173,23 @@ fun InstallerScreen(
                 onSelectFile = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         if (Environment.isExternalStorageManager()) {
+                            viewModel.requestFilePicker()
                             filePickerLauncher.launch(FilePickerHelper.createFilePickerIntent(context))
                         } else {
+                            viewModel.requestAllFilesAccess()
                             val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                             intent.data = Uri.parse("package:${context.packageName}")
                             manageStorageLauncher.launch(intent)
                         }
                     } else {
+                        viewModel.requestStoragePermission()
                         storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
                     }
                 },
                 onRefreshFileInfo = { viewModel.refreshFileInfo() },
                 // 长按选择安装包按钮：清除当前已选中的安装包
                 onClearFile = {
-                    viewModel.clearSelection()
+                    viewModel.clearSelection("Selected installation package cleared by long press")
                     Toast.makeText(
                         context,
                         context.getString(R.string.clear_selected_package),
@@ -229,7 +237,10 @@ fun InstallerScreen(
                 },
                 // Dhizuku 走 PackageInstaller.Session AIDL，不支持 -t 参数
                 isTestPackagesOptionEnabled = privilegeMode != PrivilegeHelper.PrivilegeMode.DHIZUKU,
-                onSwitchPackage = { showPackageDialog = true },
+                onSwitchPackage = {
+                    viewModel.onInstallerRequesterPackageDialogOpened()
+                    showPackageDialog = true
+                },
                 // 请求者参数
                 enableCustomRequesterPackage = enableCustomRequesterPackage,
                 onEnableCustomRequesterPackageChange = { enabled ->
@@ -252,7 +263,10 @@ fun InstallerScreen(
     if (showPackageDialog) {
         InstallerRequesterPackageDialog(
             context = context,
-            onDismiss = { showPackageDialog = false },
+            onDismiss = {
+                viewModel.onInstallerRequesterPackageDialogDismissed()
+                showPackageDialog = false
+            },
             onInstallerConfirmed = {
                 viewModel.setSelectedInstallerPackage(it)
                 showPackageDialog = false

@@ -162,6 +162,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun switchPrivilegeMode() {
+        logManager.addLog("Privilege mode switch requested", "Install UI")
         viewModelScope.launch(Dispatchers.IO) {
             val newMode = PrivilegeHelper.switchMode(context)
             val status = PrivilegeHelper.getStatus(context, newMode)
@@ -174,6 +175,10 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun requestPrivilegePermission() {
+        logManager.addLog(
+            "Privilege action requested for ${PrivilegeHelper.getModeName(_privilegeMode.value)}",
+            "Install UI"
+        )
         viewModelScope.launch(Dispatchers.IO) {
             when (_privilegeStatus.value) {
                 PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> {
@@ -190,13 +195,17 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                         PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
                             try {
                                 if (Shizuku.pingBinder()) {
+                                    logManager.addLog("Requesting Shizuku authorization", "Install UI")
                                     Shizuku.requestPermission(123)
+                                } else {
+                                    logManager.addLog("Shizuku authorization unavailable: service not running", "Install UI")
                                 }
                             } catch (e: Exception) {
                                 logManager.addLog("Shizuku error: ${e.message}")
                             }
                         }
                         PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
+                            logManager.addLog("Requesting Dhizuku authorization", "Install UI")
                             PrivilegeHelper.requestDhizukuPermission(context) { _ ->
                                 viewModelScope.launch(Dispatchers.IO) {
                                     val status = PrivilegeHelper.getStatus(context, PrivilegeHelper.PrivilegeMode.DHIZUKU)
@@ -215,10 +224,14 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun onFileSelected(uri: Uri?) {
-        if (uri == null) return
+        if (uri == null) {
+            logManager.addLog("Installation file selection cancelled", "Install")
+            return
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                logManager.addLog("Preparing selected installation file: $uri", "Install")
                 val fileName = getFileNameFromUri(uri)
                 withContext(Dispatchers.Main) {
                     _selectedFileName.value = fileName
@@ -241,6 +254,8 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                     }
 
                     logManager.addLog("File selected: $path")
+                } else {
+                    logManager.addLog("Selected installation file could not be prepared", "Install")
                 }
             } catch (e: Exception) {
                 logManager.addLog("Error selecting file: ${e.message}")
@@ -262,6 +277,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
             val cacheFile = File(context.cacheDir, getFileNameFromUri(uri) ?: "file.apk")
             // 先删除旧副本：复制失败时不能把上一次的同名缓存文件当成待安装包
             cacheFile.delete()
+            logManager.addLog("Copying installation file to ${cacheFile.absolutePath}", "Install")
 
             val copied = context.contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(cacheFile).use { output ->
@@ -274,6 +290,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                 logManager.addLog("Error getting file path: cannot open $uri")
                 return null
             }
+            logManager.addLog("Installation file copied to ${cacheFile.absolutePath}", "Install")
             cacheFile.absolutePath
         } catch (e: Exception) {
             logManager.addLog("Error getting file path: ${e.message}")
@@ -295,7 +312,12 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun refreshFileInfo() {
-        val path = _selectedFilePath.value ?: return
+        val path = _selectedFilePath.value ?: run {
+            logManager.addLog("Refresh package information ignored: no package selected", "Install UI")
+            return
+        }
+
+        logManager.addLog("Refreshing package information: $path", "Install UI")
 
         viewModelScope.launch(Dispatchers.IO) {
             val isXapk = XapkInstaller.isXapkFile(path)
@@ -311,7 +333,11 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun install() {
-        val path = _selectedFilePath.value ?: return
+        logManager.addLog("Install button pressed", "Install UI")
+        val path = _selectedFilePath.value ?: run {
+            logManager.addLog("Installation not started: no package selected", "Install")
+            return
+        }
 
         val currentAuthorizer = if (_privilegeMode.value == PrivilegeHelper.PrivilegeMode.DHIZUKU) {
             Authorizer.Dhizuku
@@ -321,6 +347,11 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
         val installed = PackageInfoHelper.isApkInstalled(context, path)
         val ordered: List<Authorizer> =
             SmartAuthorizer.resolveInstallPlan(context, currentAuthorizer, installed)
+
+        logManager.addLog(
+            "Installation plan resolved: installed=$installed, methods=${ordered.joinToString { it.value }}",
+            "Install"
+        )
 
         if (ordered.isEmpty()) {
             logManager.addLog("No available authorizer for install")
@@ -350,7 +381,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                     withContext(Dispatchers.Main) {
                         _isInstalling.value = false
                         _installCompleted.value = true
-                        clearSelection()
+                        clearSelection("Installation completed; selected package cleared")
                         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                     }
                     return@launch
@@ -401,7 +432,46 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
             )
         }
 
-    fun clearSelection() {
+    fun requestFilePicker() {
+        logManager.addLog("File picker opened", "Install UI")
+    }
+
+    fun requestStoragePermission() {
+        logManager.addLog("Storage permission requested before opening file picker", "Install UI")
+    }
+
+    fun requestAllFilesAccess() {
+        logManager.addLog("All-files access settings opened before file picker", "Install UI")
+    }
+
+    fun onInstallerRequesterPackageDialogOpened() {
+        logManager.addLog("Installer/requester package selector opened", "Install UI")
+    }
+
+    fun onInstallerRequesterPackageDialogDismissed() {
+        logManager.addLog("Installer/requester package selector dismissed", "Install UI")
+    }
+
+    fun onStoragePermissionResult(isGranted: Boolean) {
+        logManager.addLog(
+            "Storage permission ${if (isGranted) "granted; opening file picker" else "denied"}",
+            "Install UI"
+        )
+    }
+
+    fun onManageStorageResult(isGranted: Boolean) {
+        logManager.addLog(
+            "All-files access ${if (isGranted) "granted; opening file picker" else "not granted"}",
+            "Install UI"
+        )
+    }
+
+    fun clearSelection(reason: String = "Selected installation package cleared") {
+        val selectedFile = _selectedFileName.value ?: _selectedFilePath.value
+        logManager.addLog(
+            if (selectedFile == null) "$reason (nothing was selected)" else "$reason: $selectedFile",
+            "Install UI"
+        )
         _selectedFilePath.value = null
         _selectedFileName.value = null
         _fileType.value = null
@@ -443,25 +513,30 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
             // 关闭时固定为 com.android.shell（install helper 中已处理）
         }
         saveSwitchStates()
+        logManager.addLog("Custom installer package ${if (value) "enabled" else "disabled"}", "Install UI")
     }
 
     fun setSelectedInstallerPackage(packageName: String) {
         _selectedInstallerPackage.value = packageName
         saveSwitchStates()
+        logManager.addLog("Installer package selected: $packageName", "Install UI")
     }
 
     fun setAllowTestPackages(value: Boolean) {
         _allowTestPackages.value = value
         saveSwitchStates()
+        logManager.addLog("Allow test packages ${if (value) "enabled" else "disabled"}", "Install UI")
     }
 
     fun setEnableCustomRequesterPackage(value: Boolean) {
         _enableCustomRequesterPackage.value = value
         saveSwitchStates()
+        logManager.addLog("Custom requester package ${if (value) "enabled" else "disabled"}", "Install UI")
     }
 
     fun setSelectedRequesterPackage(packageName: String) {
         _selectedRequesterPackage.value = packageName
         saveSwitchStates()
+        logManager.addLog("Requester package selected: $packageName", "Install UI")
     }
 }

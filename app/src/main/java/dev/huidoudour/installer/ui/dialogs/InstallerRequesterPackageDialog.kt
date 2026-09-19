@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import dev.huidoudour.installer.R
+import dev.huidoudour.installer.util.LogManager
 
 data class InstallerPackageOption(
     val packageName: String,
@@ -104,13 +105,25 @@ fun InstallerRequesterPackageDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { selectedInstaller = option.packageName }
+                            .clickable {
+                                selectedInstaller = option.packageName
+                                LogManager.getInstance().addLog(
+                                    "Installer package option selected: ${option.packageName}",
+                                    "Install UI"
+                                )
+                            }
                             .padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
                             selected = selectedInstaller == option.packageName,
-                            onClick = { selectedInstaller = option.packageName }
+                            onClick = {
+                                selectedInstaller = option.packageName
+                                LogManager.getInstance().addLog(
+                                    "Installer package option selected: ${option.packageName}",
+                                    "Install UI"
+                                )
+                            }
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
@@ -144,13 +157,25 @@ fun InstallerRequesterPackageDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { selectedRequester = option.packageName }
+                            .clickable {
+                                selectedRequester = option.packageName
+                                LogManager.getInstance().addLog(
+                                    "Requester package option selected: ${option.packageName}",
+                                    "Install UI"
+                                )
+                            }
                             .padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
                             selected = selectedRequester == option.packageName,
-                            onClick = { selectedRequester = option.packageName }
+                            onClick = {
+                                selectedRequester = option.packageName
+                                LogManager.getInstance().addLog(
+                                    "Requester package option selected: ${option.packageName}",
+                                    "Install UI"
+                                )
+                            }
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
@@ -175,11 +200,18 @@ fun InstallerRequesterPackageDialog(
                         .padding(top = 8.dp),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) {
+                    TextButton(onClick = {
+                        LogManager.getInstance().addLog("Installer/requester selection cancelled", "Install UI")
+                        onDismiss()
+                    }) {
                         Text(stringResource(R.string.cancel))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(onClick = {
+                        LogManager.getInstance().addLog(
+                            "Installer/requester selection confirmed: installer=$selectedInstaller, requester=$selectedRequester",
+                            "Install UI"
+                        )
                         saveInstallerPackage(context, selectedInstaller)
                         onInstallerConfirmed(selectedInstaller)
                         saveRequesterPackage(context, selectedRequester)

@@ -12,6 +12,7 @@ import androidx.core.view.WindowCompat
 import dev.huidoudour.installer.auth.ShellExecutor
 import dev.huidoudour.installer.ui.theme.AppTheme
 import dev.huidoudour.installer.util.LanguageManager
+import dev.huidoudour.installer.util.LogManager
 import dev.huidoudour.installer.util.ThemeManager
 import dev.huidoudour.installer.R
 import java.io.File
@@ -24,6 +25,11 @@ import java.io.File
 class InstallDialogActivity : AppCompatActivity() {
 
     private var installUri: Uri? = null
+    private val logManager = LogManager.getInstance()
+
+    private fun logInstall(message: String) {
+        logManager.addLog(message, "External install")
+    }
 
     /**
      * 支持的安装文件 MIME 类型
@@ -51,11 +57,13 @@ class InstallDialogActivity : AppCompatActivity() {
 
         // 获取并验证安装 URI
         installUri = intent.data
+        logInstall("Received external install request: $installUri")
         val errorResId = validateInstallUri(installUri)
 
         if (errorResId != 0) {
             // URI 无效或文件不支持，显示提示并关闭
             Log.w("InstallDialog", "Validation failed for URI: $installUri, errorResId=$errorResId")
+            logInstall("Install request rejected: ${getString(errorResId)}")
             Toast.makeText(this, getString(errorResId), Toast.LENGTH_SHORT).show()
             finish()
             return
@@ -67,9 +75,11 @@ class InstallDialogActivity : AppCompatActivity() {
                     InstallDialog(
                         installUri = installUri,
                         onDismiss = {
+                            logInstall("External install dialog closed")
                             finish()
                         },
                         onInstallComplete = {
+                            logInstall("External install dialog completed")
                             finish()
                         },
                         onOpenApp = { packageName ->
@@ -78,6 +88,7 @@ class InstallDialogActivity : AppCompatActivity() {
                         }
                     )
                 } else {
+                    logInstall("Install request has no URI")
                     finish()
                 }
             }
@@ -92,6 +103,7 @@ class InstallDialogActivity : AppCompatActivity() {
         // 1. URI 空检查
         if (uri == null) {
             Log.w("InstallDialog", "URI is null")
+            logInstall("URI validation failed: URI is null")
             return R.string.invalid_install_request
         }
 
@@ -99,6 +111,7 @@ class InstallDialogActivity : AppCompatActivity() {
         val scheme = uri.scheme
         if (scheme != "file" && scheme != "content") {
             Log.w("InstallDialog", "Unsupported URI scheme: $scheme")
+            logInstall("URI validation failed: unsupported scheme $scheme")
             return R.string.unsupported_file_type
         }
 
@@ -117,16 +130,19 @@ class InstallDialogActivity : AppCompatActivity() {
         // MIME 或扩展名任一匹配即可通过
         if (!isMimeSupported && !isExtensionSupported) {
             Log.w("InstallDialog", "Unsupported file type: mime=$mimeType, ext=$extension, file=$fileName")
+            logInstall("URI validation failed: unsupported file $fileName (MIME $mimeType)")
             return R.string.unsupported_file_type
         }
 
         // 5. 文件可访问性检查
         if (!isUriAccessible(uri)) {
             Log.w("InstallDialog", "URI is not accessible: $uri")
+            logInstall("URI validation failed: cannot access $uri")
             return R.string.cannot_access_install_file
         }
 
         Log.d("InstallDialog", "URI validation passed: mime=$mimeType, ext=$extension, file=$fileName")
+        logInstall("URI validated: file=$fileName, MIME=$mimeType")
         return 0
     }
 
@@ -149,6 +165,7 @@ class InstallDialogActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             Log.e("InstallDialog", "Failed to get file name from URI", e)
+            logInstall("Failed to read installation file name: ${e.message}")
             null
         }
     }
@@ -170,6 +187,7 @@ class InstallDialogActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             Log.e("InstallDialog", "URI accessibility check failed", e)
+            logInstall("Failed to check installation file access: ${e.message}")
             false
         }
     }
@@ -182,6 +200,7 @@ class InstallDialogActivity : AppCompatActivity() {
         Thread {
             try {
                 Log.d("InstallDialog", "Launching app via Shizuku Shell: $packageName")
+                logInstall("Opening installed app: $packageName")
                 
                 // 检查 Shizuku 是否可用
                 val shizukuAvailable = ShellExecutor.isShizukuAvailable()
@@ -191,14 +210,17 @@ class InstallDialogActivity : AppCompatActivity() {
                     val command = "am start -n $(pm resolve-activity --components $packageName | tail -n 1)"
                     
                     Log.d("InstallDialog", "Executing shell command: $command")
+                    logInstall("Starting app through Shizuku shell")
                     
                     ShellExecutor.executeShizukuCommand(command, object : ShellExecutor.ExecuteCallback {
                         override fun onOutput(line: String) {
                             Log.d("InstallDialog", "Shell output: $line")
+                            logInstall("App launch output: $line")
                         }
                         
                         override fun onError(error: String) {
                             Log.e("InstallDialog", "Shell error: $error")
+                            logInstall("App launch failed: $error")
                             runOnUiThread {
                                 Toast.makeText(
                                     this@InstallDialogActivity,
@@ -211,6 +233,7 @@ class InstallDialogActivity : AppCompatActivity() {
                         
                         override fun onComplete(exitCode: Int) {
                             Log.d("InstallDialog", "Shell command result, exit code: $exitCode")
+                            logInstall("App launch completed with exit code $exitCode")
                             runOnUiThread {
                                 if (exitCode == 0) {
                                     Toast.makeText(
@@ -226,14 +249,19 @@ class InstallDialogActivity : AppCompatActivity() {
                 } else {
                     // Shizuku 不可用，降级为传统方式
                     Log.w("InstallDialog", "Shizuku unavailable, falling back to traditional launch")
+                    logInstall("Shizuku unavailable; falling back to Android app launch")
                     runOnUiThread {
                         try {
                             val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
                             if (launchIntent != null) {
                                 startActivity(launchIntent)
+                                logInstall("Started app with Android launcher")
+                            } else {
+                                logInstall("No launch activity found for $packageName")
                             }
                         } catch (e: Exception) {
                             Log.e("InstallDialog", "Traditional launch failed", e)
+                            logInstall("Android app launch failed: ${e.message}")
                             Toast.makeText(
                                 this@InstallDialogActivity,
                                 getString(R.string.launch_app_via_shizuku_failed, e.message),
@@ -245,6 +273,7 @@ class InstallDialogActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Log.e("InstallDialog", "Launch app failed", e)
+                logInstall("Could not open installed app: ${e.message}")
                 runOnUiThread {
                     Toast.makeText(
                         this@InstallDialogActivity,
@@ -260,5 +289,6 @@ class InstallDialogActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         installUri = intent.data
+        logInstall("Received updated external install request: $installUri")
     }
 }
