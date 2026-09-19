@@ -6,16 +6,13 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-// 共用版本号与版本名
 val baseVersionCode = 8000
 val baseVersionName = "26.09.16"
 
-// 构建时的日期+时间
 fun getBuildDateTime(): String {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmm"))
 }
 
-// 获取 git 总提交数
 fun getGitCommitCount(): Int {
     return try {
         providers.exec {
@@ -26,7 +23,6 @@ fun getGitCommitCount(): Int {
     }
 }
 
-// 获取 git 短哈希
 fun getGitCommitHash(): String {
     return try {
         providers.exec {
@@ -46,7 +42,6 @@ tasks.matching { it.name.startsWith("assemble") || it.name.startsWith("bundle") 
     }
 }
 
-// 生成 Git 提交记录（markdown，最新提交在最上方）到 assets，供更新日志页面渲染
 val generateGitLog = tasks.register("generateGitLog") {
     description = "ChangeLog"
     doLast {
@@ -134,7 +129,6 @@ android {
         }
     }
 
-    // NDK 构建配置
     externalNativeBuild {
         cmake {
             path = file("CMakeLists.txt")
@@ -152,13 +146,11 @@ android {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         }
     }
-    
-    // 启用 ViewBinding
+
     buildFeatures {
         viewBinding = true
     }
 
-    // 配置 APK 分块 - 支持全部 4 个架构
     splits {
         abi {
             isEnable = true
@@ -224,7 +216,6 @@ dependencies {
 
     debugImplementation(libs.compose.ui.tooling.preview)
 
-    // Material Kolor - 动态主题颜色生成
     implementation(libs.material.kolor)
 
     // ====== 必要依赖开始 ======

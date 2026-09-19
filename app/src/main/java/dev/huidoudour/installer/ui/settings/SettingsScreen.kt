@@ -165,23 +165,18 @@ fun SettingsScreen(
             onThemeClick = { showThemeDialog = true },
             onLanguageClick = { showLanguageDialog = true },
             onNotificationClick = { showNotificationDialog = true },
-            onInstallerPackageClick = { showInstallerPackageDialog = true },
             loaderMode = loaderMode,
             onLoaderAnimationClick = { showLoaderAnimationDialog = true }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Privilege settings
-        PrivilegeSettingsCard(
+        ConfigurationOptionsCard(
             viewModel = viewModel,
-            onClick = { showPrivilegeDialog = true }
+            onInstallerPackageClick = { showInstallerPackageDialog = true },
+            onPrivilegeClick = { showPrivilegeDialog = true },
+            onAdvancedClick = onNavigateToLab
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Lab entry
-        LabEntryCard(onClick = onNavigateToLab)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -284,7 +279,6 @@ private fun AppSettingsCard(
     onThemeClick: () -> Unit,
     onLanguageClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onInstallerPackageClick: () -> Unit = {},
     loaderMode: LoaderAnimationMode,
     onLoaderAnimationClick: () -> Unit = {}
 ) {
@@ -331,13 +325,6 @@ private fun AppSettingsCard(
                 onClick = onNotificationClick
             ),
             SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_package),
-                title = stringResource(R.string.current_installer_package),
-                subtitle = getCurrentInstallerPackage(context),
-                colorPreview = null,
-                onClick = onInstallerPackageClick
-            ),
-            SettingItemData(
                 icon = Icons.Default.Autorenew,
                 title = stringResource(R.string.loader_animation_settings),
                 subtitle = loaderModeName,
@@ -360,47 +347,17 @@ private fun AppSettingsCard(
 }
 
 @Composable
-private fun LabEntryCard(onClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(CardShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-    ) {
-        Text(
-            text = stringResource(R.string.advanced_settings),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold
-            ),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-        )
-
-        SettingListItem(
-            item = SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_science),
-                title = stringResource(R.string.lab),
-                subtitle = stringResource(R.string.lab_tip),
-                colorPreview = null,
-                onClick = onClick
-            ),
-            shape = singleShape,
-            isFirst = true,
-            isLast = true,
-            showArrow = true
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-    }
-}
-
-@Composable
-private fun PrivilegeSettingsCard(
+private fun ConfigurationOptionsCard(
     viewModel: SettingsViewModel,
-    onClick: () -> Unit
+    onInstallerPackageClick: () -> Unit,
+    onPrivilegeClick: () -> Unit,
+    onAdvancedClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val privilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
+    val replaceExisting by viewModel.replaceExisting.collectAsState()
+    val grantPermissions by viewModel.grantPermissions.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.refreshPrivilegeStatus()
@@ -416,7 +373,7 @@ private fun PrivilegeSettingsCard(
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         Text(
-            text = stringResource(R.string.privilege_settings),
+            text = stringResource(R.string.configuration_options),
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.SemiBold
             ),
@@ -424,17 +381,71 @@ private fun PrivilegeSettingsCard(
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
         )
 
-        SettingListItem(
-            item = SettingItemData(
+        val items = listOf(
+            SettingItemData(
+                icon = ImageVector.vectorResource(R.drawable.ic_package),
+                title = stringResource(R.string.current_installer_package),
+                subtitle = getCurrentInstallerPackage(context),
+                colorPreview = null,
+                onClick = onInstallerPackageClick
+            ),
+            SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_lock),
                 title = stringResource(R.string.privilege_settings),
                 subtitle = "$modeName: $statusText",
                 colorPreview = null,
-                onClick = onClick
+                onClick = onPrivilegeClick
             ),
-            shape = singleShape,
+            SettingItemData(
+                icon = ImageVector.vectorResource(R.drawable.ic_science),
+                title = stringResource(R.string.advanced_settings),
+                subtitle = stringResource(R.string.lab_tip),
+                colorPreview = null,
+                onClick = onAdvancedClick
+            )
+        )
+
+        SettingListItem(
+            item = items[0],
+            shape = segmentedShape(0, 5),
             isFirst = true,
-            isLast = true
+            isLast = false,
+            showArrow = true
+        )
+
+        SettingSwitchListItem(
+            icon = Icons.Default.Autorenew,
+            title = stringResource(R.string.replace_existing_app),
+            checked = replaceExisting,
+            onCheckedChange = viewModel::setReplaceExisting,
+            shape = segmentedShape(1, 5),
+            isFirst = false,
+            isLast = false
+        )
+
+        SettingSwitchListItem(
+            icon = ImageVector.vectorResource(R.drawable.ic_lock),
+            title = stringResource(R.string.auto_grant_permissions),
+            checked = grantPermissions,
+            onCheckedChange = viewModel::setGrantPermissions,
+            shape = segmentedShape(2, 5),
+            isFirst = false,
+            isLast = false
+        )
+
+        SettingListItem(
+            item = items[1],
+            shape = segmentedShape(3, 5),
+            isFirst = false,
+            isLast = false
+        )
+
+        SettingListItem(
+            item = items[2],
+            shape = segmentedShape(4, 5),
+            isFirst = false,
+            isLast = true,
+            showArrow = true
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -634,6 +645,69 @@ internal fun SettingListItem(
         Spacer(modifier = Modifier.height(SegmentedGap))
     }
 }
+
+@Composable
+private fun SettingSwitchListItem(
+    icon: ImageVector,
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    shape: Shape,
+    isFirst: Boolean,
+    isLast: Boolean
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isPressed) {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+        } else {
+            MaterialTheme.colorScheme.surfaceBright
+        },
+        label = "settingSwitchBackground"
+    )
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .height(56.dp),
+        shape = shape,
+        color = backgroundColor,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        onClick = { onCheckedChange(!checked) },
+        interactionSource = interactionSource
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange
+            )
+        }
+    }
+
+    if (!isLast) {
+        Spacer(modifier = Modifier.height(SegmentedGap))
+    }
+}
+
 @Composable
 private fun PrivilegeSelectionDialog(
     viewModel: SettingsViewModel,

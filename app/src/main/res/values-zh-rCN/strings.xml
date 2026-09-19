@@ -118,6 +118,7 @@
     <string name="no_file_selected">未选择文件</string>
     <string name="select_apk_file">选择 APK 文件</string>
     <string name="install_options">安装选项</string>
+    <string name="configuration_options">配置选项</string>
     <string name="enable_custom_package_name">自定义执行者</string>
     <string name="switch_installer_package">切换</string>
     <string name="replace_existing_app">替换现有应用</string>

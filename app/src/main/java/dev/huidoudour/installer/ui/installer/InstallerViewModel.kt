@@ -109,13 +109,6 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     private val _selectedRequesterPackage = MutableStateFlow("me.huidoudour.core")
     val selectedRequesterPackage: StateFlow<String> = _selectedRequesterPackage.asStateFlow()
 
-    // replaceExisting 固定为 true，grantPermissions 固定为 false
-    private val _replaceExisting = MutableStateFlow(true)
-    val replaceExisting: StateFlow<Boolean> = _replaceExisting.asStateFlow()
-
-    private val _grantPermissions = MutableStateFlow(false)
-    val grantPermissions: StateFlow<Boolean> = _grantPermissions.asStateFlow()
-
     private val logManager = LogManager.getInstance()
 
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
@@ -390,8 +383,8 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                 authorizer = authorizer,
                 filePath = path,
                 isXapk = isXapk,
-                replaceExisting = _replaceExisting.value,
-                grantPermissions = _grantPermissions.value,
+                replaceExisting = prefs.getBoolean("replace_existing_app", true),
+                grantPermissions = prefs.getBoolean("auto_grant_permissions", false),
                 callback = object : InstallDispatcher.Callback {
                     override fun onProgress(message: String) {
                         logManager.addLog(message)
@@ -426,9 +419,6 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     private fun loadSwitchStates() {
         _enableCustomPackageName.value = prefs.getBoolean("enable_custom_package_name", true)
         _allowTestPackages.value = prefs.getBoolean("allow_test_packages", false)
-        // replaceExisting 和 grantPermissions 固定值，不从 prefs 加载
-        _replaceExisting.value = true
-        _grantPermissions.value = false
         // 加载安装器包名选择
         val savedPackage = prefs.getString("installer_package", "")?.ifEmpty { "io.github.huidoudour.Installer" } ?: "io.github.huidoudour.Installer"
         _selectedInstallerPackage.value = savedPackage
@@ -443,9 +433,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
         prefs.edit()
             .putBoolean("enable_custom_package_name", _enableCustomPackageName.value)
             .putBoolean("allow_test_packages", _allowTestPackages.value)
-            .putString("installer_package", _selectedInstallerPackage.value)
             .putBoolean("enable_custom_requester_package", _enableCustomRequesterPackage.value)
-            .putString("requester_package", _selectedRequesterPackage.value)
             .apply()
     }
 

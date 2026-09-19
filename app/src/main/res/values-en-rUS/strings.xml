@@ -118,6 +118,7 @@
     <string name="no_file_selected">No file selected</string>
     <string name="select_apk_file">Select APK File</string>
     <string name="install_options">Install Options</string>
+    <string name="configuration_options">Configuration Options</string>
     <string name="enable_custom_package_name">Enable Custom PackageName</string>
     <string name="switch_installer_package">Switch Installer</string>
     <string name="replace_existing_app">Replace Existing App</string>

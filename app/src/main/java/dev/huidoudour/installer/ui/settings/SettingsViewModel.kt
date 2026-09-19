@@ -24,6 +24,7 @@ import kotlinx.coroutines.withContext
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context: Context get() = getApplication()
+    private val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
 
     // 主题状态
     private val _currentTheme = MutableStateFlow(ThemeManager.getUserTheme(context))
@@ -43,6 +44,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     private val _privilegeMode = MutableStateFlow(PrivilegeHelper.getCurrentMode(context))
     val privilegeMode: StateFlow<PrivilegeHelper.PrivilegeMode> = _privilegeMode.asStateFlow()
+
+    // 安装行为选项与安装页共用同一份持久化配置。
+    private val _replaceExisting = MutableStateFlow(prefs.getBoolean("replace_existing_app", true))
+    val replaceExisting: StateFlow<Boolean> = _replaceExisting.asStateFlow()
+
+    private val _grantPermissions = MutableStateFlow(prefs.getBoolean("auto_grant_permissions", false))
+    val grantPermissions: StateFlow<Boolean> = _grantPermissions.asStateFlow()
 
     init {
         refreshPrivilegeStatus()
@@ -105,6 +113,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setLoaderMode(mode: LoaderAnimationMode) {
         LoaderAnimationPrefs.saveMode(context, mode)
         _currentLoaderMode.value = mode
+    }
+
+    fun setReplaceExisting(value: Boolean) {
+        _replaceExisting.value = value
+        prefs.edit().putBoolean("replace_existing_app", value).apply()
+    }
+
+    fun setGrantPermissions(value: Boolean) {
+        _grantPermissions.value = value
+        prefs.edit().putBoolean("auto_grant_permissions", value).apply()
     }
 
     /**
