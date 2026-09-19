@@ -81,7 +81,8 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowIsTranslucent">false</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <!-- 以轻微缩放搭配淡入淡出，避免系统默认 Dialog 动画的突兀感。 -->
+        <item name="android:windowAnimationStyle">@style/Animation.Installer.InstallDialog</item>
         <!-- 设置对话框尺寸 - 增大到90% -->
         <item name="android:windowMinWidthMajor">90%</item>
         <item name="android:windowMinWidthMinor">90%</item>
@@ -91,6 +92,12 @@
         <!-- AppCompat兼容性配置 -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- 独立安装对话框的窗口过渡动画 -->
+    <style name="Animation.Installer.InstallDialog" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/install_dialog_enter</item>
+        <item name="android:windowExitAnimation">@anim/install_dialog_exit</item>
     </style>
     
     <!-- ============ MD3 组件覆盖主题 ============ -->
