@@ -128,7 +128,7 @@ fun MainScreen() {
                 .fillMaxSize()
                 .graphicsLayer {
                     val coverProgress = if (showLab) {
-                        labEnterProgress.value * (1f - labBackProgress)
+                        if (labBackProgress > 0f) 0f else labEnterProgress.value
                     } else {
                         0f
                     }
@@ -212,7 +212,7 @@ fun MainScreen() {
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        alpha = 0.5f * labEnterProgress.value * (1f - labBackProgress)
+                        alpha = 0.5f * labEnterProgress.value
                     }
                     .background(Color.Black)
             )

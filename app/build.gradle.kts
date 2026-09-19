@@ -7,7 +7,7 @@ plugins {
 }
 
 val baseVersionCode = 8000
-val baseVersionName = "26.09.16"
+val baseVersionName = "26.09.19"
 
 fun getBuildDateTime(): String {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmm"))
