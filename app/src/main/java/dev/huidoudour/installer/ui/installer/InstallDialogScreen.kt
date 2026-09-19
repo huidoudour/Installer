@@ -401,6 +401,7 @@ private fun PackageLoadingIndicator() {
     ) {
         ContainedLoadingIndicator(
             modifier = Modifier
+            // Material 3 图形变形动画尺寸
             .size(56.dp),
             indicatorColor = indicatorColor,
             containerColor = indicatorColor.copy(alpha = 0.12f)
@@ -631,7 +632,7 @@ fun InstallingButtons(
         modifier = Modifier.fillMaxWidth()
     ) {
         // 安装过程始终采用参考 InstallerX 的线性波浪进度条，不受普通加载动画设置影响。
-        // 尚未获得可量化进度时，以 Material 3 图形变形动画表示 PackageInstaller 正在校验和提交。
+        // 尚未获得可量化进度时，以线性动画&Material 3 图形变形动画表示 PackageInstaller 正在校验和提交。
         if (progress > 0) {
             LinearWavyProgressIndicator(
                 progress = { animatedProgress },
@@ -642,6 +643,14 @@ fun InstallingButtons(
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         } else {
+            LinearWavyProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+                amplitude = 0f,
+                color = indicatorColor,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+            /*
+            // Material 3 图形变形动画
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
@@ -652,6 +661,7 @@ fun InstallingButtons(
                     containerColor = indicatorColor.copy(alpha = 0.12f)
                 )
             }
+             */
         }
 
         Spacer(modifier = Modifier.height(16.dp))
