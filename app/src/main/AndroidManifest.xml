@@ -68,6 +68,7 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name="dev.huidoudour.installer.ui.MainActivity"
+            android:enableOnBackInvokedCallback="true"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

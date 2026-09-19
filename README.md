@@ -1,5 +1,7 @@
 # huidoudour's Installer
 
+> 仅学习开发使用
+
 ## 特性介绍
 
 ### 安装器

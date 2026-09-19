@@ -2,6 +2,13 @@ package dev.huidoudour.installer.ui.lab
 
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.BackEventCompat
+import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -12,10 +19,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,25 +44,34 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -68,6 +87,11 @@ import dev.huidoudour.installer.ui.theme.SegmentedGap
 import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.ui.theme.segmentedShape
 import dev.huidoudour.installer.R
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 /**
@@ -76,9 +100,20 @@ import kotlin.math.roundToInt
 @Composable
 fun LabScreen(
     onBack: () -> Unit,
+    enterProgress: Float = 1f,
+    onBackProgressChange: (Float) -> Unit = {},
     viewModel: LabViewModel = viewModel(),
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
+    val gestureProgress = remember { Animatable(0f) }
+    val commitProgress = remember { Animatable(0f) }
+    var swipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
+    var gestureTouchY by remember { mutableFloatStateOf(0f) }
+    var pageSize by remember { mutableStateOf(IntSize.Zero) }
+    val backGestureEasing = remember { CubicBezierEasing(0.1f, 0.1f, 0f, 1f) }
+    val layoutDirection = LocalLayoutDirection.current
+    val currentOnBackProgressChange by rememberUpdatedState(onBackProgressChange)
 
     val tryMultipleAuthorizers by viewModel.tryMultipleAuthorizers.collectAsState()
     val authorizerByInstallState by viewModel.authorizerByInstallState.collectAsState()
@@ -101,10 +136,95 @@ fun LabScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+    LaunchedEffect(gestureProgress) {
+        snapshotFlow { gestureProgress.value }.collect { currentOnBackProgressChange(it) }
+    }
+
+    PredictiveBackHandler {
+        var completed = false
+        try {
+            it.collect { event ->
+                swipeEdge = event.swipeEdge
+                gestureTouchY = event.touchY
+                gestureProgress.snapTo(event.progress)
+            }
+            completed = true
+            coroutineScope {
+                launch {
+                    gestureProgress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(
+                            durationMillis = 450,
+                            easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+                        )
+                    )
+                }
+                launch {
+                    commitProgress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(
+                            durationMillis = 450,
+                            easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+                        )
+                    )
+                }
+            }
+            onBack()
+        } finally {
+            if (!completed) {
+                withContext(NonCancellable) {
+                    coroutineScope {
+                        launch {
+                            gestureProgress.animateTo(
+                                targetValue = 0f,
+                                animationSpec = spring(stiffness = Spring.StiffnessHigh)
+                            )
+                        }
+                        launch { commitProgress.snapTo(0f) }
+                    }
+                }
+            }
+        }
+    }
+
+    val predictiveShape = RoundedCornerShape(32.dp)
+    val exitDriftPx = with(density) { 96.dp.toPx() }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .onSizeChanged { pageSize = it }
+            .graphicsLayer {
+                val easedProgress = backGestureEasing.transform(gestureProgress.value)
+                val scale = 1f - 0.15f * easedProgress
+                val pivotX = if (swipeEdge == BackEventCompat.EDGE_LEFT) 0.8f else 0.2f
+                val pivotY = if (pageSize.height > 0) {
+                    (gestureTouchY / pageSize.height).coerceIn(0.1f, 0.9f)
+                } else {
+                    0.5f
+                }
+                scaleX = scale
+                scaleY = scale
+                transformOrigin = TransformOrigin(pivotX, pivotY)
+                val enterDirection = if (layoutDirection == LayoutDirection.Rtl) -1f else 1f
+                val enterTranslation = enterDirection * (1f - enterProgress) * size.width
+                val exitTranslation = if (swipeEdge == BackEventCompat.EDGE_RIGHT) {
+                    -exitDriftPx * commitProgress.value
+                } else {
+                    exitDriftPx * commitProgress.value
+                }
+                translationX = enterTranslation + exitTranslation
+                alpha = 1f - commitProgress.value
+                shape = predictiveShape
+                clip = enterProgress < 1f || gestureProgress.value > 0f || commitProgress.value > 0f
+            },
+        color = MaterialTheme.colorScheme.background
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
