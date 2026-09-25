@@ -6,9 +6,6 @@ import androidx.activity.BackEventCompat
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -82,16 +79,15 @@ import dev.huidoudour.installer.auth.SmartAuthorizerCandidate
 import dev.huidoudour.installer.ui.settings.SettingItemData
 import dev.huidoudour.installer.ui.settings.SettingListItem
 import dev.huidoudour.installer.ui.settings.SettingsSwitchItem
+import dev.huidoudour.installer.ui.components.PredictiveBackMotion
+import dev.huidoudour.installer.ui.components.cancelPredictiveBackExit
+import dev.huidoudour.installer.ui.components.commitPredictiveBackExit
 import dev.huidoudour.installer.ui.theme.CardShape
 import dev.huidoudour.installer.ui.theme.SegmentedGap
 import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.ui.theme.segmentedShape
 import dev.huidoudour.installer.R
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 /**
@@ -107,7 +103,7 @@ fun LabScreen(
     val context = LocalContext.current
     val density = LocalDensity.current
     val gestureProgress = remember { Animatable(0f) }
-    val commitProgress = remember { Animatable(0f) }
+    val fadeProgress = remember { Animatable(0f) }
     var swipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
     var gestureTouchY by remember { mutableFloatStateOf(0f) }
     var pageSize by remember { mutableStateOf(IntSize.Zero) }
@@ -140,49 +136,27 @@ fun LabScreen(
         snapshotFlow { gestureProgress.value }.collect { currentOnBackProgressChange(it) }
     }
 
-    PredictiveBackHandler {
+    PredictiveBackHandler { events ->
         var completed = false
         try {
-            it.collect { event ->
+            events.collect { event ->
                 swipeEdge = event.swipeEdge
                 gestureTouchY = event.touchY
                 gestureProgress.snapTo(event.progress)
             }
             completed = true
-            coroutineScope {
-                launch {
-                    gestureProgress.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(
-                            durationMillis = 450,
-                            easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
-                        )
-                    )
-                }
-                launch {
-                    commitProgress.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(
-                            durationMillis = 450,
-                            easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
-                        )
-                    )
-                }
-            }
-            onBack()
+            // 确认返回：几何位移从松手位置继续推进，不透明度用更短的墙钟窗口先归零。
+            commitPredictiveBackExit(
+                gestureProgress = gestureProgress,
+                fadeProgress = fadeProgress,
+                onFinished = onBack,
+            )
         } finally {
             if (!completed) {
-                withContext(NonCancellable) {
-                    coroutineScope {
-                        launch {
-                            gestureProgress.animateTo(
-                                targetValue = 0f,
-                                animationSpec = spring(stiffness = Spring.StiffnessHigh)
-                            )
-                        }
-                        launch { commitProgress.snapTo(0f) }
-                    }
-                }
+                cancelPredictiveBackExit(
+                    gestureProgress = gestureProgress,
+                    fadeProgress = fadeProgress,
+                )
             }
         }
     }
@@ -208,15 +182,13 @@ fun LabScreen(
                 transformOrigin = TransformOrigin(pivotX, pivotY)
                 val enterDirection = if (layoutDirection == LayoutDirection.Rtl) -1f else 1f
                 val enterTranslation = enterDirection * (1f - enterProgress) * size.width
-                val exitTranslation = if (swipeEdge == BackEventCompat.EDGE_RIGHT) {
-                    -exitDriftPx * commitProgress.value
-                } else {
-                    exitDriftPx * commitProgress.value
-                }
+                // 漂移方向跟随手势边缘：左边缘挥出右移，右边缘挥出左移。
+                val exitTranslation = PredictiveBackMotion.exitDirection(swipeEdge) *
+                    exitDriftPx * gestureProgress.value
                 translationX = enterTranslation + exitTranslation
-                alpha = 1f - commitProgress.value
+                alpha = 1f - fadeProgress.value
                 shape = predictiveShape
-                clip = enterProgress < 1f || gestureProgress.value > 0f || commitProgress.value > 0f
+                clip = enterProgress < 1f || gestureProgress.value > 0f || fadeProgress.value > 0f
             },
         color = MaterialTheme.colorScheme.background
     ) {
