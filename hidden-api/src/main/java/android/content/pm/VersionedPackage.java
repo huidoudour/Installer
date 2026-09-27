@@ -3,8 +3,10 @@ package android.content.pm;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+// 隐藏 API 桩，app 模块通过 compileOnly 引用（含反射），IDE 误报未使用
+@SuppressWarnings("unused")
 public class VersionedPackage implements Parcelable {
-    public static final Creator<VersionedPackage> CREATOR = new Creator<VersionedPackage>() {
+    public static final Creator<VersionedPackage> CREATOR = new Creator<>() {
         @Override
         public VersionedPackage createFromParcel(Parcel source) {
             return new VersionedPackage(source);

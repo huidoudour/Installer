@@ -36,6 +36,10 @@ jobs:
       - name: Accept Android SDK Licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
+      - name: Get short commit hash
+        id: short_hash
+        run: echo "hash=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
       - name: Create keystore file
         run: |
           echo "${{ secrets.SIGN_KEY_STORE_B64 }}" | base64 -d > sign_key
@@ -55,6 +59,17 @@ jobs:
         run: |
           echo "APK build completed. Files in output directory:"
           find app/build/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
+
+      - name: Rename Release APKs
+        run: |
+          cd app/build/outputs/apk/release
+          for apk in *.apk; do
+            [ -f "$apk" ] || continue
+            abi="${apk#app-}"
+            abi="${abi%-release.apk}"
+            echo "Renaming $apk -> Installer-${abi}-R-${{ steps.short_hash.outputs.hash }}.apk"
+            mv "$apk" "Installer-${abi}-R-${{ steps.short_hash.outputs.hash }}.apk"
+          done
 
       - name: Clean up keystore
         if: always()
@@ -128,15 +143,15 @@ jobs:
             > [!TIP]
             > 此app需要使用到ADB权限
             > 此app需要使用授予的设备所有者权限
-      - name: Upload APKs to Release
+      - name: Upload universal APK to Release
         run: |
-          assets_dir="app/build/outputs/apk/release"
-          
-          for apk in "$assets_dir"/*.apk; do
-            if [ -f "$apk" ]; then
-              echo "Uploading $(basename "$apk")..."
-              gh release upload "${{ env.TAG_NAME }}" "$apk"
-            fi
-          done
+          apk="app/build/outputs/apk/release/Installer-universal-R-${{ steps.short_hash.outputs.hash }}.apk"
+          if [ -f "$apk" ]; then
+            echo "Uploading $(basename "$apk")..."
+            gh release upload "${{ env.TAG_NAME }}" "$apk"
+          else
+            echo "Error: universal APK not found: $apk"
+            exit 1
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

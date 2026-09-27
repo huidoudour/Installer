@@ -6,6 +6,7 @@ import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
@@ -15,6 +16,7 @@ import android.provider.DocumentsProvider;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.system.StructStat;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
@@ -23,6 +25,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class MTDataFilesProvider extends DocumentsProvider {
+    private static final String TAG = "MTDataFilesProvider";
+
     public static final String COLUMN_MT_EXTRAS = "mt_extras";
     public static final String COLUMN_MT_PATH = "mt_path";
     public static final String METHOD_SET_LAST_MODIFIED = "mt:setLastModified";
@@ -97,26 +101,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
         if (filename.isEmpty()) {
             return null;
         }
-        String type;
-        String subPath;
-        int i = filename.indexOf('/');
-        if (i == -1) {
-            type = filename;
-            subPath = "";
-        } else {
-            type = filename.substring(0, i);
-            subPath = filename.substring(i + 1);
-        }
-        File f = null;
-        if (type.equalsIgnoreCase("data")) {
-            f = new File(dataDir, subPath);
-        } else if (type.equalsIgnoreCase("android_data") && androidDataDir != null) {
-            f = new File(androidDataDir, subPath);
-        } else if (type.equalsIgnoreCase("android_obb") && androidObbDir != null) {
-            f = new File(androidObbDir, subPath);
-        } else if (type.equalsIgnoreCase("user_de_data") && userDeDataDir != null) {
-            f = new File(userDeDataDir, subPath);
-        }
+        final File f = resolveFile(filename);
         if (f == null) {
             throw new FileNotFoundException(docId + " not found");
         }
@@ -130,11 +115,42 @@ public class MTDataFilesProvider extends DocumentsProvider {
         return f;
     }
 
+    /**
+     * 根据去掉包名前缀后的相对路径文件名，解析出对应的根目录 File。
+     * 返回 null 表示无法匹配已知的根类型。
+     */
+    private File resolveFile(String filename) {
+        String type;
+        String subPath;
+        int i = filename.indexOf('/');
+        if (i == -1) {
+            type = filename;
+            subPath = "";
+        } else {
+            type = filename.substring(0, i);
+            subPath = filename.substring(i + 1);
+        }
+        if (type.equalsIgnoreCase("data")) {
+            return new File(dataDir, subPath);
+        } else if (type.equalsIgnoreCase("android_data") && androidDataDir != null) {
+            return new File(androidDataDir, subPath);
+        } else if (type.equalsIgnoreCase("android_obb") && androidObbDir != null) {
+            return new File(androidObbDir, subPath);
+        } else if (type.equalsIgnoreCase("user_de_data") && userDeDataDir != null) {
+            return new File(userDeDataDir, subPath);
+        }
+        return null;
+    }
+
     @Override
     public Cursor queryRoots(String[] projection) {
-        final ApplicationInfo applicationInfo = getContext().getApplicationInfo();
-        final String applicationName = applicationInfo.loadLabel(getContext().getPackageManager()).toString();
         final MatrixCursor result = new MatrixCursor(projection != null ? projection : DEFAULT_ROOT_PROJECTION);
+        final Context context = getContext();
+        if (context == null) {
+            return result;
+        }
+        final ApplicationInfo applicationInfo = context.getApplicationInfo();
+        final String applicationName = applicationInfo.loadLabel(context.getPackageManager()).toString();
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Root.COLUMN_ROOT_ID, packageName);
         row.add(Root.COLUMN_DOCUMENT_ID, packageName);
@@ -193,28 +209,21 @@ public class MTDataFilesProvider extends DocumentsProvider {
     }
 
     private static int parseFileMode(String mode) {
-        switch (mode) {
-            case "r":
-                return ParcelFileDescriptor.MODE_READ_ONLY;
-            case "w":
-            case "wt":
-                return ParcelFileDescriptor.MODE_WRITE_ONLY
-                        | ParcelFileDescriptor.MODE_CREATE
-                        | ParcelFileDescriptor.MODE_TRUNCATE;
-            case "wa":
-                return ParcelFileDescriptor.MODE_WRITE_ONLY
-                        | ParcelFileDescriptor.MODE_CREATE
-                        | ParcelFileDescriptor.MODE_APPEND;
-            case "rw":
-                return ParcelFileDescriptor.MODE_READ_WRITE
-                        | ParcelFileDescriptor.MODE_CREATE;
-            case "rwt":
-                return ParcelFileDescriptor.MODE_READ_WRITE
-                        | ParcelFileDescriptor.MODE_CREATE
-                        | ParcelFileDescriptor.MODE_TRUNCATE;
-            default:
-                throw new IllegalArgumentException("Invalid mode: " + mode);
-        }
+        return switch (mode) {
+            case "r" -> ParcelFileDescriptor.MODE_READ_ONLY;
+            case "w", "wt" -> ParcelFileDescriptor.MODE_WRITE_ONLY
+                    | ParcelFileDescriptor.MODE_CREATE
+                    | ParcelFileDescriptor.MODE_TRUNCATE;
+            case "wa" -> ParcelFileDescriptor.MODE_WRITE_ONLY
+                    | ParcelFileDescriptor.MODE_CREATE
+                    | ParcelFileDescriptor.MODE_APPEND;
+            case "rw" -> ParcelFileDescriptor.MODE_READ_WRITE
+                    | ParcelFileDescriptor.MODE_CREATE;
+            case "rwt" -> ParcelFileDescriptor.MODE_READ_WRITE
+                    | ParcelFileDescriptor.MODE_CREATE
+                    | ParcelFileDescriptor.MODE_TRUNCATE;
+            default -> throw new IllegalArgumentException("Invalid mode: " + mode);
+        };
     }
 
     @Override
@@ -242,7 +251,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
                     return parentDocumentId.endsWith("/") ? parentDocumentId + newFile.getName() : parentDocumentId + "/" + newFile.getName();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Failed to create document in " + parentDocumentId + " with name " + displayName, e);
             }
         }
         throw new FileNotFoundException("Failed to create document in " + parentDocumentId + " with name " + displayName);
@@ -261,9 +270,8 @@ public class MTDataFilesProvider extends DocumentsProvider {
             File[] children = file.listFiles();
             if (children != null) {
                 for (File child : children) {
-                    if (!deleteFile(child)) {
-                        return false;
-                    }
+                    if (deleteFile(child)) continue;
+                    return false;
                 }
             }
         }
@@ -276,7 +284,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
             //noinspection OctalInteger
             return (stat.st_mode & 0170000) == 0120000;
         } catch (ErrnoException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to stat file: " + file.getPath(), e);
             return false;
         }
     }
@@ -349,7 +357,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
         }
         Bundle out = new Bundle();
         try {
-            Uri uri = extras.getParcelable("uri");
+            Uri uri = getUriExtra(extras);
             List<String> pathSegments = uri.getPathSegments();
             String documentId = pathSegments.size() >= 4 ? pathSegments.get(3) : pathSegments.get(1);
             switch (method) {
@@ -408,10 +416,23 @@ public class MTDataFilesProvider extends DocumentsProvider {
     }
 
     /**
+     * 读取 extras 中的 uri。
+     * API 33 起 {@link Bundle#getParcelable(String)} 已弃用，改用带 Class 参数的新重载；
+     * 为保证低版本兼容，此处按系统版本分支处理。
+     */
+    @SuppressWarnings("deprecation")
+    private static Uri getUriExtra(Bundle extras) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return extras.getParcelable("uri", Uri.class);
+        }
+        return extras.getParcelable("uri");
+    }
+
+    /**
      * Add a representation of a file to a cursor.
      *
      * @param result the cursor to modify
-     * @param docId  the document ID representing the desired file (may be null if given file)
+     * @param docId  the document ID representing the desired file (maybe null if given file)
      */
     @SuppressWarnings("OctalInteger")
     private void includeFile(MatrixCursor result, String docId, File file)
@@ -478,7 +499,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
                 }
                 row.add(COLUMN_MT_EXTRAS, sb.toString());
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "Failed to read file extras: " + path, e);
             }
         }
     }

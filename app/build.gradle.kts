@@ -82,7 +82,7 @@ android {
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
-                abiFilters += setOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+                abiFilters += setOf( "arm64-v8a" , "x86_64" )
             }
         }
     }
@@ -155,7 +155,7 @@ android {
         abi {
             isEnable = true
             reset()
-            include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+            include( "arm64-v8a" , "x86_64" )
             isUniversalApk = true
         }
     }

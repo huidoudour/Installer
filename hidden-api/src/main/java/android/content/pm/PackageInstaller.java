@@ -3,11 +3,12 @@ package android.content.pm;
 import android.content.IntentSender;
 
 import java.io.File;
-import java.io.OutputStream;
 
 /**
  * Hidden API stub for PackageInstaller
  */
+// 隐藏 API 桩，app 模块通过 compileOnly 引用（含反射），IDE 误报未使用
+@SuppressWarnings("unused")
 public class PackageInstaller {
     
     // 公共常量 — 值必须与 AOSP 完全一致
@@ -56,7 +57,7 @@ public class PackageInstaller {
         }
     }
     
-    public class Session {
+    public static class Session {
         public Session(int sessionId) {
         }
         
