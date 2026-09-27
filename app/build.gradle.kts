@@ -7,7 +7,7 @@ plugins {
 }
 
 val baseVersionCode = 8000
-val baseVersionName = "26.09.20"
+val baseVersionName = "26.09.27"
 
 fun getBuildDateTime(): String {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmm"))
@@ -141,12 +141,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        }
-    }
-
     buildFeatures {
         viewBinding = true
     }
@@ -188,7 +182,12 @@ android {
             "UnknownId"                // 必须检查未知ID引用
         )
     }
-    
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
 }
 
 dependencies {
@@ -224,7 +223,6 @@ dependencies {
     // Shizuku api/provider
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
-    // Dhizuku
     // 原版 Dhizuku API（用于 com.rosan.dhizuku）
     implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
 
