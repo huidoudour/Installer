@@ -88,7 +88,6 @@ import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.ui.theme.segmentedShape
 import dev.huidoudour.installer.R
 import kotlinx.coroutines.flow.collect
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -116,6 +115,8 @@ fun LabScreen(
 
     val tryMultipleAuthorizers by viewModel.tryMultipleAuthorizers.collectAsState()
     val authorizerByInstallState by viewModel.authorizerByInstallState.collectAsState()
+    val useShizuku by viewModel.useShizuku.collectAsState()
+    val useDhizuku by viewModel.useDhizuku.collectAsState()
     val candidates by viewModel.candidates.collectAsState()
     val checkSignature by viewModel.checkSignature.collectAsState()
     val showSignatureDetails by viewModel.showSignatureDetails.collectAsState()
@@ -141,23 +142,14 @@ fun LabScreen(
 
     PredictiveBackHandler { events ->
         var completed = false
-        // 手势起点 X：用固定 dp 位移重新归一化进度，消除跨 API / 屏幕尺寸的缩放差异。
-        var startTouchX = Float.NaN
         try {
             events.collect { event ->
                 swipeEdge = event.swipeEdge
                 gestureTouchY = event.touchY
-                val progress = if (event.touchX != 0f) {
-                    if (startTouchX.isNaN()) startTouchX = event.touchX
-                    PredictiveBackMotion.normalizeProgress(
-                        abs(event.touchX - startTouchX),
-                        density.density
-                    )
-                } else {
-                    // 部分设备/低版本不提供 touchX，回退到系统进度。
-                    event.progress
-                }
-                gestureProgress.snapTo(progress)
+                // 直接采用系统给出的手势进度，理由同 PredictiveBackPage：
+                // 用 `abs(touchX - startTouchX)` 自行归一化会在回退时产生非单调进度，
+                // 且 `touchX != 0f` 的分支会在手指回到左边缘时切换量纲。
+                gestureProgress.snapTo(event.progress.coerceIn(0f, 1f))
             }
             completed = true
             // 确认返回：几何位移从松手位置继续推进，不透明度用更短的墙钟窗口先归零。
@@ -245,11 +237,29 @@ fun LabScreen(
             // 分区：智能授权
             SectionContainer(title = stringResource(R.string.lab_authorizer_section)) {
                 SettingsSwitchItem(
+                    title = stringResource(R.string.lab_use_shizuku_install),
+                    subtitle = stringResource(R.string.lab_use_shizuku_install_desc),
+                    checked = useShizuku,
+                    onCheckedChange = { viewModel.setUseShizuku(it) },
+                    shape = segmentedShape(0, 5),
+                    isLast = false
+                )
+
+                SettingsSwitchItem(
+                    title = stringResource(R.string.lab_use_dhizuku_install),
+                    subtitle = stringResource(R.string.lab_use_dhizuku_install_desc),
+                    checked = useDhizuku,
+                    onCheckedChange = { viewModel.setUseDhizuku(it) },
+                    shape = segmentedShape(1, 5),
+                    isLast = false
+                )
+
+                SettingsSwitchItem(
                     title = stringResource(R.string.lab_try_multiple_authorizers),
                     subtitle = stringResource(R.string.lab_try_multiple_authorizers_desc),
                     checked = tryMultipleAuthorizers,
                     onCheckedChange = { viewModel.setTryMultipleAuthorizers(it) },
-                    shape = segmentedShape(0, 3),
+                    shape = segmentedShape(2, 5),
                     isLast = false
                 )
 
@@ -258,7 +268,7 @@ fun LabScreen(
                     subtitle = stringResource(R.string.lab_authorizer_by_install_state_desc),
                     checked = authorizerByInstallState,
                     onCheckedChange = { viewModel.setAuthorizerByInstallState(it) },
-                    shape = segmentedShape(1, 3),
+                    shape = segmentedShape(3, 5),
                     isLast = false
                 )
 
@@ -270,7 +280,7 @@ fun LabScreen(
                         colorPreview = null,
                         onClick = { showFallbackDialog = true }
                     ),
-                    shape = segmentedShape(2, 3),
+                    shape = segmentedShape(4, 5),
                     isFirst = false,
                     isLast = true,
                     showArrow = true

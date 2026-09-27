@@ -91,6 +91,8 @@ fun InstallerScreen(
 
     val privilegeStatus: PrivilegeHelper.PrivilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
+    val useShizuku by viewModel.useShizuku.collectAsState()
+    val useDhizuku by viewModel.useDhizuku.collectAsState()
     val selectedFileName by viewModel.selectedFileName.collectAsState()
     val fileType by viewModel.fileType.collectAsState()
     val isXapkFile by viewModel.isXapkFile.collectAsState()
@@ -156,12 +158,17 @@ fun InstallerScreen(
                 .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
-            // Card 1: Privilege Status
+            // Card 1: Privilege Status（始终显示；当前授权器对应的开关关闭时状态显示为已关闭）
+            val privilegeEnabled = when (privilegeMode) {
+                PrivilegeHelper.PrivilegeMode.SHIZUKU -> useShizuku
+                PrivilegeHelper.PrivilegeMode.DHIZUKU -> useDhizuku
+            }
             PrivilegeStatusCard(
                 privilegeMode = privilegeMode,
                 status = privilegeStatus,
                 onSwitchPrivilege = { viewModel.switchPrivilegeMode() },
-            onRequestPermission = { viewModel.requestPrivilegePermission() }
+                onRequestPermission = { viewModel.requestPrivilegePermission() },
+                enabled = privilegeEnabled
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -287,7 +294,8 @@ fun PrivilegeStatusCard(
     privilegeMode: PrivilegeHelper.PrivilegeMode,
     status: PrivilegeHelper.PrivilegeStatus,
     onSwitchPrivilege: () -> Unit,
-    onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit,
+    enabled: Boolean = true
 ) {
     val context = LocalContext.current
 
@@ -364,7 +372,9 @@ fun PrivilegeStatusCard(
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Text(
-                    text = when (status) {
+                    text = if (!enabled) {
+                        context.getString(R.string.disabled)
+                    } else when (status) {
                         PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> context.getString(R.string.privilege_not_installed_status, PrivilegeHelper.getModeName(privilegeMode))
                         PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> context.getString(R.string.privilege_not_running_status, PrivilegeHelper.getModeName(privilegeMode))
                         PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> context.getString(R.string.privilege_not_authorized_status)

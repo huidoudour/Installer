@@ -31,6 +31,13 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     )
     val authorizerByInstallState: StateFlow<Boolean> = _authorizerByInstallState.asStateFlow()
 
+    // 全局开关（分开）：是否使用 Shizuku / Dhizuku 特权安装（关闭后该项安装一律走系统安装器）
+    private val _useShizuku = MutableStateFlow(LabPrefs.isShizukuInstallEnabled(context))
+    val useShizuku: StateFlow<Boolean> = _useShizuku.asStateFlow()
+
+    private val _useDhizuku = MutableStateFlow(LabPrefs.isDhizukuInstallEnabled(context))
+    val useDhizuku: StateFlow<Boolean> = _useDhizuku.asStateFlow()
+
     private val _candidates = MutableStateFlow(LabPrefs.getCandidates(context))
     val candidates: StateFlow<List<SmartAuthorizerCandidate>> = _candidates.asStateFlow()
 
@@ -65,6 +72,18 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     fun setAuthorizerByInstallState(enabled: Boolean) {
         _authorizerByInstallState.value = enabled
         LabPrefs.setAuthorizerByInstallStateEnabled(context, enabled)
+    }
+
+    /** 开启/关闭 Shizuku 特权安装开关（关闭后安装不使用 Shizuku） */
+    fun setUseShizuku(enabled: Boolean) {
+        _useShizuku.value = enabled
+        LabPrefs.setShizukuInstallEnabled(context, enabled)
+    }
+
+    /** 开启/关闭 Dhizuku 特权安装开关（关闭后安装不使用 Dhizuku） */
+    fun setUseDhizuku(enabled: Boolean) {
+        _useDhizuku.value = enabled
+        LabPrefs.setDhizukuInstallEnabled(context, enabled)
     }
 
     fun setCheckSignature(enabled: Boolean) {

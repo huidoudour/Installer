@@ -156,6 +156,11 @@ private fun InstallDialogContent(
     var currentPrivilegeMode by remember { mutableStateOf(PrivilegeHelper.getCurrentMode(context)) }
     var showPrivilegeDialog by remember { mutableStateOf(false) }
 
+    // 当前授权模式的开关：关闭时不使用该特权授权器，隐藏权限选择入口
+    val usePrivilegedAuthorizers = remember(currentPrivilegeMode) {
+        PrivilegeHelper.isModeEnabled(context, currentPrivilegeMode)
+    }
+
     // 签名校验
     val checkSignature = SignaturePrefs.isCheckEnabled(context)
     val showSignatureDetails = SignaturePrefs.isShowDetailsEnabled(context)
@@ -228,6 +233,8 @@ private fun InstallDialogContent(
     // 检查安装按钮状态
     fun isInstallEnabled(): Boolean {
         if (state.isInstalling) return false
+        // 当前授权模式的开关关闭时不使用特权授权器，无需等待 Shizuku/Dhizuku 授权
+        if (!PrivilegeHelper.isModeEnabled(context, currentPrivilegeMode)) return true
         val status = PrivilegeHelper.getStatus(context, currentPrivilegeMode)
         return status == PrivilegeHelper.PrivilegeStatus.AUTHORIZED
     }
@@ -309,6 +316,7 @@ private fun InstallDialogContent(
                         InstallButtons(
                             state = state,
                             isInstallEnabled = isInstallEnabled(),
+                            showPrivilege = usePrivilegedAuthorizers,
                             onInstall = {
                                 logUiAction("Install confirmation pressed")
                                 state = state.copy(isInstalling = true)
@@ -532,6 +540,7 @@ fun InstallInfoHeader(state: InstallDialogState) {
 fun InstallButtons(
     state: InstallDialogState,
     isInstallEnabled: Boolean = true,
+    showPrivilege: Boolean = true,
     onInstall: () -> Unit,
     onCancel: () -> Unit,
     onPrivilege: () -> Unit
@@ -568,27 +577,29 @@ fun InstallButtons(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            // 权限按钮 - 圆角12dp
-            Button(
-                onClick = onPrivilege,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2196F3),  // button_primary blue
-                    contentColor = Color.White
-                ),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.privilege),
-                    fontSize = 14.sp
-                )
+            // 权限按钮 - 圆角12dp（全局开关关闭时不展示）
+            if (showPrivilege) {
+                Button(
+                    onClick = onPrivilege,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF2196F3),  // button_primary blue
+                        contentColor = Color.White
+                    ),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.privilege),
+                        fontSize = 14.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
             }
-            
-            Spacer(modifier = Modifier.width(8.dp))
-            
+
             // 取消按钮 - OutlinedButton，圆角12dp，边框2dp
             OutlinedButton(
                 onClick = onCancel,
@@ -1038,7 +1049,7 @@ private fun InstallPrivilegeDialog(
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
-            shizukuStatus = PrivilegeHelper.checkShizukuStatus()
+            shizukuStatus = PrivilegeHelper.checkShizukuStatus(context)
             dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
 
             // 动态获取已安装授权器的图标

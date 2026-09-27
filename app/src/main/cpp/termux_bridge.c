@@ -123,9 +123,14 @@ static int create_subprocess_internal(
         int self_dir_fd = dirfd(self_dir);
         struct dirent* entry;
         while ((entry = readdir(self_dir)) != NULL) {
-            int fd = atoi(entry->d_name);
+            char* endptr = NULL;
+            long fd = strtol(entry->d_name, &endptr, 10);
+            // 跳过非数字条目 (如 "." "..")，避免无效转换
+            if (endptr == entry->d_name || *endptr != '\0') {
+                continue;
+            }
             if (fd > 2 && fd != self_dir_fd) {
-                close(fd);
+                close((int)fd);
             }
         }
         closedir(self_dir);

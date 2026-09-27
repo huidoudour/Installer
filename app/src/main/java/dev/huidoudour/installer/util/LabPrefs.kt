@@ -2,6 +2,7 @@ package dev.huidoudour.installer.util
 
 import android.content.Context
 import dev.huidoudour.installer.auth.Authorizer
+import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.auth.SmartAuthorizer
 import dev.huidoudour.installer.auth.SmartAuthorizerCandidate
 
@@ -44,6 +45,24 @@ object LabPrefs {
     /** 该授权方式当前是否可用 */
     fun isAuthorizerAvailable(context: Context, authorizer: Authorizer): Boolean =
         SmartAuthorizer.isAvailable(context, authorizer)
+
+    // ==================== 特权安装开关（Shizuku / Dhizuku 分开） ====================
+
+    /** 是否允许使用 Shizuku 特权安装（关闭后安装不使用 Shizuku） */
+    fun isShizukuInstallEnabled(context: Context): Boolean =
+        PrivilegeHelper.isShizukuEnabled(context)
+
+    fun setShizukuInstallEnabled(context: Context, enabled: Boolean) {
+        PrivilegeHelper.setShizukuEnabled(context, enabled)
+    }
+
+    /** 是否允许使用 Dhizuku 特权安装（关闭后安装不使用 Dhizuku） */
+    fun isDhizukuInstallEnabled(context: Context): Boolean =
+        PrivilegeHelper.isDhizukuEnabled(context)
+
+    fun setDhizukuInstallEnabled(context: Context, enabled: Boolean) {
+        PrivilegeHelper.setDhizukuEnabled(context, enabled)
+    }
 
     // ==================== 签名校验 ====================
 

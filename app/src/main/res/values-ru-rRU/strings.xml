@@ -25,6 +25,10 @@
     <string name="close">Закрыть</string>
     <string name="request_authorization">Запросить авторизацию</string>
     <string name="privilege_settings_hint">Выберите способ авторизации для установки приложений. Убедитесь, что выбранный сервис запущен и авторизован.</string>
+    <string name="lab_use_shizuku_install">Использовать Shizuku для установки</string>
+    <string name="lab_use_shizuku_install_desc">Если выключено, установка не использует Shizuku (для тестирования прав).</string>
+    <string name="lab_use_dhizuku_install">Использовать Dhizuku для установки</string>
+    <string name="lab_use_dhizuku_install_desc">Если выключено, установка не использует Dhizuku (для тестирования прав).</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
     <string name="copy_failed">Копирование не удалось</string>
     <string name="installing">Установка...</string>

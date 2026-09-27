@@ -30,7 +30,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlin.math.abs
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -90,23 +89,22 @@ fun PredictiveBackPage(
 
     PredictiveBackHandler(enabled = supportsPredictiveBackGesture) { events ->
         var completed = false
-        // 手势起点 X：用固定 dp 位移重新归一化进度，消除跨 API / 屏幕尺寸的缩放差异。
-        var startTouchX = Float.NaN
         try {
             events.collect { event ->
                 swipeEdge = event.swipeEdge
                 gestureTouchY = event.touchY
-                val progress = if (event.touchX != 0f) {
-                    if (startTouchX.isNaN()) startTouchX = event.touchX
-                    PredictiveBackMotion.normalizeProgress(
-                        abs(event.touchX - startTouchX),
-                        density.density
-                    )
-                } else {
-                    // 部分设备/低版本不提供 touchX，回退到系统进度。
-                    event.progress
-                }
-                gestureProgress.snapTo(progress)
+                // 直接采用系统给出的手势进度。
+                //
+                // 曾用 `abs(event.touchX - startTouchX)` 重新归一化（固定 120dp 提交距离），
+                // 那会在拖拽回退时产生非单调的进度：`abs()` 丢掉方向符号，把回退过程中的
+                // 任何抖动翻倍成反向位移；且 `event.touchX != 0f` 这个判断会在 `touchX` 恰好
+                // 为 0（手指正回到左边缘的合法坐标）时，把量纲从「px / 120dp 归一化」切成
+                // 系统的 0..1，两者互相跳变。卡片位置是这个值的橡皮图章，于是表现为
+                // 「连停三四帧、再猛跳一次」。
+                //
+                // 系统的 `progress` 本身就是 0..1、随手势单调变化的量，且参考项目
+                // （miuix `NavBackEvent.progress`）用的也是它。
+                gestureProgress.snapTo(event.progress.coerceIn(0f, 1f))
             }
             completed = true
             // 确认返回：几何位移从松手位置继续推进，不透明度用更短的墙钟窗口先归零。

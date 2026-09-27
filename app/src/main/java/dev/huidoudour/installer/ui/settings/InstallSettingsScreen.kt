@@ -35,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -72,6 +73,8 @@ fun InstallSettingsScreen(
     val scope = rememberCoroutineScope()
     val replaceExisting by viewModel.replaceExisting.collectAsState()
     val grantPermissions by viewModel.grantPermissions.collectAsState()
+    val useShizuku by viewModel.useShizuku.collectAsState()
+    val useDhizuku by viewModel.useDhizuku.collectAsState()
     // null 表示尚未统计完成
     var cacheSize by remember { mutableStateOf<Long?>(null) }
 
@@ -147,7 +150,11 @@ fun InstallSettingsScreen(
             title = stringResource(R.string.privilege_settings),
             subtitle = stringResource(R.string.privilege_settings_hint)
         ) {
-            PrivilegeModeCards(viewModel = viewModel)
+            PrivilegeModeCards(
+                viewModel = viewModel,
+                shizukuEnabled = useShizuku,
+                dhizukuEnabled = useDhizuku
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -219,19 +226,36 @@ private fun InstallSettingsCard(
 
 /**
  * 授权器选择卡片：点击即持久化所选授权器，不再需要额外的确认步骤。
+ *
+ * @param shizukuEnabled Shizuku 开关关闭时置灰并禁用选择（此模式下安装不使用 Shizuku）。
+ * @param dhizukuEnabled Dhizuku 开关关闭时置灰并禁用选择（此模式下安装不使用 Dhizuku）。
  */
 @Composable
-private fun PrivilegeModeCards(viewModel: SettingsViewModel) {
+private fun PrivilegeModeCards(
+    viewModel: SettingsViewModel,
+    shizukuEnabled: Boolean,
+    dhizukuEnabled: Boolean
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
     var shizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
     var dhizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
 
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            shizukuStatus = PrivilegeHelper.checkShizukuStatus()
-            dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
+    // 对应开关关闭时跳过检测，不进行任何 Shizuku/Dhizuku 交互
+    LaunchedEffect(shizukuEnabled) {
+        if (shizukuEnabled) {
+            withContext(Dispatchers.IO) {
+                shizukuStatus = PrivilegeHelper.checkShizukuStatus(context)
+            }
+        }
+    }
+
+    LaunchedEffect(dhizukuEnabled) {
+        if (dhizukuEnabled) {
+            withContext(Dispatchers.IO) {
+                dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
+            }
         }
     }
 
@@ -246,10 +270,15 @@ private fun PrivilegeModeCards(viewModel: SettingsViewModel) {
         selected = privilegeMode == PrivilegeHelper.PrivilegeMode.SHIZUKU,
         iconPackage = SHIZUKU_PACKAGE,
         title = stringResource(R.string.shizuku),
-        statusText = privilegeStatusText(shizukuStatus, PrivilegeHelper.PrivilegeMode.SHIZUKU),
+        statusText = if (shizukuEnabled) {
+            privilegeStatusText(shizukuStatus, PrivilegeHelper.PrivilegeMode.SHIZUKU)
+        } else {
+            stringResource(R.string.disabled)
+        },
+        enabled = shizukuEnabled,
         onSelect = { applyMode(PrivilegeHelper.PrivilegeMode.SHIZUKU) },
         trailing = {
-            if (shizukuStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
+            if (shizukuEnabled && shizukuStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
                 TextButton(onClick = { PrivilegeHelper.requestShizukuPermission(456) }) {
                     Text(stringResource(R.string.request_authorization))
                 }
@@ -263,10 +292,15 @@ private fun PrivilegeModeCards(viewModel: SettingsViewModel) {
         selected = privilegeMode == PrivilegeHelper.PrivilegeMode.DHIZUKU,
         iconPackage = PrivilegeHelper.getInstalledDhizukuPackage(context) ?: DHIZUKU_FALLBACK_PACKAGE,
         title = stringResource(R.string.dhizuku),
-        statusText = privilegeStatusText(dhizukuStatus, PrivilegeHelper.PrivilegeMode.DHIZUKU),
+        statusText = if (dhizukuEnabled) {
+            privilegeStatusText(dhizukuStatus, PrivilegeHelper.PrivilegeMode.DHIZUKU)
+        } else {
+            stringResource(R.string.disabled)
+        },
+        enabled = dhizukuEnabled,
         onSelect = { applyMode(PrivilegeHelper.PrivilegeMode.DHIZUKU) },
         trailing = {
-            if (dhizukuStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
+            if (dhizukuEnabled && dhizukuStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
                 TextButton(onClick = {
                     PrivilegeHelper.requestDhizukuPermission(context) { _ ->
                         scope.launch(Dispatchers.IO) {
@@ -287,6 +321,7 @@ private fun PrivilegeModeCard(
     iconPackage: String,
     title: String,
     statusText: String,
+    enabled: Boolean,
     onSelect: () -> Unit,
     trailing: @Composable () -> Unit
 ) {
@@ -294,7 +329,8 @@ private fun PrivilegeModeCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .clickable { onSelect() },
+            .alpha(if (enabled) 1f else 0.55f)
+            .clickable(enabled = enabled) { onSelect() },
         shape = SmallShape,
         color = if (selected) {
             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)

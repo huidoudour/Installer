@@ -25,6 +25,10 @@
     <string name="close">關閉</string>
     <string name="request_authorization">請求授權</string>
     <string name="privilege_settings_hint">選擇用於安裝應用的授權方式。確保所選服務正在運行並已授權。</string>
+    <string name="lab_use_shizuku_install">使用 Shizuku 安裝</string>
+    <string name="lab_use_shizuku_install_desc">關閉後安裝不使用 Shizuku（用於權限測試）。</string>
+    <string name="lab_use_dhizuku_install">使用 Dhizuku 安裝</string>
+    <string name="lab_use_dhizuku_install_desc">關閉後安裝不使用 Dhizuku（用於權限測試）。</string>
     <string name="copied_to_clipboard">已複製到剪貼簿</string>
     <string name="copy_failed">複製失敗</string>
     <string name="installing">安裝中...</string>

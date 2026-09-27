@@ -28,6 +28,11 @@ object PrivilegeHelper {
 
     private const val PREFS_NAME = "privilege_settings"
     private const val KEY_CURRENT_MODE = "current_mode"
+    private const val KEY_USE_SHIZUKU = "use_shizuku"
+    private const val KEY_USE_DHIZUKU = "use_dhizuku"
+
+    // 旧版单一开关，仅用于迁移：新键缺失时以其取值作为默认值
+    private const val KEY_LEGACY_USE_PRIVILEGED = "use_privileged_install"
 
     enum class PrivilegeMode {
         SHIZUKU,
@@ -111,8 +116,13 @@ object PrivilegeHelper {
 
     /**
      * 检查 Shizuku 状态
+     *
+     * Shizuku 开关关闭时直接返回，不进行任何 Shizuku 交互。
      */
-    fun checkShizukuStatus(): PrivilegeStatus {
+    fun checkShizukuStatus(context: Context): PrivilegeStatus {
+        if (!isShizukuEnabled(context)) {
+            return PrivilegeStatus.NOT_RUNNING
+        }
         return try {
             if (!Shizuku.pingBinder()) {
                 return PrivilegeStatus.NOT_RUNNING
@@ -142,6 +152,10 @@ object PrivilegeHelper {
      * 3. 最终回退到标准 Android 权限检测（signature 级别自动匹配）
      */
     fun checkDhizukuStatus(context: Context): PrivilegeStatus {
+        // Dhizuku 开关关闭时直接返回，不进行任何 Dhizuku 交互
+        if (!isDhizukuEnabled(context)) {
+            return PrivilegeStatus.NOT_RUNNING
+        }
         val activePkg = getActiveDhizukuPackage(context) ?: return PrivilegeStatus.NOT_INSTALLED
 
         return try {
@@ -205,12 +219,17 @@ object PrivilegeHelper {
      * 获取指定授权器的状态
      */
     fun getStatus(context: Context, mode: PrivilegeMode): PrivilegeStatus {
+        // 该授权方式被全局开关禁用：跳过探测（不查询包名、不与 Shizuku/Dhizuku 交互）
+        if (!isModeEnabled(context, mode)) {
+            return PrivilegeStatus.NOT_RUNNING
+        }
+
         if (!isInstalled(context, mode)) {
             return PrivilegeStatus.NOT_INSTALLED
         }
 
         return when (mode) {
-            PrivilegeMode.SHIZUKU -> checkShizukuStatus()
+            PrivilegeMode.SHIZUKU -> checkShizukuStatus(context)
             PrivilegeMode.DHIZUKU -> checkDhizukuStatus(context)
         }
     }
@@ -340,26 +359,59 @@ object PrivilegeHelper {
         }
     }
 
+    private fun prefs(context: Context) =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
     /**
      * 保存当前选择的授权器模式
      */
     fun saveCurrentMode(context: Context, mode: PrivilegeMode) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(KEY_CURRENT_MODE, mode.name).apply()
+        prefs(context).edit().putString(KEY_CURRENT_MODE, mode.name).apply()
     }
 
     /**
      * 获取当前选择的授权器模式
      */
     fun getCurrentMode(context: Context): PrivilegeMode {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val modeName = prefs.getString(KEY_CURRENT_MODE, PrivilegeMode.SHIZUKU.name)
+        val modeName = prefs(context).getString(KEY_CURRENT_MODE, PrivilegeMode.SHIZUKU.name)
         return try {
             PrivilegeMode.valueOf(modeName ?: PrivilegeMode.SHIZUKU.name)
         } catch (e: IllegalArgumentException) {
             PrivilegeMode.SHIZUKU
         }
     }
+
+    /**
+     * 是否允许在安装时使用 Shizuku 特权授权器。
+     * 关闭后安装不使用 Shizuku，便于在无该授权环境下测试。
+     */
+    fun isShizukuEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_USE_SHIZUKU, legacyPrivilegedDefault(context))
+
+    fun setShizukuEnabled(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(KEY_USE_SHIZUKU, enabled).apply()
+    }
+
+    /**
+     * 是否允许在安装时使用 Dhizuku 特权授权器。
+     * 关闭后安装不使用 Dhizuku，便于在无该授权环境下测试。
+     */
+    fun isDhizukuEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_USE_DHIZUKU, legacyPrivilegedDefault(context))
+
+    fun setDhizukuEnabled(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(KEY_USE_DHIZUKU, enabled).apply()
+    }
+
+    /** 指定授权模式是否被全局开关启用 */
+    fun isModeEnabled(context: Context, mode: PrivilegeMode): Boolean = when (mode) {
+        PrivilegeMode.SHIZUKU -> isShizukuEnabled(context)
+        PrivilegeMode.DHIZUKU -> isDhizukuEnabled(context)
+    }
+
+    /** 旧版单一开关的取值，作为两个新开关的默认值，实现平滑迁移 */
+    private fun legacyPrivilegedDefault(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_LEGACY_USE_PRIVILEGED, true)
 
     /**
      * 切换到另一个授权器

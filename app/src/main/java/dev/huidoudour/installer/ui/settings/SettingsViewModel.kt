@@ -46,6 +46,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _grantPermissions = MutableStateFlow(prefs.getBoolean("auto_grant_permissions", false))
     val grantPermissions: StateFlow<Boolean> = _grantPermissions.asStateFlow()
 
+    // 全局开关（分开）：是否使用 Shizuku / Dhizuku 特权安装（关闭后该项安装一律走系统安装器）
+    private val _useShizuku = MutableStateFlow(PrivilegeHelper.isShizukuEnabled(context))
+    val useShizuku: StateFlow<Boolean> = _useShizuku.asStateFlow()
+
+    private val _useDhizuku = MutableStateFlow(PrivilegeHelper.isDhizukuEnabled(context))
+    val useDhizuku: StateFlow<Boolean> = _useDhizuku.asStateFlow()
+
     init {
         refreshPrivilegeStatus()
     }
@@ -57,9 +64,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch(Dispatchers.IO) {
             val mode = PrivilegeHelper.getCurrentMode(context)
             val status = PrivilegeHelper.getStatus(context, mode)
+            val useShizuku = PrivilegeHelper.isShizukuEnabled(context)
+            val useDhizuku = PrivilegeHelper.isDhizukuEnabled(context)
             withContext(Dispatchers.Main) {
                 _privilegeMode.value = mode
                 _privilegeStatus.value = status
+                _useShizuku.value = useShizuku
+                _useDhizuku.value = useDhizuku
             }
         }
     }

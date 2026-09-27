@@ -64,7 +64,7 @@ class App : Application() {
         lateinit var instance: App
             private set
 
-        @SuppressWarnings("unused")
+        @Suppress("unused")
         fun getAppContext(): Application = instance
     }
 }

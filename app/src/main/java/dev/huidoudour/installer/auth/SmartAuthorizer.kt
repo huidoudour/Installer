@@ -79,8 +79,16 @@ object SmartAuthorizer {
         current: Authorizer,
         installed: Boolean,
     ): List<Authorizer> {
+        // 两个特权开关都关闭：完全不使用 Shizuku / Dhizuku，直接回退到系统安装器（用于权限测试）
+        if (!PrivilegeHelper.isShizukuEnabled(context) && !PrivilegeHelper.isDhizukuEnabled(context)) {
+            return listOf(Authorizer.None)
+        }
+
+        // 被对应开关关闭的授权器不参与本次安装，回退到系统安装器
+        val fallbackCurrent = if (isAuthorizerEnabled(context, current)) current else Authorizer.None
+
         if (!isByInstallStateEnabled(context) && !isEnabled(context)) {
-            return listOf(current)
+            return listOf(fallbackCurrent)
         }
 
         val candidates = buildList {
@@ -90,9 +98,15 @@ object SmartAuthorizer {
             if (isEnabled(context)) {
                 addAll(enabledOrder(context))
             }
-        }.distinct()
+        }.distinct().filter { isAuthorizerEnabled(context, it) }
 
-        return candidates.filter { isAvailable(context, it) }.ifEmpty { listOf(current) }
+        return candidates.filter { isAvailable(context, it) }.ifEmpty { listOf(fallbackCurrent) }
+    }
+
+    /** 该授权方式是否未被对应的独立开关关闭（[Authorizer.None] 视为始终允许） */
+    private fun isAuthorizerEnabled(context: Context, authorizer: Authorizer): Boolean {
+        val mode = toPrivilegeMode(authorizer) ?: return true
+        return PrivilegeHelper.isModeEnabled(context, mode)
     }
 
     /** 展示用的当前启用顺序文本，如 `Shizuku->Dhizuku` */

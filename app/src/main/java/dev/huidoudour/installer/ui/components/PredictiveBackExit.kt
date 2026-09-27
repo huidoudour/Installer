@@ -41,8 +41,15 @@ object PredictiveBackMotion {
      */
     const val FADE_DURATION_MILLIS = 160
 
-    /** 取消手势后的回弹刚度，与原实现一致。 */
-    const val CANCEL_STIFFNESS = Spring.StiffnessHigh
+    /**
+     * 取消手势后的回弹刚度。
+     *
+     * 对齐参考项目 `ScaleNavTransition` 的 `NavSettleSpec.Spring(stiffness = 1500f)`。
+     * 原先使用的 [Spring.StiffnessHigh]（10000）过刚：回弹在极短时间内冲完行程，
+     * 视觉上接近"瞬移"而非回弹；配合松手速度种子后，1500 能在同样的墙钟窗口内
+     * 给出连续可读的减速过程。
+     */
+    const val CANCEL_STIFFNESS = 1500f
 
     /**
      * 参考项目 `NavTransitionEasing.FastOutExtraSlowIn`：两段三次贝塞尔拼接的全局缓动，
@@ -81,25 +88,20 @@ object PredictiveBackMotion {
         return if (eased <= 0f) 1f else 1f - (1f - MIN_SCALE) * eased
     }
 
-    /**
-     * 重新归一化进度所用的固定滑动提交距离（dp）。
+    /*
+     * 关于「固定 dp 行程提交」的说明（已弃用，勿轻易恢复）：
      *
-     * 系统传入的 progress 在不同 API 版本 / 屏幕尺寸下，
-     * “滑动距离 → 进度” 的映射并不一致，导致同一手势在不同设备上的缩放观感不同。
-     * 这里改用固定 dp 的物理位移重新归一化，保证跨设备一致。数值可调。
-     */
-    const val COMMIT_DISTANCE_DP = 120f
-
-    /**
-     * 用固定 dp 的横向滑动距离重新归一化预测性返回进度（0..1）。
+     * 这里曾定义 COMMIT_DISTANCE_DP = 120f 与 normalizeProgress()，用手势起点的 touchX
+     * 自行反推进度。该方案已移除，手势进度改为直接采用系统的 BackEventCompat.progress。
+     * 原因是自算版本在「拖到顶后原路返回」时会产生非单调的进度：
      *
-     * @param swipeDistancePx 自手势起点起的横向位移绝对值（px）
-     * @param density 当前屏幕密度（LocalDensity.current.density）
+     *   1. abs(touchX - startTouchX) 丢掉方向符号，回退过程中的任何抖动都会被翻倍成反向位移；
+     *   2. `touchX != 0f` 的判断会在手指恰好回到左边缘（touchX 为 0 是合法坐标）时，
+     *      把量纲从「px / (120dp × density)」切成系统的 0..1，两套值互相跳变。
+     *
+     * 卡片位置是 progress 的橡皮图章，于是表现为「连续三四帧不动、再猛跳一次」。
+     * 若将来确实需要固定物理行程的手感，必须让全程量纲一致并施加单调约束，不要无条件 abs()。
      */
-    fun normalizeProgress(swipeDistancePx: Float, density: Float): Float {
-        if (density <= 0f) return 0f
-        return (swipeDistancePx / (COMMIT_DISTANCE_DP * density)).coerceIn(0f, 1f)
-    }
 
     /** 程序化入场的横向推入量。 */
     fun enterTranslation(enterProgress: Float, width: Float, direction: Float): Float =
@@ -166,17 +168,30 @@ suspend fun commitPredictiveBackExit(
 
 /**
  * 手势取消时的回弹：缩放回到 1f，不透明度立即复位。
+ *
+ * 回弹与手势之间是「snap → spring」的交接，必须让值**和一阶导数**同时连续，
+ * 否则从零速度重新起步会在接缝处产生一次可见的顿挫。因此这里：
+ * 1. 先 [Animatable.stop] 掉可能还在飞的动画（原子地停下，避免它与回弹抢同一个驱动值）；
+ * 2. 取停稳瞬间的 [Animatable.velocity] 作为回弹的 `initialVelocity`；
+ * 3. 用 [PredictiveBackMotion.CANCEL_STIFFNESS] 播放收敛。
+ *
+ * 这三步对应参考项目 `NavDriver.settleTo`（`initialVelocity: Float = velocity`）
+ * 与 `drivePredictiveBack` 开头的 `animatedTop.stop()`。
  */
 suspend fun cancelPredictiveBackExit(
     gestureProgress: Animatable<Float, *>,
     fadeProgress: Animatable<Float, *>,
 ) {
     withContext(NonCancellable) {
+        // 原子抓取：先把在飞的动画停掉，再采样速度，否则两者之间还留着一帧的窗口。
+        gestureProgress.stop()
+        val releaseVelocity = gestureProgress.velocity
         coroutineScope {
             launch {
                 gestureProgress.animateTo(
                     targetValue = 0f,
                     animationSpec = spring(stiffness = PredictiveBackMotion.CANCEL_STIFFNESS),
+                    initialVelocity = releaseVelocity,
                 )
             }
             launch { fadeProgress.snapTo(0f) }

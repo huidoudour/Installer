@@ -25,6 +25,10 @@
     <string name="close">閉じる</string>
     <string name="request_authorization">認証をリクエスト</string>
     <string name="privilege_settings_hint">アプリのインストールに使用する認証方式を選択してください。選択したサービスが実行中で認証されていることを確認してください。</string>
+    <string name="lab_use_shizuku_install">インストールに Shizuku を使用</string>
+    <string name="lab_use_shizuku_install_desc">オフにするとインストールで Shizuku を使用しません（権限テスト用）。</string>
+    <string name="lab_use_dhizuku_install">インストールに Dhizuku を使用</string>
+    <string name="lab_use_dhizuku_install_desc">オフにするとインストールで Dhizuku を使用しません（権限テスト用）。</string>
     <string name="copied_to_clipboard">クリップボードにコピーされました</string>
     <string name="copy_failed">コピーに失敗しました</string>
     <string name="installing">インストール中...</string>

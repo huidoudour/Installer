@@ -311,12 +311,19 @@ private fun ConfigurationOptionsCard(
     val context = LocalContext.current
     val privilegeStatus by viewModel.privilegeStatus.collectAsState()
     val privilegeMode by viewModel.privilegeMode.collectAsState()
+    val useShizuku by viewModel.useShizuku.collectAsState()
+    val useDhizuku by viewModel.useDhizuku.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.refreshPrivilegeStatus()
     }
 
     val statusText = viewModel.getStatusText(privilegeStatus)
     val modeName = PrivilegeHelper.getModeName(privilegeMode)
+    // 当前授权模式对应的独立开关是否开启
+    val modeEnabled = when (privilegeMode) {
+        PrivilegeHelper.PrivilegeMode.SHIZUKU -> useShizuku
+        PrivilegeHelper.PrivilegeMode.DHIZUKU -> useDhizuku
+    }
 
     Column(
         modifier = Modifier
@@ -344,7 +351,8 @@ private fun ConfigurationOptionsCard(
             SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_lock),
                 title = stringResource(R.string.install_privilege_settings),
-                subtitle = "$modeName: $statusText",
+                subtitle = if (modeEnabled) "$modeName: $statusText"
+                else "$modeName: ${stringResource(R.string.disabled)}",
                 colorPreview = null,
                 onClick = onInstallSettingsClick
             ),
