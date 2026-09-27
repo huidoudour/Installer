@@ -39,11 +39,11 @@
     <string name="settings_subtitle">應用程式配置和個人化設定</string>
     <string name="app_settings">應用程式設定</string>
     <string name="theme_settings">主題設定</string>
-    <string name="theme_color">Theme Color</string>
-    <string name="theme_follow_system">Follow System</string>
-    <string name="theme_light">Light Theme</string>
-    <string name="theme_dark">Dark Theme</string>
-    <string name="follow_wallpaper">Follow Wallpaper</string>
+    <string name="theme_color">主題顏色</string>
+    <string name="theme_follow_system">跟隨系統</string>
+    <string name="theme_light">淺色主題</string>
+    <string name="theme_dark">深色主題</string>
+    <string name="follow_wallpaper">跟隨桌布</string>
     <string name="light_theme">淺色主題</string>
     <string name="dark_theme">深色主題</string>
     <string name="language_settings">語言設定</string>
@@ -146,7 +146,7 @@
     <string name="clear">清空</string>
     <string name="export">匯出</string>
     <string name="real_time_logs">即時顯示所有操作日誌</string>
-    <string name="no_logs_available">No logs available</string>
+    <string name="no_logs_available">暫無日誌</string>
     <string name="upgrade_version">升級版本：</string>
     <string name="waiting_operation">等待操作……</string>
     <string name="app_name_label">應用名稱</string>
@@ -472,7 +472,7 @@
     <string name="content_description_bookmarks">書籤</string>
     <string name="content_description_search">搜尋</string>
     <string name="content_description_save">儲存</string>
-    <string name="quick_commands">Quick Commands</string>
+    <string name="quick_commands">快捷指令</string>
     <string name="hash_sign">#</string>
     <string name="user">用戶</string>
 
@@ -667,21 +667,21 @@
     <string name="not_available">不可用</string>
 
     <!-- Missing default strings (defined in language-specific folders) -->
-    <string name="apk_name_failed" formatted="false">%s failed: %s</string>
+    <string name="apk_name_failed" formatted="false">%s 失敗：%s</string>
     <string name="apk_not_exist">APK 檔案不存在</string>
     <string name="apk_progress" formatted="false">[%d/%d] %s</string>
-    <string name="create_session">Create installation session: %s</string>
-    <string name="extract_complete">Extraction complete, %d APKs in total</string>
-    <string name="extract_xapk">Extracting XAPK (using native compression library)…</string>
+    <string name="create_session">建立安裝工作階段：%s</string>
+    <string name="extract_complete">解壓完成！共 %d 個 APK</string>
+    <string name="extract_xapk">正在解壓 XAPK（使用原生壓縮庫）...</string>
     <string name="install_exception">安裝異常：%s</string>
     <string name="install_failed">安裝失敗：%s</string>
-    <string name="install_failed_error">Installation failed: %s</string>
+    <string name="install_failed_error">安裝失敗：%s</string>
     <string name="install_success_simple">安裝成功！</string>
-    <string name="session_id">Session ID: %s</string>
-    <string name="start_apk_install">Start APK installation…</string>
-    <string name="submit_install">Submit installation…</string>
-    <string name="submitting_install">Submitting installation…</string>
-    <string name="write_apk_data">Writing APK data…</string>
+    <string name="session_id">工作階段 ID：%s</string>
+    <string name="start_apk_install">開始安裝 APK...</string>
+    <string name="submit_install">提交安裝...</string>
+    <string name="submitting_install">正在提交安裝...</string>
+    <string name="write_apk_data">正在寫入 APK 資料...</string>
     <string name="xapk_install_exception">XAPK 安裝異常：%s</string>
     <string name="xapk_install_success_msg">XAPK 安裝成功！共安裝 %d 個 APK</string>
 

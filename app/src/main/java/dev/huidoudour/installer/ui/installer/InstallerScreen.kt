@@ -390,17 +390,19 @@ fun PrivilegeStatusCard(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Grant/Download/Open/Authorized button - matching source project button_secondary (green)
+        // 当前授权模式的开关关闭时一并禁用（灰化），不再触发跳转授权器的操作
         Button(
             onClick = onRequestPermission,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
             shape = RoundedCornerShape(12.dp),
-            enabled = status != PrivilegeHelper.PrivilegeStatus.AUTHORIZED,
+            enabled = enabled && status != PrivilegeHelper.PrivilegeStatus.AUTHORIZED,
             colors = ButtonDefaults.buttonColors(
                 containerColor = ButtonSecondaryGreen,
                 contentColor = Color.White,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
             ),
             contentPadding = PaddingValues(16.dp)
         ) {

@@ -89,8 +89,8 @@
     <string name="text1">你保护世界，我保护你</string>
     <string name="about_me">亻尔女子，我是 huidoudour（慧兜兜）</string>
     <string name="find_me">ω寻找我ω</string>
-    <string name="about_description">专注于 Android 应用安装工具开发</string>
-    <string name="visit_github">访问 GitHub</string>
+    <string name="about_description">Focused on Android app installation tools development</string>
+    <string name="visit_github">Visit GitHub</string>
     
     <!-- Reference strings -->
     <string name="shell_hint">Enter command...</string>
@@ -456,7 +456,7 @@
     <string name="quick_path_home">Home (~/)</string>
 
     <!-- Shell welcome -->
-    <string name="welcome_shell_title">欢迎来到~终端</string>
+    <string name="welcome_shell_title">Welcome to ~terminal</string>
     <string name="welcome_shell_subtitle">~v2.0</string>
     <string name="root_mode_enabled_via_shizuku">[*] Root mode enabled via Shizuku</string>
     <string name="working_directory_tmp">[*] Working directory: /data/local/tmp</string>
@@ -620,15 +620,15 @@
     <string name="arrow_down">Down Arrow</string>
 
     <!-- Easter egg -->
-    <string name="easter_egg_text">啥也没有呀</string>
+    <string name="easter_egg_text">Nothing here</string>
 
     <!-- Additional hardcoded strings found -->
-    <string name="package_name_label_colon">包名：</string>
-    <string name="current_version_label">当前版本：</string>
-    <string name="fresh_install">全新安装</string>
-    <string name="upgrade_version_label">升级版本：</string>
-    <string name="min_sdk_label">最低SDK：</string>
-    <string name="target_sdk_label">目标SDK：</string>
+    <string name="package_name_label_colon">Package Name: </string>
+    <string name="current_version_label">Current Version: </string>
+    <string name="fresh_install">Fresh Install</string>
+    <string name="upgrade_version_label">Upgrade Version: </string>
+    <string name="min_sdk_label">Min SDK: </string>
+    <string name="target_sdk_label">Target SDK: </string>
     <string name="search_in_output_hint">Search in output...</string>
     <string name="no_command_history">No command history</string>
     <string name="no_bookmarks_saved">No bookmarks saved</string>

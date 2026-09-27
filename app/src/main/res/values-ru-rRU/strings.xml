@@ -39,11 +39,11 @@
     <string name="settings_subtitle">Конфигурация приложения и персонализация</string>
     <string name="app_settings">Настройки приложения</string>
     <string name="theme_settings">Тема</string>
-    <string name="theme_color">Theme Color</string>
-    <string name="theme_follow_system">Follow System</string>
-    <string name="theme_light">Light Theme</string>
-    <string name="theme_dark">Dark Theme</string>
-    <string name="follow_wallpaper">Follow Wallpaper</string>
+    <string name="theme_color">Цвет темы</string>
+    <string name="theme_follow_system">Как в системе</string>
+    <string name="theme_light">Светлая тема</string>
+    <string name="theme_dark">Тёмная тема</string>
+    <string name="follow_wallpaper">Следовать обоям</string>
     <string name="light_theme">Светлая тема</string>
     <string name="dark_theme">Тёмная тема</string>
     <string name="language_settings">Язык</string>
@@ -146,7 +146,7 @@
     <string name="clear">Очистить</string>
     <string name="export">Экспорт</string>
     <string name="real_time_logs">Отображать все журналы операций в реальном времени</string>
-    <string name="no_logs_available">No logs available</string>
+    <string name="no_logs_available">Журналы недоступны</string>
     <string name="upgrade_version">Версия обновления: </string>
     <string name="waiting_operation">Ожидание операции……</string>
     <string name="app_name_label">Имя приложения</string>
@@ -472,7 +472,7 @@
     <string name="content_description_bookmarks">Закладки</string>
     <string name="content_description_search">Поиск</string>
     <string name="content_description_save">Сохранить</string>
-    <string name="quick_commands">Quick Commands</string>
+    <string name="quick_commands">Быстрые команды</string>
     <string name="hash_sign">#</string>
     <string name="user">пользователь</string>
 

@@ -39,11 +39,11 @@
     <string name="settings_subtitle">アプリの設定とカスタマイズ</string>
     <string name="app_settings">アプリ設定</string>
     <string name="theme_settings">テーマ</string>
-    <string name="theme_color">Theme Color</string>
-    <string name="theme_follow_system">Follow System</string>
-    <string name="theme_light">Light Theme</string>
-    <string name="theme_dark">Dark Theme</string>
-    <string name="follow_wallpaper">Follow Wallpaper</string>
+    <string name="theme_color">テーマカラー</string>
+    <string name="theme_follow_system">システムに従う</string>
+    <string name="theme_light">ライトテーマ</string>
+    <string name="theme_dark">ダークテーマ</string>
+    <string name="follow_wallpaper">壁紙に従う</string>
     <string name="light_theme">ライトテーマ</string>
     <string name="dark_theme">ダークテーマ</string>
     <string name="language_settings">言語</string>
@@ -146,7 +146,7 @@
     <string name="clear">クリア</string>
     <string name="export">エクスポート</string>
     <string name="real_time_logs">すべての操作ログをリアルタイムで表示</string>
-    <string name="no_logs_available">No logs available</string>
+    <string name="no_logs_available">ログがありません</string>
     <string name="upgrade_version">アップグレードバージョン：</string>
     <string name="waiting_operation">操作を待機中……</string>
     <string name="app_name_label">アプリ名</string>
@@ -472,7 +472,7 @@
     <string name="content_description_bookmarks">ブックマーク</string>
     <string name="content_description_search">検索</string>
     <string name="content_description_save">保存</string>
-    <string name="quick_commands">Quick Commands</string>
+    <string name="quick_commands">クイックコマンド</string>
     <string name="hash_sign">#</string>
     <string name="user">ユーザー</string>
 
