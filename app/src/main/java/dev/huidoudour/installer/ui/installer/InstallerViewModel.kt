@@ -80,28 +80,8 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     private val _allowTestPackages = MutableStateFlow(false)
     val allowTestPackages: StateFlow<Boolean> = _allowTestPackages.asStateFlow()
 
-    // 安装器包名选项
-    data class InstallerPackageOption(
-        val packageName: String,
-        val displayName: String
-    )
-
-    val installerPackageOptions = listOf(
-        InstallerPackageOption("io.github.huidoudour.Installer", "Installer"),
-        InstallerPackageOption("me.huidoudour.core", "Huidoudour Core"),
-        InstallerPackageOption("io.github.huidoudour.zjs", "ZJS")
-    )
-
     private val _selectedInstallerPackage = MutableStateFlow("io.github.huidoudour.Installer")
     val selectedInstallerPackage: StateFlow<String> = _selectedInstallerPackage.asStateFlow()
-
-    // 请求者包名选项（requester）
-    val requesterPackageOptions = listOf(
-        InstallerPackageOption("io.github.huidoudour.Installer", "Installer"),
-        InstallerPackageOption("me.huidoudour.core", "Huidoudour Core"),
-        InstallerPackageOption("io.github.huidoudour.zjs", "ZJS"),
-        InstallerPackageOption("com.android.shell", "Shell"),
-    )
 
     private val _enableCustomRequesterPackage = MutableStateFlow(false)
     val enableCustomRequesterPackage: StateFlow<Boolean> = _enableCustomRequesterPackage.asStateFlow()
