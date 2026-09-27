@@ -3,6 +3,7 @@ package dev.huidoudour.installer
 import android.app.Application
 import android.os.Build
 import dev.huidoudour.installer.auth.PrivilegeHelper
+import dev.huidoudour.installer.install.InstallCacheCleaner
 import dev.huidoudour.installer.util.LanguageManager
 import dev.huidoudour.installer.util.LogManager
 import dev.huidoudour.installer.util.NativeCrashHandler
@@ -31,6 +32,19 @@ class App : Application() {
         // 初始化日志管理器
         LogManager.getInstance().setContext(this)
 
+        // 回收上一次运行遗留的安装临时文件：安装包副本动辄上百 MB，
+        // 此时不可能有安装正在进行，是唯一可以安全整体清空的时机。
+        val appContext = this
+        Thread {
+            val freed = InstallCacheCleaner.deleteStaleInstallFiles(appContext)
+            if (freed > 0L) {
+                LogManager.getInstance().addLog(
+                    "Cleared stale install cache: ${InstallCacheCleaner.formatSize(appContext, freed)}",
+                    "App"
+                )
+            }
+        }.start()
+
         // 初始化权限系统
         PrivilegeHelper.initialize(this)
 
@@ -41,6 +55,7 @@ class App : Application() {
         LanguageManager.applyUserLanguagePreference(this)
     }
 
+    @SuppressWarnings("unused")
     override fun onTerminate() {
         super.onTerminate()
     }
@@ -49,6 +64,7 @@ class App : Application() {
         lateinit var instance: App
             private set
 
+        @SuppressWarnings("unused")
         fun getAppContext(): Application = instance
     }
 }

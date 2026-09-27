@@ -14,6 +14,7 @@ import dev.huidoudour.installer.auth.Authorizer
 import dev.huidoudour.installer.auth.InstallDispatcher
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.auth.SmartAuthorizer
+import dev.huidoudour.installer.install.InstallCacheCleaner
 import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
 import dev.huidoudour.installer.util.LogManager
@@ -254,7 +255,12 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                 return uri.path
             }
 
-            val cacheFile = File(context.cacheDir, getFileNameFromUri(uri) ?: "file.apk")
+            // 导入新包前先回收上一次的副本，否则缓存会随安装次数无限增长。
+            InstallCacheCleaner.deleteStaleInstallFiles(context)
+            val cacheFile = File(
+                InstallCacheCleaner.installCacheDir(context),
+                getFileNameFromUri(uri) ?: "file.apk"
+            )
             // 先删除旧副本：复制失败时不能把上一次的同名缓存文件当成待安装包
             cacheFile.delete()
             logManager.addLog("Copying installation file to ${cacheFile.absolutePath}", "Install")

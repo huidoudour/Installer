@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
 import dev.huidoudour.installer.R
+import dev.huidoudour.installer.install.InstallCacheCleaner
 import dev.huidoudour.installer.util.LogManager
 import java.io.File
 
@@ -130,10 +131,15 @@ object InstallDispatcher {
                 return
             }
 
-            // 复制到 cacheDir，确保被 file_paths.xml 的 cache-path 覆盖，可被 FileProvider 共享
-            val shared = File(context.cacheDir, source.name)
-            if (source.absolutePath != shared.absolutePath) {
-                source.copyTo(shared, overwrite = true)
+            // 已在 cacheDir 内（含安装缓存子目录）的文件本身就落在 file_paths.xml 的
+            // cache-path 覆盖范围内，可直接分享，避免再复制一份完整安装包。
+            val cacheDirPrefix = context.cacheDir.absolutePath + File.separator
+            val shared = if (source.absolutePath.startsWith(cacheDirPrefix)) {
+                source
+            } else {
+                File(InstallCacheCleaner.installCacheDir(context), source.name).also {
+                    source.copyTo(it, overwrite = true)
+                }
             }
 
             val authority = "${context.packageName}.provider"

@@ -480,43 +480,48 @@ object ShizukuInstallHelper {
         val extractedApks = XapkInstaller.extractXapk(context, xapkPath)
         callback.onProgress("Extraction complete, ${extractedApks.size} APKs found (shell fallback)")
 
-        val createCmd = StringBuilder("pm install-create --user 0")
-        if (replaceExisting) createCmd.append(" -r")
-        if (grantPermissions) createCmd.append(" -g")
-        if (isAllowTestPackages(context)) createCmd.append(" -t")
+        try {
+            val createCmd = StringBuilder("pm install-create --user 0")
+            if (replaceExisting) createCmd.append(" -r")
+            if (grantPermissions) createCmd.append(" -g")
+            if (isAllowTestPackages(context)) createCmd.append(" -t")
 
-        val installerPackage = getInstallerPackage(context)
-        if (installerPackage.isNotEmpty()) {
-            createCmd.append(" -i ").append(installerPackage)
-        }
-
-        callback.onProgress("Creating install session")
-        val createOutput = executeCommand(context, createCmd.toString())
-
-        if (!createOutput.contains("Success")) {
-            throw Exception(context.getString(R.string.install_failed, createOutput))
-        }
-
-        val sessionId = createOutput.substring(
-            createOutput.indexOf("[") + 1,
-            createOutput.indexOf("]")
-        )
-        callback.onProgress("Session ID: $sessionId")
-
-        for ((index, apkFile) in extractedApks.withIndex()) {
-            callback.onProgress("[${index + 1}/${extractedApks.size}] ${apkFile.name}")
-            val writeCmd = "pm install-write -S ${apkFile.length()} $sessionId ${apkFile.name} -"
-            val writeOutput = executeCommandWithInput(context, writeCmd, apkFile)
-            if (!writeOutput.contains("Success")) {
-                throw Exception(context.getString(R.string.install_failed, "${apkFile.name}: $writeOutput"))
+            val installerPackage = getInstallerPackage(context)
+            if (installerPackage.isNotEmpty()) {
+                createCmd.append(" -i ").append(installerPackage)
             }
-        }
 
-        callback.onProgress("Submitting install...")
-        val commitOutput = executeCommand(context, "pm install-commit $sessionId")
+            callback.onProgress("Creating install session")
+            val createOutput = executeCommand(context, createCmd.toString())
 
-        if (!commitOutput.lowercase().contains("success")) {
-            throw Exception(context.getString(R.string.install_failed, commitOutput))
+            if (!createOutput.contains("Success")) {
+                throw Exception(context.getString(R.string.install_failed, createOutput))
+            }
+
+            val sessionId = createOutput.substring(
+                createOutput.indexOf("[") + 1,
+                createOutput.indexOf("]")
+            )
+            callback.onProgress("Session ID: $sessionId")
+
+            for ((index, apkFile) in extractedApks.withIndex()) {
+                callback.onProgress("[${index + 1}/${extractedApks.size}] ${apkFile.name}")
+                val writeCmd = "pm install-write -S ${apkFile.length()} $sessionId ${apkFile.name} -"
+                val writeOutput = executeCommandWithInput(context, writeCmd, apkFile)
+                if (!writeOutput.contains("Success")) {
+                    throw Exception(context.getString(R.string.install_failed, "${apkFile.name}: $writeOutput"))
+                }
+            }
+
+            callback.onProgress("Submitting install...")
+            val commitOutput = executeCommand(context, "pm install-commit $sessionId")
+
+            if (!commitOutput.lowercase().contains("success")) {
+                throw Exception(context.getString(R.string.install_failed, commitOutput))
+            }
+        } finally {
+            // 解压产物若不回收，会永久占满 cacheDir/xapk_temp
+            XapkInstaller.cleanupTempFiles(extractedApks)
         }
     }
 

@@ -67,6 +67,7 @@ import dev.huidoudour.installer.auth.Authorizer
 import dev.huidoudour.installer.auth.InstallDispatcher
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.auth.SmartAuthorizer
+import dev.huidoudour.installer.install.InstallCacheCleaner
 import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
 import dev.huidoudour.installer.util.signature.SignatureHelper
@@ -972,14 +973,17 @@ private fun getFilePathFromUri(context: Context, uri: Uri?): String? {
             return uri.path
         }
 
-        clearStaleInstallTempFiles(context)
+        InstallCacheCleaner.deleteStaleInstallFiles(context)
 
         val suffix = queryDisplayName(context, uri)
             ?.substringAfterLast('.', "")
             ?.takeIf { it.isNotBlank() }
             ?.let { ".${it.lowercase()}" }
             ?: ".apk"
-        val cacheFile = File(context.cacheDir, "temp_install_${System.currentTimeMillis()}$suffix")
+        val cacheFile = File(
+            InstallCacheCleaner.installCacheDir(context),
+            "temp_install_${System.currentTimeMillis()}$suffix"
+        )
 
         val copied = context.contentResolver.openInputStream(uri)?.use { input ->
             cacheFile.outputStream().use { output ->
@@ -1011,17 +1015,6 @@ private fun queryDisplayName(context: Context, uri: Uri): String? = try {
 } catch (e: Exception) {
     null
 } ?: uri.lastPathSegment
-
-/**
- * 清理上一次选择遗留的安装临时文件，避免缓存目录被反复复制的安装包占满。
- */
-private fun clearStaleInstallTempFiles(context: Context) {
-    runCatching {
-        context.cacheDir.listFiles { file ->
-            file.isFile && (file.name.startsWith("temp_install_") || file.name == "temp_apk.apk")
-        }?.forEach { it.delete() }
-    }
-}
 
 /**
  * 安装对话框内的权限选择对话框
