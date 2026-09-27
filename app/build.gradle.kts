@@ -240,7 +240,8 @@ dependencies {
     // 测试依赖
     testImplementation("junit:junit:4.13.2")
     // MTDataFilesProvider,documentfile
-    debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
+    //debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
     debugImplementation("androidx.documentfile:documentfile:1.1.0")
 
+    debugImplementation(project(":mt-provider"))
 }

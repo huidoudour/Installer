@@ -16,7 +16,7 @@ allprojects {
 }
 
 // 使用新的API注册clean任务
-tasks.register<Delete>("clean") {
-    description = "Deletes the build directory."
-    delete(project.layout.buildDirectory)
-}
+//tasks.register<Delete>("clean") {
+//    description = "Deletes the build directory."
+//    delete(project.layout.buildDirectory)
+//}

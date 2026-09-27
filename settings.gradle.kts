@@ -14,5 +14,7 @@ dependencyResolutionManagement {
         maven { url = uri("https://jitpack.io") }
     }
 }
+rootProject.name = "Installer"
 include(":app")
 include(":hidden-api")
+include(":mt-provider")

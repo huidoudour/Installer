@@ -19,5 +19,7 @@ android {
 
 dependencies {
     //noinspection UseTomlInstead
-    implementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
+    //implementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
+
+    implementation(project(":mt-provider"))
 }
