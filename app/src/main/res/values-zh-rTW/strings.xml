@@ -15,7 +15,7 @@
     <string name="install_dialog_title">安裝對話框</string>
     <string name="select_apk">選擇 APK</string>
     <string name="install">安裝</string>
-    <string name="reinstall">重新安裝</string>
+    <string name="reinstall">重裝</string>
     <string name="upgrade_app">升級應用</string>
     <string name="cancel">取消</string>
     <string name="privilege">權限</string>
@@ -587,6 +587,7 @@
     <!-- 版本比对和升级相关 -->
     <string name="upgrade">升級</string>
     <string name="downgrade">降級</string>
+    <string name="downgrade_attempt_hint">降級安裝僅為嘗試，能否成功取決於系統</string>
     <string name="same_version">相同版本</string>
     
     <!-- Installer package settings -->

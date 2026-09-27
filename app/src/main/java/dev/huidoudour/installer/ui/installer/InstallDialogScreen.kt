@@ -83,17 +83,33 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 
 /**
+ * 待安装包与已安装包之间的版本关系，用于决定安装按钮文案。
+ */
+enum class VersionRelation {
+    /** 尚未安装：全新安装 */
+    FRESH_INSTALL,
+
+    /** 待安装版本号高于已安装版本：升级 */
+    UPGRADE,
+
+    /** 版本号相同：重装 */
+    REINSTALL,
+
+    /** 待安装版本号低于已安装版本：降级（仅尝试，能否成功取决于系统） */
+    DOWNGRADE
+}
+
+/**
  * 安装对话框状态
  */
 data class InstallDialogState(
     val appName: String = "",
     val packageName: String = "",
     val version: String = "",
-    val upgradeVersion: String = "",
     val minSdk: String = "",
     val targetSdk: String = "",
     val appIcon: Drawable? = null,
-    val isUpgrade: Boolean = false,
+    val versionRelation: VersionRelation = VersionRelation.FRESH_INSTALL,
     val installedVersion: String = "",
     val isInstalling: Boolean = false,
     val installProgress: Int = 0,
@@ -188,11 +204,10 @@ private fun InstallDialogContent(
                             appName = apkInfo.appName,
                             packageName = apkInfo.packageName,
                             version = apkInfo.version,
-                            upgradeVersion = apkInfo.upgradeVersion,
                             minSdk = apkInfo.minSdk,
                             targetSdk = apkInfo.targetSdk,
                             appIcon = apkInfo.appIcon,
-                            isUpgrade = apkInfo.isUpgrade,
+                            versionRelation = apkInfo.versionRelation,
                             installedVersion = apkInfo.installedVersion,
                             isInfoLoaded = true
                         )
@@ -319,11 +334,21 @@ private fun InstallDialogContent(
                             showPrivilege = usePrivilegedAuthorizers,
                             onInstall = {
                                 logUiAction("Install confirmation pressed")
+                                val isDowngrade =
+                                    state.versionRelation == VersionRelation.DOWNGRADE
+                                if (isDowngrade) {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.downgrade_attempt_hint),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                                 state = state.copy(isInstalling = true)
                                 performRealInstallation(
                                     context = context,
                                     filePath = materializedPath ?: getFilePathFromUri(context, installUri),
                                     mode = currentPrivilegeMode,
+                                    allowDowngrade = isDowngrade,
                                     onProgress = { progress ->
                                         state = state.copy(installProgress = progress)
                                     },
@@ -548,6 +573,14 @@ fun InstallButtons(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
+        // 依据与已安装版本的版本关系决定按钮文案：升级 / 重装 / 降级 / 安装
+        val installText = when (state.versionRelation) {
+            VersionRelation.UPGRADE -> stringResource(R.string.upgrade)
+            VersionRelation.REINSTALL -> stringResource(R.string.reinstall)
+            VersionRelation.DOWNGRADE -> stringResource(R.string.downgrade)
+            VersionRelation.FRESH_INSTALL -> stringResource(R.string.install)
+        }
+
         // 安装按钮 - 48dp高度，圆角16dp
         Button(
             onClick = onInstall,
@@ -564,7 +597,7 @@ fun InstallButtons(
             contentPadding = PaddingValues(0.dp)
         ) {
             Text(
-                text = stringResource(R.string.install),
+                text = installText,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -762,11 +795,10 @@ data class ApkInfo(
     val appName: String,
     val packageName: String,
     val version: String,
-    val upgradeVersion: String,
     val minSdk: String,
     val targetSdk: String,
     val appIcon: Drawable?,
-    val isUpgrade: Boolean,
+    val versionRelation: VersionRelation,
     val installedVersion: String
 )
 
@@ -810,13 +842,16 @@ private fun parseApkInfo(context: Context, path: String): ApkInfo? {
             null
         }
         
-        // 根据 VersionCode 对比决定是否显示升级
-        val isUpgrade = if (installedPkg != null) {
+        // 根据 VersionCode 与已安装版本对比，确定版本关系：升级 / 重装 / 降级 / 全新安装
+        val versionRelation = if (installedPkg != null) {
             val installedVersionCode = installedPkg.longVersionCode
-            // 只有当 APK 的 VersionCode 大于已安装版本时，才显示升级
-            versionCode > installedVersionCode
+            when {
+                versionCode > installedVersionCode -> VersionRelation.UPGRADE
+                versionCode == installedVersionCode -> VersionRelation.REINSTALL
+                else -> VersionRelation.DOWNGRADE
+            }
         } else {
-            false
+            VersionRelation.FRESH_INSTALL
         }
         
         // 未安装时显示“全新安装”，已安装时显示“版本名 (版本号)”
@@ -828,11 +863,10 @@ private fun parseApkInfo(context: Context, path: String): ApkInfo? {
             appName = appName,
             packageName = packageInfo.packageName,
             version = "$versionName ($versionCode)",
-            upgradeVersion = if (isUpgrade) "$versionName ($versionCode)" else "",
             minSdk = minSdk,
             targetSdk = targetSdk,
             appIcon = icon,
-            isUpgrade = isUpgrade,
+            versionRelation = versionRelation,
             installedVersion = installedVersion
         )
     } catch (e: Exception) {
@@ -848,6 +882,7 @@ private fun performRealInstallation(
     context: Context,
     filePath: String?,
     mode: PrivilegeHelper.PrivilegeMode,
+    allowDowngrade: Boolean,
     onProgress: (Int) -> Unit,
     onSuccess: () -> Unit,
     onError: (String) -> Unit
@@ -897,6 +932,7 @@ private fun performRealInstallation(
                 isXapk = isXapk,
                 replaceExisting = true,
                 grantPermissions = true,
+                allowDowngrade = allowDowngrade,
                 callback = object : InstallDispatcher.Callback {
                     override fun onProgress(message: String) {
                         Log.d("InstallDialog", message)

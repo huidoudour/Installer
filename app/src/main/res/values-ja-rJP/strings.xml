@@ -587,6 +587,7 @@
     <!-- 版本比对和升级相关 -->
     <string name="upgrade">アップグレード</string>
     <string name="downgrade">ダウングレード</string>
+    <string name="downgrade_attempt_hint">ダウングレードインストールは試行のみです。成功するかどうかはシステムに依存します</string>
     <string name="same_version">同じバージョン</string>
     
     <!-- Installer package settings -->

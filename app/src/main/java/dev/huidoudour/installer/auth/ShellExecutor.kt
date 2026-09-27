@@ -215,7 +215,7 @@ object ShellExecutor {
                 // 而非标准 IllegalThreadStateException，导致 Process.isAlive() 崩溃
                 process.exitValue()
                 false // 进程已退出
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 true // 进程仍在运行
             }
         }
@@ -251,7 +251,7 @@ object ShellExecutor {
                     Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED &&
                     !Shizuku.isPreV11() &&
                     Shizuku.getVersion() >= 11
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             false
         }
     }
@@ -297,7 +297,7 @@ object ShellExecutor {
                         while (finalStdoutReader.readLine().also { line = it } != null) {
                             callback.onOutput(line!!)
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         // 忽略
                     }
                 }
@@ -308,7 +308,7 @@ object ShellExecutor {
                         while (finalStderrReader.readLine().also { line = it } != null) {
                             callback.onError(line!!)
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         // 忽略
                     }
                 }
@@ -333,7 +333,7 @@ object ShellExecutor {
                     stdoutReader?.close()
                     stderrReader?.close()
                     process?.destroy()
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // 忽略
                 }
             }
@@ -361,7 +361,7 @@ object ShellExecutor {
                         while (finalStdoutReader.readLine().also { line = it } != null) {
                             callback.onOutput(line!!)
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         // 忽略
                     }
                 }
@@ -372,7 +372,7 @@ object ShellExecutor {
                         while (finalStderrReader.readLine().also { line = it } != null) {
                             callback.onError(line!!)
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         // 忽略
                     }
                 }
@@ -395,7 +395,7 @@ object ShellExecutor {
                     stdoutReader?.close()
                     stderrReader?.close()
                     process?.destroy()
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // 忽略
                 }
             }

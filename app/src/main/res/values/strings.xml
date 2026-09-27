@@ -587,6 +587,7 @@
     <!-- 版本比对和升级相关 -->
     <string name="upgrade">Upgrade</string>
     <string name="downgrade">Downgrade</string>
+    <string name="downgrade_attempt_hint">Downgrade install is only an attempt; success depends on the system</string>
     <string name="same_version">Same Version</string>
     
     <!-- Installer package settings -->

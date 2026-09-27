@@ -97,7 +97,7 @@ object PrivilegeHelper {
         return try {
             context.packageManager.getPackageInfo(packageName, 0)
             true
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             false
         }
     }
@@ -137,7 +137,7 @@ object PrivilegeHelper {
             } else {
                 PrivilegeStatus.NOT_AUTHORIZED
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             PrivilegeStatus.NOT_RUNNING
         }
     }
@@ -173,7 +173,7 @@ object PrivilegeHelper {
                         val process = Dhizuku.newProcess(arrayOf("echo", "test"), null, null)
                         process.destroy()
                         return PrivilegeStatus.AUTHORIZED
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         return PrivilegeStatus.NOT_AUTHORIZED
                     }
                 }
@@ -192,7 +192,7 @@ object PrivilegeHelper {
                     val process = Dhizuku.newProcess(arrayOf("echo", "test"), null, null)
                     process.destroy()
                     return PrivilegeStatus.AUTHORIZED
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     return PrivilegeStatus.NOT_AUTHORIZED
                 }
             }
@@ -200,7 +200,7 @@ object PrivilegeHelper {
             // API 连接失败（可能是克隆版），回退到权限检测
             val hasPermission = try {
                 context.checkSelfPermission("com.rosan.dhizuku.permission.API") == PackageManager.PERMISSION_GRANTED
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 false
             }
 
@@ -376,7 +376,7 @@ object PrivilegeHelper {
         val modeName = prefs(context).getString(KEY_CURRENT_MODE, PrivilegeMode.SHIZUKU.name)
         return try {
             PrivilegeMode.valueOf(modeName ?: PrivilegeMode.SHIZUKU.name)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             PrivilegeMode.SHIZUKU
         }
     }

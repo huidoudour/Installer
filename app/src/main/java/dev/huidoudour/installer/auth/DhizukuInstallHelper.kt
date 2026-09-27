@@ -73,6 +73,7 @@ object DhizukuInstallHelper {
         apkFile: File,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean = false,
         callback: InstallCallback
     ) {
         Thread {
@@ -89,13 +90,17 @@ object DhizukuInstallHelper {
                 }
 
                 // 主方案：通过 IBinder 包装直接使用 PackageInstaller.Session API
-                installViaPackageInstaller(context, apkFile, replaceExisting, grantPermissions, callback)
+                installViaPackageInstaller(
+                    context, apkFile, replaceExisting, grantPermissions, allowDowngrade, callback
+                )
             } catch (binderError: Exception) {
                 // 回退方案：shell 命令（带 -i 参数修复华为 NPE）
                 Log.w("DhizukuInstallHelper",
                     "Binder approach failed, falling back to shell: ${binderError.message}")
                 try {
-                    installViaShell(context, apkFile, replaceExisting, grantPermissions, callback)
+                    installViaShell(
+                        context, apkFile, replaceExisting, grantPermissions, allowDowngrade, callback
+                    )
                 } catch (shellError: Exception) {
                     callback.onError(context.getString(R.string.install_exception, shellError.message))
                 }
@@ -117,6 +122,7 @@ object DhizukuInstallHelper {
         apkFile: File,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean,
         callback: InstallCallback
     ) {
         callback.onProgress("Using Dhizuku Binder approach...")
@@ -145,7 +151,7 @@ object DhizukuInstallHelper {
             )
             ctor.isAccessible = true
             ctor.newInstance(iPackageInstaller, installerPackageName, null, userId)
-        } catch (e: NoSuchMethodException) {
+        } catch (_: NoSuchMethodException) {
             // Android 11 三参数构造函数
             val ctor = PackageInstaller::class.java.getDeclaredConstructor(
                 IPackageInstaller::class.java,
@@ -170,6 +176,10 @@ object DhizukuInstallHelper {
         if (grantPermissions) {
             // InstallOption.GrantAllRequestedPermissions = 0x00000040
             flags = flags or 0x00000040
+        }
+        if (allowDowngrade) {
+            // PackageManagerHidden.INSTALL_ALLOW_DOWNGRADE = 0x00000080
+            flags = flags or 0x00000080
         }
 
         // 通过反射设置 installFlags（隐藏字段）
@@ -313,7 +323,7 @@ object DhizukuInstallHelper {
             } catch (methodError: Exception) {
                 callback.onProgress("Requester: setOriginatingUid not available on this device: ${methodError.message}")
             }
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             callback.onProgress("Requester: package '$requesterPackage' is not installed on this device")
         } catch (e: Exception) {
             callback.onProgress("Requester: failed to resolve UID for $requesterPackage: ${e.message}")
@@ -348,6 +358,7 @@ object DhizukuInstallHelper {
         apkFile: File,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean,
         callback: InstallCallback
     ) {
         if (!Dhizuku.init(context.applicationContext)) {
@@ -357,7 +368,7 @@ object DhizukuInstallHelper {
         // 方案 2a：单命令 pm install（最可靠，无 pipe 问题）
         try {
             callback.onProgress("Trying single-command install via shell...")
-            installWithSingleCommand(context, apkFile, replaceExisting, grantPermissions)
+            installWithSingleCommand(context, apkFile, replaceExisting, grantPermissions, allowDowngrade)
             callback.onSuccess(context.getString(R.string.install_success))
             return
         } catch (e: Exception) {
@@ -374,6 +385,7 @@ object DhizukuInstallHelper {
         createCmd.append(" -S $apkSize")
         createCmd.append(" --user 0")
         if (replaceExisting) createCmd.append(" -r")
+        if (allowDowngrade) createCmd.append(" -d")
         if (grantPermissions) createCmd.append(" -g")
         createCmd.append(" -i ${PrivilegeHelper.getActiveDhizukuPackage(context) ?: PrivilegeHelper.DHIZUKU_PACKAGE}")
 
@@ -391,7 +403,6 @@ object DhizukuInstallHelper {
         callback.onProgress("Session ID: $sessionId")
 
         // 写入 APK — 直接通过 pm 进程 stdin（不用 sh -c 避免缓冲问题）
-        val writeCmd = "pm install-write -S $apkSize $sessionId base.apk -"
         callback.onProgress("Writing APK data ($apkSize bytes)...")
 
         try {
@@ -440,11 +451,13 @@ object DhizukuInstallHelper {
         context: Context,
         apkFile: File,
         replaceExisting: Boolean,
-        grantPermissions: Boolean
+        grantPermissions: Boolean,
+        allowDowngrade: Boolean
     ) {
         fun buildInstallCmd(path: String): String {
             val cmd = StringBuilder("pm install")
             if (replaceExisting) cmd.append(" -r")
+            if (allowDowngrade) cmd.append(" -d")
             if (grantPermissions) cmd.append(" -g")
             cmd.append(" -i ${PrivilegeHelper.getActiveDhizukuPackage(context) ?: PrivilegeHelper.DHIZUKU_PACKAGE}")
             cmd.append(" --user 0")
@@ -467,10 +480,11 @@ object DhizukuInstallHelper {
             val tempName = "install_${System.currentTimeMillis()}.apk"
             val tempPath = "/data/local/tmp/$tempName"
 
+            // cp 无输出或仅含非 error 输出即视为成功；失败时记录日志便于排查
             val copyOutput = executeCommand(context,
                 "cp \"${apkFile.absolutePath}\" $tempPath && chmod 644 $tempPath")
-            if (copyOutput.isNotEmpty() && !copyOutput.lowercase().contains("error")) {
-                // cp 成功（无输出或正常），也可能没有错误输出
+            if (copyOutput.lowercase().contains("error")) {
+                Log.w("DhizukuInstallHelper", "cp to /data/local/tmp failed: $copyOutput")
             }
 
             try {
@@ -497,6 +511,7 @@ object DhizukuInstallHelper {
         xapkPath: String,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean = false,
         callback: InstallCallback
     ) {
         Thread {
@@ -528,7 +543,7 @@ object DhizukuInstallHelper {
                     )
                     ctor.isAccessible = true
                     ctor.newInstance(iPackageInstaller, installerPackageName, null, userId)
-                } catch (e: NoSuchMethodException) {
+                } catch (_: NoSuchMethodException) {
                     val ctor = PackageInstaller::class.java.getDeclaredConstructor(
                         IPackageInstaller::class.java, String::class.java, Int::class.java
                     )
@@ -547,6 +562,7 @@ object DhizukuInstallHelper {
                 var flags = 0
                 if (replaceExisting) flags = flags or 0x00000002
                 if (grantPermissions) flags = flags or 0x00000040
+                if (allowDowngrade) flags = flags or 0x00000080
                 val installFlagsField = PackageInstaller.SessionParams::class.java.getDeclaredField("installFlags")
                 installFlagsField.isAccessible = true
                 installFlagsField.setInt(params, flags)

@@ -32,6 +32,7 @@ object InstallDispatcher {
      *
      * @param filePath 待安装文件路径（APK 或 XAPK）
      * @param isXapk   是否为 XAPK 容器
+     * @param allowDowngrade 是否允许降级安装（仅尝试，能否成功取决于系统）
      */
     fun install(
         context: Context,
@@ -40,6 +41,7 @@ object InstallDispatcher {
         isXapk: Boolean,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean = false,
         callback: Callback,
     ) {
         val logManager = LogManager.getInstance()
@@ -48,7 +50,8 @@ object InstallDispatcher {
         val method = context.getString(authorizer.displayNameRes)
         logManager.addLog(
             "Install requested: file=$installTarget, type=${if (isXapk) "bundle" else "APK"}, " +
-                "method=$method, replace=$replaceExisting, grantPermissions=$grantPermissions",
+                "method=$method, replace=$replaceExisting, grantPermissions=$grantPermissions, " +
+                "allowDowngrade=$allowDowngrade",
             "Install"
         )
 
@@ -82,11 +85,11 @@ object InstallDispatcher {
                 }
                 if (isXapk) {
                     ShizukuInstallHelper.installXapk(
-                        context, filePath, replaceExisting, grantPermissions, cb
+                        context, filePath, replaceExisting, grantPermissions, allowDowngrade, cb
                     )
                 } else {
                     ShizukuInstallHelper.installSingleApk(
-                        context, File(filePath), replaceExisting, grantPermissions, cb
+                        context, File(filePath), replaceExisting, grantPermissions, allowDowngrade, cb
                     )
                 }
             }
@@ -99,11 +102,11 @@ object InstallDispatcher {
                 }
                 if (isXapk) {
                     DhizukuInstallHelper.installXapk(
-                        context, filePath, replaceExisting, grantPermissions, cb
+                        context, filePath, replaceExisting, grantPermissions, allowDowngrade, cb
                     )
                 } else {
                     DhizukuInstallHelper.installSingleApk(
-                        context, File(filePath), replaceExisting, grantPermissions, cb
+                        context, File(filePath), replaceExisting, grantPermissions, allowDowngrade, cb
                     )
                 }
             }
@@ -158,7 +161,7 @@ object InstallDispatcher {
             try {
                 context.startActivity(installIntent)
                 callback.onSuccess(context.getString(R.string.system_installer_launched))
-            } catch (e: ActivityNotFoundException) {
+            } catch (_: ActivityNotFoundException) {
                 val viewIntent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(uri, mime)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

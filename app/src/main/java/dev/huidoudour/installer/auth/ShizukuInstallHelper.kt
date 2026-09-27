@@ -135,6 +135,7 @@ object ShizukuInstallHelper {
         apkFile: File,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean = false,
         callback: InstallCallback
     ) {
         Thread {
@@ -142,13 +143,15 @@ object ShizukuInstallHelper {
                 callback.onProgress("Starting APK installation (Shizuku Binder)...")
 
                 // 主方案：通过 ShizukuBinderWrapper + PackageInstaller.Session API
-                installViaPackageInstaller(context, listOf(apkFile), callback)
+                installViaPackageInstaller(context, listOf(apkFile), allowDowngrade, callback)
                 callback.onSuccess(context.getString(R.string.install_success))
             } catch (binderError: Exception) {
                 Log.w("ShizukuInstallHelper",
                     "Binder approach failed, falling back to shell: ${binderError.message}")
                 try {
-                    installSingleApkViaShell(context, apkFile, replaceExisting, grantPermissions, callback)
+                    installSingleApkViaShell(
+                        context, apkFile, replaceExisting, grantPermissions, allowDowngrade, callback
+                    )
                 } catch (shellError: Exception) {
                     callback.onError(context.getString(R.string.install_exception, shellError.message))
                 }
@@ -165,6 +168,7 @@ object ShizukuInstallHelper {
         xapkPath: String,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean = false,
         callback: InstallCallback
     ) {
         Thread {
@@ -176,7 +180,7 @@ object ShizukuInstallHelper {
                 callback.onProgress("Extraction complete, ${extractedApks.size} APKs found")
 
                 // 主方案：通过 ShizukuBinderWrapper + PackageInstaller.Session API
-                installViaPackageInstaller(context, extractedApks, callback)
+                installViaPackageInstaller(context, extractedApks, allowDowngrade, callback)
                 callback.onSuccess(
                     context.getString(R.string.xapk_install_success_msg, extractedApks.size)
                 )
@@ -184,7 +188,9 @@ object ShizukuInstallHelper {
                 Log.w("ShizukuInstallHelper",
                     "Binder approach failed, falling back to shell: ${binderError.message}")
                 try {
-                    installXapkViaShell(context, xapkPath, replaceExisting, grantPermissions, callback)
+                    installXapkViaShell(
+                        context, xapkPath, replaceExisting, grantPermissions, allowDowngrade, callback
+                    )
                 } catch (shellError: Exception) {
                     callback.onError(context.getString(R.string.xapk_install_exception, shellError.message))
                 }
@@ -199,6 +205,7 @@ object ShizukuInstallHelper {
         apkPath: String,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean = false,
         callback: InstallCallback
     ) {
         try {
@@ -207,7 +214,7 @@ object ShizukuInstallHelper {
                 callback.onError(context.getString(R.string.apk_not_exist))
                 return
             }
-            installSingleApk(context, apkFile, replaceExisting, grantPermissions, callback)
+            installSingleApk(context, apkFile, replaceExisting, grantPermissions, allowDowngrade, callback)
         } catch (e: Exception) {
             callback.onError(context.getString(R.string.install_exception, e.message))
         }
@@ -225,6 +232,7 @@ object ShizukuInstallHelper {
     private fun installViaPackageInstaller(
         context: Context,
         apkFiles: List<File>,
+        allowDowngrade: Boolean,
         callback: InstallCallback
     ) {
         callback.onProgress("Using Shizuku Binder approach...")
@@ -246,6 +254,10 @@ object ShizukuInstallHelper {
         if (isAllowTestPackages(context)) {
             // INSTALL_ALLOW_TEST = 0x00000004
             flags = flags or 0x00000004
+        }
+        if (allowDowngrade) {
+            // INSTALL_ALLOW_DOWNGRADE = 0x00000080
+            flags = flags or 0x00000080
         }
         val installFlagsField = PackageInstaller.SessionParams::class.java.getDeclaredField("installFlags")
         installFlagsField.isAccessible = true
@@ -426,12 +438,14 @@ object ShizukuInstallHelper {
         apkFile: File,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean,
         callback: InstallCallback
     ) {
         callback.onProgress("Falling back to shell pm install...")
 
         val createCmd = StringBuilder("pm install-create --user 0")
         if (replaceExisting) createCmd.append(" -r")
+        if (allowDowngrade) createCmd.append(" -d")
         if (grantPermissions) createCmd.append(" -g")
         if (isAllowTestPackages(context)) createCmd.append(" -t")
 
@@ -475,6 +489,7 @@ object ShizukuInstallHelper {
         xapkPath: String,
         replaceExisting: Boolean,
         grantPermissions: Boolean,
+        allowDowngrade: Boolean,
         callback: InstallCallback
     ) {
         val extractedApks = XapkInstaller.extractXapk(context, xapkPath)
@@ -483,6 +498,7 @@ object ShizukuInstallHelper {
         try {
             val createCmd = StringBuilder("pm install-create --user 0")
             if (replaceExisting) createCmd.append(" -r")
+            if (allowDowngrade) createCmd.append(" -d")
             if (grantPermissions) createCmd.append(" -g")
             if (isAllowTestPackages(context)) createCmd.append(" -t")
 

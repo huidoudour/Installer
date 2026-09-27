@@ -587,6 +587,7 @@
     <!-- 版本比对和升级相关 -->
     <string name="upgrade">Обновление</string>
     <string name="downgrade">Понижение версии</string>
+    <string name="downgrade_attempt_hint">Установка с понижением версии — лишь попытка; успех зависит от системы</string>
     <string name="same_version">Та же версия</string>
     
     <!-- Installer package settings -->
