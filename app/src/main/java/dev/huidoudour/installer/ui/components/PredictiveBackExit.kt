@@ -81,6 +81,26 @@ object PredictiveBackMotion {
         return if (eased <= 0f) 1f else 1f - (1f - MIN_SCALE) * eased
     }
 
+    /**
+     * 重新归一化进度所用的固定滑动提交距离（dp）。
+     *
+     * 系统传入的 progress 在不同 API 版本 / 屏幕尺寸下，
+     * “滑动距离 → 进度” 的映射并不一致，导致同一手势在不同设备上的缩放观感不同。
+     * 这里改用固定 dp 的物理位移重新归一化，保证跨设备一致。数值可调。
+     */
+    const val COMMIT_DISTANCE_DP = 120f
+
+    /**
+     * 用固定 dp 的横向滑动距离重新归一化预测性返回进度（0..1）。
+     *
+     * @param swipeDistancePx 自手势起点起的横向位移绝对值（px）
+     * @param density 当前屏幕密度（LocalDensity.current.density）
+     */
+    fun normalizeProgress(swipeDistancePx: Float, density: Float): Float {
+        if (density <= 0f) return 0f
+        return (swipeDistancePx / (COMMIT_DISTANCE_DP * density)).coerceIn(0f, 1f)
+    }
+
     /** 程序化入场的横向推入量。 */
     fun enterTranslation(enterProgress: Float, width: Float, direction: Float): Float =
         direction * (1f - enterProgress.coerceIn(0f, 1f)) * width
@@ -100,18 +120,30 @@ object PredictiveBackMotion {
  * 播放「确认返回」的收尾动画，结束后回调 [onFinished]。
  *
  * [gestureProgress] 从松手瞬间的进度继续推进到 1f，因此松手时不会跳变；
+ * [driftProgress] 只在确认返回后才从 0 推进到 1f，用于驱动水平漂移，
+ * 这样手势进行中页面只缩放、不位移，不会滑出屏幕；
  * [fadeProgress] 用独立且更短的墙钟窗口提前归零，页面在产生明显位移之前就已淡出，
  * 避免「拖着内容滑走」的观感。
  */
 suspend fun commitPredictiveBackExit(
     gestureProgress: Animatable<Float, *>,
     fadeProgress: Animatable<Float, *>,
+    driftProgress: Animatable<Float, *>,
     onFinished: () -> Unit,
 ) {
     val duration = PredictiveBackMotion.commitDurationMillis(gestureProgress.value)
     coroutineScope {
         launch {
             gestureProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = duration,
+                    easing = PredictiveBackMotion.CommitEasing,
+                )
+            )
+        }
+        launch {
+            driftProgress.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
                     durationMillis = duration,

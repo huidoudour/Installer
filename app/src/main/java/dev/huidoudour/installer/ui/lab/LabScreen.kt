@@ -88,6 +88,7 @@ import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.ui.theme.segmentedShape
 import dev.huidoudour.installer.R
 import kotlinx.coroutines.flow.collect
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -104,6 +105,8 @@ fun LabScreen(
     val density = LocalDensity.current
     val gestureProgress = remember { Animatable(0f) }
     val fadeProgress = remember { Animatable(0f) }
+    // 仅在确认返回后驱动水平漂移：手势阶段页面只缩放、不位移，避免被推出屏幕。
+    val driftProgress = remember { Animatable(0f) }
     var swipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
     var gestureTouchY by remember { mutableFloatStateOf(0f) }
     var pageSize by remember { mutableStateOf(IntSize.Zero) }
@@ -138,17 +141,30 @@ fun LabScreen(
 
     PredictiveBackHandler { events ->
         var completed = false
+        // 手势起点 X：用固定 dp 位移重新归一化进度，消除跨 API / 屏幕尺寸的缩放差异。
+        var startTouchX = Float.NaN
         try {
             events.collect { event ->
                 swipeEdge = event.swipeEdge
                 gestureTouchY = event.touchY
-                gestureProgress.snapTo(event.progress)
+                val progress = if (event.touchX != 0f) {
+                    if (startTouchX.isNaN()) startTouchX = event.touchX
+                    PredictiveBackMotion.normalizeProgress(
+                        abs(event.touchX - startTouchX),
+                        density.density
+                    )
+                } else {
+                    // 部分设备/低版本不提供 touchX，回退到系统进度。
+                    event.progress
+                }
+                gestureProgress.snapTo(progress)
             }
             completed = true
             // 确认返回：几何位移从松手位置继续推进，不透明度用更短的墙钟窗口先归零。
             commitPredictiveBackExit(
                 gestureProgress = gestureProgress,
                 fadeProgress = fadeProgress,
+                driftProgress = driftProgress,
                 onFinished = onBack,
             )
         } finally {
@@ -183,12 +199,14 @@ fun LabScreen(
                 val enterDirection = if (layoutDirection == LayoutDirection.Rtl) -1f else 1f
                 val enterTranslation = enterDirection * (1f - enterProgress) * size.width
                 // 漂移方向跟随手势边缘：左边缘挥出右移，右边缘挥出左移。
+                // 漂移只在确认返回后发生，手势阶段页面始终完整留在屏幕内。
                 val exitTranslation = PredictiveBackMotion.exitDirection(swipeEdge) *
-                    exitDriftPx * gestureProgress.value
+                    exitDriftPx * driftProgress.value
                 translationX = enterTranslation + exitTranslation
                 alpha = 1f - fadeProgress.value
                 shape = predictiveShape
-                clip = enterProgress < 1f || gestureProgress.value > 0f || fadeProgress.value > 0f
+                clip = enterProgress < 1f || gestureProgress.value > 0f ||
+                    fadeProgress.value > 0f || driftProgress.value > 0f
             },
         color = MaterialTheme.colorScheme.background
     ) {
