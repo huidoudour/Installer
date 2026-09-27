@@ -601,6 +601,12 @@
     <string name="enable_custom_requester_package">Enable Custom Requester</string>
     <string name="switch_requester_package">Switch Requester</string>
     <string name="requester_package_settings">Requester Package</string>
+
+    <!-- Install & privilege settings page -->
+    <string name="install_privilege_settings">Install &amp; Permission Settings</string>
+    <string name="install_cache">Install Cache</string>
+    <string name="install_cache_usage">Using %1$s</string>
+    <string name="install_cache_cleared">Cleared %1$s</string>
     <string name="requester_package_changed">Requester package changed</string>
     <string name="custom_requester_package_setting_changed">Custom requester package: %s</string>
 

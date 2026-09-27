@@ -601,6 +601,12 @@
     <string name="enable_custom_requester_package">Включить своего запрашивающего</string>
     <string name="switch_requester_package">Сменить запрашивающего</string>
     <string name="requester_package_settings">Пакет запрашивающего</string>
+
+    <!-- Install & privilege settings page -->
+    <string name="install_privilege_settings">Установка и разрешения</string>
+    <string name="install_cache">Кэш установки</string>
+    <string name="install_cache_usage">Использовано %1$s</string>
+    <string name="install_cache_cleared">Освобождено %1$s</string>
     <string name="requester_package_changed">Пакет запрашивающего изменен</string>
     <string name="custom_requester_package_setting_changed">Свой пакет запрашивающего: %s</string>
 

@@ -601,6 +601,12 @@
     <string name="enable_custom_requester_package">カスタムリクエスターを有効化</string>
     <string name="switch_requester_package">リクエスターを切替</string>
     <string name="requester_package_settings">リクエスターパッケージ</string>
+
+    <!-- Install & privilege settings page -->
+    <string name="install_privilege_settings">インストールと権限の設定</string>
+    <string name="install_cache">インストールキャッシュ</string>
+    <string name="install_cache_usage">使用中 %1$s</string>
+    <string name="install_cache_cleared">%1$s を解放しました</string>
     <string name="requester_package_changed">リクエスターパッケージが変更されました</string>
     <string name="custom_requester_package_setting_changed">カスタムリクエスターパッケージ：%s</string>
 

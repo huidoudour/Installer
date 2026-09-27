@@ -52,6 +52,7 @@ import dev.huidoudour.installer.ui.installer.InstallerScreen
 import dev.huidoudour.installer.ui.lab.LabScreen
 import dev.huidoudour.installer.ui.logs.LogsScreen
 import dev.huidoudour.installer.ui.me.MeScreen
+import dev.huidoudour.installer.ui.settings.InstallSettingsScreen
 import dev.huidoudour.installer.ui.settings.SettingsScreen
 import dev.huidoudour.installer.ui.shell.ShellScreen
 import dev.huidoudour.installer.ui.theme.AppTheme
@@ -93,6 +94,7 @@ private enum class OverlayPage {
     Lab,
     Me,
     Changelog,
+    InstallSettings,
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -206,6 +208,10 @@ fun MainScreen() {
                         onNavigateToLab = {
                             overlayBackProgress = 0f
                             overlayPage = OverlayPage.Lab
+                        },
+                        onNavigateToInstallSettings = {
+                            overlayBackProgress = 0f
+                            overlayPage = OverlayPage.InstallSettings
                         }
                     )
                 }
@@ -241,8 +247,16 @@ fun MainScreen() {
                     enterProgress = overlayEnterProgress.value,
                     onBackProgressChange = { overlayBackProgress = it },
                     onBack = { overlayPage = OverlayPage.None }
-                ) {
-                    ChangelogScreen(onNavigateBack = { overlayPage = OverlayPage.None })
+                ) { requestBack ->
+                    ChangelogScreen(onNavigateBack = requestBack)
+                }
+
+                OverlayPage.InstallSettings -> PredictiveBackPage(
+                    enterProgress = overlayEnterProgress.value,
+                    onBackProgressChange = { overlayBackProgress = it },
+                    onBack = { overlayPage = OverlayPage.None }
+                ) { requestBack ->
+                    InstallSettingsScreen(onBack = requestBack)
                 }
 
                 OverlayPage.None -> Unit

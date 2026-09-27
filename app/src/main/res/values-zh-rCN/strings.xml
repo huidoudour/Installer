@@ -601,6 +601,12 @@
     <string name="enable_custom_requester_package">自定义请求者</string>
     <string name="switch_requester_package">切换</string>
     <string name="requester_package_settings">请求者包</string>
+
+    <!-- Install & privilege settings page -->
+    <string name="install_privilege_settings">安装与权限设置</string>
+    <string name="install_cache">安装缓存</string>
+    <string name="install_cache_usage">已占用 %1$s</string>
+    <string name="install_cache_cleared">已清理 %1$s</string>
     <string name="requester_package_changed">请求者包已变更</string>
     <string name="custom_requester_package_setting_changed">自定义请求者包：%s</string>
 

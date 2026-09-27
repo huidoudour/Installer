@@ -17,7 +17,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -33,11 +32,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -54,7 +51,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,9 +82,6 @@ import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.ui.theme.segmentedShape
 import dev.huidoudour.installer.ui.theme.singleShape
 import dev.huidoudour.installer.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,6 +89,7 @@ fun SettingsScreen(
     onNavigateToMe: () -> Unit = {},
     onNavigateToChangelog: () -> Unit = {},
     onNavigateToLab: () -> Unit = {},
+    onNavigateToInstallSettings: () -> Unit = {},
     viewModel: SettingsViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -103,11 +97,7 @@ fun SettingsScreen(
     var showThemeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showInstallerPackageDialog by remember { mutableStateOf(false) }
-    var showInstallParametersDialog by remember { mutableStateOf(false) }
-    var showPrivilegeDialog by remember { mutableStateOf(false) }
     var showNotificationDialog by remember { mutableStateOf(false) }
-    val replaceExisting by viewModel.replaceExisting.collectAsState()
-    val grantPermissions by viewModel.grantPermissions.collectAsState()
 
     // 从后台返回时自动刷新权限状态（处理 Dhizuku 手动授权/撤权场景）
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -171,8 +161,7 @@ fun SettingsScreen(
         ConfigurationOptionsCard(
             viewModel = viewModel,
             onInstallerPackageClick = { showInstallerPackageDialog = true },
-            onInstallParametersClick = { showInstallParametersDialog = true },
-            onPrivilegeClick = { showPrivilegeDialog = true },
+            onInstallSettingsClick = onNavigateToInstallSettings,
             onAdvancedClick = onNavigateToLab
         )
 
@@ -223,16 +212,6 @@ fun SettingsScreen(
         )
     }
 
-    if (showInstallParametersDialog) {
-        InstallParametersDialog(
-            replaceExisting = replaceExisting,
-            grantPermissions = grantPermissions,
-            onReplaceExistingChange = viewModel::setReplaceExisting,
-            onGrantPermissionsChange = viewModel::setGrantPermissions,
-            onDismiss = { showInstallParametersDialog = false }
-        )
-    }
-
     // Language selection dialog
     if (showLanguageDialog) {
         LanguageSelectionDialog(
@@ -251,14 +230,6 @@ fun SettingsScreen(
             getDisplayName = { langCode ->
                 viewModel.getLanguageDisplayName(langCode)
             }
-        )
-    }
-
-    // Privilege selection dialog
-    if (showPrivilegeDialog) {
-        PrivilegeSelectionDialog(
-            viewModel = viewModel,
-            onDismiss = { showPrivilegeDialog = false }
         )
     }
 
@@ -334,8 +305,7 @@ private fun AppSettingsCard(
 private fun ConfigurationOptionsCard(
     viewModel: SettingsViewModel,
     onInstallerPackageClick: () -> Unit,
-    onInstallParametersClick: () -> Unit,
-    onPrivilegeClick: () -> Unit,
+    onInstallSettingsClick: () -> Unit,
     onAdvancedClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -372,18 +342,11 @@ private fun ConfigurationOptionsCard(
                 onClick = onInstallerPackageClick
             ),
             SettingItemData(
-                icon = Icons.Default.Autorenew,
-                title = stringResource(R.string.install_parameters),
-                subtitle = null,
-                colorPreview = null,
-                onClick = onInstallParametersClick
-            ),
-            SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_lock),
-                title = stringResource(R.string.privilege_settings),
+                title = stringResource(R.string.install_privilege_settings),
                 subtitle = "$modeName: $statusText",
                 colorPreview = null,
-                onClick = onPrivilegeClick
+                onClick = onInstallSettingsClick
             ),
             SettingItemData(
                 icon = ImageVector.vectorResource(R.drawable.ic_science),
@@ -394,36 +357,15 @@ private fun ConfigurationOptionsCard(
             )
         )
 
-        SettingListItem(
-            item = items[0],
-            shape = segmentedShape(0, items.size),
-            isFirst = true,
-            isLast = false,
-            showArrow = true
-        )
-
-        SettingListItem(
-            item = items[1],
-            shape = segmentedShape(1, items.size),
-            isFirst = false,
-            isLast = false,
-            showArrow = true
-        )
-
-        SettingListItem(
-            item = items[2],
-            shape = segmentedShape(2, items.size),
-            isFirst = false,
-            isLast = false
-        )
-
-        SettingListItem(
-            item = items[3],
-            shape = segmentedShape(3, items.size),
-            isFirst = false,
-            isLast = true,
-            showArrow = true
-        )
+        items.forEachIndexed { index, item ->
+            SettingListItem(
+                item = item,
+                shape = segmentedShape(index, items.size),
+                isFirst = index == 0,
+                isLast = index == items.lastIndex,
+                showArrow = true
+            )
+        }
 
         Spacer(modifier = Modifier.height(4.dp))
     }
@@ -624,167 +566,6 @@ internal fun SettingListItem(
 }
 
 @Composable
-private fun PrivilegeSelectionDialog(
-    viewModel: SettingsViewModel,
-    onDismiss: () -> Unit
-) {
-    val context = LocalContext.current
-    val privilegeStatus by viewModel.privilegeStatus.collectAsState()
-    val privilegeMode by viewModel.privilegeMode.collectAsState()
-
-    var selectedMode by remember { mutableStateOf(privilegeMode) }
-
-    LaunchedEffect(Unit) {
-        viewModel.refreshPrivilegeStatus()
-    }
-
-    var shizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
-    var dhizukuStatus by remember { mutableStateOf<PrivilegeHelper.PrivilegeStatus?>(null) }
-
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            shizukuStatus = PrivilegeHelper.checkShizukuStatus()
-            dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
-        }
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
-        title = {
-            Text(
-                text = stringResource(R.string.select_privilege_mode),
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
-            Column {
-                // Shizuku card
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.SHIZUKU },
-                    shape = SmallShape,
-                    color = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                    else MaterialTheme.colorScheme.surfaceContainerLow,
-                    border = if (selectedMode == PrivilegeHelper.PrivilegeMode.SHIZUKU)
-                        BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AppIcon(
-                            packageName = "moe.shizuku.privileged.api",
-                            size = 40
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(R.string.shizuku), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
-                            Text(
-                                text = when (shizukuStatus) {
-                                    PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> stringResource(R.string.shizuku_connected_and_authorized)
-                                    PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> stringResource(R.string.shizuku_connected_but_not_authorized)
-                                    PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> stringResource(R.string.shizuku_not_running)
-                                    PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> stringResource(R.string.shizuku_version_too_low)
-                                    else -> stringResource(R.string.checking)
-                                },
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        if (shizukuStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
-                            TextButton(onClick = {
-                                PrivilegeHelper.requestShizukuPermission(456)
-                            }) {
-                                Text(stringResource(R.string.request_authorization))
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Dhizuku card
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selectedMode = PrivilegeHelper.PrivilegeMode.DHIZUKU },
-                    shape = SmallShape,
-                    color = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                    else MaterialTheme.colorScheme.surfaceContainerLow,
-                    border = if (selectedMode == PrivilegeHelper.PrivilegeMode.DHIZUKU)
-                        BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AppIcon(
-                            packageName = PrivilegeHelper.getInstalledDhizukuPackage(context) ?: "com.rosan.dhizuku",
-                            size = 40
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(R.string.dhizuku), style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
-                            Text(
-                                text = when (dhizukuStatus) {
-                                    PrivilegeHelper.PrivilegeStatus.AUTHORIZED -> stringResource(R.string.dhizuku_connected_and_authorized)
-                                    PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED -> stringResource(R.string.dhizuku_connected_but_not_authorized)
-                                    PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> stringResource(R.string.dhizuku_not_running)
-                                    PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> stringResource(R.string.dhizuku_version_too_low)
-                                    else -> stringResource(R.string.checking)
-                                },
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        if (dhizukuStatus == PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED) {
-                            val scope = rememberCoroutineScope()
-                            TextButton(onClick = {
-                                PrivilegeHelper.requestDhizukuPermission(context) { _ ->
-                                    scope.launch(Dispatchers.IO) {
-                                        dhizukuStatus = PrivilegeHelper.checkDhizukuStatus(context)
-                                    }
-                                }
-                            }) {
-                                Text(stringResource(R.string.request_authorization))
-                            }
-                        }
-                    }
-                }
-
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                if (selectedMode != privilegeMode) {
-                    // 两个授权器选项：直接持久化所选授权器（不再依赖单步循环切换）
-                    PrivilegeHelper.saveCurrentMode(context, selectedMode)
-                    viewModel.refreshPrivilegeStatus()
-                }
-                onDismiss()
-            }) {
-                Text(stringResource(R.string.next_step))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
-    )
-}
-
-@Composable
 fun SettingsSwitchItem(
     title: String,
     subtitle: String? = null,
@@ -932,71 +713,5 @@ fun AppIcon(
             modifier = Modifier.size(size.dp),
             tint = tint
         )
-    }
-}
-
-@Composable
-private fun InstallParametersDialog(
-    replaceExisting: Boolean,
-    grantPermissions: Boolean,
-    onReplaceExistingChange: (Boolean) -> Unit,
-    onGrantPermissionsChange: (Boolean) -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
-        title = {
-            Text(stringResource(R.string.install_parameters), fontWeight = FontWeight.SemiBold)
-        },
-        text = {
-            Column {
-                InstallParameterSwitchRow(
-                    title = stringResource(R.string.replace_existing_app),
-                    checked = replaceExisting,
-                    onCheckedChange = onReplaceExistingChange
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                InstallParameterSwitchRow(
-                    title = stringResource(R.string.auto_grant_permissions),
-                    checked = grantPermissions,
-                    onCheckedChange = onGrantPermissionsChange
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.ok))
-            }
-        }
-    )
-}
-
-@Composable
-private fun InstallParameterSwitchRow(
-    title: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        onClick = { onCheckedChange(!checked) }
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange
-            )
-        }
     }
 }
