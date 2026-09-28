@@ -1,7 +1,5 @@
 package dev.huidoudour.installer.ui
 
-import android.net.Uri
-
 /**
  * 导航路由定义
  */
@@ -10,8 +8,5 @@ sealed class Screen(val route: String) {
     data object Shell : Screen("shell")
     data object Logs : Screen("logs")
     data object Settings : Screen("settings")
-    data object Me : Screen("me")
-    data object Install : Screen("install/{uri}") {
-        fun createRoute(uri: String): String = "install/${Uri.encode(uri)}"
-    }
+    data object Install : Screen("install/{uri}")
 }

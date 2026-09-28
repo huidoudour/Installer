@@ -21,15 +21,6 @@ import kotlinx.coroutines.withContext
  */
 object PredictiveBackMotion {
 
-    /** 手势段缩放下限，对应参考项目 `SCALE_MIN` / `CROSS_ACTIVITY_MIN_SCALE`。 */
-    const val MIN_SCALE = 0.85f
-
-    /** 手势段缓动，对应参考项目 `BackGestureEasing`。 */
-    val GestureEasing: Easing = CubicBezierEasing(0.1f, 0.1f, 0f, 1f)
-
-    /** 退出时的水平漂移量，对应参考项目 `CrossActivityDrift` / `ScaleExitDrift`。 */
-    const val EXIT_DRIFT_DP = 96f
-
     /** 提交后几何位移的总时长，对应参考项目 `NavSettleSpec.Tween(450, FastOutExtraSlowIn)`。 */
     const val GEOMETRY_DURATION_MILLIS = 450
 
@@ -77,17 +68,6 @@ object PredictiveBackMotion {
     /** 退场淡出：起步柔和、收尾干脆。 */
     val ExitFadeEasing: Easing = CubicBezierEasing(0.4f, 0f, 0.7f, 0.2f)
 
-    /**
-     * 手势段的缩放系数。
-     *
-     * 手势进度为 0 时必须精确返回 1f：静止状态不能残留任何缩放，
-     * 否则页面会带着偏移渲染。缩放在整个手势里单调递减到 [MIN_SCALE]。
-     */
-    fun gestureScale(gestureProgress: Float): Float {
-        val eased = GestureEasing.transform(gestureProgress.coerceIn(0f, 1f))
-        return if (eased <= 0f) 1f else 1f - (1f - MIN_SCALE) * eased
-    }
-
     /*
      * 关于「固定 dp 行程提交」的说明（已弃用，勿轻易恢复）：
      *
@@ -102,10 +82,6 @@ object PredictiveBackMotion {
      * 卡片位置是 progress 的橡皮图章，于是表现为「连续三四帧不动、再猛跳一次」。
      * 若将来确实需要固定物理行程的手感，必须让全程量纲一致并施加单调约束，不要无条件 abs()。
      */
-
-    /** 程序化入场的横向推入量。 */
-    fun enterTranslation(enterProgress: Float, width: Float, direction: Float): Float =
-        direction * (1f - enterProgress.coerceIn(0f, 1f)) * width
 
     /** 确认返回后的漂移方向：左侧边缘的返回手势向右推出，右侧边缘反之。 */
     fun exitDirection(swipeEdge: Int): Float =

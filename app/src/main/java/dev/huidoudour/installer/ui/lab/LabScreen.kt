@@ -9,7 +9,6 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,41 +52,40 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.huidoudour.installer.R
 import dev.huidoudour.installer.auth.Authorizer
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.auth.SmartAuthorizerCandidate
-import dev.huidoudour.installer.ui.settings.SettingItemData
-import dev.huidoudour.installer.ui.settings.SettingListItem
-import dev.huidoudour.installer.ui.settings.SettingsSwitchItem
 import dev.huidoudour.installer.ui.components.PredictiveBackMotion
 import dev.huidoudour.installer.ui.components.cancelPredictiveBackExit
 import dev.huidoudour.installer.ui.components.commitPredictiveBackExit
+import dev.huidoudour.installer.ui.settings.SettingItemData
+import dev.huidoudour.installer.ui.settings.SettingListItem
+import dev.huidoudour.installer.ui.settings.SettingsSwitchItem
 import dev.huidoudour.installer.ui.theme.CardShape
 import dev.huidoudour.installer.ui.theme.SegmentedGap
 import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.ui.theme.segmentedShape
-import dev.huidoudour.installer.R
-import kotlinx.coroutines.flow.collect
 import kotlin.math.roundToInt
 
 /**
@@ -281,7 +279,6 @@ fun LabScreen(
                         onClick = { showFallbackDialog = true }
                     ),
                     shape = segmentedShape(4, 5),
-                    isFirst = false,
                     isLast = true,
                     showArrow = true
                 )
@@ -404,7 +401,6 @@ private fun FallbackListDialog(
     onDismiss: () -> Unit,
     onConfirm: (List<SmartAuthorizerCandidate>) -> Boolean,
 ) {
-    val context = LocalContext.current
     val editable = remember(candidates) {
         mutableStateListOf<SmartAuthorizerCandidate>().apply { addAll(candidates) }
     }

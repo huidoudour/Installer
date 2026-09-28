@@ -40,13 +40,7 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
     var ptyColCount by mutableIntStateOf(80)
         private set
 
-    // 命令历史索引 (用于上下键导航)
-    private var historyIndex = -1
-    var currentInputLine by mutableStateOf("")
-        private set
-
     init {
-        val isShizuku = ShellExecutor.isShizukuAvailable()
         val welcome = buildString {
             append("Type help for command list\n")
         }

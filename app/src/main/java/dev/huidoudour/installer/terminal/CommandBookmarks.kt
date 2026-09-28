@@ -44,36 +44,9 @@ object CommandBookmarks {
         saveBookmarks(context, bookmarks)
     }
 
-    /**
-     * 清空所有书签
-     */
-    fun clearBookmarks(context: Context) {
-        saveBookmarks(context, emptyList())
-    }
-
-    /**
-     * 检查是否为书签
-     */
-    fun isBookmark(context: Context, command: String): Boolean {
-        return getBookmarks(context).contains(command)
-    }
-
     private fun saveBookmarks(context: Context, bookmarks: List<String>) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().putString(KEY_BOOKMARKS, bookmarks.joinToString(SEPARATOR)).apply()
     }
 
-    /**
-     * 获取推荐的书签
-     */
-    fun getRecommendedBookmarks(): List<String> {
-        return listOf(
-            "ls -la /sdcard/Download",
-            "pm list packages -3",
-            "dumpsys battery",
-            "getprop | grep product",
-            "df -h",
-            "free -h"
-        )
-    }
 }

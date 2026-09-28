@@ -200,26 +200,6 @@ object ShizukuInstallHelper {
         }.start()
     }
 
-    fun installApk(
-        context: Context,
-        apkPath: String,
-        replaceExisting: Boolean,
-        grantPermissions: Boolean,
-        allowDowngrade: Boolean = false,
-        callback: InstallCallback
-    ) {
-        try {
-            val apkFile = File(apkPath)
-            if (!apkFile.exists()) {
-                callback.onError(context.getString(R.string.apk_not_exist))
-                return
-            }
-            installSingleApk(context, apkFile, replaceExisting, grantPermissions, allowDowngrade, callback)
-        } catch (e: Exception) {
-            callback.onError(context.getString(R.string.install_exception, e.message))
-        }
-    }
-
     // ==================== Binder-based PackageInstaller.Session 实现 ====================
 
     /**
@@ -405,7 +385,7 @@ object ShizukuInstallHelper {
             } catch (e: Exception) {
                 callback.onProgress("Requester: setOriginatingUid not available: ${e.message}")
             }
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             callback.onProgress("Requester: '$requesterPackage' not installed on this device")
         } catch (e: Exception) {
             callback.onProgress("Requester: failed for $requesterPackage: ${e.message}")

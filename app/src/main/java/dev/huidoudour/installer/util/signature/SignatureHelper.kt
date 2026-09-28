@@ -1,9 +1,6 @@
 package dev.huidoudour.installer.util.signature
 
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import android.util.Log
 import java.io.File
 
 /**
@@ -17,8 +14,6 @@ import java.io.File
  * 最终安装时的签名校验仍由系统 / 特权安装器负责。
  */
 object SignatureHelper {
-
-    private const val TAG = "SignatureHelper"
 
     /**
      * 解析 APK 签名信息。
@@ -40,39 +35,6 @@ object SignatureHelper {
             )
         }
         return verified
-    }
-
-    /**
-     * 读取已安装应用的签名信息。
-     */
-    fun readInstalled(context: Context, packageName: String): AppSignatureInfo? =
-        InstalledPackageSignatureReader.read(context, packageName)
-
-    /**
-     * 读取未安装 APK 的包名（用于与已安装应用比对签名）。
-     *
-     * 需要显式带上签名相关 flag，否则部分 ROM 返回的 [android.content.pm.PackageInfo]
-     * 会缺少签名/applicationInfo 信息。
-     */
-    @Suppress("DEPRECATION")
-    fun readArchivePackageName(context: Context, apkFile: File): String? {
-        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            PackageManager.GET_SIGNING_CERTIFICATES
-        } else {
-            PackageManager.GET_SIGNATURES
-        }
-        return runCatching {
-            val packageManager = context.packageManager
-            val path = apkFile.absolutePath
-            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                packageManager.getPackageArchiveInfo(path, PackageManager.PackageInfoFlags.of(flags.toLong()))
-            } else {
-                packageManager.getPackageArchiveInfo(path, flags)
-            }
-            packageInfo?.packageName
-        }.onFailure { error ->
-            Log.w(TAG, "Unable to read archive package name: ${apkFile.absolutePath}", error)
-        }.getOrNull()
     }
 
     /**

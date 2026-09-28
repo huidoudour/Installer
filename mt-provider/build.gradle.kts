@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.library)
-    id("maven-publish")
 }
 
 android {
@@ -24,25 +23,5 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
-                groupId = "com.github.L-JINBIN"
-                artifactId = "mt-data-files-provider"
-                version = "1.0.0"
-            }
-        }
     }
 }

@@ -9,7 +9,7 @@ import java.io.OutputStream
 /**
  * TermuxBridge - PTY 子进程管理桥接库
  *
- * 封装 [libtermux_bridge.so] 的 JNI 方法，提供类似 Termux-app 的
+ * 封装 libtermux_bridge.so 的 JNI 方法，提供类似 Termux-app 的
  * [libtermux.so](https://github.com/termux/termux-app/wiki/Termux-Libraries)
  * 的 PTY (伪终端) 子进程创建与管理功能。
  *
@@ -51,13 +51,6 @@ object TermuxBridge {
 
         override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
             return nativeReadFromPty(fd, buffer, offset, length, 1000)
-        }
-
-        /**
-         * 非阻塞读取（无超时等待）
-         */
-        fun readNonBlocking(buffer: ByteArray, offset: Int, length: Int): Int {
-            return nativeReadFromPty(fd, buffer, offset, length, 0)
         }
 
         /**
@@ -138,14 +131,6 @@ object TermuxBridge {
     @JvmStatic
     private external fun nativeSetPtyWindowSize(fd: Int, rows: Int, cols: Int)
 
-    /** 启用 PTY UTF-8 模式 */
-    @JvmStatic
-    private external fun nativeSetPtyUTF8Mode(fd: Int)
-
-    /** 等待子进程结束，返回退出码 */
-    @JvmStatic
-    private external fun nativeWaitFor(pid: Int): Int
-
     /** 关闭文件描述符 */
     @JvmStatic
     private external fun nativeClose(fd: Int)
@@ -162,42 +147,7 @@ object TermuxBridge {
     @JvmStatic
     private external fun nativeIsAlive(pid: Int): Boolean
 
-    /** 设置 FD 非阻塞模式 */
-    @JvmStatic
-    private external fun nativeSetNonBlocking(fd: Int, nonBlocking: Boolean)
-
-    /** 非阻塞获取退出码 (-2=运行中, -1=错误, >=0=退出码) */
-    @JvmStatic
-    private external fun nativeGetExitCode(pid: Int): Int
-
     // ========== 公开 API ==========
-
-    /**
-     * 创建 PTY 子进程，返回 [PtyProcess] 包装。
-     */
-    fun createSubprocess(
-        cmd: String,
-        cwd: String = "/sdcard",
-        args: Array<String> = arrayOf(cmd),
-        envVars: Array<String>? = null,
-        rows: Int = 24,
-        cols: Int = 80
-    ): PtyProcess {
-        val processId = IntArray(1)
-        val ptyFd = nativeCreateSubprocess(cmd, cwd, args, envVars, processId, rows, cols)
-
-        if (ptyFd < 0) {
-            throw RuntimeException("Failed to create PTY subprocess (fd=$ptyFd)")
-        }
-
-        val pid = processId[0]
-        Log.d(TAG, "PTY subprocess created: pid=$pid, fd=$ptyFd")
-
-        val inputStream = PtyInputStream(ptyFd)
-        val outputStream = PtyOutputStream(ptyFd)
-
-        return PtyProcess(ptyFd, pid, inputStream, outputStream)
-    }
 
     /**
      * 创建交互式 Shell (sh) 子进程。
@@ -216,7 +166,7 @@ object TermuxBridge {
         val rcFile = File(cwd, ".mkshrc")
         try {
             rcFile.writeText(
-                "export PS1='\$(case \"\$PWD\" in \"\$HOME\") printf \"~ \$ \";; \"\$HOME\"/*) printf \"~%s \$ \" \"\${PWD#\$HOME}\";; *) printf \"%s \$ \" \"\$PWD\";; esac)'\n"
+                $$"export PS1='$(case \"$PWD\" in \"$HOME\") printf \"~ $ \";; \"$HOME\"/*) printf \"~%s $ \" \"${PWD#$HOME}\";; *) printf \"%s $ \" \"$PWD\";; esac)'\n"
             )
         } catch (e: Exception) {
             Log.w(TAG, "Failed to write .mkshrc", e)
@@ -257,13 +207,6 @@ object TermuxBridge {
     }
 
     /**
-     * 等待进程结束。
-     */
-    fun waitFor(pid: Int): Int {
-        return nativeWaitFor(pid)
-    }
-
-    /**
      * 关闭 PTY FD。
      */
     fun close(fd: Int) {
@@ -277,18 +220,4 @@ object TermuxBridge {
         return nativeIsAlive(pid)
     }
 
-    /**
-     * 非阻塞获取退出码。
-     * @return -2=运行中, -1=错误, >=0=退出码
-     */
-    fun getExitCode(pid: Int): Int {
-        return nativeGetExitCode(pid)
-    }
-
-    /**
-     * 设置非阻塞模式。
-     */
-    fun setNonBlocking(fd: Int, enabled: Boolean) {
-        nativeSetNonBlocking(fd, enabled)
-    }
 }

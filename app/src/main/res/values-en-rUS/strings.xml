@@ -384,7 +384,7 @@
     <string name="dhizuku_permission_requested">Dhizuku permission requested</string>
     <string name="file_selected_and_cached">File selected and copied to cache: %s</string>
     <string name="file_selected_uri_fail">File selected (URI) but failed to copy to cache, URI: %s</string>
-    <string name="file_selection_failed">File selection failed or cancelled.</string>
+    <string name="file_selection_failed">File selection failed or canceled.</string>
     <string name="manage_storage_permission_granted">MANAGE_EXTERNAL_STORAGE permission granted.</string>
     <string name="manage_storage_permission_denied">MANAGE_EXTERNAL_STORAGE permission denied.</string>
     <string name="read_storage_permission_granted">READ_EXTERNAL_STORAGE permission granted.</string>
@@ -466,7 +466,7 @@
     <string name="command_running">Command running...</string>
     <string name="root_prompt">root@ashell:~#</string>
     <string name="user_prompt">user@ashell:~$</string>
-    <string name="command_cancelled_session_reset">[Command cancelled, session reset]</string>
+    <string name="command_cancelled_session_reset">[Command canceled, session reset]</string>
     <string name="process_completed_with_exit_code">[Process completed with exit code %d]</string>
     <string name="content_description_history">History</string>
     <string name="content_description_bookmarks">Bookmarks</string>

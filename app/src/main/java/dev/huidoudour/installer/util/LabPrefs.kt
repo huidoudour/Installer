@@ -1,7 +1,6 @@
 package dev.huidoudour.installer.util
 
 import android.content.Context
-import dev.huidoudour.installer.auth.Authorizer
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.auth.SmartAuthorizer
 import dev.huidoudour.installer.auth.SmartAuthorizerCandidate
@@ -41,10 +40,6 @@ object LabPrefs {
     /** 展示用的当前启用顺序文本，如 `Shizuku->Dhizuku` */
     fun enabledOrderLabel(context: Context): String =
         SmartAuthorizer.enabledOrderLabel(context)
-
-    /** 该授权方式当前是否可用 */
-    fun isAuthorizerAvailable(context: Context, authorizer: Authorizer): Boolean =
-        SmartAuthorizer.isAvailable(context, authorizer)
 
     // ==================== 特权安装开关（Shizuku / Dhizuku 分开） ====================
 

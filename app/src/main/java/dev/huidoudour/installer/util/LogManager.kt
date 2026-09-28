@@ -77,7 +77,7 @@ class LogManager private constructor() {
             }
             // 如果历史日志超过上限，从头部裁剪
             trimToMaxEntries()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             logs.clear()
         }
     }
@@ -101,7 +101,7 @@ class LogManager private constructor() {
                         writer.newLine()
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // 忽略写入错误
             }
         }
@@ -166,14 +166,6 @@ class LogManager private constructor() {
     @Synchronized
     fun getLogCount(): Int {
         return logs.size
-    }
-
-    @Synchronized
-    fun getLastUpdateTime(): String {
-        if (logs.isEmpty()) {
-            return "--:--:--"
-        }
-        return dateFormat.format(Date())
     }
 
     @Synchronized

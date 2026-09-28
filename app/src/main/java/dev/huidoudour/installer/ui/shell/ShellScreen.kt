@@ -46,7 +46,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -84,7 +83,6 @@ fun ShellScreen(
     viewModel: ShellViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     var showQuickCommandsDialog by remember { mutableStateOf(false) }
 
@@ -229,14 +227,17 @@ fun FunctionKeysRow(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_cancel), contentDescription = stringResource(R.string.ctrl_c_key), onClick = onCtrlC, textColor = MaterialTheme.colorScheme.error)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_close), contentDescription = stringResource(R.string.ctrl_d_key), onClick = onCtrlD, textColor = MaterialTheme.colorScheme.error)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_esc), contentDescription = stringResource(R.string.escape_key), onClick = onEsc)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_tab), contentDescription = stringResource(R.string.tab_key), onClick = onTab)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_clear), contentDescription = stringResource(R.string.clear_screen), onClick = onClearScreen, textColor = MaterialTheme.colorScheme.error)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_paste), contentDescription = stringResource(R.string.clipboard_action), onClick = onCopy)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_quick), contentDescription = stringResource(R.string.quick_commands_action), onClick = onQuickCommands)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_save), contentDescription = stringResource(R.string.content_description_save), onClick = onSave)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_cancel),
+                onClick = onCtrlC, textColor = MaterialTheme.colorScheme.error)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_close),
+                onClick = onCtrlD, textColor = MaterialTheme.colorScheme.error)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_esc), onClick = onEsc)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_tab), onClick = onTab)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_clear),
+                onClick = onClearScreen, textColor = MaterialTheme.colorScheme.error)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_paste), onClick = onCopy)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_quick), onClick = onQuickCommands)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_save), onClick = onSave)
         }
     }
 }
@@ -244,7 +245,6 @@ fun FunctionKeysRow(
 @Composable
 fun FunctionKeyButton(
     text: String,
-    contentDescription: String,
     onClick: () -> Unit,
     textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer
 ) {

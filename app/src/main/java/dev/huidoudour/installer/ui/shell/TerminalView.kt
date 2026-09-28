@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isAltPressed
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
@@ -54,6 +53,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.text.iterator
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Compose 终端视图 - 渲染 TerminalEmulator 的字符网格
@@ -103,11 +103,9 @@ fun TerminalView(
         terminal.onScreenUpdated = {
             if (!pendingFrame) {
                 pendingFrame = true
-                val cb = object : Choreographer.FrameCallback {
-                    override fun doFrame(frameTimeNanos: Long) {
-                        screenVersion++
-                        pendingFrame = false
-                    }
+                val cb = Choreographer.FrameCallback {
+                    screenVersion++
+                    pendingFrame = false
                 }
                 frameCallback = cb
                 choreographer.postFrameCallback(cb)
@@ -117,7 +115,7 @@ fun TerminalView(
         val scope = CoroutineScope(Dispatchers.Main)
         blinkJob = scope.launch {
             while (true) {
-                delay(500)
+                delay(500.milliseconds)
                 showCursor = !showCursor
             }
         }
@@ -263,17 +261,16 @@ fun TerminalView(
         ) {
             // 使用已测量的实际字符宽度，与光标/终端尺寸计算保持一致
             val cellWidth = fixedCellWidth
-            val cellHeight = fixedCellHeight
-            val visibleRows = (size.height / cellHeight).toInt().coerceAtLeast(1)
+            val visibleRows = (size.height / fixedCellHeight).toInt().coerceAtLeast(1)
                 .coerceAtMost(termRows)
 
             textPaint.textSize = fixedFontSizePx
-            val baseline = cellHeight * 0.78f
+            val baseline = fixedCellHeight * 0.78f
 
             for (row in 0 until visibleRows) {
                 if (row >= currentScreen.size) break
                 val rowCells = currentScreen[row]
-                val y = row * cellHeight
+                val y = row * fixedCellHeight
 
                 var col = 0
                 while (col < termCols && col < rowCells.size) {
@@ -294,7 +291,7 @@ fun TerminalView(
                     drawRect(
                         color = Color(cellBg or (0xFF shl 24)),
                         topLeft = Offset(startCol * cellWidth, y),
-                        size = Size(spanWidth, cellHeight)
+                        size = Size(spanWidth, fixedCellHeight)
                     )
 
                     val sb = StringBuilder()
@@ -316,7 +313,7 @@ fun TerminalView(
                     drawRect(
                         color = Color(0xFFFFFFFF),
                         topLeft = Offset(cursorX, y),
-                        size = Size(cellWidth, cellHeight),
+                        size = Size(cellWidth, fixedCellHeight),
                         alpha = 0.7f
                     )
                     if (curCol < termCols && curCol < rowCells.size) {
@@ -385,7 +382,6 @@ fun TerminalView(
  */
 private fun keyEventToBytes(event: KeyEvent): ByteArray? {
     val ctrl = event.isCtrlPressed
-    val alt = event.isAltPressed
     val shift = event.isShiftPressed
     val k = event.key
 

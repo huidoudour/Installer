@@ -186,7 +186,6 @@ fun MainScreen() {
             ) {
                 composable(Screen.Home.route) {
                     InstallerScreen(
-                        onThemeClick = { navController.navigate(Screen.Settings.route) }
                     )
                 }
                 composable(Screen.Shell.route) {

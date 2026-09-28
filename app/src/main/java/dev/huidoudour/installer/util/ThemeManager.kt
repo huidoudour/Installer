@@ -3,7 +3,6 @@ package dev.huidoudour.installer.util
 import android.content.Context
 import android.util.Log
 import dev.huidoudour.installer.ui.theme.GlobalThemeStore
-import dev.huidoudour.installer.R
 
 /**
  * 主题管理工具类
@@ -62,15 +61,4 @@ object ThemeManager {
         }
     }
 
-    /**
-     * 获取主题显示名称
-     */
-    fun getThemeDisplayName(context: Context, themeMode: Int): String {
-        return when (themeMode) {
-            THEME_LIGHT -> context.getString(R.string.light_theme)
-            THEME_DARK -> context.getString(R.string.dark_theme)
-            THEME_FOLLOW_SYSTEM -> context.getString(R.string.follow_system)
-            else -> context.getString(R.string.follow_system)
-        }
-    }
 }

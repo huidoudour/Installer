@@ -34,7 +34,7 @@ class InstallDialogActivity : AppCompatActivity() {
     /**
      * 支持的安装文件 MIME 类型
      */
-    private val SUPPORTED_MIME_TYPES = setOf(
+    private val supportedMimeTypes = setOf(
         "application/vnd.android.package-archive",
         "application/vnd.apkm",
         "application/x-xapk",
@@ -44,7 +44,7 @@ class InstallDialogActivity : AppCompatActivity() {
     /**
      * 支持的安装文件扩展名
      */
-    private val SUPPORTED_EXTENSIONS = setOf("apk", "xapk", "apks", "apkm")
+    private val supportedExtensions = setOf("apk", "xapk", "apks", "apkm")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyUserThemePreference(this)
@@ -76,10 +76,6 @@ class InstallDialogActivity : AppCompatActivity() {
                         installUri = installUri,
                         onDismiss = {
                             logInstall("External install dialog closed")
-                            finish()
-                        },
-                        onInstallComplete = {
-                            logInstall("External install dialog completed")
                             finish()
                         },
                         onOpenApp = { packageName ->
@@ -118,14 +114,14 @@ class InstallDialogActivity : AppCompatActivity() {
         // 3. MIME 类型检查
         val mimeType = contentResolver.getType(uri)
         Log.d("InstallDialog", "URI MIME type: $mimeType, URI: $uri")
-        val isMimeSupported = mimeType != null && SUPPORTED_MIME_TYPES.any {
+        val isMimeSupported = mimeType != null && supportedMimeTypes.any {
             mimeType.equals(it, ignoreCase = true)
         }
 
         // 4. 文件扩展名检查（作为 MIME 的补充/降级）
         val fileName = getFileNameFromUri(uri)
         val extension = fileName?.substringAfterLast('.', "")?.lowercase()
-        val isExtensionSupported = !extension.isNullOrEmpty() && SUPPORTED_EXTENSIONS.contains(extension)
+        val isExtensionSupported = !extension.isNullOrEmpty() && supportedExtensions.contains(extension)
 
         // MIME 或扩展名任一匹配即可通过
         if (!isMimeSupported && !isExtensionSupported) {

@@ -42,7 +42,7 @@ object XapkInstaller {
                         entry.name.endsWith(".apk", ignoreCase = true)
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 false
             }
         } catch (e: Exception) {
@@ -66,31 +66,6 @@ object XapkInstaller {
             else -> {
                 if (isXapkFile(filePath)) "XAPK" else context.getString(R.string.unknown_file_format)
             }
-        }
-    }
-
-    /**
-     * 获取 APK 数量（用于 XAPK）
-     */
-    fun getApkCount(context: Context, filePath: String): Int {
-        return try {
-            val file = File(filePath)
-            if (!file.exists()) return 0
-
-            val extension = file.extension.lowercase()
-            if (extension == "apk") return 1
-
-            ZipFile(file).use { zip ->
-                zip.entries().asSequence()
-                    .filter { entry ->
-                        !entry.isDirectory && entry.name.endsWith(".apk", ignoreCase = true)
-                    }
-                    .count()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting APK count: ${e.message}")
-            logManager.addLog("Failed to count APKs in $filePath: ${e.message}", "XAPK")
-            0
         }
     }
 

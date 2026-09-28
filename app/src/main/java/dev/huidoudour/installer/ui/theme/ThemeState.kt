@@ -11,13 +11,8 @@ import androidx.compose.ui.graphics.Color
 /**
  * 调色板风格枚举
  */
-enum class PaletteStyle(val displayName: String) {
-    TONAL_SPOT("Tonal Spot"),
-    VIBRANT("Vibrant"),
-    EXPRESSIVE("Expressive"),
-    NEUTRAL("Neutral"),
-    RAINBOW("Rainbow"),
-    FRUIT_SALAD("Fruit Salad")
+enum class PaletteStyle {
+    TONAL_SPOT,
 }
 
 /**
@@ -49,29 +44,10 @@ class ThemeStateHolder(initialState: ThemeState = ThemeState()) {
     var state by mutableStateOf(initialState)
         private set
 
-    fun updateState(newState: ThemeState) {
-        state = newState
-    }
-
-    fun setSeedColor(color: Color) {
-        state = state.copy(seedColor = color)
-    }
-
-    fun setUseDynamicColor(use: Boolean) {
-        state = state.copy(useDynamicColor = use)
-    }
-
     fun setThemeMode(mode: ThemeMode) {
         state = state.copy(themeMode = mode)
     }
 
-    fun setPaletteStyle(style: PaletteStyle) {
-        state = state.copy(paletteStyle = style)
-    }
-
-    fun setLoaded(loaded: Boolean) {
-        state = state.copy(isLoaded = loaded)
-    }
 }
 
 /**
@@ -96,13 +72,6 @@ object GlobalThemeStore {
     private val _themeMode = mutableStateOf(ThemeMode.SYSTEM)
     val themeMode: ThemeMode get() = _themeMode.value
 
-    var onThemeChanged: ((ThemeMode) -> Unit)? = null
-
-    fun setThemeMode(mode: ThemeMode) {
-        _themeMode.value = mode
-        onThemeChanged?.invoke(mode)
-    }
-
     /** 从 ThemeManager 同步到 Compose */
     fun syncFromThemeManager(themeValue: Int) {
         _themeMode.value = when (themeValue) {
@@ -112,10 +81,4 @@ object GlobalThemeStore {
         }
     }
 
-    /** 同步到 ThemeManager */
-    fun themeValueForManager(): Int = when (_themeMode.value) {
-        ThemeMode.LIGHT -> 1
-        ThemeMode.DARK -> 2
-        ThemeMode.SYSTEM -> -1
-    }
 }

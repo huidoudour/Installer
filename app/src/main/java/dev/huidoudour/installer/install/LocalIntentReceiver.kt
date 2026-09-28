@@ -9,6 +9,7 @@ import android.os.IBinder
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 本地 IntentReceiver — 用于接收 PackageInstaller.Session.commit() 的安装结果回调。
@@ -49,7 +50,7 @@ class LocalIntentReceiver {
      */
     @Throws(Exception::class)
     fun getResult(): Intent = runBlocking {
-        withTimeout(300_000L) {
+        withTimeout(300_000L.milliseconds) {
             channel.receive()
         }
     }

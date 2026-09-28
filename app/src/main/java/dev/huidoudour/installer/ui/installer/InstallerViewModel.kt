@@ -40,7 +40,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     private val prefs: SharedPreferences = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
 
     // 状态 - 使用 StateFlow 供 Compose 观察
-    private val _privilegeStatus = MutableStateFlow<PrivilegeHelper.PrivilegeStatus>(PrivilegeHelper.PrivilegeStatus.NOT_RUNNING)
+    private val _privilegeStatus = MutableStateFlow(PrivilegeHelper.PrivilegeStatus.NOT_RUNNING)
     val privilegeStatus: StateFlow<PrivilegeHelper.PrivilegeStatus> = _privilegeStatus.asStateFlow()
 
     private val _privilegeMode = MutableStateFlow(PrivilegeHelper.getCurrentMode(context))
@@ -54,7 +54,6 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     val useDhizuku: StateFlow<Boolean> = _useDhizuku.asStateFlow()
 
     private val _selectedFilePath = MutableStateFlow<String?>(null)
-    val selectedFilePath: StateFlow<String?> = _selectedFilePath.asStateFlow()
 
     private val _selectedFileName = MutableStateFlow<String?>(null)
     val selectedFileName: StateFlow<String?> = _selectedFileName.asStateFlow()
@@ -63,7 +62,6 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     val fileType: StateFlow<String?> = _fileType.asStateFlow()
 
     private val _isXapkFile = MutableStateFlow(false)
-    val isXapkFile: StateFlow<Boolean> = _isXapkFile.asStateFlow()
 
     private val _isInstallEnabled = MutableStateFlow(false)
     val isInstallEnabled: StateFlow<Boolean> = _isInstallEnabled.asStateFlow()
@@ -75,7 +73,6 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     val installCompleted: StateFlow<Boolean> = _installCompleted.asStateFlow()
 
     private val _installProgress = MutableStateFlow(0)
-    val installProgress: StateFlow<Int> = _installProgress.asStateFlow()
 
     // 正在把选中的安装包物化到缓存（大包耗时较长，期间安装按钮切换为加载动画）
     private val _isLoadingPackage = MutableStateFlow(false)
@@ -89,13 +86,11 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     val allowTestPackages: StateFlow<Boolean> = _allowTestPackages.asStateFlow()
 
     private val _selectedInstallerPackage = MutableStateFlow("io.github.huidoudour.Installer")
-    val selectedInstallerPackage: StateFlow<String> = _selectedInstallerPackage.asStateFlow()
 
     private val _enableCustomRequesterPackage = MutableStateFlow(false)
     val enableCustomRequesterPackage: StateFlow<Boolean> = _enableCustomRequesterPackage.asStateFlow()
 
     private val _selectedRequesterPackage = MutableStateFlow("me.huidoudour.core")
-    val selectedRequesterPackage: StateFlow<String> = _selectedRequesterPackage.asStateFlow()
 
     private val logManager = LogManager.getInstance()
 
@@ -303,7 +298,7 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                     if (nameIndex >= 0) cursor.getString(nameIndex) else null
                 } else null
             } ?: uri.lastPathSegment
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             uri.lastPathSegment
         }
     }
@@ -511,10 +506,8 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun setEnableCustomPackageName(value: Boolean) {
+        // 关闭时固定授权器包名为 com.android.shell，由 install helper 处理
         _enableCustomPackageName.value = value
-        if (!value) {
-            // 关闭时固定为 com.android.shell（install helper 中已处理）
-        }
         saveSwitchStates()
         logManager.addLog("Custom installer package ${if (value) "enabled" else "disabled"}", "Install UI")
     }

@@ -40,11 +40,6 @@ data class AppSignatureInfo(
     val signingCertificateHistorySha256Set: Set<String>
         get() = signingCertificateHistory.mapTo(linkedSetOf()) { it.sha256 }
 
-    val allKnownSha256Set: Set<String>
-        get() = linkedSetOf<String>().apply {
-            addAll(signerSha256Set)
-            addAll(signingCertificateHistorySha256Set)
-        }
 }
 
 enum class SignatureVerificationStatus {
@@ -88,7 +83,4 @@ data class SignatureSummary(
     val apkSha256: String?,
     val apkSignature: AppSignatureInfo?,
     val installedSignature: AppSignatureInfo?,
-) {
-    /** SHA-256 短摘要（前 16 位） */
-    val shortSha256: String? get() = apkSha256?.take(16)
-}
+)

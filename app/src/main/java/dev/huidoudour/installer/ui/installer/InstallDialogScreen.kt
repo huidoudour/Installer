@@ -16,7 +16,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -34,11 +33,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
-import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -63,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import dev.huidoudour.installer.R
 import dev.huidoudour.installer.auth.Authorizer
 import dev.huidoudour.installer.auth.InstallDispatcher
 import dev.huidoudour.installer.auth.PrivilegeHelper
@@ -70,13 +70,12 @@ import dev.huidoudour.installer.auth.SmartAuthorizer
 import dev.huidoudour.installer.install.InstallCacheCleaner
 import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
+import dev.huidoudour.installer.ui.theme.LocalThemeStateHolder
+import dev.huidoudour.installer.util.LogManager
+import dev.huidoudour.installer.util.SignaturePrefs
 import dev.huidoudour.installer.util.signature.SignatureHelper
 import dev.huidoudour.installer.util.signature.SignatureMatchStatus
 import dev.huidoudour.installer.util.signature.SignatureSummary
-import dev.huidoudour.installer.ui.theme.LocalThemeStateHolder
-import dev.huidoudour.installer.util.SignaturePrefs
-import dev.huidoudour.installer.R
-import dev.huidoudour.installer.util.LogManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -130,7 +129,6 @@ data class InstallDialogState(
 fun InstallDialog(
     installUri: Uri?,
     onDismiss: () -> Unit,
-    onInstallComplete: () -> Unit,
     onOpenApp: (String) -> Unit = {}
 ) {
     AlertDialog(
@@ -141,7 +139,6 @@ fun InstallDialog(
             InstallDialogContent(
                 installUri = installUri,
                 onDismiss = onDismiss,
-                onInstallComplete = onInstallComplete,
                 onOpenApp = onOpenApp
             )
         },
@@ -157,7 +154,6 @@ fun InstallDialog(
 private fun InstallDialogContent(
     installUri: Uri?,
     onDismiss: () -> Unit,
-    onInstallComplete: () -> Unit,
     onOpenApp: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -349,9 +345,6 @@ private fun InstallDialogContent(
                                     filePath = materializedPath ?: getFilePathFromUri(context, installUri),
                                     mode = currentPrivilegeMode,
                                     allowDowngrade = isDowngrade,
-                                    onProgress = { progress ->
-                                        state = state.copy(installProgress = progress)
-                                    },
                                     onSuccess = {
                                         state = state.copy(
                                             isInstalling = false,
@@ -831,14 +824,14 @@ private fun parseApkInfo(context: Context, path: String): ApkInfo? {
         val targetSdk = appInfo.targetSdkVersion.toString()
         val icon = try {
             appInfo.loadIcon(pm)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
         
         // 检查是否已安装
         val installedPkg = try {
             pm.getPackageInfo(packageInfo.packageName, PackageManager.GET_ACTIVITIES)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
         
@@ -883,7 +876,6 @@ private fun performRealInstallation(
     filePath: String?,
     mode: PrivilegeHelper.PrivilegeMode,
     allowDowngrade: Boolean,
-    onProgress: (Int) -> Unit,
     onSuccess: () -> Unit,
     onError: (String) -> Unit
 ) {
@@ -1059,7 +1051,7 @@ private fun queryDisplayName(context: Context, uri: Uri): String? = try {
         val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
         if (nameIndex >= 0 && cursor.moveToFirst()) cursor.getString(nameIndex) else null
     }
-} catch (e: Exception) {
+} catch (_: Exception) {
     null
 } ?: uri.lastPathSegment
 
@@ -1093,7 +1085,7 @@ private fun InstallPrivilegeDialog(
                 val pm = context.packageManager
                 val shizukuInfo = pm.getPackageInfo("moe.shizuku.privileged.api", 0)
                 shizukuIcon = shizukuInfo.applicationInfo?.loadIcon(pm)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 shizukuIcon = null
             }
             
@@ -1106,7 +1098,7 @@ private fun InstallPrivilegeDialog(
                 } else {
                     dhizukuIcon = null
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 dhizukuIcon = null
             }
         }

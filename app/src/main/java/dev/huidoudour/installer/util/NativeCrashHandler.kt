@@ -86,30 +86,9 @@ class NativeCrashHandler(private val context: Context) : Thread.UncaughtExceptio
         return try {
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             packageInfo.versionName ?: "Unknown"
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "Unknown"
         }
     }
 
-    /**
-     * 获取所有崩溃报告
-     */
-    fun getCrashReports(): List<File> {
-        val crashDir = File(context.cacheDir, CRASH_DIR)
-        return if (crashDir.exists()) {
-            crashDir.listFiles()?.toList() ?: emptyList()
-        } else {
-            emptyList()
-        }
-    }
-
-    /**
-     * 清空崩溃报告
-     */
-    fun clearCrashReports() {
-        val crashDir = File(context.cacheDir, CRASH_DIR)
-        if (crashDir.exists()) {
-            crashDir.listFiles()?.forEach { it.delete() }
-        }
-    }
 }

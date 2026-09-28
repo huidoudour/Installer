@@ -1,6 +1,5 @@
 package dev.huidoudour.installer.ui.theme
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -63,18 +62,7 @@ class ColorPickerActivity : AppCompatActivity() {
         const val EXTRA_USE_DYNAMIC = "use_dynamic"
         const val RESULT_COLOR = "result_color"
         const val RESULT_USE_DYNAMIC = "result_use_dynamic"
-        
-        @JvmStatic
-        fun createIntent(
-            activity: Activity,
-            currentColor: Int,
-            useDynamicColor: Boolean
-        ): Intent {
-            return Intent(activity, ColorPickerActivity::class.java).apply {
-                putExtra(EXTRA_CURRENT_COLOR, currentColor)
-                putExtra(EXTRA_USE_DYNAMIC, useDynamicColor)
-            }
-        }
+
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -252,11 +240,10 @@ fun ColorPickerDialog(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.height(120.dp)
                     ) {
-                        items(presetColors) { (colorValue, colorName) ->
+                        items(presetColors) { (colorValue, _) ->
                             ColorItem(
                                 color = Color(colorValue),
                                 isSelected = selectedColor.toArgb() == colorValue,
-                                colorName = colorName,
                                 onClick = {
                                     selectedColor = Color(colorValue)
                                 }
@@ -305,7 +292,6 @@ fun ColorPickerDialog(
 fun ColorItem(
     color: Color,
     isSelected: Boolean,
-    colorName: String,
     onClick: () -> Unit
 ) {
     val animatedColor by animateColorAsState(targetValue = color, label = "color")

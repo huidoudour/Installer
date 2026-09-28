@@ -113,55 +113,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * 请求权限
-     */
-    fun requestPrivilegePermission() {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (_privilegeStatus.value) {
-                PrivilegeHelper.PrivilegeStatus.NOT_INSTALLED -> {
-                    PrivilegeHelper.openGithubPage(context, _privilegeMode.value)
-                }
-                PrivilegeHelper.PrivilegeStatus.NOT_RUNNING -> {
-                    PrivilegeHelper.openPrivilegeApp(context, _privilegeMode.value)
-                }
-                PrivilegeHelper.PrivilegeStatus.NOT_AUTHORIZED,
-                PrivilegeHelper.PrivilegeStatus.VERSION_TOO_LOW -> {
-                    when (_privilegeMode.value) {
-                        PrivilegeHelper.PrivilegeMode.SHIZUKU -> {
-                            PrivilegeHelper.requestShizukuPermission(123)
-                        }
-                        PrivilegeHelper.PrivilegeMode.DHIZUKU -> {
-                            PrivilegeHelper.requestDhizukuPermission(context) { _ ->
-                                viewModelScope.launch(Dispatchers.IO) {
-                                    val status = PrivilegeHelper.getStatus(context, PrivilegeHelper.PrivilegeMode.DHIZUKU)
-                                    withContext(Dispatchers.Main) {
-                                        _privilegeStatus.value = status
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else -> {}
-            }
-        }
-    }
-
-    /**
-     * 切换权限模式
-     */
-    fun switchPrivilegeMode() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val newMode = PrivilegeHelper.switchMode(context)
-            val status = PrivilegeHelper.getStatus(context, newMode)
-            withContext(Dispatchers.Main) {
-                _privilegeMode.value = newMode
-                _privilegeStatus.value = status
-            }
-        }
-    }
-
-    /**
      * 获取状态文本
      */
     fun getStatusText(status: PrivilegeHelper.PrivilegeStatus): String {

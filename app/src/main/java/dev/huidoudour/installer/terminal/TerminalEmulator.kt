@@ -15,7 +15,6 @@ class TerminalEmulator(
 ) {
 
     companion object {
-        private const val TAG = "TerminalEmulator"
 
         // ANSI 颜色
         private val ANSI_COLORS = intArrayOf(
@@ -103,7 +102,7 @@ class TerminalEmulator(
     private var savedCursorCol = 0
 
     // Tab 停止位 (每8列)
-    private val tabStops: BooleanArray
+    private var tabStops: BooleanArray
 
     // UTF-8 解码状态
     private var utf8Lead = 0
@@ -113,16 +112,12 @@ class TerminalEmulator(
 
     init {
         screen = MutableList(initialRows) { MutableList(initialCols) { Cell() } }
-        tabStops = BooleanArray(initialCols) { it % 8 == 0 }
+        tabStops = buildTabStops(initialCols)
         scrollBottom = initialRows - 1
-        initTabStops()
     }
 
-    private fun initTabStops() {
-        for (i in tabStops.indices) {
-            tabStops[i] = i % 8 == 0
-        }
-    }
+    private fun buildTabStops(colCount: Int): BooleanArray =
+        BooleanArray(colCount) { it % 8 == 0 }
 
     // ==================== PTY 数据喂入 ====================
 
@@ -195,10 +190,6 @@ class TerminalEmulator(
         utf8BufIdx = 0
     }
 
-    private fun utf8Continue(b: Int) {
-        // 已在 handleNormal 中处理，此方法保留以备扩展
-    }
-
     private fun utf8Reset() {
         utf8ContBytes = 0
         utf8BufIdx = 0
@@ -255,32 +246,34 @@ class TerminalEmulator(
     // ==================== CSI 序列处理 ====================
 
     private fun handleCSI(b: Int) {
-        when {
-            b in 0x30..0x3F -> { // 中间字节 (数字、分号)
+        when (b) {
+            in 0x30..0x3F -> { // 中间字节 (数字、分号)
                 parseState = ParseState.CSI_PARAM
                 handleCSIParam(b)
             }
-            b in 0x20..0x2F -> {} // 忽略中间字符
-            b in 0x40..0x7E -> { // 最终字节
+
+            in 0x20..0x2F -> {} // 忽略中间字符
+            in 0x40..0x7E -> { // 最终字节
                 parseState = ParseState.NORMAL
                 executeCSI(b.toChar())
             }
+
             else -> parseState = ParseState.NORMAL
         }
     }
 
     private fun handleCSIParam(b: Int) {
-        when {
-            b == ';'.code -> {
+        when (b) {
+            ';'.code -> {
                 params.add(if (hasParam) paramAccum else 0)
                 paramAccum = 0
                 hasParam = false
             }
-            b in 0x30..0x39 -> {
+            in 0x30..0x39 -> {
                 paramAccum = paramAccum * 10 + (b - 0x30)
                 hasParam = true
             }
-            b in 0x40..0x7E -> { // 最终字节
+            in 0x40..0x7E -> { // 最终字节
                 params.add(if (hasParam) paramAccum else 0)
                 parseState = ParseState.NORMAL
                 executeCSI(b.toChar())
@@ -328,13 +321,15 @@ class TerminalEmulator(
     // ==================== OSC 序列处理 ====================
 
     private fun handleOSC(b: Int) {
-        when {
-            b == 0x07 || (b == 0x1B) -> { // BEL 或 ESC 终止 OSC
-                parseState = ParseState.NORMAL
-                if (b == 0x1B) parseState = ParseState.ESC
-            }
-            b == 0x5C && oscBuffer.endsWith("\u001B") -> { // ST终止符
-                parseState = ParseState.NORMAL
+        when (b) {
+            0x07 -> parseState = ParseState.NORMAL // BEL 终止 OSC
+            0x1B -> parseState = ParseState.ESC // ESC 终止 OSC
+            0x5C -> { // ST 终止符 (ESC \)
+                if (oscBuffer.endsWith("\u001B")) {
+                    parseState = ParseState.NORMAL
+                } else {
+                    oscBuffer.append(b.toChar())
+                }
             }
             else -> oscBuffer.append(b.toChar())
         }
@@ -430,18 +425,18 @@ class TerminalEmulator(
             0 -> { // 从光标擦除到屏幕末尾
                 eraseLine(cursorCol, cols - 1)
                 for (r in cursorRow + 1 until rows) {
-                    eraseLine(r, 0, cols - 1)
+                    eraseRow(r)
                 }
             }
             1 -> { // 从屏幕开头擦除到光标
                 for (r in 0 until cursorRow) {
-                    eraseLine(r, 0, cols - 1)
+                    eraseRow(r)
                 }
                 eraseLine(0, cursorCol)
             }
             2, 3 -> { // 清除全部
                 for (r in 0 until rows) {
-                    eraseLine(r, 0, cols - 1)
+                    eraseRow(r)
                 }
             }
         }
@@ -465,12 +460,10 @@ class TerminalEmulator(
         }
     }
 
-    private fun eraseLine(row: Int, colStart: Int, colEnd: Int) {
-        if (row < 0 || row >= rows) return
-        for (c in colStart..colEnd) {
-            if (c in 0 until cols) {
-                screen[row][c] = Cell()
-            }
+    private fun eraseRow(row: Int) {
+        if (row !in 0..<rows) return
+        for (c in 0 until cols) {
+            screen[row][c] = Cell()
         }
     }
 
@@ -693,11 +686,6 @@ class TerminalEmulator(
 
     // ==================== 公开 API ====================
 
-    /** 获取当前可视屏幕 */
-    fun getScreen(): List<List<Cell>> {
-        return screen
-    }
-
     /** 获取当前可见屏幕内容 (支持滚动回看) */
     fun getVisibleScreen(visibleRows: Int): List<List<Cell>> {
         if (scrollOffset <= 0) {
@@ -738,21 +726,6 @@ class TerminalEmulator(
     /** 是否正在回看历史 */
     fun isScrollbackActive(): Boolean = scrollOffset > 0
 
-    /** 获取指定行 */
-    fun getRow(row: Int): List<Cell> {
-        return if (row in 0 until rows) screen[row] else emptyList()
-    }
-
-    /** 获取光标所在行的文本 (用于复制) */
-    fun getCursorLineText(): String {
-        val sb = StringBuilder()
-        for (c in 0 until cols) {
-            val cell = screen[cursorRow][c]
-            if (cell.char != ' ') sb.append(cell.char)
-        }
-        return sb.toString().trimEnd()
-    }
-
     /** 获取所有文本 (含滚动缓冲区) */
     fun getAllText(): String {
         val sb = StringBuilder()
@@ -782,10 +755,8 @@ class TerminalEmulator(
         cols = newCols
         scrollOffset = 0
 
-        // 重新初始化 tab 停止位
-        if (newCols > tabStops.size) {
-            // 保持现有的
-        }
+        // 根据新列宽重建 tab 停止位
+        tabStops = buildTabStops(newCols)
 
         // 创建新屏幕
         val newScreen = MutableList(newRows) { r ->

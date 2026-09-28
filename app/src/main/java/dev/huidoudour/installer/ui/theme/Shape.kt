@@ -38,10 +38,6 @@ val ButtonShape = RoundedCornerShape(ButtonCornerRadius)
 val SmallCornerRadius = 12.dp
 val SmallShape = RoundedCornerShape(SmallCornerRadius)
 
-// 浮动按钮圆角
-val FABCornerRadius = 16.dp
-val FABShape = RoundedCornerShape(FABCornerRadius)
-
 /**
  * 根据列表项位置获取对应的圆角形状
  */

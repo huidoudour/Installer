@@ -73,8 +73,6 @@ import dev.huidoudour.installer.R
 // Brand colors matching source project button tints
 private val ButtonPrimaryBlue = Color(0xFF2196F3)
 private val ButtonSecondaryGreen = Color(0xFF4CAF50)
-private val ButtonInstallTeal = Color(0xFF00BCD4)
-private val ButtonAccentOrange = Color(0xFFFF9800)
 
 /**
  * InstallerScreen - 主安装界面
@@ -82,7 +80,6 @@ private val ButtonAccentOrange = Color(0xFFFF9800)
  */
 @Composable
 fun InstallerScreen(
-    onThemeClick: () -> Unit = {},
     viewModel: InstallerViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -95,7 +92,6 @@ fun InstallerScreen(
     val useDhizuku by viewModel.useDhizuku.collectAsState()
     val selectedFileName by viewModel.selectedFileName.collectAsState()
     val fileType by viewModel.fileType.collectAsState()
-    val isXapkFile by viewModel.isXapkFile.collectAsState()
     val isInstallEnabled by viewModel.isInstallEnabled.collectAsState()
     val isInstalling by viewModel.isInstalling.collectAsState()
     val installCompleted by viewModel.installCompleted.collectAsState()
@@ -103,7 +99,6 @@ fun InstallerScreen(
     val isLoadingPackage by viewModel.isLoadingPackage.collectAsState()
     val enableCustomPackageName by viewModel.enableCustomPackageName.collectAsState()
     val allowTestPackages by viewModel.allowTestPackages.collectAsState()
-    val selectedInstallerPackage by viewModel.selectedInstallerPackage.collectAsState()
     val enableCustomRequesterPackage by viewModel.enableCustomRequesterPackage.collectAsState()
 
     // 从后台返回时自动刷新权限状态（处理 Dhizuku 手动授权/撤权场景）

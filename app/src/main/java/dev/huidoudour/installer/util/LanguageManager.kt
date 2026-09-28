@@ -142,18 +142,6 @@ object LanguageManager {
     }
 
     /**
-     * 获取当前应用的语言代码
-     */
-    fun getCurrentLanguageCode(): String {
-        val locales = AppCompatDelegate.getApplicationLocales()
-        if (locales.isEmpty) return LANGUAGE_FOLLOW_SYSTEM
-        val locale = locales[0] ?: return LANGUAGE_FOLLOW_SYSTEM
-        val language = locale.language
-        val region = locale.country
-        return if (region.isNotEmpty()) "${language}-r$region" else language
-    }
-
-    /**
      * 获取语言显示名称
      */
     fun getLanguageDisplayName(context: Context, languageCode: String): String {
@@ -169,18 +157,4 @@ object LanguageManager {
         }
     }
 
-    /**
-     * 获取所有支持的语言列表
-     */
-    fun getSupportedLanguages(): List<Pair<String, String>> {
-        return listOf(
-            LANGUAGE_FOLLOW_SYSTEM to "System Default",
-            LANGUAGE_SIMPLIFIED_CHINESE to "简体中文",
-            LANGUAGE_TRADITIONAL_CHINESE to "繁體中文",
-            LANGUAGE_HONGKONG_CHINESE to "喵語中文",
-            LANGUAGE_ENGLISH to "English",
-            LANGUAGE_JAPANESE to "日本語",
-            LANGUAGE_RUSSIAN to "Русский"
-        )
-    }
 }

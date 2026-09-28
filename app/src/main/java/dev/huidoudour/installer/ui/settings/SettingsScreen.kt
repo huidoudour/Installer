@@ -128,7 +128,7 @@ fun SettingsScreen(
                 putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
             }
             context.startActivity(intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Toast.makeText(context, context.getString(R.string.cannot_open_notification_settings), Toast.LENGTH_SHORT).show()
         }
     }
@@ -292,7 +292,6 @@ private fun AppSettingsCard(
             SettingListItem(
                 item = item,
                 shape = segmentedShape(index, items.size),
-                isFirst = index == 0,
                 isLast = index == items.lastIndex
             )
         }
@@ -369,7 +368,6 @@ private fun ConfigurationOptionsCard(
             SettingListItem(
                 item = item,
                 shape = segmentedShape(index, items.size),
-                isFirst = index == 0,
                 isLast = index == items.lastIndex,
                 showArrow = true
             )
@@ -390,7 +388,7 @@ private fun AboutAppCard(
         val name = packageInfo.versionName ?: context.getString(R.string.unknown)
         val code = packageInfo.longVersionCode
         "$name（$code）"
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         context.getString(R.string.unknown)
     }
 
@@ -469,7 +467,6 @@ private fun AboutAppCard(
                 }
             ),
             shape = singleShape,
-            isFirst = true,
             isLast = true,
             showArrow = true
         )
@@ -491,7 +488,6 @@ internal data class SettingItemData(
 internal fun SettingListItem(
     item: SettingItemData,
     shape: Shape,
-    isFirst: Boolean,
     isLast: Boolean,
     showArrow: Boolean = false
 ) {
@@ -666,7 +662,7 @@ private fun NotificationPermissionDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                if (!isGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (!isGranted) {
                     notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
                 onDismiss()
@@ -703,7 +699,7 @@ fun AppIcon(
             drawable.setBounds(0, 0, pxSize, pxSize)
             drawable.draw(canvas)
             bmp.asImageBitmap()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

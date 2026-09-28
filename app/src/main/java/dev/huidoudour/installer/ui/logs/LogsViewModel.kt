@@ -56,10 +56,6 @@ class LogsViewModel(application: Application) : AndroidViewModel(application) {
         logManager.clearLogs()
     }
 
-    fun getAllLogsText(): String {
-        return logManager.getAllLogs()
-    }
-
     /**
      * 导出日志到文件
      */

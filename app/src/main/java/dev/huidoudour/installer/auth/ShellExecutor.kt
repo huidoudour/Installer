@@ -22,14 +22,6 @@ object ShellExecutor {
 
     private const val TAG = "ShellExecutor"
 
-    // ====== 传统模式 (pipe-based) ======
-    private var persistentShellProcess: Process? = null
-    private var persistentShellWriter: BufferedWriter? = null
-    private var persistentShellStdout: BufferedReader? = null
-    private var persistentShellStderr: BufferedReader? = null
-    private var isShizukuSession = false
-    private var currentWorkingDirectory = "/"
-
     // ====== PTY / Shizuku 模式 ======
     @Volatile
     private var ptySession: PtyShellSession? = null
@@ -72,28 +64,6 @@ object ShellExecutor {
             }, "pty-read-thread")
             readThread?.isDaemon = true
             readThread?.start()
-        }
-
-        /** 执行命令 (写入 PTY) */
-        fun executeCommand(command: String) {
-            try {
-                pty.outputStream.write((command + "\n").toByteArray(Charsets.UTF_8))
-                pty.outputStream.flush()
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to write command to PTY", e)
-                callback?.onError("PTY write error: ${e.message}")
-            }
-        }
-
-        /** 发送 Ctrl+C 信号 */
-        fun sendCtrlC() {
-            try {
-                // 发送 Ctrl+C (0x03) 到 PTY
-                pty.outputStream.write(byteArrayOf(0x03))
-                pty.outputStream.flush()
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to send Ctrl+C", e)
-            }
         }
 
         /** 设置终端尺寸 */
@@ -189,14 +159,6 @@ object ShellExecutor {
             } catch (e: Exception) {
                 Log.e(TAG, "Shizuku write error", e)
             }
-        }
-
-        fun executeCommand(command: String) {
-            writeBytes((command + "\n").toByteArray(Charsets.UTF_8))
-        }
-
-        fun sendCtrlC() {
-            writeBytes(byteArrayOf(0x03))
         }
 
         fun close() {
@@ -402,184 +364,6 @@ object ShellExecutor {
         }.start()
     }
 
-    fun executeCommand(command: String, callback: ExecuteCallback) {
-        executePersistentCommand(null, command, callback)
-    }
-
-    fun executeCommand(context: Context?, command: String, callback: ExecuteCallback) {
-        executePersistentCommand(context, command, callback)
-    }
-
-    private fun executePersistentCommand(context: Context?, command: String, callback: ExecuteCallback) {
-        Thread {
-            try {
-                var needNewSession = persistentShellProcess == null || !persistentShellProcess!!.isAlive
-                val shizukuAvailable = isShizukuAvailable()
-
-                if (!needNewSession && isShizukuSession != shizukuAvailable) {
-                    destroyPersistentSession()
-                    needNewSession = true
-                }
-
-                if (needNewSession) {
-                    createPersistentSession(context, shizukuAvailable)
-                }
-
-                if (persistentShellWriter != null && persistentShellProcess != null) {
-                    val endMarker = "__CMD_END_${System.currentTimeMillis()}__"
-                    val exitCodeMarker = "__EXIT_CODE_${System.currentTimeMillis()}__"
-
-                    persistentShellWriter!!.write("$command\n")
-                    persistentShellWriter!!.write("echo $exitCodeMarker\$?\n")
-                    persistentShellWriter!!.write("echo $endMarker\n")
-                    persistentShellWriter!!.flush()
-
-                    val exitCode = intArrayOf(0)
-                    val commandEnded = booleanArrayOf(false)
-
-                    val stdoutThread = Thread {
-                        try {
-                            var line: String?
-                            while (persistentShellStdout!!.readLine().also { line = it } != null && !commandEnded[0]) {
-                                val currentLine = line ?: continue
-                                when {
-                                    currentLine == endMarker -> {
-                                        commandEnded[0] = true
-                                        break
-                                    }
-                                    currentLine.startsWith(exitCodeMarker) -> {
-                                        try {
-                                            exitCode[0] = currentLine.substring(exitCodeMarker.length).toInt()
-                                        } catch (e: Exception) {
-                                            exitCode[0] = 0
-                                        }
-                                    }
-                                    else -> callback.onOutput(currentLine)
-                                }
-                            }
-                        } catch (e: Exception) {
-                            // 会话可能已断开
-                        }
-                    }
-
-                    val stderrThread = Thread {
-                        try {
-                            while (!commandEnded[0]) {
-                                if (persistentShellStderr!!.ready()) {
-                                    val line = persistentShellStderr!!.readLine()
-                                    if (line != null) {
-                                        callback.onError(line)
-                                    }
-                                } else {
-                                    Thread.sleep(50)
-                                }
-                            }
-                        } catch (e: Exception) {
-                            // 忽略
-                        }
-                    }
-
-                    stdoutThread.start()
-                    stderrThread.start()
-
-                    val startTime = System.currentTimeMillis()
-                    while (!commandEnded[0] && System.currentTimeMillis() - startTime < 10000) {
-                        Thread.sleep(100)
-                    }
-
-                    callback.onComplete(exitCode[0])
-
-                } else {
-                    throw Exception("Failed to create persistent shell session")
-                }
-
-            } catch (e: Exception) {
-                callback.onError("Session error: ${e.message}")
-                callback.onError("Trying to recreate session...")
-                destroyPersistentSession()
-                executeFallbackCommand(command, callback)
-            }
-        }.start()
-    }
-
-    private fun createPersistentSession(context: Context?, useShizuku: Boolean) {
-        if (useShizuku) {
-            try {
-                val shizukuClass = Class.forName("rikka.shizuku.Shizuku")
-                for (method in shizukuClass.declaredMethods) {
-                    if (method.name == "newProcess") {
-                        method.isAccessible = true
-                        persistentShellProcess = method.invoke(
-                            null,
-                            arrayOf("sh"),
-                            null,
-                            null
-                        ) as Process
-                        isShizukuSession = true
-                        break
-                    }
-                }
-            } catch (e: Exception) {
-                throw Exception(context?.getString(R.string.shizuku_session_creation_failed, e.message) ?: e.message)
-            }
-        } else {
-            persistentShellProcess = Runtime.getRuntime().exec(arrayOf("sh"))
-            isShizukuSession = false
-        }
-
-        persistentShellProcess?.let { process ->
-            persistentShellWriter = BufferedWriter(OutputStreamWriter(process.outputStream))
-            persistentShellStdout = BufferedReader(InputStreamReader(process.inputStream))
-            persistentShellStderr = BufferedReader(InputStreamReader(process.errorStream))
-
-            persistentShellWriter!!.write("export PS1=''\n")
-            persistentShellWriter!!.write("export PS2=''\n")
-            persistentShellWriter!!.write("set +m\n")
-
-            if (useShizuku) {
-                persistentShellWriter!!.write("cd /data/local/tmp 2>/dev/null || cd /sdcard\n")
-            } else {
-                persistentShellWriter!!.write("cd /sdcard 2>/dev/null || cd /data/local/tmp\n")
-            }
-
-            persistentShellWriter!!.flush()
-            Thread.sleep(200)
-
-            while (persistentShellStdout!!.ready()) {
-                persistentShellStdout!!.readLine()
-            }
-            while (persistentShellStderr!!.ready()) {
-                persistentShellStderr!!.readLine()
-            }
-        }
-    }
-
-    private fun destroyPersistentSession() {
-        try {
-            persistentShellWriter?.write("exit\n")
-            persistentShellWriter?.flush()
-            persistentShellWriter?.close()
-            persistentShellStdout?.close()
-            persistentShellStderr?.close()
-            persistentShellProcess?.destroy()
-        } catch (e: Exception) {
-            // 忽略
-        } finally {
-            persistentShellProcess = null
-            persistentShellWriter = null
-            persistentShellStdout = null
-            persistentShellStderr = null
-        }
-    }
-
-    private fun executeFallbackCommand(command: String, callback: ExecuteCallback) {
-        if (isShizukuAvailable()) {
-            executeShizukuCommand(command, callback)
-        } else {
-            executeNormalCommand(command, callback)
-        }
-    }
-
     // ========== PTY / Shizuku 会话公共 API ==========
 
     /**
@@ -607,10 +391,10 @@ object ShellExecutor {
     ): Any? {
         destroyPtySession()
 
-        if (isShizukuAvailable()) {
-            return startShizukuSession(callback)
+        return if (isShizukuAvailable()) {
+            startShizukuSession(callback)
         } else {
-            return startPtySession(callback, rows, cols, cwd)
+            startPtySession(callback, rows, cols, cwd)
         }
     }
 
@@ -692,33 +476,9 @@ object ShellExecutor {
         return false
     }
 
-    /**
-     * 通过 PTY 会话执行命令.
-     * @return true 如果成功写入
-     */
-    fun executePtyCommand(command: String): Boolean {
-        val session = ptySession
-        return if (session != null && session.isAlive()) {
-            session.executeCommand(command)
-            true
-        } else {
-            false
-        }
-    }
-
-    /** 发送 Ctrl+C */
-    fun sendPtyCtrlC() {
-        shizukuSession?.sendCtrlC() ?: ptySession?.sendCtrlC()
-    }
-
     /** 设置 PTY 终端尺寸 (仅 PTY 模式有效) */
     fun setPtyWindowSize(rows: Int, cols: Int) {
         ptySession?.setWindowSize(rows, cols)
-    }
-
-    /** 检查会话是否存活 */
-    fun isSessionAlive(): Boolean {
-        return shizukuSession?.isAlive() == true || ptySession?.isAlive() == true
     }
 
     /** 销毁所有会话 */
@@ -731,44 +491,20 @@ object ShellExecutor {
 
     // ========== 传统模式 API ==========
 
-    fun getCurrentWorkingDirectory(): String {
-        return currentWorkingDirectory
-    }
-
-    fun resetSession() {
-        destroyPersistentSession()
-        destroyPtySession()
-    }
-
     fun copyToClipboard(context: Context, text: String): Boolean {
         return try {
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText(context.getString(R.string.terminal_output), text)
             clipboard.setPrimaryClip(clip)
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
 
     object CommandHistory {
-        private const val MAX_HISTORY = 100
         private val history = ArrayList<String>()
         private var currentIndex = -1
-
-        fun addCommand(command: String) {
-            if (command.isNullOrBlank()) return
-
-            if (history.isNotEmpty() && history[history.size - 1] == command) {
-                return
-            }
-
-            history.add(command)
-            if (history.size > MAX_HISTORY) {
-                history.removeAt(0)
-            }
-            currentIndex = history.size
-        }
 
         fun getAll(): List<String> {
             return ArrayList(history)
