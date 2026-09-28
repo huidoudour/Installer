@@ -1,4 +1,13 @@
 // Installer 项目页面交互脚本
+
+// 设置当前日期
+const now = new Date();
+const options = { year: 'numeric', month: 'long', day: 'numeric' };
+const currentDateElement = document.getElementById('currentDate');
+if (currentDateElement) {
+    currentDateElement.textContent = now.toLocaleDateString('zh-CN', options);
+}
+
 // 返回顶部功能
 const backToTopButton = document.getElementById('backToTop');
 
