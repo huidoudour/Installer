@@ -29,6 +29,9 @@
     <string name="lab_use_shizuku_install_desc">關閉後安裝不使用 Shizuku（用於權限測試）。</string>
     <string name="lab_use_dhizuku_install">使用 Dhizuku 安裝</string>
     <string name="lab_use_dhizuku_install_desc">關閉後安裝不使用 Dhizuku（用於權限測試）。</string>
+    <string name="lab_terminal_section">終端</string>
+    <string name="lab_terminal_use_shizuku">終端使用 Shizuku</string>
+    <string name="lab_terminal_use_shizuku_desc">關閉後終端改用應用程式層級權限（app UID）執行。</string>
     <string name="copied_to_clipboard">已複製到剪貼簿</string>
     <string name="copy_failed">複製失敗</string>
     <string name="installing">安裝中...</string>

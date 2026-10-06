@@ -38,6 +38,10 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     private val _useDhizuku = MutableStateFlow(LabPrefs.isDhizukuInstallEnabled(context))
     val useDhizuku: StateFlow<Boolean> = _useDhizuku.asStateFlow()
 
+    // 终端是否使用 Shizuku 会话（关闭后终端回退到 app UID 的 PTY）
+    private val _useShizukuTerminal = MutableStateFlow(LabPrefs.isTerminalShizukuEnabled(context))
+    val useShizukuTerminal: StateFlow<Boolean> = _useShizukuTerminal.asStateFlow()
+
     private val _candidates = MutableStateFlow(LabPrefs.getCandidates(context))
     val candidates: StateFlow<List<SmartAuthorizerCandidate>> = _candidates.asStateFlow()
 
@@ -84,6 +88,12 @@ class LabViewModel(application: Application) : AndroidViewModel(application) {
     fun setUseDhizuku(enabled: Boolean) {
         _useDhizuku.value = enabled
         LabPrefs.setDhizukuInstallEnabled(context, enabled)
+    }
+
+    /** 开启/关闭终端使用 Shizuku（关闭后终端回退到 app UID 的 PTY） */
+    fun setUseShizukuTerminal(enabled: Boolean) {
+        _useShizukuTerminal.value = enabled
+        LabPrefs.setTerminalShizukuEnabled(context, enabled)
     }
 
     fun setCheckSignature(enabled: Boolean) {

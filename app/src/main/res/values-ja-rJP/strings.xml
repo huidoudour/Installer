@@ -29,6 +29,9 @@
     <string name="lab_use_shizuku_install_desc">オフにするとインストールで Shizuku を使用しません（権限テスト用）。</string>
     <string name="lab_use_dhizuku_install">インストールに Dhizuku を使用</string>
     <string name="lab_use_dhizuku_install_desc">オフにするとインストールで Dhizuku を使用しません（権限テスト用）。</string>
+    <string name="lab_terminal_section">ターミナル</string>
+    <string name="lab_terminal_use_shizuku">ターミナルで Shizuku を使用</string>
+    <string name="lab_terminal_use_shizuku_desc">オフにすると、ターミナルはアプリ権限（app UID）で実行されます。</string>
     <string name="copied_to_clipboard">クリップボードにコピーされました</string>
     <string name="copy_failed">コピーに失敗しました</string>
     <string name="installing">インストール中...</string>

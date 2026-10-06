@@ -30,6 +30,7 @@ object PrivilegeHelper {
     private const val KEY_CURRENT_MODE = "current_mode"
     private const val KEY_USE_SHIZUKU = "use_shizuku"
     private const val KEY_USE_DHIZUKU = "use_dhizuku"
+    private const val KEY_USE_SHIZUKU_TERMINAL = "use_shizuku_terminal"
 
     // 旧版单一开关，仅用于迁移：新键缺失时以其取值作为默认值
     private const val KEY_LEGACY_USE_PRIVILEGED = "use_privileged_install"
@@ -401,6 +402,17 @@ object PrivilegeHelper {
 
     fun setDhizukuEnabled(context: Context, enabled: Boolean) {
         prefs(context).edit().putBoolean(KEY_USE_DHIZUKU, enabled).apply()
+    }
+
+    /**
+     * 终端是否使用 Shizuku 会话（shell UID）。
+     * 关闭后终端回退到 app UID 的 PTY 会话，便于在无 Shizuku 环境下测试。
+     */
+    fun isTerminalShizukuEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_USE_SHIZUKU_TERMINAL, true)
+
+    fun setTerminalShizukuEnabled(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(KEY_USE_SHIZUKU_TERMINAL, enabled).apply()
     }
 
     /** 指定授权模式是否被全局开关启用 */

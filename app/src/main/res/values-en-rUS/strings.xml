@@ -29,6 +29,9 @@
     <string name="lab_use_shizuku_install_desc">When off, installs do not use Shizuku (for permission testing).</string>
     <string name="lab_use_dhizuku_install">Use Dhizuku for installs</string>
     <string name="lab_use_dhizuku_install_desc">When off, installs do not use Dhizuku (for permission testing).</string>
+    <string name="lab_terminal_section">Terminal</string>
+    <string name="lab_terminal_use_shizuku">Use Shizuku for terminal</string>
+    <string name="lab_terminal_use_shizuku_desc">When off, the terminal runs with app-level (app UID) privileges instead.</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="copy_failed">Copy failed</string>
     <string name="installing">Installing...</string>

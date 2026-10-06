@@ -84,6 +84,11 @@ fun ShellScreen(
 ) {
     val context = LocalContext.current
 
+    // 进入终端页时确保会话模式与「终端使用 Shizuku」开关一致 (开关变更后重建会话)
+    LaunchedEffect(Unit) {
+        viewModel.ensureSessionUpToDate()
+    }
+
     var showQuickCommandsDialog by remember { mutableStateOf(false) }
 
     // 终端尺寸计算 - 与 TerminalView 保持一致的 cell 尺寸

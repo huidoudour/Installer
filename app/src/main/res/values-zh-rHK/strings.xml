@@ -29,6 +29,9 @@
     <string name="lab_use_shizuku_install_desc">关闭后安装就不使用 Shizuku 了喵（用于权限测试）~</string>
     <string name="lab_use_dhizuku_install">使用 Dhizuku 安装喵</string>
     <string name="lab_use_dhizuku_install_desc">关闭后安装就不使用 Dhizuku 了喵（用于权限测试）~</string>
+    <string name="lab_terminal_section">终端喵</string>
+    <string name="lab_terminal_use_shizuku">终端使用 Shizuku 喵</string>
+    <string name="lab_terminal_use_shizuku_desc">关闭后终端就改用应用级权限（app UID）运行了喵~</string>
     <string name="copied_to_clipboard">已复制到剪贴板喵~</string>
     <string name="copy_failed">复制失败喵</string>
     <string name="installing">安装中喵...</string>

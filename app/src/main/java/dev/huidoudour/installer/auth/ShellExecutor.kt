@@ -367,12 +367,20 @@ object ShellExecutor {
     // ========== PTY / Shizuku 会话公共 API ==========
 
     /**
+     * 终端是否应使用 Shizuku 会话:
+     * 需同时满足 Shizuku 可用 (binder 存活且已授权) 且实验页「终端使用 Shizuku」开关开启;
+     * 任一不满足即回退到 app UID 的 PTY 会话。
+     */
+    fun shouldUseShizukuTerminal(context: Context): Boolean =
+        isShizukuAvailable() && PrivilegeHelper.isTerminalShizukuEnabled(context)
+
+    /**
      * 计算终端会话的默认工作目录:
-     *  - Shizuku 可用: /data/local/tmp (shell UID 权限)
+     *  - Shizuku 模式: /data/local/tmp (shell UID 权限)
      *  - 否则: app 私有目录 (app 对其拥有完全读写权限, 避免 Scoped Storage 下无法访问 /sdcard)
      */
     fun defaultShellCwd(context: Context): String {
-        if (isShizukuAvailable()) return "/data/local/tmp"
+        if (shouldUseShizukuTerminal(context)) return "/data/local/tmp"
         val home = File(context.filesDir, "home")
         if (!home.exists()) home.mkdirs()
         return home.absolutePath
@@ -380,21 +388,21 @@ object ShellExecutor {
 
     /**
      * 启动终端会话 (自动选择模式):
-     * - Shizuku 可用: ShizukuShellSession (shell UID 权限, pipe I/O)
-     * - Shizuku 不可用: PtyShellSession (app UID, 真 PTY)
+     * - 终端使用 Shizuku: ShizukuShellSession (shell UID 权限, pipe I/O)
+     * - 否则: PtyShellSession (app UID, 真 PTY)
      */
     fun startTerminalSession(
+        context: Context,
         callback: ExecuteCallback,
         rows: Int = 24,
         cols: Int = 80,
-        cwd: String = if (isShizukuAvailable()) "/data/local/tmp" else "/"
     ): Any? {
         destroyPtySession()
 
-        return if (isShizukuAvailable()) {
+        return if (shouldUseShizukuTerminal(context)) {
             startShizukuSession(callback)
         } else {
-            startPtySession(callback, rows, cols, cwd)
+            startPtySession(callback, rows, cols, defaultShellCwd(context))
         }
     }
 
@@ -432,7 +440,7 @@ object ShellExecutor {
         callback: ExecuteCallback,
         rows: Int = 24,
         cols: Int = 80,
-        cwd: String = if (isShizukuAvailable()) "/data/local/tmp" else "/"
+        cwd: String = "/"
     ): PtyShellSession? {
         // 清理旧会话
         destroyPtySession()

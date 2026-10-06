@@ -32,9 +32,12 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
     var ptySupported by mutableStateOf(true)
         private set
 
-    /** Shizuku pipe 模式需要本地回显，PTY 模式自带回显 */
+    /** 当前会话是否使用 Shizuku (pipe 模式需要本地回显, PTY 模式自带回显) */
+    var usingShizuku by mutableStateOf(false)
+        private set
+
     val needLocalEcho: Boolean
-        get() = ShellExecutor.isShizukuAvailable()
+        get() = usingShizuku
     var ptyRowCount by mutableIntStateOf(24)
         private set
     var ptyColCount by mutableIntStateOf(80)
@@ -53,6 +56,7 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun initPtySession() {
         val session = ShellExecutor.startTerminalSession(
+            context = getApplication(),
             callback = object : ShellExecutor.ExecuteCallback {
                 override fun onOutput(line: String) {
                     // PTY 输出直接喂入终端模拟器 (已包含 \n, 不额外追加)
@@ -67,21 +71,33 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             },
             rows = ptyRowCount,
             cols = ptyColCount,
-            cwd = ShellExecutor.defaultShellCwd(getApplication())
         )
         if (session != null) {
             ptyMode = true
             ptySupported = true
-            val mode = if (ShellExecutor.isShizukuAvailable()) "Shizuku" else "PTY"
+            usingShizuku = ShellExecutor.shouldUseShizukuTerminal(context)
+            val mode = if (usingShizuku) "Shizuku" else "PTY"
             val msg = "[*] $mode terminal mode enabled\n"
             val msgBytes = msg.toByteArray(Charsets.UTF_8)
             terminal.feed(msgBytes, msgBytes.size)
         } else {
             ptyMode = false
             ptySupported = false
+            usingShizuku = false
             val msg = "[!] Terminal unavailable\n"
             val msgBytes = msg.toByteArray(Charsets.UTF_8)
             terminal.feed(msgBytes, msgBytes.size)
+        }
+    }
+
+    /**
+     * 确保会话模式与「终端使用 Shizuku」开关一致:
+     * 开关或 Shizuku 可用性发生变化时重建会话 (进入终端页时调用)。
+     */
+    fun ensureSessionUpToDate() {
+        val desired = ShellExecutor.shouldUseShizukuTerminal(context)
+        if (!ptyMode || desired != usingShizuku) {
+            initPtySession()
         }
     }
 

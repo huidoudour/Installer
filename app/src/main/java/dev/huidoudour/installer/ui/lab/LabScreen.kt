@@ -115,6 +115,7 @@ fun LabScreen(
     val authorizerByInstallState by viewModel.authorizerByInstallState.collectAsState()
     val useShizuku by viewModel.useShizuku.collectAsState()
     val useDhizuku by viewModel.useDhizuku.collectAsState()
+    val useShizukuTerminal by viewModel.useShizukuTerminal.collectAsState()
     val candidates by viewModel.candidates.collectAsState()
     val checkSignature by viewModel.checkSignature.collectAsState()
     val showSignatureDetails by viewModel.showSignatureDetails.collectAsState()
@@ -303,6 +304,20 @@ fun LabScreen(
                     checked = showSignatureDetails,
                     onCheckedChange = { viewModel.setShowSignatureDetails(it) },
                     shape = segmentedShape(1, 2),
+                    isLast = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 分区：终端
+            SectionContainer(title = stringResource(R.string.lab_terminal_section)) {
+                SettingsSwitchItem(
+                    title = stringResource(R.string.lab_terminal_use_shizuku),
+                    subtitle = stringResource(R.string.lab_terminal_use_shizuku_desc),
+                    checked = useShizukuTerminal,
+                    onCheckedChange = { viewModel.setUseShizukuTerminal(it) },
+                    shape = segmentedShape(0, 1),
                     isLast = true
                 )
             }

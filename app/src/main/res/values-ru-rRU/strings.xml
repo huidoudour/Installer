@@ -29,6 +29,9 @@
     <string name="lab_use_shizuku_install_desc">Если выключено, установка не использует Shizuku (для тестирования прав).</string>
     <string name="lab_use_dhizuku_install">Использовать Dhizuku для установки</string>
     <string name="lab_use_dhizuku_install_desc">Если выключено, установка не использует Dhizuku (для тестирования прав).</string>
+    <string name="lab_terminal_section">Терминал</string>
+    <string name="lab_terminal_use_shizuku">Использовать Shizuku в терминале</string>
+    <string name="lab_terminal_use_shizuku_desc">Если выключено, терминал работает с правами приложения (app UID).</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
     <string name="copy_failed">Копирование не удалось</string>
     <string name="installing">Установка...</string>

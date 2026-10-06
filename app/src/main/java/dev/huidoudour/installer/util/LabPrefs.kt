@@ -59,6 +59,16 @@ object LabPrefs {
         PrivilegeHelper.setDhizukuEnabled(context, enabled)
     }
 
+    // ==================== 终端 ====================
+
+    /** 终端是否使用 Shizuku 会话（关闭后回退到 app UID 的 PTY） */
+    fun isTerminalShizukuEnabled(context: Context): Boolean =
+        PrivilegeHelper.isTerminalShizukuEnabled(context)
+
+    fun setTerminalShizukuEnabled(context: Context, enabled: Boolean) {
+        PrivilegeHelper.setTerminalShizukuEnabled(context, enabled)
+    }
+
     // ==================== 签名校验 ====================
 
     /** 是否在安装前校验签名 */
