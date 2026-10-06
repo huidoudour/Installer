@@ -18,3 +18,4 @@ rootProject.name = "Installer"
 include(":app")
 include(":hidden-api")
 include(":mt-provider")
+include(":baselineprofile")

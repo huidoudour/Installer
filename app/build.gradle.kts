@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.baselineprofile)
 }
 
 val baseVersionCode = 8000
@@ -212,6 +213,8 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.accompanist.drawablepainter)
     implementation("androidx.palette:palette:1.0.0")
+    implementation(libs.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
 
     debugImplementation(libs.compose.ui.tooling.preview)
 
