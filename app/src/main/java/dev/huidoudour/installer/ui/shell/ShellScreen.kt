@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.onSizeChanged
@@ -256,6 +257,8 @@ fun FunctionKeyButton(
     Button(
         onClick = onClick,
         modifier = Modifier
+            // 不获取焦点: 避免点击功能键时抢走隐藏输入框焦点 (导致 IME 收起/提交挂起组合文本而产生额外字符)
+            .focusProperties { canFocus = false }
             .height(36.dp)
             .width(if (text.length > 2) 54.dp else 44.dp),
         shape = RoundedCornerShape(4.dp),

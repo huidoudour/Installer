@@ -14,13 +14,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
@@ -36,7 +34,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -44,13 +42,13 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import dev.huidoudour.installer.terminal.TerminalEmulator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.text.iterator
 import kotlin.time.Duration.Companion.milliseconds
@@ -60,12 +58,13 @@ import kotlin.time.Duration.Companion.milliseconds
  *
  * 双通道输入:
  * 1. 全尺寸隐藏 BasicTextField - 捕获 IME (软键盘) 输入
- * 2. onKeyEvent - 捕获硬件键盘特殊键 (方向键、Ctrl组合等)
+ * 2. onPreviewKeyEvent - 在输入框之前拦截硬件/IME 特殊键 (方向键、Ctrl组合等)，
+ *    避免被 BasicTextField 内部光标消费，从而将方向/删除键转发到 shell 行编辑器
  *
- * IME 输入采用累积 buffer + 同步消费:
- * - onValueChange 中同步处理新字符 / 删除，保持光标实时同步
- * - 不清空 buffer (只累积)，避免打断 Android 14 IME 组合态
- * - buffer 超过 256 字符时由 snapshotFlow 异步重置
+ * IME 输入采用组合态感知的一次性转发:
+ * - 组合态(composition != null) 保留文本让输入法正常工作, 不转发
+ * - 提交后(composition == null) 转发本次净增文本, 随即清空输入框
+ * - 避免输入缓冲与 shell 行状态漂移 (残留引号/额外字符)
  */
 @Composable
 fun TerminalView(
@@ -80,19 +79,9 @@ fun TerminalView(
     val textFieldFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    // IME 输入缓冲区 — onValueChange 同步处理输入，不清空 buffer 以防打断 IME 组合态
-    var imeText by remember { mutableStateOf("") }
-    var imeConsumedLen by remember { mutableIntStateOf(0) }
-
-    // 定期重置 buffer 以防内存无限增长 (远大于单次输入，不会在组合中触发)
-    LaunchedEffect(Unit) {
-        snapshotFlow { imeText }
-            .filter { it.length > 256 }
-            .collect {
-                imeText = ""
-                imeConsumedLen = 0
-            }
-    }
+    // IME 输入框值 — 用 TextFieldValue 感知组合态(composition):
+    // 仅在文本"已提交"时转发，避免把输入法组合中间态/自动替换(如自动配对引号)注入 shell
+    var imeValue by remember { mutableStateOf(TextFieldValue("")) }
 
     // 注册终端更新 + 光标闪烁 (帧同步限流防卡顿)
     val choreographer = remember { Choreographer.getInstance() }
@@ -160,8 +149,10 @@ fun TerminalView(
         modifier = modifier
             .clipToBounds()
             .background(Color(0xFF1E1E1E))
-            .onKeyEvent { event ->
-                // 硬件键盘特殊键 (方向键、Ctrl组合、F功能键等)
+            .onPreviewKeyEvent { event ->
+                // 硬件/IME 特殊键 (方向键、Ctrl组合、F功能键等)
+                // 用 preview 在 BasicTextField 之前拦截，避免方向键被输入框内部光标消耗，
+                // 从而把方向/删除键真正转发到 shell 行编辑器，并防止光标错位导致回显错乱
                 if (event.type == KeyEventType.KeyDown) {
                     val bytes = keyEventToBytes(event)
                     if (bytes != null) {
@@ -193,45 +184,21 @@ fun TerminalView(
         // ====== Layer 1: 全尺寸隐藏 BasicTextField 捕获 IME ======
         // 全尺寸确保 IME 框架正确路由输入，Canvas 渲染在上层遮盖
         BasicTextField(
-            value = imeText,
+            value = imeValue,
             onValueChange = { newValue ->
-                val consumed = imeConsumedLen
-
-                if (newValue.length < consumed) {
-                    // IME 直接删除了 buffer 内的字符 (backspace 等)
-                    val deletedCount = consumed - newValue.length
-                    repeat(deletedCount) {
-                        onKeyInput(byteArrayOf(0x7F))
-                        if (needLocalEcho) terminal.feed(byteArrayOf(0x7F), 1)
+                // 组合态进行中: 保留组合文本让输入法正常工作, 不转发 (避免注入组合中间态)
+                // 组合结束/直接提交: 转发本次净增文本后立即清空输入框,
+                //   使 IME 缓冲与 shell 行状态解耦, 避免残留引号/额外字符等漂移。
+                //   行内编辑(方向/删除/退格)由 shell 行编辑器负责, 软键盘退格经 onPreviewKeyEvent 转发。
+                if (newValue.composition != null) {
+                    imeValue = newValue
+                } else {
+                    val committed = newValue.text
+                    if (committed.isNotEmpty()) {
+                        forwardTextToShell(committed, onKeyInput, needLocalEcho, terminal)
                     }
-                } else if (newValue.length > consumed) {
-                    // 有新输入的字符
-                    val typed = newValue.substring(consumed)
-                    for (char in typed) {
-                        when (char) {
-                            // IME Enter → LF (0x0A)
-                            '\n' -> {
-                                onKeyInput(byteArrayOf(0x0A))
-                                if (needLocalEcho) terminal.feed(byteArrayOf(0x0A), 1)
-                            }
-                            '\t' -> {
-                                onKeyInput(byteArrayOf(0x09))
-                            }
-                            '\b' -> {
-                                onKeyInput(byteArrayOf(0x7F))
-                                if (needLocalEcho) terminal.feed(byteArrayOf(0x7F), 1)
-                            }
-                            else -> {
-                                val bytes = char.toString().toByteArray(Charsets.UTF_8)
-                                onKeyInput(bytes)
-                                if (needLocalEcho) terminal.feed(bytes, bytes.size)
-                            }
-                        }
-                    }
+                    imeValue = TextFieldValue("")
                 }
-                // 不在此清空 buffer，只更新消费位 — 避免打断 IME 组合
-                imeConsumedLen = newValue.length
-                imeText = newValue
             },
             modifier = Modifier
                 .fillMaxSize()
@@ -251,6 +218,7 @@ fun TerminalView(
                 onDone = {
                     onKeyInput(byteArrayOf(0x0A))
                     if (needLocalEcho) terminal.feed(byteArrayOf(0x0A), 1)
+                    imeValue = TextFieldValue("")
                 }
             )
         )
@@ -452,6 +420,38 @@ private fun keyEventToBytes(event: KeyEvent): ByteArray? {
 }
 
 // ========== Key helper functions ==========
+
+/**
+ * 将一段文本(来自 IME 输入)逐字符转换为终端字节序列并转发给 shell。
+ * Enter → LF(0x0A)，Tab → 0x09，退格 → 0x7F，其余字符按 UTF-8 编码。
+ */
+private fun forwardTextToShell(
+    text: String,
+    onKeyInput: (ByteArray) -> Unit,
+    needLocalEcho: Boolean,
+    terminal: TerminalEmulator
+) {
+    for (char in text) {
+        when (char) {
+            '\n' -> {
+                onKeyInput(byteArrayOf(0x0A))
+                if (needLocalEcho) terminal.feed(byteArrayOf(0x0A), 1)
+            }
+            '\t' -> {
+                onKeyInput(byteArrayOf(0x09))
+            }
+            '\b' -> {
+                onKeyInput(byteArrayOf(0x7F))
+                if (needLocalEcho) terminal.feed(byteArrayOf(0x7F), 1)
+            }
+            else -> {
+                val bytes = char.toString().toByteArray(Charsets.UTF_8)
+                onKeyInput(bytes)
+                if (needLocalEcho) terminal.feed(bytes, bytes.size)
+            }
+        }
+    }
+}
 
 private val letterKeys: Set<Key> = setOf(
     Key.A, Key.B, Key.C, Key.D, Key.E, Key.F, Key.G, Key.H,
