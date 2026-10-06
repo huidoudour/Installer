@@ -9,7 +9,7 @@ import java.io.OutputStream
 /**
  * TermuxBridge - PTY 子进程管理桥接库
  *
- * 封装 libtermux_bridge.so 的 JNI 方法，提供类似 Termux-app 的
+ * 封装 libTermux.so 的 JNI 方法，提供类似 Termux-app 的
  * [libtermux.so](https://github.com/termux/termux-app/wiki/Termux-Libraries)
  * 的 PTY (伪终端) 子进程创建与管理功能。
  *
@@ -95,10 +95,10 @@ object TermuxBridge {
 
     init {
         try {
-            System.loadLibrary("termux_bridge")
-            Log.i(TAG, "libtermux_bridge.so loaded successfully")
+            System.loadLibrary("Termux")
+            Log.i(TAG, "libTermux.so loaded successfully")
         } catch (e: UnsatisfiedLinkError) {
-            Log.e(TAG, "Failed to load libtermux_bridge.so: ${e.message}")
+            Log.e(TAG, "Failed to load libTermux.so: ${e.message}")
         }
     }
 

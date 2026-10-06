@@ -83,32 +83,11 @@ jobs:
         echo "APK build completed. Files in output directory:"
         find app/build/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
 
-    - name: Rename Release APKs
+    - name: Verify APK output name
       run: |
-        cd app/build/outputs/apk/release
-        for apk in *.apk; do
-          [ -f "$apk" ] || continue
-          abi="${apk#app-}"
-          abi="${abi%-release.apk}"
-          echo "Renaming $apk -> Installer-${abi}-R-${{ steps.short_hash.outputs.hash }}.apk"
-          mv "$apk" "Installer-${abi}-R-${{ steps.short_hash.outputs.hash }}.apk"
-        done
+        ls -lh app/build/outputs/apk/release/Installer-universal-R-${{ steps.short_hash.outputs.hash }}.apk
 
-    - name: Upload arm64-v8a APK as artifact
-      uses: actions/upload-artifact@v7
-      with:
-        name: Installer-arm64-v8a-R-${{ steps.short_hash.outputs.hash }}
-        path: app/build/outputs/apk/release/Installer-arm64-v8a-R-${{ steps.short_hash.outputs.hash }}.apk
-        if-no-files-found: error
-
-    - name: Upload x86_64 APK as artifact
-      uses: actions/upload-artifact@v7
-      with:
-        name: Installer-x86_64-R-${{ steps.short_hash.outputs.hash }}
-        path: app/build/outputs/apk/release/Installer-x86_64-R-${{ steps.short_hash.outputs.hash }}.apk
-        if-no-files-found: error
-
-    - name: Upload universal APK as artifact
+    - name: Upload APK as artifact
       uses: actions/upload-artifact@v7
       with:
         name: Installer-universal-R-${{ steps.short_hash.outputs.hash }}

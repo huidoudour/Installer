@@ -36,6 +36,8 @@ fun getGitCommitHash(): String {
 
 val appVersionCode = baseVersionCode + getGitCommitCount()
 val appVersionName = "${baseVersionName}.${getGitCommitCount()}.${getGitCommitHash()}"
+// 本地构建产物的文件名哈希，与 CI 使用的 7 位短 hash 一致
+val gitShortHash = getGitCommitHash()
 
 // 构建开始横幅：独立任务（被 assemble/bundle 依赖），无输出故每次都会执行，配置缓存复用也不例外
 val buildBanner = tasks.register("buildBanner") {
@@ -176,15 +178,6 @@ android {
         viewBinding = true
     }
 
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include( "arm64-v8a" , "x86_64" )
-            isUniversalApk = true
-        }
-    }
-
     lint {
         // 将警告视为警告,不要作为错误
         warningsAsErrors = false
@@ -215,6 +208,20 @@ android {
     }
 }
 
+// 直接定义本地构建产物文件名（无需再靠 CI 脚本重命名）：
+//   release → Installer-universal-R-<hash>.apk
+//   debug   → Installer-universal-D-<hash>.apk
+// outputFileName 等变体 API 目前被 AGP 标记为 @Incubating，按项目规范抑制该警告
+@Suppress("UnstableApiUsage")
+androidComponents {
+    onVariants { variant ->
+        val suffix = if (variant.buildType == "release") "R" else "D"
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("Installer-universal-$suffix-$gitShortHash.apk")
+        }
+    }
+}
+
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
@@ -222,7 +229,6 @@ kotlin {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -230,8 +236,6 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-
-    // Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.runtime)
     implementation(libs.compose.ui)
@@ -270,9 +274,12 @@ dependencies {
     // ====== 必要依赖结束 ======
     // 测试依赖
     testImplementation("junit:junit:4.13.2")
-    // MTDataFilesProvider,documentfile
+    // MTDataFilesProvider
     //debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
-    debugImplementation(project(":mt-provider"))
-    debugImplementation("androidx.documentfile:documentfile:1.1.0")
+    implementation(project(":mt-provider"))
 
+    val localFile = file("libs/android.aar")
+    if (localFile.exists()) {
+        debugImplementation(files(localFile))
+    }
 }

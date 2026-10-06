@@ -34,4 +34,5 @@
 - [sunilpaulmathew/ashell](https://gitlab.com/sunilpaulmathew/ashell)<br>
 - [termux/termux-app](https://github.com/termux/termux-app)<br>
 
-> 若有任何涉及到侵权的地方，请联系我。
+> 若有任何涉及到侵权的地方，请联系我<br>
+> 此项目遵循开源依赖上游开源协议规则

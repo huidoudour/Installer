@@ -30,7 +30,7 @@ object ShellExecutor {
 
     /**
      * PTY (伪终端) Shell 会话
-     * 基于 TermuxBridge / libtermux_bridge.so
+     * 基于 TermuxBridge / libTermux.so
      * 参考: https://github.com/termux/termux-app/wiki/Termux-Libraries
      */
     class PtyShellSession(

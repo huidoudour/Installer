@@ -3,7 +3,7 @@
 .kotlin
 /.idea
 !/.idea/icon.svg
-
+libs/
 /.lingma
 .DS_Store
 /build
