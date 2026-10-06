@@ -37,26 +37,56 @@ fun getGitCommitHash(): String {
 val appVersionCode = baseVersionCode + getGitCommitCount()
 val appVersionName = "${baseVersionName}.${getGitCommitCount()}.${getGitCommitHash()}"
 
-tasks.matching { it.name.startsWith("assemble") || it.name.startsWith("bundle") }.configureEach {
+// 构建开始横幅：独立任务（被 assemble/bundle 依赖），无输出故每次都会执行，配置缓存复用也不例外
+val buildBanner = tasks.register("buildBanner") {
+    description = "执行时间戳"
+    // CC 兼容：配置期求值成普通 List<String>，Action 只捕获它
+    val requested = gradle.startParameter.taskNames
+        .map { it.substringAfterLast(':') }
+        .filter { it.startsWith("assemble") || it.startsWith("bundle") || it == "build" }
+        .distinct()
     doLast {
-        println(">>> Installer-[$name]: $appVersionName($appVersionCode) <<<")
+        val ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        println(">>> app-[${requested.joinToString(", ")}] @ $ts <<<")
+    }
+}
+
+// 让所有任务都排在开始横幅之后，确保横幅始终位于日志最前
+rootProject.allprojects.forEach { p ->
+    p.tasks.configureEach {
+        if (path != buildBanner.get().path) mustRunAfter(buildBanner)
+    }
+}
+
+// CC 兼容：doLast 只捕获普通值，避免引用脚本作用域成员
+tasks.matching { it.name.startsWith("assemble") || it.name.startsWith("bundle") }.configureEach {
+    dependsOn(buildBanner)
+    val taskName = name
+    val versionName = appVersionName
+    val versionCode = appVersionCode
+    doLast {
+        // 时间戳在任务执行期获取，仅用 JDK API，避免捕获 Script 对象
+        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        println(">>> app-[$taskName]: $versionName($versionCode) @ $timestamp <<<")
     }
 }
 
 val generateGitLog = tasks.register("generateGitLog") {
     description = "ChangeLog"
+    // CC 兼容：文件定位与日志内容在配置期求值，doLast 仅执行写入
+    val outputFile = layout.projectDirectory.file("src/main/assets/git_commits.md")
+    val text = try {
+        providers.exec {
+            commandLine("git", "log", "--pretty=format:### %s%n%b%n")
+            workingDir(rootProject.projectDir)
+        }.standardOutput.asText.get()
+    } catch (_: Exception) {
+        "# 暂无提交记录"
+    }
     doLast {
-        val outputFile = file("src/main/assets/git_commits.md")
-        val text = try {
-            providers.exec {
-                commandLine("git", "log", "--pretty=format:### %s%n%b%n")
-                workingDir(rootProject.projectDir)
-            }.standardOutput.asText.get()
-        } catch (_: Exception) {
-            "# 暂无提交记录"
-        }
-        outputFile.parentFile?.mkdirs()
-        outputFile.writeText(text, Charsets.UTF_8)
+        val file = outputFile.asFile
+        file.parentFile?.mkdirs()
+        file.writeText(text, Charsets.UTF_8)
     }
 }
 
