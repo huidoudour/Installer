@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="btn_shell_tab">TAB</string>
+    <string name="btn_shell_cancel">^C</string>
+    <string name="btn_shell_close">^D</string>
+    <string name="btn_shell_esc">ESC</string>
+    <string name="btn_shell_clear">C</string>
+    <string name="btn_shell_paste">P</string>
+    <string name="btn_shell_quick">Q</string>
+    <string name="btn_shell_save">S</string>
+    <string name="terminal_output">终端输出喵</string>
+    <string name="content_description_history">历史喵</string>
+    <string name="content_description_bookmarks">书签喵</string>
+    <string name="quick_commands">快捷指令喵</string>
+    <string name="no_command_history">没有命令历史喵</string>
+    <string name="no_bookmarks_saved">没有保存的书签喵</string>
+    <string name="add_bookmark_title">添加书签喵</string>
+    <string name="enter_command_bookmark_hint">输入要加入书签的命令喵...</string>
+    <string name="add_bookmark_action">添加书签喵</string>
+    <string name="remove_bookmark_action">移除喵</string>
+    <string name="share_output_title">分享输出喵</string>
+    <string name="share_failed">分享失败喵：%s</string>
+    <string name="save_failed">保存失败喵</string>
+    <string name="close">关闭喵</string>
+    <string name="ok">好的喵</string>
+    <string name="cancel">取消喵</string>
+</resources>

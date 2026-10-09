@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.ui.shell
+package dev.huidoudour.terminal
 
 import android.graphics.Typeface
 import android.text.TextPaint
@@ -44,7 +44,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
-import dev.huidoudour.installer.terminal.TerminalEmulator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

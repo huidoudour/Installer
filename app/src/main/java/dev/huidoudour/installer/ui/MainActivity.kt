@@ -54,7 +54,7 @@ import dev.huidoudour.installer.ui.logs.LogsScreen
 import dev.huidoudour.installer.ui.me.MeScreen
 import dev.huidoudour.installer.ui.settings.InstallSettingsScreen
 import dev.huidoudour.installer.ui.settings.SettingsScreen
-import dev.huidoudour.installer.ui.shell.ShellScreen
+import dev.huidoudour.terminal.ShellScreen
 import dev.huidoudour.installer.ui.theme.AppTheme
 import dev.huidoudour.installer.util.LanguageManager
 import dev.huidoudour.installer.util.ThemeManager

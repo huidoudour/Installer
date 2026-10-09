@@ -1,0 +1,8 @@
+# 保持 TermuxBridge 的类名与成员，确保 JNI 动态注册/符号查找匹配
+-keep class dev.huidoudour.terminal.TermuxBridge { *; }
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# 保留行号信息，便于 native 崩溃堆栈定位
+-keepattributes SourceFile,LineNumberTable

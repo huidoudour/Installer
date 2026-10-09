@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.terminal
+package dev.huidoudour.terminal
 
 import kotlin.math.max
 import kotlin.math.min
@@ -751,6 +751,17 @@ class TerminalEmulator(
         val oldRows = rows
         val oldScreen = screen
 
+        // 键盘弹出压缩视口时，把光标上方的行保留进 scrollback，
+        // 让输入行保持可见，避免提示符被丢在旧屏幕底部而看不到。
+        val rowShift = max(0, cursorRow - newRows + 1)
+        for (r in 0 until rowShift) {
+            val lineCopy = oldScreen[r].toMutableList()
+            scrollbackBuffer.addLast(lineCopy)
+            if (scrollbackBuffer.size > maxScrollbackLines) {
+                scrollbackBuffer.removeFirst()
+            }
+        }
+
         rows = newRows
         cols = newCols
         scrollOffset = 0
@@ -758,11 +769,12 @@ class TerminalEmulator(
         // 根据新列宽重建 tab 停止位
         tabStops = buildTabStops(newCols)
 
-        // 创建新屏幕
+        // 创建新屏幕 (按 rowShift 平移，保留光标所在行及其下方内容)
         val newScreen = MutableList(newRows) { r ->
             MutableList(newCols) { c ->
-                if (r < oldRows && c < oldScreen[r].size) {
-                    oldScreen[r][c]
+                val oldRow = r + rowShift
+                if (oldRow < oldRows && c < oldScreen[oldRow].size) {
+                    oldScreen[oldRow][c]
                 } else {
                     Cell()
                 }
@@ -773,7 +785,10 @@ class TerminalEmulator(
 
         // 调整滚动区域
         scrollBottom = newRows - 1
-        cursorRow = min(cursorRow, newRows - 1)
+        scrollTop = min(scrollTop, newRows - 1)
+        cursorRow = min(cursorRow - rowShift, newRows - 1)
+        savedCursorRow = (savedCursorRow - rowShift).coerceIn(0, newRows - 1)
+        savedCursorCol = min(savedCursorCol, newCols - 1)
         cursorCol = min(cursorCol, newCols - 1)
 
         onSizeChanged?.invoke(newRows, newCols)

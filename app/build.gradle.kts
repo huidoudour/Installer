@@ -103,8 +103,6 @@ android {
             minorApiLevel = 1
         }
     }
-    ndkVersion = "30.0.14904198"
-
     defaultConfig {
         applicationId = "io.github.huidoudour.Installer"
         minSdk = 28
@@ -149,8 +147,6 @@ android {
             }
         }
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
             optimization {
                 enable = true
             }
@@ -159,13 +155,6 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            path = file("CMakeLists.txt")
-            version = "3.22.1"
         }
     }
 
@@ -249,6 +238,7 @@ dependencies {
     implementation("androidx.palette:palette:1.0.0")
     implementation(libs.profileinstaller)
     "baselineProfile"(project(":baselineprofile"))
+    implementation(project(":lib-terminal"))
 
     debugImplementation(libs.compose.ui.tooling.preview)
 

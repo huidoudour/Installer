@@ -22,7 +22,6 @@
     <string name="back">戻る</string>
     <string name="switched_to_shizuku">Shizukuに切り替えました</string>
     <string name="switched_to_dhizuku">Dhizukuに切り替えました</string>
-    <string name="close">閉じる</string>
     <string name="request_authorization">認証をリクエスト</string>
     <string name="privilege_settings_hint">アプリのインストールに使用する認証方式を選択してください。選択したサービスが実行中で認証されていることを確認してください。</string>
     <string name="lab_use_shizuku_install">インストールに Shizuku を使用</string>
@@ -104,15 +103,7 @@
     <string name="dollar_sign">$</string>
     <string name="up_arrow">↑</string>
     <string name="down_arrow">↓</string>
-    <string name="btn_shell_tab">TAB</string>
-    <string name="btn_shell_cancel">^C</string>
-    <string name="btn_shell_close">^D</string>
-    <string name="btn_shell_esc">ESC</string>
     <string name="root">root</string>
-    <string name="btn_shell_clear">C</string>
-    <string name="btn_shell_paste">P</string>
-    <string name="btn_shell_quick">Q</string>
-    <string name="btn_shell_save">S</string>
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizukuの状態</string>
@@ -296,7 +287,6 @@
     <string name="native_library_info">ネイティブライブラリ情報</string>
     <string name="performance_test">パフォーマンステスト</string>
     <string name="copy_text_to_clipboard">テキストをクリップボードにコピー</string>
-    <string name="terminal_output">ターミナル出力</string>
     <string name="command_history_management">コマンド履歴管理</string>
 
     <!-- Session and terminal management -->
@@ -471,11 +461,8 @@
     <string name="user_prompt">user@ashell:~$</string>
     <string name="command_cancelled_session_reset">[コマンドがキャンセルされ、セッションがリセットされました]</string>
     <string name="process_completed_with_exit_code">[プロセスが終了コード %d で完了しました]</string>
-    <string name="content_description_history">履歴</string>
-    <string name="content_description_bookmarks">ブックマーク</string>
     <string name="content_description_search">検索</string>
     <string name="content_description_save">保存</string>
-    <string name="quick_commands">クイックコマンド</string>
     <string name="hash_sign">#</string>
     <string name="user">ユーザー</string>
 
@@ -634,10 +621,6 @@
     <string name="min_sdk_label">最小SDK：</string>
     <string name="target_sdk_label">ターゲットSDK：</string>
     <string name="search_in_output_hint">出力を検索...</string>
-    <string name="no_command_history">コマンド履歴なし</string>
-    <string name="no_bookmarks_saved">ブックマークがありません</string>
-    <string name="add_bookmark_title">ブックマークを追加</string>
-    <string name="enter_command_bookmark_hint">ブックマークするコマンドを入力...</string>
     <string name="theme_color_title">テーマカラー</string>
     <string name="follow_wallpaper_option">壁紙に従う</string>
     <string name="preset_colors_title">プリセットカラー</string>
@@ -655,13 +638,8 @@
     <string name="clear_screen">消去</string>
     <string name="clipboard_action">クリップボード</string>
     <string name="quick_commands_action">クイックコマンド</string>
-    <string name="add_bookmark_action">ブックマークを追加</string>
-    <string name="remove_bookmark_action">削除</string>
 
     <!-- Share and save related -->
-    <string name="share_output_title">出力を共有</string>
-    <string name="share_failed">共有失敗：%s</string>
-    <string name="save_failed">保存失敗</string>
     <string name="scroll_to_top">先頭にスクロール</string>
     <string name="scroll_to_bottom">末尾にスクロール</string>
     <string name="cannot_open_notification_settings">通知設定を開けません</string>

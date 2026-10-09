@@ -22,7 +22,6 @@
     <string name="back">Back</string>
     <string name="switched_to_shizuku">Switched to Shizuku</string>
     <string name="switched_to_dhizuku">Switched to Dhizuku</string>
-    <string name="close">Close</string>
     <string name="request_authorization">Request Authorization</string>
     <string name="privilege_settings_hint">Select the authorization method for installing apps. Make sure the selected service is running and authorized.</string>
     <string name="lab_use_shizuku_install">Use Shizuku for installs</string>
@@ -104,15 +103,7 @@
     <string name="dollar_sign">$</string>
     <string name="up_arrow">↑</string>
     <string name="down_arrow">↓</string>
-    <string name="btn_shell_tab">TAB</string>
-    <string name="btn_shell_cancel">^C</string>
-    <string name="btn_shell_close">^D</string>
-    <string name="btn_shell_esc">ESC</string>
     <string name="root">root</string>
-    <string name="btn_shell_clear">C</string>
-    <string name="btn_shell_paste">P</string>
-    <string name="btn_shell_quick">Q</string>
-    <string name="btn_shell_save">S</string>
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Shizuku Status</string>
@@ -296,7 +287,6 @@
     <string name="native_library_info">Native Library Info</string>
     <string name="performance_test">Performance Test</string>
     <string name="copy_text_to_clipboard">Copy text to clipboard</string>
-    <string name="terminal_output">Terminal Output</string>
     <string name="command_history_management">Command history management</string>
 
     <!-- Session and terminal management -->
@@ -471,11 +461,8 @@
     <string name="user_prompt">user@ashell:~$</string>
     <string name="command_cancelled_session_reset">[Command canceled, session reset]</string>
     <string name="process_completed_with_exit_code">[Process completed with exit code %d]</string>
-    <string name="content_description_history">History</string>
-    <string name="content_description_bookmarks">Bookmarks</string>
     <string name="content_description_search">Search</string>
     <string name="content_description_save">Save</string>
-    <string name="quick_commands">Quick Commands</string>
     <string name="hash_sign">#</string>
     <string name="user">user</string>
 
@@ -634,10 +621,6 @@
     <string name="min_sdk_label">Min SDK: </string>
     <string name="target_sdk_label">Target SDK: </string>
     <string name="search_in_output_hint">Search in output...</string>
-    <string name="no_command_history">No command history</string>
-    <string name="no_bookmarks_saved">No bookmarks saved</string>
-    <string name="add_bookmark_title">Add Bookmark</string>
-    <string name="enter_command_bookmark_hint">Enter command to bookmark...</string>
     <string name="theme_color_title">Theme Color</string>
     <string name="follow_wallpaper_option">Follow Wallpaper</string>
     <string name="preset_colors_title">Preset Colors</string>
@@ -655,13 +638,8 @@
     <string name="clear_screen">Clear</string>
     <string name="clipboard_action">Clipboard</string>
     <string name="quick_commands_action">Quick Commands</string>
-    <string name="add_bookmark_action">Add bookmark</string>
-    <string name="remove_bookmark_action">Remove</string>
 
     <!-- Share and save related -->
-    <string name="share_output_title">Share Output</string>
-    <string name="share_failed">Share failed: %s</string>
-    <string name="save_failed">Save failed</string>
     <string name="scroll_to_top">Scroll to top</string>
     <string name="scroll_to_bottom">Scroll to bottom</string>
     <string name="cannot_open_notification_settings">Unable to open notification settings</string>

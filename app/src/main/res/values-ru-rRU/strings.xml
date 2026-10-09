@@ -22,7 +22,6 @@
     <string name="back">Назад</string>
     <string name="switched_to_shizuku">Переключено на Shizuku</string>
     <string name="switched_to_dhizuku">Переключено на Dhizuku</string>
-    <string name="close">Закрыть</string>
     <string name="request_authorization">Запросить авторизацию</string>
     <string name="privilege_settings_hint">Выберите способ авторизации для установки приложений. Убедитесь, что выбранный сервис запущен и авторизован.</string>
     <string name="lab_use_shizuku_install">Использовать Shizuku для установки</string>
@@ -104,15 +103,7 @@
     <string name="dollar_sign">$</string>
     <string name="up_arrow">↑</string>
     <string name="down_arrow">↓</string>
-    <string name="btn_shell_tab">TAB</string>
-    <string name="btn_shell_cancel">^C</string>
-    <string name="btn_shell_close">^D</string>
-    <string name="btn_shell_esc">ESC</string>
     <string name="root">root</string>
-    <string name="btn_shell_clear">C</string>
-    <string name="btn_shell_paste">P</string>
-    <string name="btn_shell_quick">Q</string>
-    <string name="btn_shell_save">S</string>
 
     <!-- Shizuku/Dhizuku status -->
     <string name="shizuku_status">Статус Shizuku</string>
@@ -296,7 +287,6 @@
     <string name="native_library_info">Информация о нативной библиотеке</string>
     <string name="performance_test">Тест производительности</string>
     <string name="copy_text_to_clipboard">Копировать текст в буфер обмена</string>
-    <string name="terminal_output">Вывод терминала</string>
     <string name="command_history_management">Управление историей команд</string>
 
     <!-- Session and terminal management -->
@@ -471,11 +461,8 @@
     <string name="user_prompt">user@ashell:~$</string>
     <string name="command_cancelled_session_reset">[Команда отменена, сессия сброшена]</string>
     <string name="process_completed_with_exit_code">[Процесс завершен с кодом выхода %d]</string>
-    <string name="content_description_history">История</string>
-    <string name="content_description_bookmarks">Закладки</string>
     <string name="content_description_search">Поиск</string>
     <string name="content_description_save">Сохранить</string>
-    <string name="quick_commands">Быстрые команды</string>
     <string name="hash_sign">#</string>
     <string name="user">пользователь</string>
 
@@ -634,10 +621,6 @@
     <string name="min_sdk_label">Мин. SDK: </string>
     <string name="target_sdk_label">Целевой SDK: </string>
     <string name="search_in_output_hint">Поиск в выводе...</string>
-    <string name="no_command_history">Нет истории команд</string>
-    <string name="no_bookmarks_saved">Нет сохранённых закладок</string>
-    <string name="add_bookmark_title">Добавить закладку</string>
-    <string name="enter_command_bookmark_hint">Введите команду для закладки...</string>
     <string name="theme_color_title">Цвет темы</string>
     <string name="follow_wallpaper_option">Следовать обоям</string>
     <string name="preset_colors_title">Предустановленные цвета</string>
@@ -655,13 +638,8 @@
     <string name="clear_screen">Очистить</string>
     <string name="clipboard_action">Буфер обмена</string>
     <string name="quick_commands_action">Быстрые команды</string>
-    <string name="add_bookmark_action">Добавить закладку</string>
-    <string name="remove_bookmark_action">Удалить</string>
 
     <!-- Share and save related -->
-    <string name="share_output_title">Поделиться выводом</string>
-    <string name="share_failed">Не удалось поделиться: %s</string>
-    <string name="save_failed">Не удалось сохранить</string>
     <string name="scroll_to_top">Прокрутить вверх</string>
     <string name="scroll_to_bottom">Прокрутить вниз</string>
     <string name="cannot_open_notification_settings">Не удалось открыть настройки уведомлений</string>

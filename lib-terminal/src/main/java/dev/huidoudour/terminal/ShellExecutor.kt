@@ -1,12 +1,10 @@
-package dev.huidoudour.installer.auth
+package dev.huidoudour.terminal
 
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
-import dev.huidoudour.installer.terminal.TermuxBridge
-import dev.huidoudour.installer.R
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.BufferedWriter
@@ -21,6 +19,10 @@ import java.lang.reflect.Method
 object ShellExecutor {
 
     private const val TAG = "ShellExecutor"
+
+    // 终端使用 Shizuku 开关 (与主机应用共享 privilege_settings)
+    private const val PREFS_NAME = "privilege_settings"
+    private const val KEY_USE_SHIZUKU_TERMINAL = "use_shizuku_terminal"
 
     // ====== PTY / Shizuku 模式 ======
     @Volatile
@@ -372,7 +374,17 @@ object ShellExecutor {
      * 任一不满足即回退到 app UID 的 PTY 会话。
      */
     fun shouldUseShizukuTerminal(context: Context): Boolean =
-        isShizukuAvailable() && PrivilegeHelper.isTerminalShizukuEnabled(context)
+        isShizukuAvailable() && isTerminalShizukuEnabled(context)
+
+    /** 终端使用 Shizuku 会话开关 (shell UID)，关闭后回退到 app UID 的 PTY 会话 */
+    fun isTerminalShizukuEnabled(context: Context): Boolean =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_USE_SHIZUKU_TERMINAL, true)
+
+    fun setTerminalShizukuEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putBoolean(KEY_USE_SHIZUKU_TERMINAL, enabled).apply()
+    }
 
     /**
      * 计算终端会话的默认工作目录:

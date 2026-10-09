@@ -24,5 +24,6 @@ MarsCodeWorkspaceAppSettings.xml
 .claude
 *.py
 *.bak
+*.ps1
 
 /src/main/assets

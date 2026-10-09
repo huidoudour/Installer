@@ -9,7 +9,7 @@ on:
     paths:
       - 'app/src/**'
       - 'app/build.gradle.kts'
-      - 'app/CMakeLists.txt'
+      - 'lib-terminal/**'
       - 'hidden-api/src/**'
       - 'hidden-api/build.gradle.kts'
       - 'build.gradle.kts'

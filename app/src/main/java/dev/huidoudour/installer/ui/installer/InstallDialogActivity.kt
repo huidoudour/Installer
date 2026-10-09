@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import dev.huidoudour.installer.auth.ShellExecutor
+import dev.huidoudour.terminal.ShellExecutor
 import dev.huidoudour.installer.ui.theme.AppTheme
 import dev.huidoudour.installer.util.LanguageManager
 import dev.huidoudour.installer.util.LogManager

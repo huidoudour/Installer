@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.ui.shell
+package dev.huidoudour.terminal
 
 import android.app.Application
 import android.content.Context
@@ -7,8 +7,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import dev.huidoudour.installer.auth.ShellExecutor
-import dev.huidoudour.installer.terminal.TerminalEmulator
 import java.io.File
 import java.io.FileWriter
 import java.text.SimpleDateFormat

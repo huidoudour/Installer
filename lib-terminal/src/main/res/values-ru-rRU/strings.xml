@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="btn_shell_tab">TAB</string>
+    <string name="btn_shell_cancel">^C</string>
+    <string name="btn_shell_close">^D</string>
+    <string name="btn_shell_esc">ESC</string>
+    <string name="btn_shell_clear">C</string>
+    <string name="btn_shell_paste">P</string>
+    <string name="btn_shell_quick">Q</string>
+    <string name="btn_shell_save">S</string>
+    <string name="terminal_output">Вывод терминала</string>
+    <string name="content_description_history">История</string>
+    <string name="content_description_bookmarks">Закладки</string>
+    <string name="quick_commands">Быстрые команды</string>
+    <string name="no_command_history">Нет истории команд</string>
+    <string name="no_bookmarks_saved">Нет сохранённых закладок</string>
+    <string name="add_bookmark_title">Добавить закладку</string>
+    <string name="enter_command_bookmark_hint">Введите команду для закладки...</string>
+    <string name="add_bookmark_action">Добавить закладку</string>
+    <string name="remove_bookmark_action">Удалить</string>
+    <string name="share_output_title">Поделиться выводом</string>
+    <string name="share_failed">Не удалось поделиться: %s</string>
+    <string name="save_failed">Не удалось сохранить</string>
+    <string name="close">Закрыть</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Отмена</string>
+</resources>

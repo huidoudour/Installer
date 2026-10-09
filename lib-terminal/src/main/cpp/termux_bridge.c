@@ -160,7 +160,7 @@ static int create_subprocess_internal(
 }
 
 JNIEXPORT jint JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeCreateSubprocess(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeCreateSubprocess(
     JNIEnv* env,
     jclass TERMUX_UNUSED(clazz),
     jstring cmd,
@@ -271,7 +271,7 @@ Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeCreateSubprocess(
 // ========== setPtyWindowSize ==========
 
 JNIEXPORT void JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeSetPtyWindowSize(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeSetPtyWindowSize(
     JNIEnv* TERMUX_UNUSED(env),
     jclass TERMUX_UNUSED(clazz),
     jint fd,
@@ -290,7 +290,7 @@ Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeSetPtyWindowSize(
 // ========== setPtyUTF8Mode ==========
 
 JNIEXPORT void JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeSetPtyUTF8Mode(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeSetPtyUTF8Mode(
     JNIEnv* TERMUX_UNUSED(env),
     jclass TERMUX_UNUSED(clazz),
     jint fd)
@@ -306,7 +306,7 @@ Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeSetPtyUTF8Mode(
 // ========== waitFor ==========
 
 JNIEXPORT jint JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeWaitFor(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeWaitFor(
     JNIEnv* TERMUX_UNUSED(env),
     jclass TERMUX_UNUSED(clazz),
     jint pid)
@@ -324,7 +324,7 @@ Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeWaitFor(
 // ========== close ==========
 
 JNIEXPORT void JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeClose(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeClose(
     JNIEnv* TERMUX_UNUSED(env),
     jclass TERMUX_UNUSED(clazz),
     jint fd)
@@ -337,7 +337,7 @@ Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeClose(
 // 返回: 实际读取的字节数，-1 表示错误
 
 JNIEXPORT jint JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeReadFromPty(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeReadFromPty(
     JNIEnv* env,
     jclass TERMUX_UNUSED(clazz),
     jint fd,
@@ -388,7 +388,7 @@ Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeReadFromPty(
 // ========== writeToPty ==========
 
 JNIEXPORT jint JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeWriteToPty(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeWriteToPty(
     JNIEnv* env,
     jclass TERMUX_UNUSED(clazz),
     jint fd,
@@ -412,7 +412,7 @@ Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeWriteToPty(
 // 检查进程是否存活
 
 JNIEXPORT jboolean JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeIsAlive(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeIsAlive(
     JNIEnv* TERMUX_UNUSED(env),
     jclass TERMUX_UNUSED(clazz),
     jint pid)
@@ -424,7 +424,7 @@ Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeIsAlive(
 // ========== setNonBlocking ==========
 
 JNIEXPORT void JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeSetNonBlocking(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeSetNonBlocking(
     JNIEnv* TERMUX_UNUSED(env),
     jclass TERMUX_UNUSED(clazz),
     jint fd,
@@ -442,7 +442,7 @@ Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeSetNonBlocking(
 // 获取进程退出码 (非阻塞, 检查 WNOHANG)
 
 JNIEXPORT jint JNICALL
-Java_dev_huidoudour_installer_terminal_TermuxBridge_nativeGetExitCode(
+Java_dev_huidoudour_terminal_TermuxBridge_nativeGetExitCode(
     JNIEnv* TERMUX_UNUSED(env),
     jclass TERMUX_UNUSED(clazz),
     jint pid)

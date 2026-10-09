@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.ui.shell
+package dev.huidoudour.terminal
 
 import android.content.Context
 import android.content.Intent
@@ -64,9 +64,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.huidoudour.installer.auth.ShellExecutor
-import dev.huidoudour.installer.terminal.CommandBookmarks
-import dev.huidoudour.installer.R
 import android.graphics.Typeface as AndroidTypeface
 
 /**

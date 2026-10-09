@@ -1,4 +1,4 @@
-package dev.huidoudour.installer.terminal
+package dev.huidoudour.terminal
 
 import android.util.Log
 import java.io.File
