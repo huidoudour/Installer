@@ -48,7 +48,10 @@ class TerminalEmulator(
         val char: Char = ' ',
         val fg: Int = DEFAULT_FG,
         val bg: Int = DEFAULT_BG,
-        val bold: Boolean = false
+        val bold: Boolean = false,
+        val text: String = char.toString(),
+        // Zero marks the second column of a wide glyph; it is never drawn/exported.
+        val width: Int = 1
     )
 
     /** 屏幕尺寸变化监听 */
@@ -91,6 +94,7 @@ class TerminalEmulator(
     private val params = mutableListOf<Int>()
     private var paramAccum = 0
     private var hasParam = false
+    private var csiPrivate = false
     private val oscBuffer = StringBuilder()
 
     // 滚动区域
@@ -127,8 +131,15 @@ class TerminalEmulator(
         if (scrollOffset > 0) {
             scrollOffset = 0
         }
-        for (i in 0 until length) {
-            feedByte(data[i].toInt() and 0xFF)
+        feeding = true
+        try {
+            for (i in 0 until length) {
+                feedByte(data[i].toInt() and 0xFF)
+            }
+        } finally {
+            feeding = false
+            // Include cursor-only/control updates, and notify once per output chunk.
+            notifyUpdate()
         }
     }
 
@@ -153,7 +164,7 @@ class TerminalEmulator(
                 if (--utf8ContBytes == 0) {
                     val cp = decodeUtf8(utf8Lead, utf8Buf, utf8BufIdx)
                     utf8Reset()
-                    if (cp >= 0) putChar(cp.toChar())
+                    if (cp >= 0) putCodePoint(cp)
                 }
                 return
             }
@@ -213,6 +224,7 @@ class TerminalEmulator(
             '['.code -> {
                 parseState = ParseState.CSI
                 params.clear()
+                csiPrivate = false
                 paramAccum = 0
                 hasParam = false
             }
@@ -264,6 +276,7 @@ class TerminalEmulator(
 
     private fun handleCSIParam(b: Int) {
         when (b) {
+            '?'.code -> csiPrivate = true // DEC private modes, e.g. cursor visibility (?25h/l)
             ';'.code -> {
                 params.add(if (hasParam) paramAccum else 0)
                 paramAccum = 0
@@ -314,7 +327,7 @@ class TerminalEmulator(
                 cursorRow = min(savedCursorRow, rows - 1)
                 cursorCol = min(savedCursorCol, cols - 1)
             }
-            'h', 'l' -> setDecMode(cmd == 'h')
+            'h', 'l' -> if (csiPrivate) setDecMode(cmd == 'h')
         }
     }
 
@@ -360,23 +373,50 @@ class TerminalEmulator(
 
     // ==================== 字符操作 ====================
 
-    private fun putChar(c: Char) {
-        when (c) {
-            '\n' -> lineFeed()
-            '\r' -> carriageReturn()
-            '\t' -> tab()
-            '\b' -> backspace()
-            else -> {
-                if (cursorCol >= cols) {
-                    cursorCol = 0
-                    lineFeed()
-                }
-                if (cursorRow >= rows) {
-                    cursorRow = rows - 1
-                }
-                screen[cursorRow][cursorCol] = Cell(c, currentFg, currentBg, currentBold)
-                cursorCol++
-                notifyUpdate()
+    private fun putChar(c: Char) = putCodePoint(c.code)
+
+    private fun putCodePoint(codePoint: Int) {
+        val text = String(Character.toChars(codePoint))
+        val width = terminalCharacterWidth(codePoint)
+        if (width == 0) {
+            var col = (cursorCol - 1).coerceAtMost(cols - 1)
+            if (col >= 0 && screen[cursorRow][col].width == 0) col--
+            if (col >= 0) {
+                val cell = screen[cursorRow][col]
+                screen[cursorRow][col] = cell.copy(text = cell.text + text)
+            }
+            return
+        }
+        if (cursorCol + width > cols) {
+            cursorCol = 0
+            lineFeed()
+        }
+        // A one-column viewport cannot hold a two-column glyph.
+        val cellWidth = width.coerceAtMost(cols)
+        for (col in cursorCol until cursorCol + cellWidth) clearCell(screen[cursorRow], col)
+        screen[cursorRow][cursorCol] = Cell(text[0], currentFg, currentBg, currentBold, text, cellWidth)
+        if (cellWidth == 2) {
+            screen[cursorRow][cursorCol + 1] = Cell(' ', currentFg, currentBg, currentBold, "", 0)
+        }
+        cursorCol += cellWidth
+        notifyUpdate()
+    }
+
+    /** Erasing/overwriting either half must not leave an orphan wide glyph. */
+    private fun clearCell(line: MutableList<Cell>, col: Int) {
+        if (col !in line.indices) return
+        if (line[col].width == 0 && col > 0) line[col - 1] = Cell()
+        if (line[col].width == 2 && col + 1 < line.size) line[col + 1] = Cell()
+        line[col] = Cell()
+    }
+
+    private fun normalizeWideCells(line: MutableList<Cell>) {
+        for (col in line.indices) {
+            val cell = line[col]
+            if (cell.width == 2 && (col + 1 == line.size || line[col + 1].width != 0)) {
+                line[col] = Cell()
+            } else if (cell.width == 0 && (col == 0 || line[col - 1].width != 2)) {
+                line[col] = Cell()
             }
         }
     }
@@ -384,8 +424,8 @@ class TerminalEmulator(
     private fun backspace() {
         if (cursorCol > 0) {
             cursorCol--
-            // 擦除光标新位置上的字符 (本地回显用)
-            screen[cursorRow][cursorCol] = Cell()
+            if (screen[cursorRow][cursorCol].width == 0 && cursorCol > 0) cursorCol--
+            clearCell(screen[cursorRow], cursorCol)
             notifyUpdate()
         }
     }
@@ -455,7 +495,7 @@ class TerminalEmulator(
     private fun eraseLine(colStart: Int, colEnd: Int) {
         for (c in colStart..colEnd) {
             if (c < cols) {
-                screen[cursorRow][c] = Cell()
+                clearCell(screen[cursorRow], c)
             }
         }
     }
@@ -470,7 +510,7 @@ class TerminalEmulator(
     private fun eraseCharacters(n: Int) {
         val end = min(cursorCol + n - 1, cols - 1)
         for (c in cursorCol..end) {
-            screen[cursorRow][c] = Cell()
+            clearCell(screen[cursorRow], c)
         }
         notifyUpdate()
     }
@@ -522,6 +562,7 @@ class TerminalEmulator(
         for (c in cols - count until cols) {
             screen[cursorRow][c] = Cell()
         }
+        normalizeWideCells(screen[cursorRow])
         notifyUpdate()
     }
 
@@ -534,6 +575,7 @@ class TerminalEmulator(
         for (c in cursorCol until cursorCol + count) {
             screen[cursorRow][c] = Cell()
         }
+        normalizeWideCells(screen[cursorRow])
         notifyUpdate()
     }
 
@@ -731,13 +773,13 @@ class TerminalEmulator(
         val sb = StringBuilder()
         for (line in scrollbackBuffer) {
             for (cell in line) {
-                sb.append(cell.char)
+                sb.append(cell.text)
             }
             sb.append('\n')
         }
         for (row in screen) {
             for (cell in row) {
-                sb.append(cell.char)
+                sb.append(cell.text)
             }
             sb.append('\n')
         }
@@ -781,6 +823,7 @@ class TerminalEmulator(
             }
         }
 
+        newScreen.forEach(::normalizeWideCells)
         screen = newScreen
 
         // 调整滚动区域
@@ -831,7 +874,9 @@ class TerminalEmulator(
         notifyUpdate()
     }
 
+    private var feeding = false
+
     private fun notifyUpdate() {
-        onScreenUpdated?.invoke()
+        if (!feeding) onScreenUpdated?.invoke()
     }
 }

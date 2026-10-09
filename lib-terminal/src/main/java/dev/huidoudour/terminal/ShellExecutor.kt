@@ -51,8 +51,8 @@ object ShellExecutor {
                         val n = pty.inputStream.readWithTimeout(buffer, 0, buffer.size, 50)
                         if (n > 0) {
                             // 实时推送数据到终端模拟器，不按行缓冲
-                            val text = String(buffer, 0, n, Charsets.UTF_8)
-                            callback?.onOutput(text)
+                            // Preserve UTF-8 sequences that straddle PTY read boundaries.
+                            callback?.onOutputBytes(buffer.copyOf(n))
                         } else if (n < 0) {
                             Log.w(TAG, "PTY read error: $n")
                             break
@@ -204,6 +204,7 @@ object ShellExecutor {
     }
 
     interface ExecuteCallback {
+        fun onOutputBytes(bytes: ByteArray) = onOutput(bytes.toString(Charsets.UTF_8))
         fun onOutput(line: String)
         fun onError(error: String)
         fun onComplete(exitCode: Int)

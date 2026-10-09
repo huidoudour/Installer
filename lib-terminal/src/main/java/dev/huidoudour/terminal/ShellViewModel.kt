@@ -2,6 +2,8 @@ package dev.huidoudour.terminal
 
 import android.app.Application
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -15,9 +17,12 @@ import java.util.Locale
 
 class ShellViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val outputHandler = Handler(Looper.getMainLooper())
+
     override fun onCleared() {
         super.onCleared()
         ShellExecutor.destroyPtySession()
+        outputHandler.removeCallbacksAndMessages(null)
     }
 
     private val context: Context get() = getApplication()
@@ -34,12 +39,12 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
     var usingShizuku by mutableStateOf(false)
         private set
 
-    val needLocalEcho: Boolean
-        get() = usingShizuku
     var ptyRowCount by mutableIntStateOf(24)
         private set
     var ptyColCount by mutableIntStateOf(80)
         private set
+
+    private val pipeInput = PipeTerminalInput(terminal, ::sendRawKeyInput)
 
     init {
         val welcome = buildString {
@@ -53,17 +58,21 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun initPtySession() {
+        pipeInput.reset()
         val session = ShellExecutor.startTerminalSession(
             context = getApplication(),
             callback = object : ShellExecutor.ExecuteCallback {
+                override fun onOutputBytes(bytes: ByteArray) {
+                    outputHandler.post { terminal.feed(bytes, bytes.size) }
+                }
                 override fun onOutput(line: String) {
                     // PTY 输出直接喂入终端模拟器 (已包含 \n, 不额外追加)
                     val bytes = line.toByteArray(Charsets.UTF_8)
-                    terminal.feed(bytes, bytes.size)
+                    outputHandler.post { terminal.feed(bytes, bytes.size) }
                 }
                 override fun onError(error: String) {
                     val bytes = error.toByteArray(Charsets.UTF_8)
-                    terminal.feed(bytes, bytes.size)
+                    outputHandler.post { terminal.feed(bytes, bytes.size) }
                 }
                 override fun onComplete(exitCode: Int) {}
             },
@@ -106,6 +115,10 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
      * 无论 ptyMode 状态都尝试发送, PTY 断开时自动重连
      */
     fun sendKeyInput(bytes: ByteArray) {
+        if (usingShizuku) pipeInput.accept(bytes) else sendRawKeyInput(bytes)
+    }
+
+    private fun sendRawKeyInput(bytes: ByteArray) {
         val sent = ShellExecutor.executePtyCommandRaw(bytes)
         // 如果 PTY 会话已断开, 尝试重建
         if (!sent && ptySupported) {
@@ -117,18 +130,13 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * 发送特殊功能键序列到终端
      */
-    fun sendSpecialKey(sequence: ByteArray) {
-        val sent = ShellExecutor.executePtyCommandRaw(sequence)
-        if (!sent && ptySupported) {
-            initPtySession()
-            ShellExecutor.executePtyCommandRaw(sequence)
-        }
-    }
+    fun sendSpecialKey(sequence: ByteArray) = sendKeyInput(sequence)
 
     /**
      * 调整终端尺寸
      */
     fun setTerminalSize(rows: Int, cols: Int) {
+        if (rows == ptyRowCount && cols == ptyColCount) return
         ptyRowCount = rows
         ptyColCount = cols
         terminal.resize(rows, cols)

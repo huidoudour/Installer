@@ -2,7 +2,6 @@ package dev.huidoudour.terminal
 
 import android.content.Context
 import android.content.Intent
-import android.text.TextPaint
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -43,7 +42,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,9 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -64,7 +60,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import android.graphics.Typeface as AndroidTypeface
 
 /**
  * 终端 Shell 页面 - 类似 Termux 的全屏终端模拟器
@@ -88,38 +83,6 @@ fun ShellScreen(
     }
 
     var showQuickCommandsDialog by remember { mutableStateOf(false) }
-
-    // 终端尺寸计算 - 与 TerminalView 保持一致的 cell 尺寸
-    val density = LocalDensity.current
-    val fontSizePx = with(density) { 12f.sp.toPx() }
-    // 等宽字体实测 advance 宽度 (drawText 内部字符间距), 替代硬编码 0.67
-    val (charWidth, charHeight) = remember(fontSizePx) {
-        val paint = TextPaint().apply {
-            isAntiAlias = true
-            typeface = AndroidTypeface.MONOSPACE
-            textSize = fontSizePx
-        }
-        val widths = FloatArray(1)
-        paint.getTextWidths("M", widths)
-        val w = widths[0].coerceAtLeast(1f)
-        val h = fontSizePx * 1.25f
-        Pair(w, h)
-    }
-    var terminalWidth by remember { mutableIntStateOf(0) }
-    var terminalHeight by remember { mutableIntStateOf(0) }
-
-    // 减去 TerminalView 4dp 上下 padding，使 rows 匹配实际 Canvas 绘制区域
-    val terminalPaddingPx = with(density) { 8.dp.toPx() }
-
-    // 终端尺寸随可用空间变化实时调整 (包括键盘弹出/收起)
-    // 使用固定字体尺寸，resize 不会导致文本缩放
-    LaunchedEffect(terminalWidth, terminalHeight) {
-        if (terminalWidth > 0 && terminalHeight > 0) {
-            val cols = ((terminalWidth - terminalPaddingPx) / charWidth).toInt().coerceAtLeast(20)
-            val rows = ((terminalHeight - terminalPaddingPx) / charHeight).toInt().coerceAtLeast(4)
-            viewModel.setTerminalSize(rows, cols)
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -166,10 +129,6 @@ fun ShellScreen(
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
-                    .onSizeChanged { size ->
-                        terminalWidth = size.width
-                        terminalHeight = size.height
-                    }
             ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -180,7 +139,7 @@ fun ShellScreen(
                     TerminalView(
                         terminal = viewModel.terminal,
                         onKeyInput = { bytes -> viewModel.sendKeyInput(bytes) },
-                        needLocalEcho = viewModel.needLocalEcho,
+                        onTerminalSizeChanged = viewModel::setTerminalSize,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(4.dp)
