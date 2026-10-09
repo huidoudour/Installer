@@ -17,6 +17,6 @@ dependencyResolutionManagement {
 rootProject.name = "Installer"
 include(":app")
 include(":hidden-api")
-include(":mt-provider")
+include(":lib-mtprovider")
 include(":baselineprofile")
 include(":lib-terminal")

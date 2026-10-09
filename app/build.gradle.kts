@@ -264,9 +264,9 @@ dependencies {
     // ====== 必要依赖结束 ======
     // 测试依赖
     testImplementation("junit:junit:4.13.2")
+    implementation(project(":lib-mtprovider"))
     // MTDataFilesProvider
     //debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
-    implementation(project(":mt-provider"))
 
     val localFile = file("libs/android.aar")
     if (localFile.exists()) {
