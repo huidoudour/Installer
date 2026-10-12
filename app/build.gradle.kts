@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.baselineprofile)
 }
 
+val appName = "Installer"
 val baseVersionCode = 8000
 val baseVersionName = "26.09.27"
 
@@ -36,8 +37,6 @@ fun getGitCommitHash(): String {
 
 val appVersionCode = baseVersionCode + getGitCommitCount()
 val appVersionName = "${baseVersionName}.${getGitCommitCount()}.${getGitCommitHash()}"
-// 本地构建产物的文件名哈希，与 CI 使用的 7 位短 hash 一致
-val gitShortHash = getGitCommitHash()
 
 // 构建开始横幅：独立任务（被 assemble/bundle 依赖），无输出故每次都会执行，配置缓存复用也不例外
 val buildBanner = tasks.register("buildBanner") {
@@ -198,15 +197,16 @@ android {
 }
 
 // 直接定义本地构建产物文件名（无需再靠 CI 脚本重命名）：
-//   release → Installer-universal-R-<hash>.apk
-//   debug   → Installer-universal-D-<hash>.apk
+//   <名称>-<基础版本名>.<提交数>.<hash>-<版本号>-<Release/Debug>.apk
+//   例：Installer-26.09.27.100.c0fd7c6-8100-Release.apk
 // outputFileName 等变体 API 目前被 AGP 标记为 @Incubating，按项目规范抑制该警告
 @Suppress("UnstableApiUsage")
 androidComponents {
     onVariants { variant ->
-        val suffix = if (variant.buildType == "release") "R" else "D"
+        val buildTypeLabel = variant.buildType.orEmpty().replaceFirstChar { it.uppercaseChar() }
+        val outputName = "$appName-$appVersionName-$appVersionCode-$buildTypeLabel.apk"
         variant.outputs.forEach { output ->
-            output.outputFileName.set("Installer-universal-$suffix-$gitShortHash.apk")
+            output.outputFileName.set(outputName)
         }
     }
 }

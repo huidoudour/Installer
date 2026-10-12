@@ -59,7 +59,7 @@ jobs:
 
       - name: Verify APK output name
         run: |
-          ls -lh app/build/outputs/apk/release/Installer-universal-R-${{ steps.short_hash.outputs.hash }}.apk
+          find app/build/outputs/apk/release -maxdepth 1 -name 'Installer-*.apk' -type f -exec ls -lh {} \;
 
       - name: Clean up keystore
         if: always()
@@ -84,15 +84,17 @@ jobs:
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload universal APK to Release
+      - name: Upload APK to Release
         run: |
-          apk="app/build/outputs/apk/release/Installer-universal-R-${{ steps.short_hash.outputs.hash }}.apk"
-          if [ -f "$apk" ]; then
-            echo "Uploading $(basename "$apk")..."
-            gh release upload "${{ github.event.inputs.release_tag }}" "$apk"
-          else
-            echo "Error: universal APK not found: $apk"
+          shopt -s nullglob
+          apks=(app/build/outputs/apk/release/*.apk)
+          if [ ${#apks[@]} -eq 0 ]; then
+            echo "Error: no APK found in app/build/outputs/apk/release/"
             exit 1
           fi
+          for apk in "${apks[@]}"; do
+            echo "Uploading $(basename "$apk")..."
+            gh release upload "${{ github.event.inputs.release_tag }}" "$apk" --clobber
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

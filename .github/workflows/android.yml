@@ -83,15 +83,25 @@ jobs:
         echo "APK build completed. Files in output directory:"
         find app/build/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
 
+    - name: Read base version name
+      id: ver
+      run: |
+        version_name=$(jq -r '.elements[0].versionName' app/build/outputs/apk/release/output-metadata.json)
+        # versionName 形如 <基础版本名>.<提交数>.<hash>，去掉末尾两段即为基础版本名
+        base_version_name=${version_name%.*}
+        base_version_name=${base_version_name%.*}
+        echo "base_version_name=$base_version_name" >> "$GITHUB_OUTPUT"
+
     - name: Verify APK output name
       run: |
-        ls -lh app/build/outputs/apk/release/Installer-universal-R-${{ steps.short_hash.outputs.hash }}.apk
+        find app/build/outputs/apk/release -maxdepth 1 -name 'Installer-*.apk' -type f -exec ls -lh {} \;
 
-    - name: Upload APK as artifact
+    - name: Upload release folder as artifact
       uses: actions/upload-artifact@v7
       with:
-        name: Installer-universal-R-${{ steps.short_hash.outputs.hash }}
-        path: app/build/outputs/apk/release/Installer-universal-R-${{ steps.short_hash.outputs.hash }}.apk
+        name: Installer-${{ steps.ver.outputs.base_version_name }}-${{ steps.short_hash.outputs.hash }}
+        # 上传 release 输出目录下的全部产物：APK、baselineProfiles 文件夹、output-metadata.json
+        path: app/build/outputs/apk/release/
         if-no-files-found: error
 
     - name: Clean up keystore
