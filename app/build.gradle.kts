@@ -254,7 +254,7 @@ dependencies {
     implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
 
     // 绕过隐式 API
-    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
+    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.2")
 
     implementation("androidx.core:core-ktx:1.19.0")
 
