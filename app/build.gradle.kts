@@ -9,7 +9,7 @@ plugins {
 
 val appName = "Installer"
 val baseVersionCode = 8000
-val baseVersionName = "26.09.27"
+val baseVersionName = "26.10.14"
 
 fun getBuildDateTime(): String =
     LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmm"))
