@@ -11,37 +11,26 @@ val appName = "Installer"
 val baseVersionCode = 8000
 val baseVersionName = "26.09.27"
 
-fun getBuildDateTime(): String {
-    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmm"))
-}
+fun getBuildDateTime(): String =
+    LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMddHHmm"))
 
-fun getGitCommitCount(): Int {
-    return try {
-        providers.exec {
-            commandLine("git", "rev-list", "--count", "HEAD")
-        }.standardOutput.asText.get().trim().toInt()
+fun git(vararg args: String): String =
+    try {
+        providers.exec { commandLine(listOf("git") + args) }
+            .standardOutput.asText.get().trim()
     } catch (_: Exception) {
-        baseVersionCode
+        ""
     }
-}
 
-fun getGitCommitHash(): String {
-    return try {
-        providers.exec {
-            commandLine("git", "rev-parse", "--short=7", "HEAD")
-        }.standardOutput.asText.get().trim()
-    } catch (_: Exception) {
-        getBuildDateTime()
-    }
-}
+val commitCount = git("rev-list", "--count", "HEAD").toIntOrNull() ?: 0
+val commitHash = git("rev-parse", "--short=7", "HEAD").ifEmpty { getBuildDateTime() }
+val versionTxt = if (git("tag", "--contains", "HEAD").isEmpty()) ".ci" else ""
 
-val appVersionCode = baseVersionCode + getGitCommitCount()
-val appVersionName = "${baseVersionName}.${getGitCommitCount()}.${getGitCommitHash()}"
+val appVersionCode = baseVersionCode + commitCount
+val appVersionName = "$baseVersionName.$commitCount$versionTxt.$commitHash"
 
-// 构建开始横幅：独立任务（被 assemble/bundle 依赖），无输出故每次都会执行，配置缓存复用也不例外
 val buildBanner = tasks.register("buildBanner") {
     description = "执行时间戳"
-    // CC 兼容：配置期求值成普通 List<String>，Action 只捕获它
     val requested = gradle.startParameter.taskNames
         .map { it.substringAfterLast(':') }
         .filter { it.startsWith("assemble") || it.startsWith("bundle") || it == "build" }
@@ -52,21 +41,18 @@ val buildBanner = tasks.register("buildBanner") {
     }
 }
 
-// 让所有任务都排在开始横幅之后，确保横幅始终位于日志最前
 rootProject.allprojects.forEach { p ->
     p.tasks.configureEach {
         if (path != buildBanner.get().path) mustRunAfter(buildBanner)
     }
 }
 
-// CC 兼容：doLast 只捕获普通值，避免引用脚本作用域成员
 tasks.matching { it.name.startsWith("assemble") || it.name.startsWith("bundle") }.configureEach {
     dependsOn(buildBanner)
     val taskName = name
     val versionName = appVersionName
     val versionCode = appVersionCode
     doLast {
-        // 时间戳在任务执行期获取，仅用 JDK API，避免捕获 Script 对象
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         println(">>> app-[$taskName]: $versionName($versionCode) @ $timestamp <<<")
     }
@@ -74,7 +60,6 @@ tasks.matching { it.name.startsWith("assemble") || it.name.startsWith("bundle") 
 
 val generateGitLog = tasks.register("generateGitLog") {
     description = "ChangeLog"
-    // CC 兼容：文件定位与日志内容在配置期求值，doLast 仅执行写入
     val outputFile = layout.projectDirectory.file("src/main/assets/git_commits.md")
     val text = try {
         providers.exec {
@@ -162,16 +147,28 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
+    // 系统级应用语言切换（API 33+）：自动生成 locales_config 并注入 android:localeConfig，
+    // 使系统设置中可见本应用的独立语言选项；低于 API 33 回退到 app 内切换。
+    @Suppress("UnstableApiUsage")
+    androidResources {
+        generateLocaleConfig = true
+        localeFilters += listOf(
+            "en-rUS",
+            "ja-rJP",
+            "ru-rRU",
+            "zh-rCN",
+            "zh-rHK",
+            "zh-rTW"
+        )
+    }
+
     buildFeatures {
         viewBinding = true
     }
 
     lint {
-        // 将警告视为警告,不要作为错误
         warningsAsErrors = false
-        // 出现错误时终止构建
         abortOnError = true
-        // 禁用某些检查
         disable += setOf(
             "HardcodedText",           // 允许硬编码文本(调试阶段)
             "SetTextI18n",             // 允许文本拼接
@@ -187,7 +184,6 @@ android {
             "GradleDependency",        // 不强制更新依赖
             "NewerVersionAvailable"    // 不强制更新到最新版本
         )
-        // 仅检查致命错误
         checkOnly += setOf(
             "NotSibling",              // 必须检查布局引用错误
             "DuplicateIds",            // 必须检查重复ID

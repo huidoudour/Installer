@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
@@ -111,7 +112,7 @@ fun SettingsScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    // 注意：语言切换使用 AppCompatDelegate.setApplicationLocales() 自动触发 Activity 重建，无需手动 recreate
+    // API 33+ 语言切换由系统 per-app locale 接管；低于 33 走应用内对话框 + AppCompat 重建
 
     // Notification permission launcher (Android 13+)
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -152,7 +153,24 @@ fun SettingsScreen(
         // App Settings card
         AppSettingsCard(
             onThemeClick = { showThemeDialog = true },
-            onLanguageClick = { showLanguageDialog = true },
+            onLanguageClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    // API 33+：跳转系统的应用语言页；ROM 无此页面时回退到应用内对话框
+                    val opened = try {
+                        context.startActivity(
+                            Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                        )
+                        true
+                    } catch (_: Exception) {
+                        false
+                    }
+                    if (!opened) showLanguageDialog = true
+                } else {
+                    showLanguageDialog = true
+                }
+            },
             onNotificationClick = { showNotificationDialog = true }
         )
 
