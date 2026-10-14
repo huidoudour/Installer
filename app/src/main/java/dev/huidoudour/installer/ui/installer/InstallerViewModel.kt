@@ -85,12 +85,14 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     private val _allowTestPackages = MutableStateFlow(false)
     val allowTestPackages: StateFlow<Boolean> = _allowTestPackages.asStateFlow()
 
-    private val _selectedInstallerPackage = MutableStateFlow("io.github.huidoudour.Installer")
+    // 首次启动默认执行者为 shell
+    private val _selectedInstallerPackage = MutableStateFlow("com.android.shell")
 
     private val _enableCustomRequesterPackage = MutableStateFlow(false)
     val enableCustomRequesterPackage: StateFlow<Boolean> = _enableCustomRequesterPackage.asStateFlow()
 
-    private val _selectedRequesterPackage = MutableStateFlow("me.huidoudour.core")
+    // 首次启动默认请求者为当前应用
+    private val _selectedRequesterPackage = MutableStateFlow("io.github.huidoudour.Installer")
 
     private val logManager = LogManager.getInstance()
 
@@ -487,13 +489,14 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
     private fun loadSwitchStates() {
         _enableCustomPackageName.value = prefs.getBoolean("enable_custom_package_name", true)
         _allowTestPackages.value = prefs.getBoolean("allow_test_packages", false)
-        // 加载安装器包名选择
-        val savedPackage = prefs.getString("installer_package", "")?.ifEmpty { "io.github.huidoudour.Installer" } ?: "io.github.huidoudour.Installer"
+        // 加载安装器包名选择，首次启动默认 shell
+        val savedPackage = prefs.getString("installer_package", "")?.ifEmpty { "com.android.shell" } ?: "com.android.shell"
         _selectedInstallerPackage.value = savedPackage
 
         // 加载请求者包名选择
         _enableCustomRequesterPackage.value = prefs.getBoolean("enable_custom_requester_package", false)
-        val savedRequesterPackage = prefs.getString("requester_package", "")?.ifEmpty { "me.huidoudour.core" } ?: "me.huidoudour.core"
+        // 首次启动默认请求者为当前应用
+        val savedRequesterPackage = prefs.getString("requester_package", "")?.ifEmpty { "io.github.huidoudour.Installer" } ?: "io.github.huidoudour.Installer"
         _selectedRequesterPackage.value = savedRequesterPackage
     }
 

@@ -214,8 +214,9 @@ fun InstallerScreen(
                     viewModel.setEnableCustomPackageName(enabled)
                     val pkg = if (enabled) {
                         context.getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
-                            .getString("installer_package", "io.github.huidoudour.Installer")
-                            ?: "io.github.huidoudour.Installer"
+                            .getString("installer_package", "")
+                            ?.ifEmpty { "com.android.shell" }
+                            ?: "com.android.shell"
                     } else {
                         "com.android.shell"
                     }

@@ -37,11 +37,12 @@ import androidx.compose.ui.window.Dialog
 import dev.huidoudour.installer.R
 import dev.huidoudour.installer.util.LogManager
 
+// 首次启动默认执行者为 shell（对应 pm install -i 的默认身份）
 fun getCurrentInstallerPackage(context: Context): String =
     context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         .getString("installer_package", "")
-        ?.ifEmpty { "io.github.huidoudour.Installer" }
-        ?: "io.github.huidoudour.Installer"
+        ?.ifEmpty { "com.android.shell" }
+        ?: "com.android.shell"
 
 fun saveInstallerPackage(context: Context, packageName: String) {
     context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
@@ -50,10 +51,11 @@ fun saveInstallerPackage(context: Context, packageName: String) {
         .apply()
 }
 
+// 首次启动默认请求者为当前应用
 fun getCurrentRequesterPackage(context: Context): String {
     val saved = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
         .getString("requester_package", "")
-    return saved?.ifEmpty { "me.huidoudour.core" } ?: "me.huidoudour.core"
+    return saved?.ifEmpty { "io.github.huidoudour.Installer" } ?: "io.github.huidoudour.Installer"
 }
 
 fun saveRequesterPackage(context: Context, packageName: String) {
