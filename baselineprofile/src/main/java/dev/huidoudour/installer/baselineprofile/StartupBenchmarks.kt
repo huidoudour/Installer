@@ -1,4 +1,4 @@
-package dev.huidoudour.baselineprofile
+package dev.huidoudour.installer.baselineprofile
 
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode

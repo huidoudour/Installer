@@ -1,4 +1,4 @@
-package dev.huidoudour.baselineprofile
+package dev.huidoudour.installer.baselineprofile
 
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4

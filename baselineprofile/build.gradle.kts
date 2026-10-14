@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.huidoudour.baselineprofile"
+    namespace = "dev.huidoudour.installer.baselineprofile"
     compileSdk {
         version = release(37)
     }
