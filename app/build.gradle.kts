@@ -252,7 +252,7 @@ dependencies {
     // 绕过隐式 API
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
 
-    implementation("androidx.core:core-ktx:1.19.0")
+    implementation("androidx.core:core-ktx:1.19.1")
 
     // APK 签名校验（apksig：完整校验 v1/v2/v3/v3.1/v4 签名方案）
     implementation(libs.apksig)
