@@ -70,6 +70,7 @@
     <string name="update_check_failed">Не удалось проверить обновления</string>
     <string name="github_token">Токен GitHub (необязательно)</string>
     <string name="github_token_hint">Укажите персональный токен, чтобы проверять обновления через авторизованный API (выше лимит). Оставьте пустым для проверки через веб-страницу релизов.</string>
+    <string name="github_token_scope_hint">Токен используется только для чтения публичных релизов проекта, достаточно минимальных прав: классическому токену (ghp_…) scopes не нужны; fine-grained токену достаточно ограничить доступ репозиторием huidoudour/Installer с правом Contents: только чтение.</string>
     <string name="token_not_set">Не задан</string>
     <string name="token_configured">Настроен</string>
     <string name="github_token_saved">Токен сохранён</string>
@@ -592,7 +593,7 @@
     
     <!-- Installer package settings -->
     <string name="installer_package_settings">Пакет установщика</string>
-    <string name="current_installer_package">Текущий пакет установщика</string>
+    <string name="current_installer_package">Определение параметров</string>
     <string name="current_app">Текущее приложение</string>
     <string name="installer_package_changed">Пакет установщика изменен</string>
 
@@ -608,7 +609,7 @@
     <string name="requester_package_settings">Пакет запрашивающего</string>
 
     <!-- Install & privilege settings page -->
-    <string name="install_privilege_settings">Установка и разрешения</string>
+    <string name="install_privilege_settings">Управление разрешениями</string>
     <string name="install_cache">Кэш установки</string>
     <string name="install_cache_usage">Использовано %1$s</string>
     <string name="install_cache_cleared">Освобождено %1$s</string>

@@ -70,6 +70,7 @@
     <string name="update_check_failed">检查更新失败喵</string>
     <string name="github_token">GitHub 令牌喵（可选）</string>
     <string name="github_token_hint">填写个人访问令牌喵后，检测更新会走认证 API（额度更高）；留空就用网页发布页检测喵。</string>
+    <string name="github_token_scope_hint">只用来读本项目的公开发布信息喵，最小权限就得：经典令牌（ghp_ 开头）不用勾选任何 scope；细粒度令牌把仓库限定为 huidoudour/Installer 再给 Contents 只读喵。</string>
     <string name="token_not_set">未设置喵</string>
     <string name="token_configured">已设置喵</string>
     <string name="github_token_saved">令牌已保存喵</string>
@@ -592,7 +593,7 @@
     
     <!-- Installer package settings -->
     <string name="installer_package_settings">安装器包喵</string>
-    <string name="current_installer_package">当前安装器包喵</string>
+    <string name="current_installer_package">参数定义喵</string>
     <string name="current_app">当前应用喵</string>
     <string name="installer_package_changed">安装器包已变更喵</string>
 
@@ -608,7 +609,7 @@
     <string name="requester_package_settings">请求者包喵</string>
 
     <!-- Install & privilege settings page -->
-    <string name="install_privilege_settings">安装与权限设置喵</string>
+    <string name="install_privilege_settings">权限管理喵</string>
     <string name="install_cache">安装缓存喵</string>
     <string name="install_cache_usage">已占用 %1$s 喵</string>
     <string name="install_cache_cleared">已清理 %1$s 喵</string>

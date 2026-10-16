@@ -70,6 +70,7 @@
     <string name="update_check_failed">檢查更新失敗</string>
     <string name="github_token">GitHub 權杖（選填）</string>
     <string name="github_token_hint">填寫個人存取權杖後，偵測更新將走認證 API（更高的頻率限制）；留空則使用網頁發布頁偵測。</string>
+    <string name="github_token_scope_hint">僅用於讀取本專案的公開發佈資訊，最小權限即可：傳統權杖（ghp_ 開頭）無需勾選任何範圍；細粒度權杖只需將倉庫限定為 huidoudour/Installer 並授予 Contents 唯讀。</string>
     <string name="token_not_set">未設定</string>
     <string name="token_configured">已設定</string>
     <string name="github_token_saved">權杖已儲存</string>
@@ -592,7 +593,7 @@
     
     <!-- Installer package settings -->
     <string name="installer_package_settings">安裝器包</string>
-    <string name="current_installer_package">當前安裝器包</string>
+    <string name="current_installer_package">參數定義</string>
     <string name="current_app">當前應用</string>
     <string name="installer_package_changed">安裝器包已變更</string>
 
@@ -608,7 +609,7 @@
     <string name="requester_package_settings">請求者包</string>
 
     <!-- Install & privilege settings page -->
-    <string name="install_privilege_settings">安裝與權限設定</string>
+    <string name="install_privilege_settings">權限管理</string>
     <string name="install_cache">安裝快取</string>
     <string name="install_cache_usage">已占用 %1$s</string>
     <string name="install_cache_cleared">已清理 %1$s</string>

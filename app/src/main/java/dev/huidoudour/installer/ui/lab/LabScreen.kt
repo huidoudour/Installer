@@ -405,6 +405,13 @@ fun ExperimentalScreen(
                         text = stringResource(R.string.github_token_hint),
                         style = MaterialTheme.typography.bodyMedium
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    // 说明令牌所需最小权限，避免用户不知道该怎么建 token
+                    Text(
+                        text = stringResource(R.string.github_token_scope_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
                         value = patInput,
@@ -457,6 +464,10 @@ private fun LabScaffold(
     val backGestureEasing = remember { CubicBezierEasing(0.1f, 0.1f, 0f, 1f) }
     val layoutDirection = LocalLayoutDirection.current
     val currentOnBackProgressChange by rememberUpdatedState(onBackProgressChange)
+
+    LaunchedEffect(gestureProgress) {
+        snapshotFlow { gestureProgress.value }.collect { currentOnBackProgressChange(it) }
+    }
 
     PredictiveBackHandler { events ->
         var completed = false

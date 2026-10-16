@@ -70,6 +70,7 @@
     <string name="update_check_failed">更新確認に失敗</string>
     <string name="github_token">GitHub トークン（任意）</string>
     <string name="github_token_hint">パーソナルアクセストークンを設定すると更新確認が認証 API を利用します（レート制限が向上）。空の場合はウェブのリリースページを利用します。</string>
+    <string name="github_token_scope_hint">このプロジェクトの公開リリース情報の読み取りのみに使用するため、最小限の権限で十分です：クラシック トークン（ghp_ 始まり）はスコープ不要、ファイングレーン トークンはリポジトリを huidoudour/Installer に限定し Contents 読み取りのみで結構です。</string>
     <string name="token_not_set">未設定</string>
     <string name="token_configured">設定済み</string>
     <string name="github_token_saved">トークンを保存しました</string>
@@ -592,7 +593,7 @@
     
     <!-- Installer package settings -->
     <string name="installer_package_settings">インストーラーパッケージ</string>
-    <string name="current_installer_package">現在のインストーラーパッケージ</string>
+    <string name="current_installer_package">パラメータ定義</string>
     <string name="current_app">現在のアプリ</string>
     <string name="installer_package_changed">インストーラーパッケージが変更されました</string>
 
@@ -608,7 +609,7 @@
     <string name="requester_package_settings">リクエスターパッケージ</string>
 
     <!-- Install & privilege settings page -->
-    <string name="install_privilege_settings">インストールと権限の設定</string>
+    <string name="install_privilege_settings">権限管理</string>
     <string name="install_cache">インストールキャッシュ</string>
     <string name="install_cache_usage">使用中 %1$s</string>
     <string name="install_cache_cleared">%1$s を解放しました</string>

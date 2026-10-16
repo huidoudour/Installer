@@ -70,6 +70,7 @@
     <string name="update_check_failed">Update check failed</string>
     <string name="github_token">GitHub Token (optional)</string>
     <string name="github_token_hint">Fill in a personal access token to check updates via the authenticated API (higher rate limit). Leave empty to use the web release page.</string>
+    <string name="github_token_scope_hint">Only used to read this project\'s public release info, so minimal permissions are enough: a classic token (ghp_…) needs no scopes; a fine-grained token only needs repository access limited to huidoudour/Installer with Contents read-only.</string>
     <string name="token_not_set">Not set</string>
     <string name="token_configured">Configured</string>
     <string name="github_token_saved">Token saved</string>
@@ -592,7 +593,7 @@
     
     <!-- Installer package settings -->
     <string name="installer_package_settings">Installer Package</string>
-    <string name="current_installer_package">Current Installer Package</string>
+    <string name="current_installer_package">Parameter Definition</string>
     <string name="current_app">Current App</string>
     <string name="installer_package_changed">Installer package changed</string>
 
@@ -608,7 +609,7 @@
     <string name="requester_package_settings">Requester Package</string>
 
     <!-- Install & privilege settings page -->
-    <string name="install_privilege_settings">Install &amp; Permission Settings</string>
+    <string name="install_privilege_settings">Permission Management</string>
     <string name="install_cache">Install Cache</string>
     <string name="install_cache_usage">Using %1$s</string>
     <string name="install_cache_cleared">Cleared %1$s</string>
