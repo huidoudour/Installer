@@ -63,6 +63,11 @@
     <string name="about_app">关于应用喵</string>
     <string name="about_developer">关于开发者喵</string>
     <string name="app_version">版本喵</string>
+    <string name="new_version_available">发现新版本喵：%1$s</string>
+    <string name="cannot_open_link">无法打开链接喵</string>
+    <string name="check_update">检查更新喵</string>
+    <string name="up_to_date">已是最新版本喵</string>
+    <string name="update_check_failed">检查更新失败喵</string>
     <string name="follow_system">跟随系统喵</string>
     <string name="simplified_chinese">简体中文喵</string>
     <string name="traditional_chinese">繁体中文喵</string>

@@ -94,6 +94,10 @@ android {
         versionCode = appVersionCode
         versionName = appVersionName
 
+        // 供应用内“检测新版本”使用：仅基础版本号（如 26.10.14），
+        // 与 GitHub Release 的 tag（v26.10.14）对齐比较；VERSION_NAME 里混了提交数不能直接切。
+        buildConfigField("String", "BASE_VERSION_NAME", "\"$baseVersionName\"")
+
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
@@ -164,6 +168,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     lint {

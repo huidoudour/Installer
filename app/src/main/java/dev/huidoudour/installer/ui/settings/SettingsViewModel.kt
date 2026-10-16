@@ -5,9 +5,12 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.huidoudour.installer.BuildConfig
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.util.LanguageManager
+import dev.huidoudour.installer.util.LogManager
 import dev.huidoudour.installer.util.ThemeManager
+import dev.huidoudour.installer.util.UpdateChecker
 import dev.huidoudour.installer.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +56,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _useDhizuku = MutableStateFlow(PrivilegeHelper.isDhizukuEnabled(context))
     val useDhizuku: StateFlow<Boolean> = _useDhizuku.asStateFlow()
 
+    // 新版本检测结果：null 表示无新版或尚未检测/检测失败
+    private val _updateInfo = MutableStateFlow<UpdateChecker.UpdateInfo?>(null)
+    val updateInfo: StateFlow<UpdateChecker.UpdateInfo?> = _updateInfo.asStateFlow()
+
     init {
         refreshPrivilegeStatus()
     }
@@ -73,6 +80,44 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 _useDhizuku.value = useDhizuku
             }
         }
+    }
+
+    /**
+     * 检测是否有新版本（异步，供自动触发）：触发与结果均输出到日志页（tag: Update）
+     */
+    fun checkUpdate() {
+        viewModelScope.launch { checkUpdateNow() }
+    }
+
+    /**
+     * 立即执行一次检测并返回结果（供手动触发）：同时更新状态与写日志。
+     * 调用方需处于协程作用域；内部已切到 IO。
+     */
+    suspend fun checkUpdateNow(): UpdateChecker.UpdateCheckResult = withContext(Dispatchers.IO) {
+        val localVersion = BuildConfig.BASE_VERSION_NAME
+        val logManager = LogManager.getInstance()
+        logManager.addLog("Update check triggered: local version $localVersion", "Update")
+        val result = UpdateChecker.check(localVersion)
+        when (result) {
+            is UpdateChecker.UpdateCheckResult.NewVersion -> {
+                _updateInfo.value = result.info
+                logManager.addLog(
+                    "New version found: ${result.info.latestVersion} (${result.info.releaseUrl})",
+                    "Update"
+                )
+            }
+
+            UpdateChecker.UpdateCheckResult.UpToDate -> {
+                _updateInfo.value = null
+                logManager.addLog("Update check finished: already up to date", "Update")
+            }
+
+            is UpdateChecker.UpdateCheckResult.Failed -> {
+                _updateInfo.value = null
+                logManager.addLog("Update check failed: ${result.reason}", "Update")
+            }
+        }
+        result
     }
 
     /**

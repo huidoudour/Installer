@@ -63,6 +63,11 @@
     <string name="about_app">About App</string>
     <string name="about_developer">About Developer</string>
     <string name="app_version">Version</string>
+    <string name="new_version_available">New version available: %1$s</string>
+    <string name="cannot_open_link">Cannot open link</string>
+    <string name="check_update">Check for updates</string>
+    <string name="up_to_date">Already up to date</string>
+    <string name="update_check_failed">Update check failed</string>
     <string name="follow_system">Follow System</string>
     <string name="simplified_chinese">Simplified Chinese</string>
     <string name="traditional_chinese">Traditional Chinese</string>

@@ -6,15 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.background
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -37,8 +36,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -46,6 +45,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import dev.huidoudour.installer.R
 import dev.huidoudour.installer.ui.changelog.ChangelogScreen
 import dev.huidoudour.installer.ui.components.PredictiveBackPage
 import dev.huidoudour.installer.ui.installer.InstallerScreen
@@ -54,11 +54,10 @@ import dev.huidoudour.installer.ui.logs.LogsScreen
 import dev.huidoudour.installer.ui.me.MeScreen
 import dev.huidoudour.installer.ui.settings.InstallSettingsScreen
 import dev.huidoudour.installer.ui.settings.SettingsScreen
-import dev.huidoudour.terminal.ShellScreen
 import dev.huidoudour.installer.ui.theme.AppTheme
 import dev.huidoudour.installer.util.LanguageManager
 import dev.huidoudour.installer.util.ThemeManager
-import dev.huidoudour.installer.R
+import dev.huidoudour.terminal.ShellScreen
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.exp
@@ -97,7 +96,7 @@ private enum class OverlayPage {
     InstallSettings,
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()

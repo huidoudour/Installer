@@ -63,6 +63,11 @@
     <string name="about_app">アプリについて</string>
     <string name="about_developer">開発者について</string>
     <string name="app_version">バージョン</string>
+    <string name="new_version_available">新しいバージョン：%1$s</string>
+    <string name="cannot_open_link">リンクを開けません</string>
+    <string name="check_update">アップデートを確認</string>
+    <string name="up_to_date">最新です</string>
+    <string name="update_check_failed">更新確認に失敗</string>
     <string name="follow_system">システムに従う</string>
     <string name="simplified_chinese">簡体字中国語</string>
     <string name="traditional_chinese">繁体字中国語</string>

@@ -63,6 +63,11 @@
     <string name="about_app">О приложении</string>
     <string name="about_developer">О разработчике</string>
     <string name="app_version">Версия</string>
+    <string name="new_version_available">Доступна новая версия: %1$s</string>
+    <string name="cannot_open_link">Не удалось открыть ссылку</string>
+    <string name="check_update">Проверить обновления</string>
+    <string name="up_to_date">Уже установлена последняя версия</string>
+    <string name="update_check_failed">Не удалось проверить обновления</string>
     <string name="follow_system">Как в системе</string>
     <string name="simplified_chinese">Упрощенный китайский</string>
     <string name="traditional_chinese">Традиционный китайский</string>

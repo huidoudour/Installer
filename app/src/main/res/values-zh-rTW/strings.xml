@@ -63,6 +63,11 @@
     <string name="about_app">關於應用</string>
     <string name="about_developer">關於開發者</string>
     <string name="app_version">版本</string>
+    <string name="new_version_available">發現新版本：%1$s</string>
+    <string name="cannot_open_link">無法開啟連結</string>
+    <string name="check_update">檢查更新</string>
+    <string name="up_to_date">已是最新版本</string>
+    <string name="update_check_failed">檢查更新失敗</string>
     <string name="follow_system">跟隨系統</string>
     <string name="simplified_chinese">簡體中文</string>
     <string name="traditional_chinese">繁體中文</string>
