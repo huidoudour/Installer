@@ -238,6 +238,7 @@ dependencies {
     implementation(libs.accompanist.drawablepainter)
     implementation("androidx.palette:palette:1.0.0")
     implementation(libs.profileinstaller)
+    implementation(libs.security.crypto)
     "baselineProfile"(project(":baselineprofile"))
     implementation(project(":lib-terminal"))
 

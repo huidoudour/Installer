@@ -49,7 +49,8 @@ import dev.huidoudour.installer.R
 import dev.huidoudour.installer.ui.changelog.ChangelogScreen
 import dev.huidoudour.installer.ui.components.PredictiveBackPage
 import dev.huidoudour.installer.ui.installer.InstallerScreen
-import dev.huidoudour.installer.ui.lab.LabScreen
+import dev.huidoudour.installer.ui.lab.AdvancedSettingsScreen
+import dev.huidoudour.installer.ui.lab.ExperimentalScreen
 import dev.huidoudour.installer.ui.logs.LogsScreen
 import dev.huidoudour.installer.ui.me.MeScreen
 import dev.huidoudour.installer.ui.settings.InstallSettingsScreen
@@ -90,7 +91,8 @@ data class BottomNavItemData(
 
 private enum class OverlayPage {
     None,
-    Lab,
+    Advanced,
+    Experimental,
     Me,
     Changelog,
     InstallSettings,
@@ -203,9 +205,13 @@ fun MainScreen() {
                             overlayBackProgress = 0f
                             overlayPage = OverlayPage.Changelog
                         },
-                        onNavigateToLab = {
+                        onNavigateToAdvanced = {
                             overlayBackProgress = 0f
-                            overlayPage = OverlayPage.Lab
+                            overlayPage = OverlayPage.Advanced
+                        },
+                        onNavigateToExperimental = {
+                            overlayBackProgress = 0f
+                            overlayPage = OverlayPage.Experimental
                         },
                         onNavigateToInstallSettings = {
                             overlayBackProgress = 0f
@@ -227,7 +233,13 @@ fun MainScreen() {
             )
 
             when (overlayPage) {
-                OverlayPage.Lab -> LabScreen(
+                OverlayPage.Advanced -> AdvancedSettingsScreen(
+                    enterProgress = overlayEnterProgress.value,
+                    onBackProgressChange = { overlayBackProgress = it },
+                    onBack = { overlayPage = OverlayPage.None }
+                )
+
+                OverlayPage.Experimental -> ExperimentalScreen(
                     enterProgress = overlayEnterProgress.value,
                     onBackProgressChange = { overlayBackProgress = it },
                     onBack = { overlayPage = OverlayPage.None }

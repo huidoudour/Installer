@@ -68,6 +68,11 @@
     <string name="check_update">アップデートを確認</string>
     <string name="up_to_date">最新です</string>
     <string name="update_check_failed">更新確認に失敗</string>
+    <string name="github_token">GitHub トークン（任意）</string>
+    <string name="github_token_hint">パーソナルアクセストークンを設定すると更新確認が認証 API を利用します（レート制限が向上）。空の場合はウェブのリリースページを利用します。</string>
+    <string name="token_not_set">未設定</string>
+    <string name="token_configured">設定済み</string>
+    <string name="github_token_saved">トークンを保存しました</string>
     <string name="follow_system">システムに従う</string>
     <string name="simplified_chinese">簡体字中国語</string>
     <string name="traditional_chinese">繁体字中国語</string>
@@ -715,6 +720,9 @@
 
     <!-- Advanced settings card & authorizer-by-install-state -->
     <string name="advanced_settings">詳細設定</string>
+    <string name="advanced_settings_summary">スマート認証とフォールバック順序</string>
+    <string name="experimental_features">実験機能</string>
+    <string name="update_section">更新確認</string>
     <string name="lab_authorizer_by_install_state">インストール状態で認証方法を選択</string>
     <string name="lab_authorizer_by_install_state_desc">インストール済み → Shizuku、新規 → Dhizuku</string>
     <!-- Install / authorizer runtime messages -->

@@ -9,6 +9,7 @@ import dev.huidoudour.installer.BuildConfig
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.util.LanguageManager
 import dev.huidoudour.installer.util.LogManager
+import dev.huidoudour.installer.util.SecurePrefs
 import dev.huidoudour.installer.util.ThemeManager
 import dev.huidoudour.installer.util.UpdateChecker
 import dev.huidoudour.installer.R
@@ -60,8 +61,30 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _updateInfo = MutableStateFlow<UpdateChecker.UpdateInfo?>(null)
     val updateInfo: StateFlow<UpdateChecker.UpdateInfo?> = _updateInfo.asStateFlow()
 
+    // GitHub PAT（可选）：非空时检测走认证 API，提高限流额度。加密存于 SecurePrefs。
+    private val _githubPat = MutableStateFlow(loadGithubPat())
+    val githubPat: StateFlow<String> = _githubPat.asStateFlow()
+
+    /** 从加密区读取 PAT；若仅存在历史明文则迁移后清除明文 */
+    private fun loadGithubPat(): String {
+        val secure = SecurePrefs.getString(context, KEY_GITHUB_PAT)
+        if (secure.isNotEmpty()) return secure
+        val legacy = prefs.getString(KEY_GITHUB_PAT, "").orEmpty()
+        return if (legacy.isNotEmpty()) {
+            SecurePrefs.putString(context, KEY_GITHUB_PAT, legacy)
+            prefs.edit().remove(KEY_GITHUB_PAT).apply()
+            legacy
+        } else ""
+    }
+
     init {
         refreshPrivilegeStatus()
+    }
+
+    private companion object {
+        const val KEY_GITHUB_PAT = "github_pat"
+        const val KEY_LAST_AUTO_CHECK = "last_auto_update_check"
+        const val AUTO_CHECK_INTERVAL_MS = 24L * 60L * 60L * 1000L
     }
 
     /**
@@ -83,21 +106,30 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * 检测是否有新版本（异步，供自动触发）：触发与结果均输出到日志页（tag: Update）
+     * 自动检测：24h 内只真正发起一次（手动 checkUpdateNow 不受限）。
+     * 触发与结果均输出到日志页（tag: Update）
      */
     fun checkUpdate() {
+        val now = System.currentTimeMillis()
+        val last = prefs.getLong(KEY_LAST_AUTO_CHECK, 0L)
+        if (now - last < AUTO_CHECK_INTERVAL_MS) return
         viewModelScope.launch { checkUpdateNow() }
     }
 
     /**
-     * 立即执行一次检测并返回结果（供手动触发）：同时更新状态与写日志。
+     * 立即执行一次检测并返回结果（供手动触发）：同时更新状态、写日志并记录本次时间。
      * 调用方需处于协程作用域；内部已切到 IO。
      */
     suspend fun checkUpdateNow(): UpdateChecker.UpdateCheckResult = withContext(Dispatchers.IO) {
         val localVersion = BuildConfig.BASE_VERSION_NAME
         val logManager = LogManager.getInstance()
-        logManager.addLog("Update check triggered: local version $localVersion", "Update")
-        val result = UpdateChecker.check(localVersion)
+        prefs.edit().putLong(KEY_LAST_AUTO_CHECK, System.currentTimeMillis()).apply()
+        val token = _githubPat.value
+        logManager.addLog(
+            "Update check triggered: local version $localVersion, mode=${if (token.isBlank()) "page" else "api"}",
+            "Update"
+        )
+        val result = UpdateChecker.check(localVersion, token)
         when (result) {
             is UpdateChecker.UpdateCheckResult.NewVersion -> {
                 _updateInfo.value = result.info
@@ -118,6 +150,17 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             }
         }
         result
+    }
+
+    /** 保存/清除 GitHub PAT（传空串即清除）；加密存储 */
+    fun setGithubPat(token: String) {
+        val trimmed = token.trim()
+        _githubPat.value = trimmed
+        if (trimmed.isEmpty()) {
+            SecurePrefs.remove(context, KEY_GITHUB_PAT)
+        } else {
+            SecurePrefs.putString(context, KEY_GITHUB_PAT, trimmed)
+        }
     }
 
     /**

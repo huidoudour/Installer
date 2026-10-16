@@ -68,6 +68,11 @@
     <string name="check_update">檢查更新</string>
     <string name="up_to_date">已是最新版本</string>
     <string name="update_check_failed">檢查更新失敗</string>
+    <string name="github_token">GitHub 權杖（選填）</string>
+    <string name="github_token_hint">填寫個人存取權杖後，偵測更新將走認證 API（更高的頻率限制）；留空則使用網頁發布頁偵測。</string>
+    <string name="token_not_set">未設定</string>
+    <string name="token_configured">已設定</string>
+    <string name="github_token_saved">權杖已儲存</string>
     <string name="follow_system">跟隨系統</string>
     <string name="simplified_chinese">簡體中文</string>
     <string name="traditional_chinese">繁體中文</string>
@@ -715,6 +720,9 @@
 
     <!-- Advanced settings card & authorizer-by-install-state -->
     <string name="advanced_settings">進階設定</string>
+    <string name="advanced_settings_summary">智慧授權與回退順序</string>
+    <string name="experimental_features">實驗功能</string>
+    <string name="update_section">更新偵測</string>
     <string name="lab_authorizer_by_install_state">依安裝狀態選擇授權方式</string>
     <string name="lab_authorizer_by_install_state_desc">已安裝 → Shizuku，全新安裝 → Dhizuku</string>
     <!-- Install / authorizer runtime messages -->

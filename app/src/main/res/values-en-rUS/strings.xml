@@ -68,6 +68,11 @@
     <string name="check_update">Check for updates</string>
     <string name="up_to_date">Already up to date</string>
     <string name="update_check_failed">Update check failed</string>
+    <string name="github_token">GitHub Token (optional)</string>
+    <string name="github_token_hint">Fill in a personal access token to check updates via the authenticated API (higher rate limit). Leave empty to use the web release page.</string>
+    <string name="token_not_set">Not set</string>
+    <string name="token_configured">Configured</string>
+    <string name="github_token_saved">Token saved</string>
     <string name="follow_system">Follow System</string>
     <string name="simplified_chinese">Simplified Chinese</string>
     <string name="traditional_chinese">Traditional Chinese</string>
@@ -715,6 +720,9 @@
 
     <!-- Advanced settings card & authorizer-by-install-state -->
     <string name="advanced_settings">Advanced Settings</string>
+    <string name="advanced_settings_summary">Smart authorization and fallback order</string>
+    <string name="experimental_features">Experimental Features</string>
+    <string name="update_section">Update Check</string>
     <string name="lab_authorizer_by_install_state">Choose authorizer by install state</string>
     <string name="lab_authorizer_by_install_state_desc">Installed → Shizuku, new install → Dhizuku</string>
     <!-- Install / authorizer runtime messages -->

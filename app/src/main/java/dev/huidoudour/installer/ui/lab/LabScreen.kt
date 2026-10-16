@@ -1,6 +1,8 @@
 package dev.huidoudour.installer.ui.lab
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.BackEventCompat
 import androidx.activity.compose.PredictiveBackHandler
@@ -25,13 +27,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,6 +50,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -82,43 +88,31 @@ import dev.huidoudour.installer.ui.components.commitPredictiveBackExit
 import dev.huidoudour.installer.ui.settings.SettingItemData
 import dev.huidoudour.installer.ui.settings.SettingListItem
 import dev.huidoudour.installer.ui.settings.SettingsSwitchItem
+import dev.huidoudour.installer.ui.settings.SettingsViewModel
 import dev.huidoudour.installer.ui.theme.CardShape
 import dev.huidoudour.installer.ui.theme.SegmentedGap
 import dev.huidoudour.installer.ui.theme.SmallShape
 import dev.huidoudour.installer.ui.theme.segmentedShape
+import dev.huidoudour.installer.ui.theme.singleShape
+import dev.huidoudour.installer.util.UpdateChecker
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
- * 实验室页面：智能授权回退列表 + 签名校验开关（实验性功能）。
+ * 高级设置页面：智能授权（特权安装开关、回退顺序等）。
  */
 @Composable
-fun LabScreen(
+fun AdvancedSettingsScreen(
     onBack: () -> Unit,
     enterProgress: Float = 1f,
     onBackProgressChange: (Float) -> Unit = {},
     viewModel: LabViewModel = viewModel(),
 ) {
-    val context = LocalContext.current
-    val density = LocalDensity.current
-    val gestureProgress = remember { Animatable(0f) }
-    val fadeProgress = remember { Animatable(0f) }
-    // 仅在确认返回后驱动水平漂移：手势阶段页面只缩放、不位移，避免被推出屏幕。
-    val driftProgress = remember { Animatable(0f) }
-    var swipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
-    var gestureTouchY by remember { mutableFloatStateOf(0f) }
-    var pageSize by remember { mutableStateOf(IntSize.Zero) }
-    val backGestureEasing = remember { CubicBezierEasing(0.1f, 0.1f, 0f, 1f) }
-    val layoutDirection = LocalLayoutDirection.current
-    val currentOnBackProgressChange by rememberUpdatedState(onBackProgressChange)
-
     val tryMultipleAuthorizers by viewModel.tryMultipleAuthorizers.collectAsState()
     val authorizerByInstallState by viewModel.authorizerByInstallState.collectAsState()
     val useShizuku by viewModel.useShizuku.collectAsState()
     val useDhizuku by viewModel.useDhizuku.collectAsState()
-    val useShizukuTerminal by viewModel.useShizukuTerminal.collectAsState()
     val candidates by viewModel.candidates.collectAsState()
-    val checkSignature by viewModel.checkSignature.collectAsState()
-    val showSignatureDetails by viewModel.showSignatureDetails.collectAsState()
     val availability by viewModel.availability.collectAsState()
 
     var showFallbackDialog by remember { mutableStateOf(false) }
@@ -135,9 +129,334 @@ fun LabScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(gestureProgress) {
-        snapshotFlow { gestureProgress.value }.collect { currentOnBackProgressChange(it) }
+    LabScaffold(
+        title = stringResource(R.string.advanced_settings),
+        showTip = false,
+        onBack = onBack,
+        enterProgress = enterProgress,
+        onBackProgressChange = onBackProgressChange,
+    ) {
+        SectionContainer(title = stringResource(R.string.lab_authorizer_section)) {
+            SettingsSwitchItem(
+                title = stringResource(R.string.lab_use_shizuku_install),
+                subtitle = stringResource(R.string.lab_use_shizuku_install_desc),
+                checked = useShizuku,
+                onCheckedChange = { viewModel.setUseShizuku(it) },
+                shape = segmentedShape(0, 5),
+                isLast = false
+            )
+
+            SettingsSwitchItem(
+                title = stringResource(R.string.lab_use_dhizuku_install),
+                subtitle = stringResource(R.string.lab_use_dhizuku_install_desc),
+                checked = useDhizuku,
+                onCheckedChange = { viewModel.setUseDhizuku(it) },
+                shape = segmentedShape(1, 5),
+                isLast = false
+            )
+
+            SettingsSwitchItem(
+                title = stringResource(R.string.lab_try_multiple_authorizers),
+                subtitle = stringResource(R.string.lab_try_multiple_authorizers_desc),
+                checked = tryMultipleAuthorizers,
+                onCheckedChange = { viewModel.setTryMultipleAuthorizers(it) },
+                shape = segmentedShape(2, 5),
+                isLast = false
+            )
+
+            SettingsSwitchItem(
+                title = stringResource(R.string.lab_authorizer_by_install_state),
+                subtitle = stringResource(R.string.lab_authorizer_by_install_state_desc),
+                checked = authorizerByInstallState,
+                onCheckedChange = { viewModel.setAuthorizerByInstallState(it) },
+                shape = segmentedShape(3, 5),
+                isLast = false
+            )
+
+            SettingListItem(
+                item = SettingItemData(
+                    icon = ImageVector.vectorResource(R.drawable.ic_list),
+                    title = stringResource(R.string.lab_smart_authorizer_fallback_list),
+                    subtitle = viewModel.enabledOrderLabel(),
+                    colorPreview = null,
+                    onClick = { showFallbackDialog = true }
+                ),
+                shape = segmentedShape(4, 5),
+                isLast = true,
+                showArrow = true
+            )
+        }
     }
+
+    if (showFallbackDialog) {
+        val context = LocalContext.current
+        FallbackListDialog(
+            candidates = candidates,
+            availability = availability,
+            onDismiss = { showFallbackDialog = false },
+            onConfirm = { newList ->
+                if (viewModel.updateCandidates(newList)) {
+                    showFallbackDialog = false
+                    true
+                } else {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.lab_authorizer_must_choose_one),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    false
+                }
+            }
+        )
+    }
+}
+
+/**
+ * 实验功能页面：签名校验、终端，以及更新检测（手动检查 / GitHub 令牌）。
+ */
+@Composable
+fun ExperimentalScreen(
+    onBack: () -> Unit,
+    enterProgress: Float = 1f,
+    onBackProgressChange: (Float) -> Unit = {},
+    viewModel: LabViewModel = viewModel(),
+    settingsViewModel: SettingsViewModel = viewModel(),
+) {
+    val context = LocalContext.current
+    val useShizukuTerminal by viewModel.useShizukuTerminal.collectAsState()
+    val checkSignature by viewModel.checkSignature.collectAsState()
+    val showSignatureDetails by viewModel.showSignatureDetails.collectAsState()
+
+    // 用局部 val 承接，便于智能转换为非空
+    val updateInfo = settingsViewModel.updateInfo.collectAsState().value
+    val githubPat by settingsViewModel.githubPat.collectAsState()
+    var showPatDialog by remember { mutableStateOf(false) }
+
+    // 进入实验功能页触发一次检测（ViewModel 内部已做 24h 节流）
+    LaunchedEffect(Unit) {
+        settingsViewModel.checkUpdate()
+    }
+
+    LabScaffold(
+        title = stringResource(R.string.experimental_features),
+        showTip = true,
+        onBack = onBack,
+        enterProgress = enterProgress,
+        onBackProgressChange = onBackProgressChange,
+    ) {
+        // 分区：签名校验
+        SectionContainer(title = stringResource(R.string.lab_signature_section)) {
+            SettingsSwitchItem(
+                title = stringResource(R.string.lab_check_signature),
+                subtitle = stringResource(R.string.lab_check_signature_desc),
+                checked = checkSignature,
+                onCheckedChange = { viewModel.setCheckSignature(it) },
+                shape = segmentedShape(0, 2),
+                isLast = false
+            )
+
+            SettingsSwitchItem(
+                title = stringResource(R.string.lab_show_signature_details),
+                subtitle = null,
+                checked = showSignatureDetails,
+                onCheckedChange = { viewModel.setShowSignatureDetails(it) },
+                shape = segmentedShape(1, 2),
+                isLast = true
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 分区：终端
+        SectionContainer(title = stringResource(R.string.lab_terminal_section)) {
+            SettingsSwitchItem(
+                title = stringResource(R.string.lab_terminal_use_shizuku),
+                subtitle = stringResource(R.string.lab_terminal_use_shizuku_desc),
+                checked = useShizukuTerminal,
+                onCheckedChange = { viewModel.setUseShizukuTerminal(it) },
+                shape = segmentedShape(0, 1),
+                isLast = true
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 分区：更新检测
+        SectionContainer(title = stringResource(R.string.update_section)) {
+            val scope = rememberCoroutineScope()
+            var checking by remember { mutableStateOf(false) }
+            SettingListItem(
+                item = SettingItemData(
+                    icon = Icons.Filled.SystemUpdate,
+                    title = stringResource(R.string.check_update),
+                    subtitle = null,
+                    colorPreview = null,
+                    onClick = {
+                        if (!checking) {
+                            checking = true
+                            scope.launch {
+                                when (val result = settingsViewModel.checkUpdateNow()) {
+                                    is UpdateChecker.UpdateCheckResult.NewVersion -> Toast.makeText(
+                                        context,
+                                        context.getString(R.string.new_version_available, result.info.latestVersion),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    UpdateChecker.UpdateCheckResult.UpToDate -> Toast.makeText(
+                                        context,
+                                        context.getString(R.string.up_to_date),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    is UpdateChecker.UpdateCheckResult.Failed -> Toast.makeText(
+                                        context,
+                                        context.getString(R.string.update_check_failed),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                checking = false
+                            }
+                        }
+                    }
+                ),
+                shape = segmentedShape(0, 2),
+                isLast = false,
+                showArrow = false
+            )
+
+            SettingListItem(
+                item = SettingItemData(
+                    icon = ImageVector.vectorResource(R.drawable.ic_lock),
+                    title = stringResource(R.string.github_token),
+                    subtitle = stringResource(
+                        if (githubPat.isNotBlank()) R.string.token_configured else R.string.token_not_set
+                    ),
+                    colorPreview = null,
+                    onClick = { showPatDialog = true }
+                ),
+                shape = segmentedShape(1, 2),
+                isLast = true,
+                showArrow = true
+            )
+
+            // 有新版本时：下方展示可点击提示，跳转到发布页
+            if (updateInfo != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    shape = SmallShape,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    onClick = {
+                        try {
+                            context.startActivity(
+                                Intent(Intent.ACTION_VIEW, Uri.parse(updateInfo.releaseUrl))
+                            )
+                        } catch (_: Exception) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.cannot_open_link),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_version),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.new_version_available, updateInfo.latestVersion),
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // GitHub PAT 对话框：填写后检测走认证 API，留空则回退网页跳转检测
+    if (showPatDialog) {
+        var patInput by remember { mutableStateOf(githubPat) }
+        AlertDialog(
+            onDismissRequest = { showPatDialog = false },
+            title = { Text(stringResource(R.string.github_token)) },
+            text = {
+                Column {
+                    Text(
+                        text = stringResource(R.string.github_token_hint),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = patInput,
+                        onValueChange = { patInput = it },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    settingsViewModel.setGithubPat(patInput)
+                    showPatDialog = false
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.github_token_saved),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }) { Text(stringResource(R.string.confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPatDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+}
+
+/**
+ * 页面脚手架：预测式返回动画 + 顶栏 + 可滚动内容区，供高级设置 / 实验功能共用。
+ */
+@Composable
+private fun LabScaffold(
+    title: String,
+    showTip: Boolean,
+    onBack: () -> Unit,
+    enterProgress: Float,
+    onBackProgressChange: (Float) -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val density = LocalDensity.current
+    val gestureProgress = remember { Animatable(0f) }
+    val fadeProgress = remember { Animatable(0f) }
+    // 仅在确认返回后驱动水平漂移：手势阶段页面只缩放、不位移，避免被推出屏幕。
+    val driftProgress = remember { Animatable(0f) }
+    var swipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
+    var gestureTouchY by remember { mutableFloatStateOf(0f) }
+    var pageSize by remember { mutableStateOf(IntSize.Zero) }
+    val backGestureEasing = remember { CubicBezierEasing(0.1f, 0.1f, 0f, 1f) }
+    val layoutDirection = LocalLayoutDirection.current
+    val currentOnBackProgressChange by rememberUpdatedState(onBackProgressChange)
 
     PredictiveBackHandler { events ->
         var completed = false
@@ -219,7 +538,7 @@ fun LabScreen(
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.lab),
+                    text = title,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -228,123 +547,16 @@ fun LabScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 实验性提示
-            InfoTipCard(text = stringResource(R.string.lab_tip))
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 分区：智能授权
-            SectionContainer(title = stringResource(R.string.lab_authorizer_section)) {
-                SettingsSwitchItem(
-                    title = stringResource(R.string.lab_use_shizuku_install),
-                    subtitle = stringResource(R.string.lab_use_shizuku_install_desc),
-                    checked = useShizuku,
-                    onCheckedChange = { viewModel.setUseShizuku(it) },
-                    shape = segmentedShape(0, 5),
-                    isLast = false
-                )
-
-                SettingsSwitchItem(
-                    title = stringResource(R.string.lab_use_dhizuku_install),
-                    subtitle = stringResource(R.string.lab_use_dhizuku_install_desc),
-                    checked = useDhizuku,
-                    onCheckedChange = { viewModel.setUseDhizuku(it) },
-                    shape = segmentedShape(1, 5),
-                    isLast = false
-                )
-
-                SettingsSwitchItem(
-                    title = stringResource(R.string.lab_try_multiple_authorizers),
-                    subtitle = stringResource(R.string.lab_try_multiple_authorizers_desc),
-                    checked = tryMultipleAuthorizers,
-                    onCheckedChange = { viewModel.setTryMultipleAuthorizers(it) },
-                    shape = segmentedShape(2, 5),
-                    isLast = false
-                )
-
-                SettingsSwitchItem(
-                    title = stringResource(R.string.lab_authorizer_by_install_state),
-                    subtitle = stringResource(R.string.lab_authorizer_by_install_state_desc),
-                    checked = authorizerByInstallState,
-                    onCheckedChange = { viewModel.setAuthorizerByInstallState(it) },
-                    shape = segmentedShape(3, 5),
-                    isLast = false
-                )
-
-                SettingListItem(
-                    item = SettingItemData(
-                        icon = ImageVector.vectorResource(R.drawable.ic_list),
-                        title = stringResource(R.string.lab_smart_authorizer_fallback_list),
-                        subtitle = viewModel.enabledOrderLabel(),
-                        colorPreview = null,
-                        onClick = { showFallbackDialog = true }
-                    ),
-                    shape = segmentedShape(4, 5),
-                    isLast = true,
-                    showArrow = true
-                )
+            if (showTip) {
+                // 实验性提示
+                InfoTipCard(text = stringResource(R.string.lab_tip))
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 分区：签名校验
-            SectionContainer(title = stringResource(R.string.lab_signature_section)) {
-                SettingsSwitchItem(
-                    title = stringResource(R.string.lab_check_signature),
-                    subtitle = stringResource(R.string.lab_check_signature_desc),
-                    checked = checkSignature,
-                    onCheckedChange = { viewModel.setCheckSignature(it) },
-                    shape = segmentedShape(0, 2),
-                    isLast = false
-                )
-
-                SettingsSwitchItem(
-                    title = stringResource(R.string.lab_show_signature_details),
-                    subtitle = null,
-                    checked = showSignatureDetails,
-                    onCheckedChange = { viewModel.setShowSignatureDetails(it) },
-                    shape = segmentedShape(1, 2),
-                    isLast = true
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 分区：终端
-            SectionContainer(title = stringResource(R.string.lab_terminal_section)) {
-                SettingsSwitchItem(
-                    title = stringResource(R.string.lab_terminal_use_shizuku),
-                    subtitle = stringResource(R.string.lab_terminal_use_shizuku_desc),
-                    checked = useShizukuTerminal,
-                    onCheckedChange = { viewModel.setUseShizukuTerminal(it) },
-                    shape = segmentedShape(0, 1),
-                    isLast = true
-                )
-            }
+            content()
 
             Spacer(modifier = Modifier.height(16.dp))
         }
-    }
-
-    if (showFallbackDialog) {
-        FallbackListDialog(
-            candidates = candidates,
-            availability = availability,
-            onDismiss = { showFallbackDialog = false },
-            onConfirm = { newList ->
-                if (viewModel.updateCandidates(newList)) {
-                    showFallbackDialog = false
-                    true
-                } else {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.lab_authorizer_must_choose_one),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    false
-                }
-            }
-        )
     }
 }
 

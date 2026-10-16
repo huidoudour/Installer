@@ -68,6 +68,11 @@
     <string name="check_update">检查更新喵</string>
     <string name="up_to_date">已是最新版本喵</string>
     <string name="update_check_failed">检查更新失败喵</string>
+    <string name="github_token">GitHub 令牌喵（可选）</string>
+    <string name="github_token_hint">填写个人访问令牌喵后，检测更新会走认证 API（额度更高）；留空就用网页发布页检测喵。</string>
+    <string name="token_not_set">未设置喵</string>
+    <string name="token_configured">已设置喵</string>
+    <string name="github_token_saved">令牌已保存喵</string>
     <string name="follow_system">跟随系统喵</string>
     <string name="simplified_chinese">简体中文喵</string>
     <string name="traditional_chinese">繁体中文喵</string>
@@ -715,6 +720,9 @@
 
     <!-- Advanced settings card & authorizer-by-install-state -->
     <string name="advanced_settings">高級設定喵</string>
+    <string name="advanced_settings_summary">智能授权与回退顺序喵</string>
+    <string name="experimental_features">实验功能喵</string>
+    <string name="update_section">更新检测喵</string>
     <string name="lab_authorizer_by_install_state">按安裝狀態選擇授權方式喵</string>
     <string name="lab_authorizer_by_install_state_desc">已安裝 → Shizuku，全新安裝 → Dhizuku喵</string>
     <!-- Install / authorizer runtime messages -->

@@ -10,11 +10,18 @@ import java.net.URL
  */
 object UpdateChecker {
 
+    /**
+     * 走 GitHub 网页版 releases/latest（会 302 跳转到 /releases/tag/<版本>）而非 api.github.com，
+     * 规避未认证 API 的 60 次/小时限流（403）。
+     */
+    private const val LATEST_RELEASE_PAGE =
+        "https://github.com/huidoudour/Installer/releases/latest"
+
+    const val RELEASES_PAGE_URL = LATEST_RELEASE_PAGE
+
+    /** 认证检测端点：填写 PAT 后走这里（未认证 60 次/小时 → 认证 5000 次/小时） */
     private const val LATEST_RELEASE_API =
         "https://api.github.com/repos/huidoudour/Installer/releases/latest"
-
-    /** 跳转兜底地址（API 未返回 html_url 时使用），会自动重定向到最新版本页 */
-    const val RELEASES_PAGE_URL = "https://github.com/huidoudour/Installer/releases/latest"
 
     data class UpdateInfo(
         val latestVersion: String,
@@ -32,8 +39,55 @@ object UpdateChecker {
      * 同步发起检测（调用方需自行置于 IO 线程）。
      *
      * @param localBaseVersion 本地基础版本号，如 "26.10.14"（对应 [dev.huidoudour.installer.BuildConfig.BASE_VERSION_NAME]）
+     * @param token 可选 GitHub PAT；非空则走认证 API，为空则回退网页 releases/latest 的 302 跳转
      */
-    fun check(localBaseVersion: String): UpdateCheckResult {
+    fun check(localBaseVersion: String, token: String? = null): UpdateCheckResult {
+        return if (!token.isNullOrBlank()) {
+            checkViaApi(localBaseVersion, token)
+        } else {
+            checkViaPage(localBaseVersion)
+        }
+    }
+
+    /** 无 token：走网页版 releases/latest，捕获 302 的 Location 解析版本，不受 API 限流 */
+    private fun checkViaPage(localBaseVersion: String): UpdateCheckResult {
+        var conn: HttpURLConnection? = null
+        return try {
+            conn = (URL(LATEST_RELEASE_PAGE).openConnection() as HttpURLConnection).apply {
+                requestMethod = "GET"
+                connectTimeout = 10_000
+                readTimeout = 10_000
+                // 不自动跟随重定向，手动捕获 302 的 Location 解析 /releases/tag/<版本>
+                instanceFollowRedirects = false
+                setRequestProperty("User-Agent", "Installer-UpdateCheck")
+            }
+            val code = conn.responseCode
+            if (code == HttpURLConnection.HTTP_NOT_FOUND) {
+                // 尚无任何已发布的正式版
+                return UpdateCheckResult.Failed("HTTP 404 - no published release")
+            }
+            val location = conn.getHeaderField("Location")
+            if (code in 300..399 && location != null) {
+                // releases/latest 会排除草稿/预发布，Location 指向最新正式版
+                val tag = location.substringAfterLast("/tag/", "")
+                    .substringBefore('?')
+                    .removePrefix("v")
+                if (tag.isEmpty()) {
+                    return UpdateCheckResult.Failed("no tag in redirect: $location")
+                }
+                compareTag(localBaseVersion, tag)
+            } else {
+                UpdateCheckResult.Failed("HTTP $code")
+            }
+        } catch (e: Exception) {
+            UpdateCheckResult.Failed(e.message ?: e::class.java.simpleName)
+        } finally {
+            conn?.disconnect()
+        }
+    }
+
+    /** 有 token：走 api.github.com 认证请求，从 JSON 取 tag_name */
+    private fun checkViaApi(localBaseVersion: String, token: String): UpdateCheckResult {
         var conn: HttpURLConnection? = null
         return try {
             conn = (URL(LATEST_RELEASE_API).openConnection() as HttpURLConnection).apply {
@@ -41,32 +95,41 @@ object UpdateChecker {
                 connectTimeout = 10_000
                 readTimeout = 10_000
                 instanceFollowRedirects = true
-                // GitHub API 无 User-Agent 会返回 403
                 setRequestProperty("User-Agent", "Installer-UpdateCheck")
                 setRequestProperty("Accept", "application/vnd.github+json")
+                setRequestProperty("Authorization", "Bearer $token")
             }
-            if (conn.responseCode !in HttpURLConnection.HTTP_OK..299) {
-                return UpdateCheckResult.Failed("HTTP ${conn.responseCode}")
+            val code = conn.responseCode
+            if (code !in HttpURLConnection.HTTP_OK..299) {
+                // 认证失败/限流等：读取 GitHub 返回的 {"message": "..."} 便于定位
+                val detail = runCatching {
+                    conn.errorStream?.bufferedReader()?.use { it.readText() }
+                        ?.let { JSONObject(it).optString("message") }
+                }.getOrNull()
+                return UpdateCheckResult.Failed(
+                    "HTTP $code" + if (detail.isNullOrEmpty()) "" else " - $detail"
+                )
             }
-
             val body = conn.inputStream.bufferedReader().use { it.readText() }
-            val json = JSONObject(body)
-            // 预发布/草稿不会出现在 /releases/latest，这里拿到的即最新正式版
-            val tag = json.optString("tag_name").removePrefix("v")
+            val tag = JSONObject(body).optString("tag_name").removePrefix("v")
             if (tag.isEmpty()) {
                 return UpdateCheckResult.Failed("missing tag_name in response")
             }
-            val htmlUrl = json.optString("html_url").ifEmpty { RELEASES_PAGE_URL }
-
-            if (compareVersions(tag, localBaseVersion) > 0) {
-                UpdateCheckResult.NewVersion(UpdateInfo(latestVersion = tag, releaseUrl = htmlUrl))
-            } else {
-                UpdateCheckResult.UpToDate
-            }
+            compareTag(localBaseVersion, tag)
         } catch (e: Exception) {
             UpdateCheckResult.Failed(e.message ?: e::class.java.simpleName)
         } finally {
             conn?.disconnect()
+        }
+    }
+
+    /** 统一比较：远端 tag 大于本地版本则新版，否则已最新 */
+    private fun compareTag(localBaseVersion: String, tag: String): UpdateCheckResult {
+        val info = UpdateInfo(latestVersion = tag, releaseUrl = RELEASES_PAGE_URL)
+        return if (compareVersions(tag, localBaseVersion) > 0) {
+            UpdateCheckResult.NewVersion(info)
+        } else {
+            UpdateCheckResult.UpToDate
         }
     }
 
