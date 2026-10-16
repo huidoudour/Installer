@@ -118,6 +118,9 @@ fun TerminalView(
                 .pointerInput(terminal, renderer) {
                     detectTapGestures {
                         inputView.requestFocus()
+                        // SHOW_IMPLICIT 自 API 30 起被标记废弃，但无不改变隐式弹出语义的替代常量；
+                        // 触摸被上层 overlay 消费，EditText 无法靠 requestFocus 自动唤起输入法，故保留显式调用。
+                        @Suppress("DEPRECATION")
                         inputMethodManager?.showSoftInput(inputView, InputMethodManager.SHOW_IMPLICIT)
                     }
                 }

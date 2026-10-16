@@ -239,33 +239,20 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling.preview)
 
     implementation(libs.material.kolor)
-
-    // ====== 必要依赖开始 ======
-    // Hidden API for Dhizuku binder wrapper
+    implementation(libs.apksig)
     compileOnly(project(":hidden-api"))
-    // Shizuku api/provider
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
-    // 原版 Dhizuku API（用于 com.rosan.dhizuku）
     implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
-
-    // 绕过隐式 API
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
+    implementation("androidx.core:core-ktx:1.19.0")
 
-    implementation("androidx.core:core-ktx:1.19.1")
-
-    // APK 签名校验（apksig：完整校验 v1/v2/v3/v3.1/v4 签名方案）
-    implementation(libs.apksig)
-
-    // ====== 必要依赖结束 ======
-    // 测试依赖
-    testImplementation("junit:junit:4.13.2")
-    implementation(project(":lib-mtprovider"))
     // MTDataFilesProvider
-    //debugImplementation("com.github.L-JINBIN:MTDataFilesProvider:v1.0.0")
+    implementation(project(":lib-mtprovider"))
 
     val localFile = file("libs/android.aar")
     if (localFile.exists()) {
         debugImplementation(files(localFile))
+        releaseImplementation("androidx.compose.ui:ui-tooling-preview:1.13.0-beta01")
     }
 }
