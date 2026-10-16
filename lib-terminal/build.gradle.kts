@@ -83,6 +83,6 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
-    implementation("androidx.core:core-ktx:1.19.0")
+    implementation("androidx.core:core-ktx:1.19.1")
     implementation("dev.rikka.shizuku:api:13.1.5")
 }
