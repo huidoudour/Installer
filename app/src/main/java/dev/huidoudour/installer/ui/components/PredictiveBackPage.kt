@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import kotlin.math.max
 
 /** 顶部返回按钮的滑出时长：与普通页面返回的转场节奏保持一致。 */
 private const val BUTTON_EXIT_DURATION_MILLIS = 280
@@ -44,6 +43,9 @@ private const val BUTTON_EXIT_DURATION_MILLIS = 280
  * 页面在手势过程中以触点为中心缩小；确认返回后继续向手势方向淡出，
  * 从而让其下方的页面在整个过程里保持可见。
  *
+ * 下层页面**完全不动**（不位移、不缩放、不淡入），只被一层遮罩压暗；遮罩在手势期间
+ * 保持恒定、只有真正松手确认返回后才淡出——对齐参考实现 `ScaleNavTransition` 的 scrim 曲线。
+ *
  * [content] 会收到一个 `requestBack`：顶部返回按钮等主动返回入口应调用它。
  * 主动返回是**普通返回**——整页向右滑出（RTL 向左），不播放预测性返回的缩放 / 漂移 / 淡出；
  * 那套缩放预览只留给系统返回手势本身，因为它是手势进度的实时预览。
@@ -52,7 +54,7 @@ private const val BUTTON_EXIT_DURATION_MILLIS = 280
 @Composable
 fun PredictiveBackPage(
     enterProgress: Float,
-    onBackProgressChange: (Float) -> Unit,
+    onScrimChange: (Float) -> Unit,
     onBack: () -> Unit,
     content: @Composable (requestBack: () -> Unit) -> Unit,
 ) {
@@ -63,12 +65,14 @@ fun PredictiveBackPage(
     val driftProgress = remember { Animatable(0f) }
     // 顶部返回按钮的退场进度：0 → 1 表示整页从原位滑出屏幕。
     val slideExitProgress = remember { Animatable(0f) }
+    // 盖在下层页面上的遮罩强度：常态 1f，只在确认返回的收尾动画里淡到 0。
+    val scrimProgress = remember { Animatable(1f) }
     var swipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
     var gestureTouchY by remember { mutableFloatStateOf(0f) }
     var pageSize by remember { mutableStateOf(IntSize.Zero) }
     val backGestureEasing = remember { CubicBezierEasing(0.1f, 0.1f, 0f, 1f) }
     val layoutDirection = LocalLayoutDirection.current
-    val currentOnBackProgressChange by rememberUpdatedState(onBackProgressChange)
+    val currentOnScrimChange by rememberUpdatedState(onScrimChange)
     val currentOnBack by rememberUpdatedState(onBack)
     val scope = rememberCoroutineScope()
     var exiting by remember { mutableStateOf(false) }
@@ -79,6 +83,15 @@ fun PredictiveBackPage(
             if (!exiting) {
                 exiting = true
                 scope.launch {
+                    launch {
+                        scrimProgress.animateTo(
+                            targetValue = 0f,
+                            animationSpec = tween(
+                                durationMillis = BUTTON_EXIT_DURATION_MILLIS,
+                                easing = FastOutSlowInEasing,
+                            ),
+                        )
+                    }
                     slideExitProgress.animateTo(
                         targetValue = 1f,
                         animationSpec = tween(
@@ -92,10 +105,10 @@ fun PredictiveBackPage(
         }
     }
 
-    // 手势进度与按钮滑出进度共用同一条上报通道：容器用它把下层页面从「让位」位置平滑归位。
-    LaunchedEffect(gestureProgress, slideExitProgress) {
-        snapshotFlow { max(gestureProgress.value, slideExitProgress.value) }
-            .collect { currentOnBackProgressChange(it.coerceIn(0f, 1f)) }
+    // 遮罩强度是唯一需要上报给容器的量：手势期间不变，只在收尾时淡出。
+    LaunchedEffect(scrimProgress) {
+        snapshotFlow { scrimProgress.value }
+            .collect { currentOnScrimChange(it.coerceIn(0f, 1f)) }
     }
 
     // 预测性返回的手势进度事件（onBackStarted / onBackProgressed）需要 API 34 及以上；
@@ -123,11 +136,13 @@ fun PredictiveBackPage(
                 gestureProgress.snapTo(event.progress.coerceIn(0f, 1f))
             }
             completed = true
-            // 确认返回：几何位移从松手位置继续推进，不透明度用更短的墙钟窗口先归零。
+            // 确认返回：几何位移从松手位置继续推进，不透明度用更短的墙钟窗口先归零，
+            // 遮罩在这一段里才淡出（手势期间保持不变）。
             commitPredictiveBackExit(
                 gestureProgress = gestureProgress,
                 fadeProgress = fadeProgress,
                 driftProgress = driftProgress,
+                scrimProgress = scrimProgress,
                 onFinished = { currentOnBack() },
             )
         } finally {

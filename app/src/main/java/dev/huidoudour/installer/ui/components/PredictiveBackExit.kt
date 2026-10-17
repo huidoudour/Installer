@@ -101,12 +101,15 @@ object PredictiveBackMotion {
  * [driftProgress] 只在确认返回后才从 0 推进到 1f，用于驱动水平漂移，
  * 这样手势进行中页面只缩放、不位移，不会滑出屏幕；
  * [fadeProgress] 用独立且更短的墙钟窗口提前归零，页面在产生明显位移之前就已淡出，
- * 避免「拖着内容滑走」的观感。
+ * 避免「拖着内容滑走」的观感；
+ * [scrimProgress] 是叠在下层页面上的遮罩强度：手势期间恒为 1f（不随手指变化），
+ * 只有确认返回后才在这里淡到 0，与参考实现 `ScaleNavTransition` 的 scrim 曲线一致。
  */
 suspend fun commitPredictiveBackExit(
     gestureProgress: Animatable<Float, *>,
     fadeProgress: Animatable<Float, *>,
     driftProgress: Animatable<Float, *>,
+    scrimProgress: Animatable<Float, *>,
     onFinished: () -> Unit,
 ) {
     val duration = PredictiveBackMotion.commitDurationMillis(gestureProgress.value)
@@ -135,6 +138,15 @@ suspend fun commitPredictiveBackExit(
                 animationSpec = tween(
                     durationMillis = PredictiveBackMotion.FADE_DURATION_MILLIS,
                     easing = PredictiveBackMotion.ExitFadeEasing,
+                )
+            )
+        }
+        launch {
+            scrimProgress.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(
+                    durationMillis = duration,
+                    easing = PredictiveBackMotion.CommitEasing,
                 )
             )
         }

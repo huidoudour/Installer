@@ -8,6 +8,14 @@
 # auto-service 注解处理器，仅编译期使用
 -dontwarn javax.annotation.processing.**
 
+# ========== Tink / jsr305 注解 ==========
+# androidx.security:security-crypto:1.1.0-alpha06 传递依赖 com.google.crypto.tink:tink-android:1.8.0，
+# 后者在字段/方法上用了 jsr305 注解（javax.annotation.Nullable、javax.annotation.concurrent.GuardedBy），
+# 但没有把 jsr305 打进运行期 classpath。这些注解只在编译期有意义，运行期没有任何代码读取它们。
+# R8 full mode 默认把「缺失类」当错误（Missing class javax.annotation.Nullable ...），
+# 因此这里显式忽略；R8 自己生成的 missing_rules.txt 也是这两条。
+-dontwarn javax.annotation.**
+
 # ========== 隐藏 API stubs (反射调用) ==========
 # 这些类在编译期是 stub，运行时使用系统框架真类
 -dontwarn android.content.pm.IPackageInstaller

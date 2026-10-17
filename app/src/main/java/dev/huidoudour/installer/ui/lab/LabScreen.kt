@@ -1,4 +1,4 @@
-﻿package dev.huidoudour.installer.ui.lab
+package dev.huidoudour.installer.ui.lab
 
 import android.content.Context
 import android.content.Intent
@@ -83,13 +83,13 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
- * 楂樼骇璁剧疆椤甸潰锛氭櫤鑳芥巿鏉冿紙鐗规潈瀹夎寮€鍏炽€佸洖閫€椤哄簭绛夛級銆?
+ * 高级设置页面：智能授权（特权安装开关、回退顺序等）。
  */
 @Composable
 fun AdvancedSettingsScreen(
     onBack: () -> Unit,
     enterProgress: Float = 1f,
-    onBackProgressChange: (Float) -> Unit = {},
+    onScrimChange: (Float) -> Unit = {},
     viewModel: LabViewModel = viewModel(),
 ) {
     val tryMultipleAuthorizers by viewModel.tryMultipleAuthorizers.collectAsState()
@@ -101,7 +101,7 @@ fun AdvancedSettingsScreen(
 
     var showFallbackDialog by remember { mutableStateOf(false) }
 
-    // 浠庡悗鍙拌繑鍥炴椂鍒锋柊鎺堟潈鍣ㄥ彲鐢ㄦ€?
+    // 从后台返回时刷新授权器可用性
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -118,7 +118,7 @@ fun AdvancedSettingsScreen(
         showTip = false,
         onBack = onBack,
         enterProgress = enterProgress,
-        onBackProgressChange = onBackProgressChange,
+        onScrimChange = onScrimChange,
     ) {
         SectionContainer(title = stringResource(R.string.lab_authorizer_section)) {
             SettingsSwitchItem(
@@ -196,13 +196,13 @@ fun AdvancedSettingsScreen(
 }
 
 /**
- * 瀹為獙鍔熻兘椤甸潰锛氱鍚嶆牎楠屻€佺粓绔紝浠ュ強鏇存柊妫€娴嬶紙鎵嬪姩妫€鏌?/ GitHub 浠ょ墝锛夈€?
+ * 实验功能页面：签名校验、终端，以及更新检测（手动检查 / GitHub 令牌）。
  */
 @Composable
 fun ExperimentalScreen(
     onBack: () -> Unit,
     enterProgress: Float = 1f,
-    onBackProgressChange: (Float) -> Unit = {},
+    onScrimChange: (Float) -> Unit = {},
     viewModel: LabViewModel = viewModel(),
     settingsViewModel: SettingsViewModel = viewModel(),
 ) {
@@ -211,12 +211,12 @@ fun ExperimentalScreen(
     val checkSignature by viewModel.checkSignature.collectAsState()
     val showSignatureDetails by viewModel.showSignatureDetails.collectAsState()
 
-    // 鐢ㄥ眬閮?val 鎵挎帴锛屼究浜庢櫤鑳借浆鎹负闈炵┖
+    // 用局部 val 承接，便于智能转换为非空
     val updateInfo = settingsViewModel.updateInfo.collectAsState().value
     val githubPat by settingsViewModel.githubPat.collectAsState()
     var showPatDialog by remember { mutableStateOf(false) }
 
-    // 杩涘叆瀹為獙鍔熻兘椤佃Е鍙戜竴娆℃娴嬶紙ViewModel 鍐呴儴宸插仛 24h 鑺傛祦锛?
+    // 进入实验功能页触发一次检测（ViewModel 内部已做 24h 节流）
     LaunchedEffect(Unit) {
         settingsViewModel.checkUpdate()
     }
@@ -226,9 +226,9 @@ fun ExperimentalScreen(
         showTip = true,
         onBack = onBack,
         enterProgress = enterProgress,
-        onBackProgressChange = onBackProgressChange,
+        onScrimChange = onScrimChange,
     ) {
-        // 鍒嗗尯锛氱鍚嶆牎楠?
+        // 分区：签名校验
         SectionContainer(title = stringResource(R.string.lab_signature_section)) {
             SettingsSwitchItem(
                 title = stringResource(R.string.lab_check_signature),
@@ -251,7 +251,7 @@ fun ExperimentalScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 鍒嗗尯锛氱粓绔?
+        // 分区：终端
         SectionContainer(title = stringResource(R.string.lab_terminal_section)) {
             SettingsSwitchItem(
                 title = stringResource(R.string.lab_terminal_use_shizuku),
@@ -265,7 +265,7 @@ fun ExperimentalScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 鍒嗗尯锛氭洿鏂版娴?
+        // 分区：更新检测
         SectionContainer(title = stringResource(R.string.update_section)) {
             val scope = rememberCoroutineScope()
             var checking by remember { mutableStateOf(false) }
@@ -323,7 +323,7 @@ fun ExperimentalScreen(
                 showArrow = true
             )
 
-            // 鏈夋柊鐗堟湰鏃讹細涓嬫柟灞曠ず鍙偣鍑绘彁绀猴紝璺宠浆鍒板彂甯冮〉
+            // 有新版本时：下方展示可点击提示，跳转到发布页
             if (updateInfo != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Surface(
@@ -377,7 +377,7 @@ fun ExperimentalScreen(
         }
     }
 
-    // GitHub PAT 瀵硅瘽妗嗭細濉啓鍚庢娴嬭蛋璁よ瘉 API锛岀暀绌哄垯鍥為€€缃戦〉璺宠浆妫€娴?
+    // GitHub PAT 对话框：填写后检测走认证 API，留空则回退网页跳转检测
     if (showPatDialog) {
         var patInput by remember { mutableStateOf(githubPat) }
         AlertDialog(
@@ -390,7 +390,7 @@ fun ExperimentalScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    // 璇存槑浠ょ墝鎵€闇€鏈€灏忔潈闄愶紝閬垮厤鐢ㄦ埛涓嶇煡閬撹鎬庝箞寤?token
+                    // 说明令牌所需最小权限，避免用户不知道该怎么建 token
                     Text(
                         text = stringResource(R.string.github_token_scope_hint),
                         style = MaterialTheme.typography.bodySmall,
@@ -438,12 +438,12 @@ private fun LabScaffold(
     showTip: Boolean,
     onBack: () -> Unit,
     enterProgress: Float,
-    onBackProgressChange: (Float) -> Unit,
+    onScrimChange: (Float) -> Unit,
     content: @Composable () -> Unit,
 ) {
     PredictiveBackPage(
         enterProgress = enterProgress,
-        onBackProgressChange = onBackProgressChange,
+        onScrimChange = onScrimChange,
         onBack = onBack,
     ) { requestBack ->
         Column(
@@ -487,7 +487,7 @@ private fun LabScaffold(
 }
 
 /**
- * 鍒嗗尯鍗＄墖瀹瑰櫒锛氭爣棰?+ 鍐呭锛屼娇鐢ㄧ粺涓€鐨?[CardShape] 鍦嗚涓庤儗鏅€?
+ * 分区卡片容器：标题 + 内容，使用统一的 [CardShape] 圆角与背景。
  */
 @Composable
 private fun SectionContainer(
@@ -512,7 +512,7 @@ private fun SectionContainer(
 }
 
 /**
- * 瀹為獙鎬у姛鑳芥彁绀哄崱鐗囥€?
+ * 实验性功能提示卡片。
  */
 @Composable
 private fun InfoTipCard(text: String) {
@@ -545,7 +545,7 @@ private fun InfoTipCard(text: String) {
 }
 
 /**
- * 鍥為€€鍒楄〃缂栬緫瀵硅瘽妗嗭細鍕鹃€夊惎鐢?+ 闀挎寜鎷栧姩閲嶆帓銆?
+ * 回退列表编辑对话框：勾选启用 + 长按拖动重排。
  */
 @Composable
 private fun FallbackListDialog(
@@ -597,7 +597,7 @@ private fun FallbackListDialog(
 private val CandidateRowHeight = 64.dp
 
 /**
- * 鍙嫋鎷介噸鎺掔殑鍊欓€夊垪琛紙闀挎寜瑙﹀彂锛孾graphicsLayer] 浣嶇Щ锛夈€?
+ * 可拖拽重排的候选列表（长按触发，[graphicsLayer] 位移）。
  */
 @Composable
 private fun DraggableCandidateList(
@@ -728,7 +728,7 @@ private fun CandidateRow(
 }
 
 /**
- * 鐢熸垚鍊欓€夌殑鍙敤鎬ф弿杩版枃鏈紙宸叉巿鏉?鏈巿鏉?鏈畨瑁?绯荤粺瀹夎鍣級銆?
+ * 生成候选的可用性描述文本（已授权/未授权/未安装/系统安装器）。
  */
 private fun availabilityText(
     context: Context,

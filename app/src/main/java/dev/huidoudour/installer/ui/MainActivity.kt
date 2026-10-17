@@ -1,13 +1,13 @@
-﻿package dev.huidoudour.installer.ui
+package dev.huidoudour.installer.ui
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -35,10 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -106,12 +104,14 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     var overlayPage by rememberSaveable { mutableStateOf(OverlayPage.None) }
-    var overlayBackProgress by rememberSaveable { mutableFloatStateOf(0f) }
+    // 盖在下层页面上的遮罩强度（1 = 常态压暗，0 = 完全揭开）。由叠加页面在上报：
+    // 手势期间恒为 1，只有真正松手确认返回后才淡到 0。
+    var overlayScrim by rememberSaveable { mutableFloatStateOf(1f) }
     val overlayEnterProgress = remember { Animatable(0f) }
-    val layoutDirection = LocalLayoutDirection.current
 
     LaunchedEffect(overlayPage) {
         if (overlayPage != OverlayPage.None) {
+            overlayScrim = 1f
             overlayEnterProgress.snapTo(0f)
             overlayEnterProgress.animateTo(
                 targetValue = 1f,
@@ -134,20 +134,9 @@ fun MainScreen() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    // 鍙犲姞椤甸潰鎶婁笅灞傞〉闈㈡帹寮€ 25%锛涜繑鍥炴墜鍔?/ 椤堕儴杩斿洖鎸夐挳鐨勮繘搴︿細鎶婂畠骞虫粦褰掍綅銆?
-                    val settle = overlayBackProgress.coerceIn(0f, 1f)
-                    val coverProgress = if (overlayPage != OverlayPage.None) {
-                        overlayEnterProgress.value * (1f - settle)
-                    } else {
-                        0f
-                    }
-                    val direction = if (layoutDirection == LayoutDirection.Rtl) 1f else -1f
-                    translationX = direction * size.width * 0.25f * coverProgress
-                    alpha = 1f - 0.1f * coverProgress
-                },
+            // 下层页面保持静止：叠加页面打开/返回时都不位移、不缩放、不淡入。
+            // 只由上面那层遮罩负责“压暗 / 揭开”，返回到的页面就是「直接显示」。
+            modifier = Modifier.fillMaxSize(),
             contentWindowInsets = WindowInsets.statusBars,
             bottomBar = {
                 if (!WindowInsets.isImeVisible) {
@@ -163,8 +152,8 @@ fun MainScreen() {
                                 selected = selected,
                                 onClick = {
                                     navController.navigate(item.route) {
-                                        // 搴曢儴瀵艰埅鏄钩绾у垏鎹細鍒囪蛋鏃舵妸鍥為€€鏍堟暣涓竻绌猴紙鐘舵€佸瓨璧锋潵浠ヤ究鎭㈠锛夛紝
-                                        // 杩欐牱鍦ㄤ换浣?tab 涓婅繑鍥為兘鏄€岄€€鍑哄埌妗岄潰銆嶏紝鑰屼笉鏄€€鍥炲畨瑁呴〉銆?
+                                        // 底部导航是平级切换：切走时把回退栈整个清空（状态存起来以便恢复），
+                                        // 这样在任何 tab 上返回都是「退出到桌面」，而不是退回安装页。
                                         popUpTo(navController.graph.id) {
                                             saveState = true
                                         }
@@ -189,7 +178,7 @@ fun MainScreen() {
                 navController = navController,
                 startDestination = Screen.Home.route,
                 modifier = Modifier.padding(innerPadding),
-                // 鏄惧紡澹版槑绾贰鍏ユ贰鍑鸿浆鍦猴細搴曢儴瀵艰埅鍚勯〉闈㈤棿杩斿洖鏃朵笉瑕佺缉鏀?浣嶇Щ鏁堟灉銆?
+                // 显式声明纯淡入淡出转场：底部导航各页面间不要缩放/位移效果。
                 enterTransition = { fadeIn(animationSpec = tween(220)) },
                 exitTransition = { fadeOut(animationSpec = tween(220)) },
                 popEnterTransition = { fadeIn(animationSpec = tween(220)) },
@@ -208,23 +197,18 @@ fun MainScreen() {
                 composable(Screen.Settings.route) {
                     SettingsScreen(
                         onNavigateToMe = {
-                            overlayBackProgress = 0f
                             overlayPage = OverlayPage.Me
                         },
                         onNavigateToChangelog = {
-                            overlayBackProgress = 0f
                             overlayPage = OverlayPage.Changelog
                         },
                         onNavigateToAdvanced = {
-                            overlayBackProgress = 0f
                             overlayPage = OverlayPage.Advanced
                         },
                         onNavigateToExperimental = {
-                            overlayBackProgress = 0f
                             overlayPage = OverlayPage.Experimental
                         },
                         onNavigateToInstallSettings = {
-                            overlayBackProgress = 0f
                             overlayPage = OverlayPage.InstallSettings
                         }
                     )
@@ -232,19 +216,19 @@ fun MainScreen() {
             }
         }
 
-        // 杩欓噷**涓?*娉ㄥ唽杩斿洖澶勭悊鍣細搴曢儴瀵艰埅鏄钩绾ч〉闈紝鍥為€€鏍堢敱涓婇潰鐨?popUpTo(graph.id) 淇濇寔涓?1锛?
-        // NavHost 鑷甫鐨勮繑鍥炲洖璋冨洜姝ゅ浜庣鐢ㄧ姸鎬侊紝绯荤粺杩斿洖锛堟墜鍔?鎸夐敭锛変細鐩存帴缁撴潫 Activity
-        // 鈫?閫€鍒版闈€備笉鍐嶅嚭鐜般€屽厛鎾斁绯荤粺鐨勭缉鏀鹃瑙堛€佸啀閫€鍥炲畨瑁呴〉銆嶇殑缁勫悎鏁堟灉銆?
-        // 鍙犲姞椤甸潰鎵撳紑鏃朵笉鍦ㄦ澶勬嫤鎴紝鐢卞彔鍔犻〉闈㈣嚜宸辩殑棰勬祴鎬ц繑鍥炴帴绠★細涓€娆¤繑鍥炲彧鍏抽棴瀛愰〉闈€?
+        // 这里**不**注册返回处理器：底部导航是平级页面，回退栈由上面的 popUpTo(graph.id) 保持为 1，
+        // NavHost 自带的返回回调因此处于禁用状态，系统返回（手势/按键）会直接结束 Activity
+        // → 退到桌面。不会出现「先播放系统缩放预览、再退回安装页」的组合效果。
+        // 叠加页面打开时不在此处拦截，由叠加页面自己的预测性返回接管：一次返回只关闭子页面。
 
         if (overlayPage != OverlayPage.None) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        // 瀛愰〉闈㈤€€鍦猴紙鎵嬪娍杩涘害鎴栭《閮ㄨ繑鍥炴寜閽殑婊戝嚭锛夋椂锛岄伄缃╀竴璧锋贰鍒?0銆?
-                        val settle = overlayBackProgress.coerceIn(0f, 1f)
-                        alpha = 0.5f * overlayEnterProgress.value * (1f - settle)
+                        // 遮罩：进场时随 overlayEnterProgress 压暗；
+                        // 返回时由叠加页面自己上报 —— 手势期间恒为 1，确认返回后才淡到 0。
+                        alpha = 0.5f * overlayEnterProgress.value * overlayScrim.coerceIn(0f, 1f)
                     }
                     .background(Color.Black)
             )
@@ -252,19 +236,19 @@ fun MainScreen() {
             when (overlayPage) {
                 OverlayPage.Advanced -> AdvancedSettingsScreen(
                     enterProgress = overlayEnterProgress.value,
-                    onBackProgressChange = { overlayBackProgress = it },
+                    onScrimChange = { overlayScrim = it },
                     onBack = { overlayPage = OverlayPage.None }
                 )
 
                 OverlayPage.Experimental -> ExperimentalScreen(
                     enterProgress = overlayEnterProgress.value,
-                    onBackProgressChange = { overlayBackProgress = it },
+                    onScrimChange = { overlayScrim = it },
                     onBack = { overlayPage = OverlayPage.None }
                 )
 
                 OverlayPage.Me -> PredictiveBackPage(
                     enterProgress = overlayEnterProgress.value,
-                    onBackProgressChange = { overlayBackProgress = it },
+                    onScrimChange = { overlayScrim = it },
                     onBack = { overlayPage = OverlayPage.None }
                 ) {
                     MeScreen()
@@ -272,7 +256,7 @@ fun MainScreen() {
 
                 OverlayPage.Changelog -> PredictiveBackPage(
                     enterProgress = overlayEnterProgress.value,
-                    onBackProgressChange = { overlayBackProgress = it },
+                    onScrimChange = { overlayScrim = it },
                     onBack = { overlayPage = OverlayPage.None }
                 ) { requestBack ->
                     ChangelogScreen(onNavigateBack = requestBack)
@@ -280,7 +264,7 @@ fun MainScreen() {
 
                 OverlayPage.InstallSettings -> PredictiveBackPage(
                     enterProgress = overlayEnterProgress.value,
-                    onBackProgressChange = { overlayBackProgress = it },
+                    onScrimChange = { overlayScrim = it },
                     onBack = { overlayPage = OverlayPage.None }
                 ) { requestBack ->
                     InstallSettingsScreen(onBack = requestBack)
@@ -292,7 +276,7 @@ fun MainScreen() {
     }
 }
 
-/** 涓庡弬鑰冮」鐩?MiuixDefault 鐩稿悓鐨?500ms 绋嬪簭鍖栧叆鍦虹紦鍔ㄣ€?*/
+/** 与参考项目 MiuixDefault 相同的 500ms 程序化入场缓动。 */
 private val LabEnterEasing = Easing { fraction ->
     val response = 0.8
     val damping = 0.95
