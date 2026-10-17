@@ -55,6 +55,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -505,6 +506,9 @@ private fun AboutAppCard(
 
 }
 
+/** 禁用态整体透明度（与 Material3 禁用内容的 38% 对齐）。 */
+private const val DISABLED_ALPHA = 0.38f
+
 internal data class SettingItemData(
     val icon: ImageVector,
     val title: String,
@@ -518,7 +522,8 @@ internal fun SettingListItem(
     item: SettingItemData,
     shape: Shape,
     isLast: Boolean,
-    showArrow: Boolean = false
+    showArrow: Boolean = false,
+    enabled: Boolean = true
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -536,11 +541,14 @@ internal fun SettingListItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .height(56.dp),
+            .height(56.dp)
+            // 禁用态整体压暗，但仍然占位：功能不可用时保留入口，避免布局跳动。
+            .alpha(if (enabled) 1f else DISABLED_ALPHA),
         shape = shape,
         color = backgroundColor,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         onClick = item.onClick,
+        enabled = enabled,
         interactionSource = interactionSource
     ) {
         Row(

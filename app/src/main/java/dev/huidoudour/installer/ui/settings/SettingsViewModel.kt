@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.huidoudour.installer.BuildConfig
 import dev.huidoudour.installer.auth.PrivilegeHelper
+import dev.huidoudour.installer.util.AppMetaData
 import dev.huidoudour.installer.util.LanguageManager
 import dev.huidoudour.installer.util.LogManager
 import dev.huidoudour.installer.util.SecurePrefs
@@ -81,6 +82,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         refreshPrivilegeStatus()
     }
 
+    /**
+     * 是否启用「检查更新」。
+     *
+     * 只有清单声明 `isDebuggable = false`（正式包）时才启用；
+     * debug 清单里 `isDebuggable = true`，实验功能页不会出现更新检测入口，
+     * 自动检测也会直接跳过，避免调试包拿自己的版本号去和正式版比较。
+     */
+    val updateCheckEnabled: Boolean = !AppMetaData.isDebuggable(context)
+
     private companion object {
         const val KEY_GITHUB_PAT = "github_pat"
         const val KEY_LAST_AUTO_CHECK = "last_auto_update_check"
@@ -110,6 +120,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      * 触发与结果均输出到日志页（tag: Update）
      */
     fun checkUpdate() {
+        // 调试包（isDebuggable=true）不做任何更新检测。
+        if (!updateCheckEnabled) return
         val now = System.currentTimeMillis()
         val last = prefs.getLong(KEY_LAST_AUTO_CHECK, 0L)
         if (now - last < AUTO_CHECK_INTERVAL_MS) return
@@ -121,6 +133,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      * 调用方需处于协程作用域；内部已切到 IO。
      */
     suspend fun checkUpdateNow(): UpdateChecker.UpdateCheckResult = withContext(Dispatchers.IO) {
+        if (!updateCheckEnabled) {
+            return@withContext UpdateChecker.UpdateCheckResult.Failed(
+                "update check disabled: manifest isDebuggable=true"
+            )
+        }
         val localVersion = BuildConfig.BASE_VERSION_NAME
         val logManager = LogManager.getInstance()
         prefs.edit().putLong(KEY_LAST_AUTO_CHECK, System.currentTimeMillis()).apply()

@@ -216,9 +216,12 @@ fun ExperimentalScreen(
     val githubPat by settingsViewModel.githubPat.collectAsState()
     var showPatDialog by remember { mutableStateOf(false) }
 
-    // 进入实验功能页触发一次检测（ViewModel 内部已做 24h 节流）
+    // 进入实验功能页触发一次检测（ViewModel 内部已做 24h 节流）。
+    // 调试包（清单 isDebuggable=true）不检测更新，因此这里先判断开关再触发。
     LaunchedEffect(Unit) {
-        settingsViewModel.checkUpdate()
+        if (settingsViewModel.updateCheckEnabled) {
+            settingsViewModel.checkUpdate()
+        }
     }
 
     LabScaffold(
@@ -266,6 +269,7 @@ fun ExperimentalScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // 分区：更新检测
+        // 只有清单声明 isDebuggable=false（正式包）时才可用；调试包里保留入口但灰化禁用。
         SectionContainer(title = stringResource(R.string.update_section)) {
             val scope = rememberCoroutineScope()
             var checking by remember { mutableStateOf(false) }
@@ -305,7 +309,8 @@ fun ExperimentalScreen(
                 ),
                 shape = segmentedShape(0, 2),
                 isLast = false,
-                showArrow = false
+                showArrow = false,
+                enabled = settingsViewModel.updateCheckEnabled
             )
 
             SettingListItem(
@@ -320,7 +325,8 @@ fun ExperimentalScreen(
                 ),
                 shape = segmentedShape(1, 2),
                 isLast = true,
-                showArrow = true
+                showArrow = true,
+                enabled = settingsViewModel.updateCheckEnabled
             )
 
             // 有新版本时：下方展示可点击提示，跳转到发布页
