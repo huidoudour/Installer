@@ -1,13 +1,9 @@
-package dev.huidoudour.installer.ui.lab
+﻿package dev.huidoudour.installer.ui.lab
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import androidx.activity.BackEventCompat
-import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -23,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -45,32 +40,23 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -79,12 +65,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.huidoudour.installer.R
+import dev.huidoudour.installer.ui.components.PredictiveBackPage
 import dev.huidoudour.installer.auth.Authorizer
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.auth.SmartAuthorizerCandidate
-import dev.huidoudour.installer.ui.components.PredictiveBackMotion
-import dev.huidoudour.installer.ui.components.cancelPredictiveBackExit
-import dev.huidoudour.installer.ui.components.commitPredictiveBackExit
 import dev.huidoudour.installer.ui.settings.SettingItemData
 import dev.huidoudour.installer.ui.settings.SettingListItem
 import dev.huidoudour.installer.ui.settings.SettingsSwitchItem
@@ -99,7 +83,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
- * 高级设置页面：智能授权（特权安装开关、回退顺序等）。
+ * 楂樼骇璁剧疆椤甸潰锛氭櫤鑳芥巿鏉冿紙鐗规潈瀹夎寮€鍏炽€佸洖閫€椤哄簭绛夛級銆?
  */
 @Composable
 fun AdvancedSettingsScreen(
@@ -117,7 +101,7 @@ fun AdvancedSettingsScreen(
 
     var showFallbackDialog by remember { mutableStateOf(false) }
 
-    // 从后台返回时刷新授权器可用性
+    // 浠庡悗鍙拌繑鍥炴椂鍒锋柊鎺堟潈鍣ㄥ彲鐢ㄦ€?
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -212,7 +196,7 @@ fun AdvancedSettingsScreen(
 }
 
 /**
- * 实验功能页面：签名校验、终端，以及更新检测（手动检查 / GitHub 令牌）。
+ * 瀹為獙鍔熻兘椤甸潰锛氱鍚嶆牎楠屻€佺粓绔紝浠ュ強鏇存柊妫€娴嬶紙鎵嬪姩妫€鏌?/ GitHub 浠ょ墝锛夈€?
  */
 @Composable
 fun ExperimentalScreen(
@@ -227,12 +211,12 @@ fun ExperimentalScreen(
     val checkSignature by viewModel.checkSignature.collectAsState()
     val showSignatureDetails by viewModel.showSignatureDetails.collectAsState()
 
-    // 用局部 val 承接，便于智能转换为非空
+    // 鐢ㄥ眬閮?val 鎵挎帴锛屼究浜庢櫤鑳借浆鎹负闈炵┖
     val updateInfo = settingsViewModel.updateInfo.collectAsState().value
     val githubPat by settingsViewModel.githubPat.collectAsState()
     var showPatDialog by remember { mutableStateOf(false) }
 
-    // 进入实验功能页触发一次检测（ViewModel 内部已做 24h 节流）
+    // 杩涘叆瀹為獙鍔熻兘椤佃Е鍙戜竴娆℃娴嬶紙ViewModel 鍐呴儴宸插仛 24h 鑺傛祦锛?
     LaunchedEffect(Unit) {
         settingsViewModel.checkUpdate()
     }
@@ -244,7 +228,7 @@ fun ExperimentalScreen(
         enterProgress = enterProgress,
         onBackProgressChange = onBackProgressChange,
     ) {
-        // 分区：签名校验
+        // 鍒嗗尯锛氱鍚嶆牎楠?
         SectionContainer(title = stringResource(R.string.lab_signature_section)) {
             SettingsSwitchItem(
                 title = stringResource(R.string.lab_check_signature),
@@ -267,7 +251,7 @@ fun ExperimentalScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 分区：终端
+        // 鍒嗗尯锛氱粓绔?
         SectionContainer(title = stringResource(R.string.lab_terminal_section)) {
             SettingsSwitchItem(
                 title = stringResource(R.string.lab_terminal_use_shizuku),
@@ -281,7 +265,7 @@ fun ExperimentalScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 分区：更新检测
+        // 鍒嗗尯锛氭洿鏂版娴?
         SectionContainer(title = stringResource(R.string.update_section)) {
             val scope = rememberCoroutineScope()
             var checking by remember { mutableStateOf(false) }
@@ -339,7 +323,7 @@ fun ExperimentalScreen(
                 showArrow = true
             )
 
-            // 有新版本时：下方展示可点击提示，跳转到发布页
+            // 鏈夋柊鐗堟湰鏃讹細涓嬫柟灞曠ず鍙偣鍑绘彁绀猴紝璺宠浆鍒板彂甯冮〉
             if (updateInfo != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Surface(
@@ -393,7 +377,7 @@ fun ExperimentalScreen(
         }
     }
 
-    // GitHub PAT 对话框：填写后检测走认证 API，留空则回退网页跳转检测
+    // GitHub PAT 瀵硅瘽妗嗭細濉啓鍚庢娴嬭蛋璁よ瘉 API锛岀暀绌哄垯鍥為€€缃戦〉璺宠浆妫€娴?
     if (showPatDialog) {
         var patInput by remember { mutableStateOf(githubPat) }
         AlertDialog(
@@ -406,7 +390,7 @@ fun ExperimentalScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    // 说明令牌所需最小权限，避免用户不知道该怎么建 token
+                    // 璇存槑浠ょ墝鎵€闇€鏈€灏忔潈闄愶紝閬垮厤鐢ㄦ埛涓嶇煡閬撹鎬庝箞寤?token
                     Text(
                         text = stringResource(R.string.github_token_scope_hint),
                         style = MaterialTheme.typography.bodySmall,
@@ -442,7 +426,11 @@ fun ExperimentalScreen(
 }
 
 /**
- * 页面脚手架：预测式返回动画 + 顶栏 + 可滚动内容区，供高级设置 / 实验功能共用。
+ * 页面脚手架：预测式返回容器 + 顶栏 + 可滚动内容区，供高级设置 / 实验功能共用。
+ *
+ * 退场行为统一由 [PredictiveBackPage] 提供：
+ * - 左上角返回按钮 = 普通返回，整页向右滑出，不做预测性返回的缩放 / 漂移；
+ * - 系统返回手势 = 预测性返回预览（缩放 + 漂移 + 淡出）。
  */
 @Composable
 private fun LabScaffold(
@@ -453,84 +441,11 @@ private fun LabScaffold(
     onBackProgressChange: (Float) -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val density = LocalDensity.current
-    val gestureProgress = remember { Animatable(0f) }
-    val fadeProgress = remember { Animatable(0f) }
-    // 仅在确认返回后驱动水平漂移：手势阶段页面只缩放、不位移，避免被推出屏幕。
-    val driftProgress = remember { Animatable(0f) }
-    var swipeEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
-    var gestureTouchY by remember { mutableFloatStateOf(0f) }
-    var pageSize by remember { mutableStateOf(IntSize.Zero) }
-    val backGestureEasing = remember { CubicBezierEasing(0.1f, 0.1f, 0f, 1f) }
-    val layoutDirection = LocalLayoutDirection.current
-    val currentOnBackProgressChange by rememberUpdatedState(onBackProgressChange)
-
-    LaunchedEffect(gestureProgress) {
-        snapshotFlow { gestureProgress.value }.collect { currentOnBackProgressChange(it) }
-    }
-
-    PredictiveBackHandler { events ->
-        var completed = false
-        try {
-            events.collect { event ->
-                swipeEdge = event.swipeEdge
-                gestureTouchY = event.touchY
-                // 直接采用系统给出的手势进度，理由同 PredictiveBackPage：
-                // 用 `abs(touchX - startTouchX)` 自行归一化会在回退时产生非单调进度，
-                // 且 `touchX != 0f` 的分支会在手指回到左边缘时切换量纲。
-                gestureProgress.snapTo(event.progress.coerceIn(0f, 1f))
-            }
-            completed = true
-            // 确认返回：几何位移从松手位置继续推进，不透明度用更短的墙钟窗口先归零。
-            commitPredictiveBackExit(
-                gestureProgress = gestureProgress,
-                fadeProgress = fadeProgress,
-                driftProgress = driftProgress,
-                onFinished = onBack,
-            )
-        } finally {
-            if (!completed) {
-                cancelPredictiveBackExit(
-                    gestureProgress = gestureProgress,
-                    fadeProgress = fadeProgress,
-                )
-            }
-        }
-    }
-
-    val predictiveShape = RoundedCornerShape(32.dp)
-    val exitDriftPx = with(density) { 96.dp.toPx() }
-
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .onSizeChanged { pageSize = it }
-            .graphicsLayer {
-                val easedProgress = backGestureEasing.transform(gestureProgress.value)
-                val scale = 1f - 0.15f * easedProgress
-                val pivotX = if (swipeEdge == BackEventCompat.EDGE_LEFT) 0.8f else 0.2f
-                val pivotY = if (pageSize.height > 0) {
-                    (gestureTouchY / pageSize.height).coerceIn(0.1f, 0.9f)
-                } else {
-                    0.5f
-                }
-                scaleX = scale
-                scaleY = scale
-                transformOrigin = TransformOrigin(pivotX, pivotY)
-                val enterDirection = if (layoutDirection == LayoutDirection.Rtl) -1f else 1f
-                val enterTranslation = enterDirection * (1f - enterProgress) * size.width
-                // 漂移方向跟随手势边缘：左边缘挥出右移，右边缘挥出左移。
-                // 漂移只在确认返回后发生，手势阶段页面始终完整留在屏幕内。
-                val exitTranslation = PredictiveBackMotion.exitDirection(swipeEdge) *
-                    exitDriftPx * driftProgress.value
-                translationX = enterTranslation + exitTranslation
-                alpha = 1f - fadeProgress.value
-                shape = predictiveShape
-                clip = enterProgress < 1f || gestureProgress.value > 0f ||
-                    fadeProgress.value > 0f || driftProgress.value > 0f
-            },
-        color = MaterialTheme.colorScheme.background
-    ) {
+    PredictiveBackPage(
+        enterProgress = enterProgress,
+        onBackProgressChange = onBackProgressChange,
+        onBack = onBack,
+    ) { requestBack ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -541,7 +456,7 @@ private fun LabScaffold(
         ) {
             // 顶部返回栏
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack) {
+                IconButton(onClick = requestBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.previous_step)
@@ -572,7 +487,7 @@ private fun LabScaffold(
 }
 
 /**
- * 分区卡片容器：标题 + 内容，使用统一的 [CardShape] 圆角与背景。
+ * 鍒嗗尯鍗＄墖瀹瑰櫒锛氭爣棰?+ 鍐呭锛屼娇鐢ㄧ粺涓€鐨?[CardShape] 鍦嗚涓庤儗鏅€?
  */
 @Composable
 private fun SectionContainer(
@@ -597,7 +512,7 @@ private fun SectionContainer(
 }
 
 /**
- * 实验性功能提示卡片。
+ * 瀹為獙鎬у姛鑳芥彁绀哄崱鐗囥€?
  */
 @Composable
 private fun InfoTipCard(text: String) {
@@ -630,7 +545,7 @@ private fun InfoTipCard(text: String) {
 }
 
 /**
- * 回退列表编辑对话框：勾选启用 + 长按拖动重排。
+ * 鍥為€€鍒楄〃缂栬緫瀵硅瘽妗嗭細鍕鹃€夊惎鐢?+ 闀挎寜鎷栧姩閲嶆帓銆?
  */
 @Composable
 private fun FallbackListDialog(
@@ -682,7 +597,7 @@ private fun FallbackListDialog(
 private val CandidateRowHeight = 64.dp
 
 /**
- * 可拖拽重排的候选列表（长按触发，[graphicsLayer] 位移）。
+ * 鍙嫋鎷介噸鎺掔殑鍊欓€夊垪琛紙闀挎寜瑙﹀彂锛孾graphicsLayer] 浣嶇Щ锛夈€?
  */
 @Composable
 private fun DraggableCandidateList(
@@ -813,7 +728,7 @@ private fun CandidateRow(
 }
 
 /**
- * 生成候选的可用性描述文本（已授权/未授权/未安装/系统安装器）。
+ * 鐢熸垚鍊欓€夌殑鍙敤鎬ф弿杩版枃鏈紙宸叉巿鏉?鏈巿鏉?鏈畨瑁?绯荤粺瀹夎鍣級銆?
  */
 private fun availabilityText(
     context: Context,
