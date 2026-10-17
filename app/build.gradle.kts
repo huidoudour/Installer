@@ -251,7 +251,7 @@ dependencies {
     implementation("dev.rikka.shizuku:provider:13.1.5")
     implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
-    implementation("androidx.core:core-ktx:1.19.0")
+    implementation("androidx.core:core-ktx:1.19.1")
 
     // MTDataFilesProvider
     implementation(project(":lib-mtprovider"))
