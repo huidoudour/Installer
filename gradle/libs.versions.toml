@@ -24,7 +24,7 @@ uiautomator = "2.2.0"
 benchmarkMacroJunit4 = "1.5.0"
 baselineprofile = "1.5.0"
 profileinstaller = "1.4.1"
-securityCrypto = "1.1.0-alpha06"
+securityCrypto = "1.1.0"
 
 [libraries]
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
