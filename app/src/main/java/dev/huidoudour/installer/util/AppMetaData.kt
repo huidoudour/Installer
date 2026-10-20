@@ -35,8 +35,10 @@ object AppMetaData {
         }
     }
 
+    // Bundle.get(String) 自 API 33 起废弃，但 meta-data 的声明类型未知，
+    // 无法预先确定该用哪个类型化 getter，只能继续用泛型读取，故整函数抑制废弃告警
+    @Suppress("DEPRECATION")
     private fun metaData(context: Context, name: String): Any? = runCatching {
-        @Suppress("DEPRECATION")
         val info = context.packageManager.getApplicationInfo(
             context.packageName,
             PackageManager.GET_META_DATA

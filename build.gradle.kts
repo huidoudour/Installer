@@ -17,8 +17,10 @@ allprojects {
     }
 }
 
-// 使用新的API注册clean任务
-//tasks.register<Delete>("clean") {
-//    description = "Deletes the build directory."
-//    delete(project.layout.buildDirectory)
+// 统一构建输出：所有模块的构建产物集中到根项目 build/<模块名> 下，
+// 避免各模块目录内各自散落 build 目录（rootProject 的默认值即为根 build，无需重设）
+//subprojects {
+//    layout.buildDirectory.value(
+//        rootProject.layout.buildDirectory.get().dir(project.name)
+//    )
 //}
