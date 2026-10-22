@@ -1,5 +1,8 @@
 name: PR compile build
 
+# 说明：本工作流仅用于 PR 阶段的编译构建验证（默认 debug 签名），
+# 不参与也不影响正式发布；发布产物由 pre-release / release 工作流负责。
+
 on:
   pull_request:
     branches: [ master ]
@@ -33,23 +36,15 @@ jobs:
       - name: Accept Android SDK Licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
-      - name: Create signing keystore file
-        run: |
-          echo "${{ secrets.SIGN_KEY_STORE_B64 }}" | base64 -d > sign_key
-          ls -lh sign_key
-          file sign_key
-
+      # PR 通常来自 fork，GitHub 不向 fork 的 pull_request 注入仓库 secrets，
+      # 因此这里不做自定义签名，直接使用默认 debug keystore 编译验证。
+      # 需要正式签名的打包由 pre-release / release 工作流（push/tag 触发）负责。
       - name: Build Debug APK
         run: |
           chmod +x gradlew
-          ./gradlew :app:assembleDebug \
-            -Pandroid.injected.signing.store.file=$(pwd)/sign_key \
-            -Pandroid.injected.signing.store.password="${{ secrets.SIGN_KEY_STORE_PASSWD }}" \
-            -Pandroid.injected.signing.key.alias="${{ secrets.SIGN_KEY_ALIAS }}" \
-            -Pandroid.injected.signing.key.password="${{ secrets.SIGN_KEY_ALIAS_PASSWD }}" \
-            --stacktrace
+          ./gradlew :app:assembleDebug --stacktrace
 
-      - name: Verify APK signature
+      - name: List debug outputs
         run: |
           echo "APK build completed. Files in output directory:"
           find app/build/outputs/apk/debug -name "*.apk" -type f -exec ls -lh {} \;
@@ -61,7 +56,3 @@ jobs:
           # 上传 debug 输出目录下的全部产物：APK、output-metadata.json
           path: app/build/outputs/apk/debug/
           if-no-files-found: error
-
-      - name: Clean up keystore
-        if: always()
-        run: rm -f sign_key
