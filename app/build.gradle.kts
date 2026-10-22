@@ -259,6 +259,6 @@ dependencies {
     val localFile = file("libs/android.aar")
     if (localFile.exists()) {
         debugImplementation(files(localFile))
-        releaseImplementation("androidx.compose.ui:ui-tooling-preview:1.13.0-beta01")
+        releaseImplementation("androidx.compose.ui:ui-tooling-preview:1.13.0-beta02")
     }
 }
