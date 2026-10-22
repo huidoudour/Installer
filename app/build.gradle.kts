@@ -236,7 +236,7 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
     implementation(libs.accompanist.drawablepainter)
-    implementation("androidx.palette:palette:1.0.0")
+    implementation("androidx.palette:palette:1.1.0")
     implementation(libs.profileinstaller)
     implementation(libs.security.crypto)
     "baselineProfile"(project(":baselineprofile"))
