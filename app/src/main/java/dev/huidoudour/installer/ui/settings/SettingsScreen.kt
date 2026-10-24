@@ -477,36 +477,19 @@ private fun AboutAppCard(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 开源许可按钮：介于「关于开发者」与版本信息之间
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
-            shape = SmallShape,
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            onClick = onNavigateToLicenses
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_list),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.licenses_title),
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
-        }
+        // 开源许可入口：与下方版本信息行保持同一底色、边框与圆角
+        SettingListItem(
+            item = SettingItemData(
+                icon = ImageVector.vectorResource(R.drawable.ic_list),
+                title = stringResource(R.string.licenses_title),
+                subtitle = null,
+                colorPreview = null,
+                onClick = onNavigateToLicenses
+            ),
+            shape = singleShape,
+            isLast = true,
+            showArrow = true
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
