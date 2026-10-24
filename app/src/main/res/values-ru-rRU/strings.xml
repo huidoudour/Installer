@@ -685,6 +685,7 @@
     <string name="lab">Лаборатория</string>
     <string name="lab_tip">Экспериментальные функции. Используйте с осторожностью.</string>
     <string name="lab_authorizer_section">Умная авторизация</string>
+    <string name="lab_authorizer_fallback_section">Резервные авторизаторы</string>
     <string name="lab_try_multiple_authorizers">Пробовать несколько авторизаторов при установке</string>
     <string name="lab_try_multiple_authorizers_desc">Автоматически переключаться на следующий доступный авторизатор при сбое</string>
     <string name="lab_smart_authorizer">Умная авторизация</string>
@@ -725,7 +726,7 @@
     <string name="experimental_features">Экспериментальные функции</string>
     <string name="update_section">Проверка обновлений</string>
     <string name="lab_authorizer_by_install_state">Выбирать авторизатор по состоянию установки</string>
-    <string name="lab_authorizer_by_install_state_desc">Установлено → Shizuku, новая установка → Dhizuku</string>
+    <string name="lab_authorizer_by_install_state_desc">Новая установка → Dhizuku; уже установлено → выбранный авторизатор</string>
     <!-- Install / authorizer runtime messages -->
     <string name="dhizuku_not_initialized">Dhizuku не инициализирован</string>
     <string name="dhizuku_clone_service_unavailable">Dhizuku API не может подключиться к службе клонированной версии (%s). Убедитесь, что клон сохранил исходные authority Service/Provider.</string>

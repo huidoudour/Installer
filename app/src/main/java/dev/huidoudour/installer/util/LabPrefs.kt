@@ -21,7 +21,7 @@ object LabPrefs {
         SmartAuthorizer.setEnabled(context, enabled)
     }
 
-    /** 是否开启“按安装状态选择授权器”（已安装→Shizuku，未安装→Dhizuku） */
+    /** 是否开启“按安装状态选择授权器”（全新安装→Dhizuku，已安装→所选授权方式） */
     fun isAuthorizerByInstallStateEnabled(context: Context): Boolean =
         SmartAuthorizer.isByInstallStateEnabled(context)
 

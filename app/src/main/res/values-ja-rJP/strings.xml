@@ -685,6 +685,7 @@
     <string name="lab">ラボ</string>
     <string name="lab_tip">実験的な機能です。注意してご利用ください。</string>
     <string name="lab_authorizer_section">スマート認証</string>
+    <string name="lab_authorizer_fallback_section">認証方法のフォールバック</string>
     <string name="lab_try_multiple_authorizers">インストール時に複数の認証方法を試す</string>
     <string name="lab_try_multiple_authorizers_desc">失敗した場合、利用可能な次の認証方法に自動的に切り替えます</string>
     <string name="lab_smart_authorizer">スマート認証</string>
@@ -725,7 +726,7 @@
     <string name="experimental_features">実験機能</string>
     <string name="update_section">更新確認</string>
     <string name="lab_authorizer_by_install_state">インストール状態で認証方法を選択</string>
-    <string name="lab_authorizer_by_install_state_desc">インストール済み → Shizuku、新規 → Dhizuku</string>
+    <string name="lab_authorizer_by_install_state_desc">新規インストール → Dhizuku、インストール済み → 選択中の認証方法</string>
     <!-- Install / authorizer runtime messages -->
     <string name="dhizuku_not_initialized">Dhizukuが初期化されていません</string>
     <string name="dhizuku_clone_service_unavailable">Dhizuku APIがクローン版サービス（%s）に接続できません。クローン版が元のService/Provider authorityを保持しているか確認してください。</string>

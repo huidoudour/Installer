@@ -889,7 +889,7 @@ private fun performRealInstallation(
     val logManager = LogManager.getInstance()
     val mainHandler = Handler(Looper.getMainLooper())
 
-    // 智能授权：按安装状态选首选 + 回退列表逐个尝试
+    // 智能授权：全新安装优先 Dhizuku、已安装跟随所选授权方式，失败后按回退列表逐个尝试
     val currentAuthorizer = if (mode == PrivilegeHelper.PrivilegeMode.DHIZUKU) {
         Authorizer.Dhizuku
     } else {

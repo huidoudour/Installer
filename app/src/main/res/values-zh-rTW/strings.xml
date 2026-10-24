@@ -685,6 +685,7 @@
     <string name="lab">實驗室</string>
     <string name="lab_tip">實驗性功能，請謹慎使用。</string>
     <string name="lab_authorizer_section">智慧授權</string>
+    <string name="lab_authorizer_fallback_section">授權回退</string>
     <string name="lab_try_multiple_authorizers">安裝時嘗試多個授權方式</string>
     <string name="lab_try_multiple_authorizers_desc">失敗時自動切換到下一個可用授權方式</string>
     <string name="lab_smart_authorizer">智慧授權</string>
@@ -725,7 +726,7 @@
     <string name="experimental_features">實驗功能</string>
     <string name="update_section">更新偵測</string>
     <string name="lab_authorizer_by_install_state">依安裝狀態選擇授權方式</string>
-    <string name="lab_authorizer_by_install_state_desc">已安裝 → Shizuku，全新安裝 → Dhizuku</string>
+    <string name="lab_authorizer_by_install_state_desc">全新安裝 → Dhizuku，已安裝 → 所選授權方式</string>
     <!-- Install / authorizer runtime messages -->
     <string name="dhizuku_not_initialized">Dhizuku 未初始化</string>
     <string name="dhizuku_clone_service_unavailable">Dhizuku API 無法連接複製版服務（%s），請確認複製版保留了原始 Service/Provider authority</string>

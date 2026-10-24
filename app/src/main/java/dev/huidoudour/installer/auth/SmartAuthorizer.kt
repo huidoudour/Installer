@@ -25,7 +25,7 @@ object SmartAuthorizer {
         prefs(context).edit().putBoolean(KEY_TRY_MULTIPLE, enabled).apply()
     }
 
-    /** 是否启用“按安装状态选择授权器”（已安装→Shizuku，未安装→Dhizuku） */
+    /** 是否启用“按安装状态选择授权器”（全新安装→Dhizuku，已安装→所选授权方式） */
     fun isByInstallStateEnabled(context: Context): Boolean =
         prefs(context).getBoolean(KEY_BY_INSTALL_STATE, false)
 
@@ -62,17 +62,21 @@ object SmartAuthorizer {
         }
     }
 
-    /** 按安装状态选定的首选授权器：已安装→Shizuku，未安装→Dhizuku */
-    fun preferredAuthorizerForInstallState(installed: Boolean): Authorizer =
-        if (installed) Authorizer.Shizuku else Authorizer.Dhizuku
+    /**
+     * 按安装状态选定的优先授权器：
+     * - 全新安装固定优先 Dhizuku（设备所有者）；
+     * - 已安装（升级/重装）跟随 [current]，即用户所选授权方式。
+     */
+    fun preferredAuthorizerForInstallState(current: Authorizer, installed: Boolean): Authorizer =
+        if (installed) current else Authorizer.Dhizuku
 
     /**
      * 计算安装时的尝试顺序。
      *
-     * - 开启“按安装状态选择授权器”时，将 [installed] 对应的首选授权器排到最前；
-     * - 开启“尝试多个授权器安装”时，其后接用户配置的回退顺序（去重）；
-     * - [current] 为两者都未开启时的默认单一授权器；
-     * - 最终只保留当前可用的授权器；若智能策略无可用授权器，则回退到 [current]。
+     * - 开启“按安装状态选择授权器”时：全新安装把 Dhizuku 排到最前，已安装则跟随 [current]；
+     * - 其后接 [current]（全新安装时作为 Dhizuku 不可用/失败的回退），再按用户配置的回退顺序（开启“尝试多个授权器安装”时）；
+     * - 两个智能开关都未开启时只尝试 [current]；
+     * - 最终只保留未被独立开关关闭、且当前可用的授权器；若全部不可用，则回退到 [current]。
      */
     fun resolveInstallPlan(
         context: Context,
@@ -93,8 +97,10 @@ object SmartAuthorizer {
 
         val candidates = buildList {
             if (isByInstallStateEnabled(context)) {
-                add(preferredAuthorizerForInstallState(installed))
+                add(preferredAuthorizerForInstallState(current, installed))
             }
+            // 用户选择的授权方式：已安装时即为首选，全新安装时作为 Dhizuku 不可用的回退
+            add(current)
             if (isEnabled(context)) {
                 addAll(enabledOrder(context))
             }

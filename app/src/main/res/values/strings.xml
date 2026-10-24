@@ -685,6 +685,7 @@
     <string name="lab">Lab</string>
     <string name="lab_tip">Experimental features. Use with caution.</string>
     <string name="lab_authorizer_section">Smart Authorization</string>
+    <string name="lab_authorizer_fallback_section">Authorizer Fallback</string>
     <string name="lab_try_multiple_authorizers">Try multiple authorizers on install</string>
     <string name="lab_try_multiple_authorizers_desc">Automatically switch to the next available authorizer on failure</string>
     <string name="lab_smart_authorizer">Smart Authorization</string>
@@ -725,7 +726,7 @@
     <string name="experimental_features">Experimental Features</string>
     <string name="update_section">Update Check</string>
     <string name="lab_authorizer_by_install_state">Choose authorizer by install state</string>
-    <string name="lab_authorizer_by_install_state_desc">Installed → Shizuku, new install → Dhizuku</string>
+    <string name="lab_authorizer_by_install_state_desc">New install → Dhizuku; already installed → the selected authorizer</string>
     <!-- Install / authorizer runtime messages -->
     <string name="dhizuku_not_initialized">Dhizuku not initialized</string>
     <string name="dhizuku_clone_service_unavailable">Dhizuku API cannot connect to the cloned service (%s). Make sure the clone keeps the original Service/Provider authority.</string>

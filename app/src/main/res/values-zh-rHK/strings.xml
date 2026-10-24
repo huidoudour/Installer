@@ -685,6 +685,7 @@
     <string name="lab">實驗室喵</string>
     <string name="lab_tip">實驗性功能喵，請小心使用喵。</string>
     <string name="lab_authorizer_section">智能授權喵</string>
+    <string name="lab_authorizer_fallback_section">授權回退喵</string>
     <string name="lab_try_multiple_authorizers">安裝時嘗試多個授權方式喵</string>
     <string name="lab_try_multiple_authorizers_desc">失敗時自動切換到下一個可用授權方式喵</string>
     <string name="lab_smart_authorizer">智能授權喵</string>
@@ -725,7 +726,7 @@
     <string name="experimental_features">实验功能喵</string>
     <string name="update_section">更新检测喵</string>
     <string name="lab_authorizer_by_install_state">按安裝狀態選擇授權方式喵</string>
-    <string name="lab_authorizer_by_install_state_desc">已安裝 → Shizuku，全新安裝 → Dhizuku喵</string>
+    <string name="lab_authorizer_by_install_state_desc">全新安裝 → Dhizuku，已安裝 → 所選授權方式喵</string>
     <!-- Install / authorizer runtime messages -->
     <string name="dhizuku_not_initialized">Dhizuku 未初始化喵</string>
     <string name="dhizuku_clone_service_unavailable">Dhizuku API 連接唔到複製版服務（%s）喵，請確認複製版保留咗原本嘅 Service/Provider authority</string>

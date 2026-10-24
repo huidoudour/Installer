@@ -120,13 +120,14 @@ fun AdvancedSettingsScreen(
         enterProgress = enterProgress,
         onScrimChange = onScrimChange,
     ) {
+        // 分区：智能授权（特权安装开关 + 按安装状态选择）
         SectionContainer(title = stringResource(R.string.lab_authorizer_section)) {
             SettingsSwitchItem(
                 title = stringResource(R.string.lab_use_shizuku_install),
                 subtitle = stringResource(R.string.lab_use_shizuku_install_desc),
                 checked = useShizuku,
                 onCheckedChange = { viewModel.setUseShizuku(it) },
-                shape = segmentedShape(0, 5),
+                shape = segmentedShape(0, 3),
                 isLast = false
             )
 
@@ -135,16 +136,7 @@ fun AdvancedSettingsScreen(
                 subtitle = stringResource(R.string.lab_use_dhizuku_install_desc),
                 checked = useDhizuku,
                 onCheckedChange = { viewModel.setUseDhizuku(it) },
-                shape = segmentedShape(1, 5),
-                isLast = false
-            )
-
-            SettingsSwitchItem(
-                title = stringResource(R.string.lab_try_multiple_authorizers),
-                subtitle = stringResource(R.string.lab_try_multiple_authorizers_desc),
-                checked = tryMultipleAuthorizers,
-                onCheckedChange = { viewModel.setTryMultipleAuthorizers(it) },
-                shape = segmentedShape(2, 5),
+                shape = segmentedShape(1, 3),
                 isLast = false
             )
 
@@ -153,7 +145,21 @@ fun AdvancedSettingsScreen(
                 subtitle = stringResource(R.string.lab_authorizer_by_install_state_desc),
                 checked = authorizerByInstallState,
                 onCheckedChange = { viewModel.setAuthorizerByInstallState(it) },
-                shape = segmentedShape(3, 5),
+                shape = segmentedShape(2, 3),
+                isLast = true
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 分区：授权回退（多授权器尝试与回退顺序）
+        SectionContainer(title = stringResource(R.string.lab_authorizer_fallback_section)) {
+            SettingsSwitchItem(
+                title = stringResource(R.string.lab_try_multiple_authorizers),
+                subtitle = stringResource(R.string.lab_try_multiple_authorizers_desc),
+                checked = tryMultipleAuthorizers,
+                onCheckedChange = { viewModel.setTryMultipleAuthorizers(it) },
+                shape = segmentedShape(0, 2),
                 isLast = false
             )
 
@@ -165,7 +171,7 @@ fun AdvancedSettingsScreen(
                     colorPreview = null,
                     onClick = { showFallbackDialog = true }
                 ),
-                shape = segmentedShape(4, 5),
+                shape = segmentedShape(1, 2),
                 isLast = true,
                 showArrow = true
             )
