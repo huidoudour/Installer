@@ -62,6 +62,12 @@
     <string name="accessibility_status_summary">检查辅助功能服务状态</string>
     <string name="about_app">关于应用</string>
     <string name="about_developer">关于开发者</string>
+    <string name="licenses_title">开源许可</string>
+    <string name="licenses_section_this_app">本项目</string>
+    <string name="licenses_section_dependencies">第三方库</string>
+    <string name="licenses_section_license_texts">许可证原文</string>
+    <string name="licenses_license_unspecified">上游未声明</string>
+    <string name="licenses_note">点击条目可打开项目主页或许可证原文；若此处标注与上游不一致，以上游仓库为准。</string>
     <string name="app_version">版本</string>
     <string name="new_version_available">发现新版本：%1$s</string>
     <string name="cannot_open_link">无法打开链接</string>

@@ -62,6 +62,12 @@
     <string name="accessibility_status_summary">Check accessibility service status</string>
     <string name="about_app">About App</string>
     <string name="about_developer">About Developer</string>
+    <string name="licenses_title">Open Source Licenses</string>
+    <string name="licenses_section_this_app">This Project</string>
+    <string name="licenses_section_dependencies">Third-Party Libraries</string>
+    <string name="licenses_section_license_texts">License Texts</string>
+    <string name="licenses_license_unspecified">Not declared upstream</string>
+    <string name="licenses_note">Tap an entry to open its project page or license text. If a license here differs from upstream, the upstream repository prevails.</string>
     <string name="app_version">Version</string>
     <string name="new_version_available">New version available: %1$s</string>
     <string name="cannot_open_link">Cannot open link</string>

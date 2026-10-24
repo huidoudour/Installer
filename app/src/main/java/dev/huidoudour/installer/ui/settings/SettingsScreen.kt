@@ -90,6 +90,7 @@ import dev.huidoudour.installer.R
 fun SettingsScreen(
     onNavigateToMe: () -> Unit = {},
     onNavigateToChangelog: () -> Unit = {},
+    onNavigateToLicenses: () -> Unit = {},
     onNavigateToAdvanced: () -> Unit = {},
     onNavigateToExperimental: () -> Unit = {},
     onNavigateToInstallSettings: () -> Unit = {},
@@ -193,7 +194,8 @@ fun SettingsScreen(
         AboutAppCard(
             context = context,
             onNavigateToMe = onNavigateToMe,
-            onNavigateToChangelog = onNavigateToChangelog
+            onNavigateToChangelog = onNavigateToChangelog,
+            onNavigateToLicenses = onNavigateToLicenses
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -411,7 +413,8 @@ private fun ConfigurationOptionsCard(
 private fun AboutAppCard(
     context: Context,
     onNavigateToMe: () -> Unit,
-    onNavigateToChangelog: () -> Unit
+    onNavigateToChangelog: () -> Unit,
+    onNavigateToLicenses: () -> Unit
 ) {
     val versionDisplayText = try {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -466,6 +469,39 @@ private fun AboutAppCard(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.about_developer),
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // 开源许可按钮：介于「关于开发者」与版本信息之间
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
+            shape = SmallShape,
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            onClick = onNavigateToLicenses
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_list),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.licenses_title),
                     fontSize = 15.sp,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )

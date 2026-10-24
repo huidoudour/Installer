@@ -62,6 +62,12 @@
     <string name="accessibility_status_summary">檢查輔助功能服務狀態</string>
     <string name="about_app">關於應用</string>
     <string name="about_developer">關於開發者</string>
+    <string name="licenses_title">開源授權</string>
+    <string name="licenses_section_this_app">本專案</string>
+    <string name="licenses_section_dependencies">第三方函式庫</string>
+    <string name="licenses_section_license_texts">授權條款原文</string>
+    <string name="licenses_license_unspecified">上游未宣告</string>
+    <string name="licenses_note">點選項目可開啟專案首頁或授權條款原文；若此處標註與上游不一致，以上游儲存庫為準。</string>
     <string name="app_version">版本</string>
     <string name="new_version_available">發現新版本：%1$s</string>
     <string name="cannot_open_link">無法開啟連結</string>

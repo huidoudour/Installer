@@ -62,6 +62,12 @@
     <string name="accessibility_status_summary">检查辅助功能服务状态喵</string>
     <string name="about_app">关于应用喵</string>
     <string name="about_developer">关于开发者喵</string>
+    <string name="licenses_title">開源許可喵</string>
+    <string name="licenses_section_this_app">本項目喵</string>
+    <string name="licenses_section_dependencies">第三方庫喵</string>
+    <string name="licenses_section_license_texts">許可證原文喵</string>
+    <string name="licenses_license_unspecified">上游未聲明喵</string>
+    <string name="licenses_note">撳一下項目可以打開項目主頁或者許可證原文喵；如果呢度同上游唔一致，以上游倉庫為準喵。</string>
     <string name="app_version">版本喵</string>
     <string name="new_version_available">发现新版本喵：%1$s</string>
     <string name="cannot_open_link">无法打开链接喵</string>

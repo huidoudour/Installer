@@ -62,6 +62,12 @@
     <string name="accessibility_status_summary">Проверить статус службы специальных возможностей</string>
     <string name="about_app">О приложении</string>
     <string name="about_developer">О разработчике</string>
+    <string name="licenses_title">Лицензии открытого исходного кода</string>
+    <string name="licenses_section_this_app">Этот проект</string>
+    <string name="licenses_section_dependencies">Сторонние библиотеки</string>
+    <string name="licenses_section_license_texts">Тексты лицензий</string>
+    <string name="licenses_license_unspecified">Не указана в оригинале</string>
+    <string name="licenses_note">Нажмите на запись, чтобы открыть страницу проекта или текст лицензии. Если лицензия здесь отличается от оригинала, приоритет имеет оригинальный репозиторий.</string>
     <string name="app_version">Версия</string>
     <string name="new_version_available">Доступна новая версия: %1$s</string>
     <string name="cannot_open_link">Не удалось открыть ссылку</string>

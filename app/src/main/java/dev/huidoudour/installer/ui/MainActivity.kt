@@ -50,6 +50,7 @@ import dev.huidoudour.installer.ui.components.PredictiveBackPage
 import dev.huidoudour.installer.ui.installer.InstallerScreen
 import dev.huidoudour.installer.ui.lab.AdvancedSettingsScreen
 import dev.huidoudour.installer.ui.lab.ExperimentalScreen
+import dev.huidoudour.installer.ui.licenses.LicensesScreen
 import dev.huidoudour.installer.ui.logs.LogsScreen
 import dev.huidoudour.installer.ui.me.MeScreen
 import dev.huidoudour.installer.ui.settings.InstallSettingsScreen
@@ -94,6 +95,7 @@ private enum class OverlayPage {
     Experimental,
     Me,
     Changelog,
+    Licenses,
     InstallSettings,
 }
 
@@ -202,6 +204,9 @@ fun MainScreen() {
                         onNavigateToChangelog = {
                             overlayPage = OverlayPage.Changelog
                         },
+                        onNavigateToLicenses = {
+                            overlayPage = OverlayPage.Licenses
+                        },
                         onNavigateToAdvanced = {
                             overlayPage = OverlayPage.Advanced
                         },
@@ -260,6 +265,14 @@ fun MainScreen() {
                     onBack = { overlayPage = OverlayPage.None }
                 ) { requestBack ->
                     ChangelogScreen(onNavigateBack = requestBack)
+                }
+
+                OverlayPage.Licenses -> PredictiveBackPage(
+                    enterProgress = overlayEnterProgress.value,
+                    onScrimChange = { overlayScrim = it },
+                    onBack = { overlayPage = OverlayPage.None }
+                ) { requestBack ->
+                    LicensesScreen(onBack = requestBack)
                 }
 
                 OverlayPage.InstallSettings -> PredictiveBackPage(
