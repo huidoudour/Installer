@@ -55,11 +55,11 @@ jobs:
       - name: Verify APK signature
         run: |
           echo "APK build completed. Files in output directory:"
-          find app/build/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
+          find build/app/outputs/apk/release -name "*.apk" -type f -exec ls -lh {} \;
 
       - name: Verify APK output name
         run: |
-          find app/build/outputs/apk/release -maxdepth 1 -name 'Installer-*.apk' -type f -exec ls -lh {} \;
+          find build/app/outputs/apk/release -maxdepth 1 -name 'Installer-*.apk' -type f -exec ls -lh {} \;
 
       - name: Clean up keystore
         if: always()
@@ -87,9 +87,9 @@ jobs:
       - name: Upload APK to Release
         run: |
           shopt -s nullglob
-          apks=(app/build/outputs/apk/release/*.apk)
+          apks=(build/app/outputs/apk/release/*.apk)
           if [ ${#apks[@]} -eq 0 ]; then
-            echo "Error: no APK found in app/build/outputs/apk/release/"
+            echo "Error: no APK found in build/app/outputs/apk/release/"
             exit 1
           fi
           for apk in "${apks[@]}"; do

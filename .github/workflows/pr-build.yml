@@ -47,12 +47,12 @@ jobs:
       - name: List debug outputs
         run: |
           echo "APK build completed. Files in output directory:"
-          find app/build/outputs/apk/debug -name "*.apk" -type f -exec ls -lh {} \;
+          find build/app/outputs/apk/debug -name "*.apk" -type f -exec ls -lh {} \;
 
       - name: Upload debug folder as artifact
         uses: actions/upload-artifact@v7
         with:
           name: Installer-Debug-${{ steps.short_hash.outputs.hash }}
           # 上传 debug 输出目录下的全部产物：APK、output-metadata.json
-          path: app/build/outputs/apk/debug/
+          path: build/app/outputs/apk/debug/
           if-no-files-found: error

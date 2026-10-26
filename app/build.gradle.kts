@@ -29,6 +29,9 @@ val versionTxt = if (git("tag", "--contains", "HEAD").isEmpty()) ".ci" else ""
 val appVersionCode = baseVersionCode + commitCount
 val appVersionName = "$baseVersionName.$commitCount$versionTxt.$commitHash"
 
+//   .\gradlew.bat assembleDebug -PaltApp   → dev.huidoudour.installer
+val altApp = providers.gradleProperty("altApp").isPresent
+
 val buildBanner = tasks.register("buildBanner") {
     description = "执行时间戳"
     val requested = gradle.startParameter.taskNames
@@ -88,7 +91,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId = "io.github.huidoudour.Installer"
+        applicationId = if (altApp) "dev.huidoudour.installer" else "io.github.huidoudour.Installer"
         minSdk = 28
         targetSdk = 37
         versionCode = appVersionCode
@@ -151,8 +154,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    // 系统级应用语言切换（API 33+）：自动生成 locales_config 并注入 android:localeConfig，
-    // 使系统设置中可见本应用的独立语言选项；低于 API 33 回退到 app 内切换。
     @Suppress("UnstableApiUsage")
     androidResources {
         generateLocaleConfig = true
@@ -197,15 +198,13 @@ android {
     }
 }
 
-// 直接定义本地构建产物文件名（无需再靠 CI 脚本重命名）：
-//   <名称>-<基础版本名>.<提交数>.<hash>-<版本号>-<Release/Debug>.apk
-//   例：Installer-26.09.27.100.c0fd7c6-8100-Release.apk
-// outputFileName 等变体 API 目前被 AGP 标记为 @Incubating，按项目规范抑制该警告
 @Suppress("UnstableApiUsage")
 androidComponents {
     onVariants { variant ->
         val buildTypeLabel = variant.buildType.orEmpty().replaceFirstChar { it.uppercaseChar() }
-        val outputName = "$appName-$appVersionName-$appVersionCode-$buildTypeLabel.apk"
+        // 新包名产物加后缀，避免与默认包名同名覆盖
+        val suffix = if (altApp) "-alt" else ""
+        val outputName = "$appName-$appVersionName-$appVersionCode$suffix-$buildTypeLabel.apk"
         variant.outputs.forEach { output ->
             output.outputFileName.set(outputName)
         }
@@ -219,42 +218,41 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    implementation(libs.constraintlayout)
-    implementation(libs.lifecycle.livedata.ktx)
-    implementation(libs.lifecycle.viewmodel.ktx)
-    implementation(libs.navigation.fragment)
-    implementation(libs.navigation.ui)
     implementation(platform(libs.compose.bom))
-    implementation(libs.compose.runtime)
-    implementation(libs.compose.ui)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.accompanist.drawablepainter)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.navigation.fragment)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
-    implementation(libs.compose.material.icons.extended)
-    implementation(libs.activity.compose)
     implementation(libs.navigation.compose)
-    implementation(libs.accompanist.drawablepainter)
-    implementation("androidx.palette:palette:1.1.0")
-    implementation(libs.profileinstaller)
+    implementation(libs.constraintlayout)
+    implementation(libs.activity.compose)
+    implementation(libs.compose.runtime)
     implementation(libs.security.crypto)
-    "baselineProfile"(project(":baselineprofile"))
-    implementation(project(":lib-terminal"))
+    implementation(libs.material.kolor)
+    implementation(libs.navigation.ui)
+    implementation(libs.compose.ui)
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    implementation(libs.apksig)
 
     debugImplementation(libs.compose.ui.tooling.preview)
 
-    implementation(libs.material.kolor)
-    implementation(libs.apksig)
-    compileOnly(project(":hidden-api"))
-    implementation("dev.rikka.shizuku:api:13.1.5")
-    implementation("dev.rikka.shizuku:provider:13.1.5")
-    implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
+    implementation("io.github.iamr0s:Dhizuku-API:2.6.0")
+    implementation("dev.rikka.shizuku:provider:13.1.5")
+    implementation("androidx.palette:palette:1.1.0")
     implementation("androidx.core:core-ktx:1.19.1")
+    implementation("dev.rikka.shizuku:api:13.1.5")
 
-    // MTDataFilesProvider
+    implementation(libs.profileinstaller)
+    compileOnly(project(":hidden-api"))
     implementation(project(":lib-mtprovider"))
+    implementation(project(":lib-terminal"))
+    "baselineProfile"(project(":baselineprofile"))
 
     val localFile = file("libs/android.aar")
     if (localFile.exists()) {
