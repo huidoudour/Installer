@@ -1,0 +1,280 @@
+/* Installer 更新日志页面样式 - 独立于主页 style.css，避免类名冲突 */
+
+.changelog-reset * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body.changelog-body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #2C2C2A;
+    line-height: 1.6;
+}
+
+.changelog-body .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+/* 页头 */
+.changelog-body .header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 32px 0 24px;
+}
+.changelog-body .header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+}
+.changelog-body .header p {
+    font-size: 14px;
+    color: #888;
+}
+.changelog-body .header .tag {
+    display: inline-block;
+    background: #7F77DD;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-top: 8px;
+}
+
+/* 功能总结卡片 */
+.changelog-body .summary-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    border: 1px solid #e8e8e6;
+}
+.changelog-body .summary-card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.changelog-body .summary-card h2 .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #7F77DD;
+    flex-shrink: 0;
+}
+
+/* 功能列表与分类徽标 */
+.changelog-body .feature-list {
+    list-style: none;
+}
+.changelog-body .feature-list li {
+    padding: 8px 0;
+    font-size: 13px;
+    color: #444;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-bottom: 1px solid #f0f0ee;
+}
+.changelog-body .feature-list li:last-child {
+    border-bottom: none;
+}
+.changelog-body .feature-list .badge {
+    flex-shrink: 0;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    margin-top: 2px;
+}
+.changelog-body .badge-new { background: #E6F1FB; color: #185FA5; }
+.changelog-body .badge-fix { background: #EAF3DE; color: #3B6D11; }
+.changelog-body .badge-opt { background: #FAEEDA; color: #854F0B; }
+.changelog-body .badge-refactor { background: #EEEDFE; color: #534AB7; }
+.changelog-body .badge-i18n { background: #FAECE7; color: #993C1D; }
+
+/* 统计栏 */
+.changelog-body .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+}
+.changelog-body .stat-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid #e8e8e6;
+}
+.changelog-body .stat-item .num {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+.changelog-body .stat-item .label {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* 提交时间线 */
+.changelog-body .timeline {
+    position: relative;
+}
+.changelog-body .timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0de;
+}
+
+.changelog-body .commit {
+    position: relative;
+    padding-left: 52px;
+    margin-bottom: 20px;
+}
+.changelog-body .commit-dot {
+    position: absolute;
+    left: 14px;
+    top: 18px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #ddd;
+    z-index: 1;
+}
+.changelog-body .commit-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px 20px;
+    border: 1px solid #e8e8e6;
+    transition: border-color 0.2s;
+}
+.changelog-body .commit-card:hover {
+    border-color: #7F77DD;
+}
+.changelog-body .commit-card .top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+.changelog-body .commit-card .hash {
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-size: 12px;
+    color: #7F77DD;
+    background: #EEEDFE;
+    padding: 1px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.changelog-body .commit-card .date {
+    font-size: 11px;
+    color: #aaa;
+}
+.changelog-body .commit-card .msg {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+}
+.changelog-body .commit-card .detail {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+}
+.changelog-body .commit-card .changes {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: #aaa;
+}
+.changelog-body .commit-card .changes span {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+.changelog-body .changes .add { color: #3B6D11; }
+.changelog-body .changes .del { color: #A32D2D; }
+
+/* 月份分隔符 */
+.changelog-body .month-sep {
+    position: relative;
+    padding-left: 52px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+.changelog-body .month-sep::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    margin-top: -7px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #ddd;
+}
+.changelog-body .month-sep span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #999;
+    letter-spacing: 1px;
+}
+
+/* 时间线圆点配色 */
+.changelog-body .dot-new { background: #378ADD; }
+.changelog-body .dot-fix { background: #639922; }
+.changelog-body .dot-opt { background: #BA7517; }
+.changelog-body .dot-refactor { background: #7F77DD; }
+.changelog-body .dot-merge { background: #888; }
+.changelog-body .dot-i18n { background: #D85A30; }
+
+/* 展开/收起按钮 */
+.changelog-body .toggle-btn {
+    display: block;
+    margin: 0 auto 24px;
+    padding: 8px 24px;
+    font-size: 13px;
+    color: #534AB7;
+    background: #EEEDFE;
+    border: 1px solid #CECBF6;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.changelog-body .toggle-btn:hover {
+    background: #CECBF6;
+    color: #fff;
+}
+
+/* 页脚 */
+.changelog-body .footer {
+    text-align: center;
+    padding: 32px 0 16px;
+    font-size: 12px;
+    color: #bbb;
+}
+
+/* 移动端适配 */
+@media (max-width: 600px) {
+    .changelog-body .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

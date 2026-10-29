@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="huidoudour's Installer 更新日志 - master 分支开发历程">
+<title>Installer - 更新日志</title>
+<link rel="stylesheet" href="./css/changelog.css?v=20261029">
+</head>
+<body class="changelog-body">
+<div class="changelog-reset">
+<div class="container">
+
+<div class="header">
+  <h1>Installer 更新日志</h1>
+  <p>2026-05-07 之后 master 分支的开发历程 · 当前版本 v26.10.24</p>
+  <span class="tag">v26.10.24</span>
+</div>
+
+<div class="stats-row">
+  <div class="stat-item"><div class="num">181</div><div class="label">提交总数</div></div>
+  <div class="stat-item"><div class="num">176</div><div class="label">天跨度</div></div>
+  <div class="stat-item"><div class="num">77,952</div><div class="label">行新增</div></div>
+  <div class="stat-item"><div class="num">59,688</div><div class="label">行删除</div></div>
+</div>
+
+<div class="summary-card">
+  <h2><span class="dot"></span>功能总结</h2>
+  <ul class="feature-list">
+    <li><span class="badge badge-refactor">重构</span>Kotlin + Jetpack Compose 全面迁移 — 项目整体由 Java/XML 迁移至 Kotlin + Compose (Material3)，UI 组件与界面全面重写</li>
+    <li><span class="badge badge-new">新功能</span>独立终端模块 lib-terminal — 基于 PTY 的终端模拟，支持滚动回看、管道输入、字符宽度处理、Shizuku 会话开关及 TermuxBridge 联动</li>
+    <li><span class="badge badge-new">新功能</span>APK 签名校验体系 — 智能授权安装流程 + 完整签名校验与签名比对机制，安装前可识别同源/异源包</li>
+    <li><span class="badge badge-new">新功能</span>应用内更新检测 — 新版本检测与提示（仅正式包启用），并新增应用内更新日志页面</li>
+    <li><span class="badge badge-new">新功能</span>预测性返回手势 — 全局返回动画容器、叠加页面返回遮罩、低版本降级兼容</li>
+    <li><span class="badge badge-new">新功能</span>MD3 加载动画 — 安装进度加载动画及多种动画模式切换</li>
+    <li><span class="badge badge-new">新功能</span>降级安装支持 — 版本关系判定与降级安装选项</li>
+    <li><span class="badge badge-new">新功能</span>高级设置与实验室页面 — 安装行为选项持久化、安装参数设置、实验性功能入口</li>
+    <li><span class="badge badge-new">新功能</span>开源许可页面 — 依赖许可清单自动生成与展示</li>
+    <li><span class="badge badge-opt">优化</span>安装器/请求者包名选择 — 统一包名选择对话框、按安装状态选择授权、Shizuku 与 Dhizuku 特权安装开关分离</li>
+    <li><span class="badge badge-opt">优化</span>Shell 功能增强 — 输出搜索、保存输出到 Download、历史命令对话框、快速滚动、15 个新增快捷命令</li>
+    <li><span class="badge badge-opt">优化</span>日志管理 — 全局日志集成、安装流程记录、日志管理界面</li>
+    <li><span class="badge badge-opt">优化</span>构建与发布 — Baseline Profile 与启动基准测试模块、GitHub Actions 工作流优化、Dependabot 自动依赖更新、AGP 升级至 9.5.0</li>
+    <li><span class="badge badge-fix">修复</span>Dhizuku 安装与权限回调 — 修复 DhizukuAPI 安装问题、权限状态更新和回调处理</li>
+    <li><span class="badge badge-fix">修复</span>语言切换与终端修复 — 修复语言切换 bug 及过渡动画；修复 shell 页面 bug、终端输入焦点与 IME 事件处理</li>
+    <li><span class="badge badge-i18n">国际化</span>Android 13+ 系统级应用语言切换 — 接入 per-app language API，语言设置与系统同步</li>
+  </ul>
+</div>
+
+<button class="toggle-btn" id="toggleLog">展开提交日志</button>
+
+<div class="timeline" id="timeline" style="display:none;">
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">ca4b3fe</span><span class="date">2026-10-29 12:27</span></div>
+      <div class="msg">update agp-9.5.0</div>
+      <div class="detail">AGP 与 apksig 升级至 9.5.0，同步更新版本目录配置。</div>
+      <div class="changes"><span class="add">+2</span><span class="del">-2</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">9295c3d</span><span class="date">2026-10-26 21:54</span></div>
+      <div class="msg">优化构建路径和支持替代包名</div>
+      <div class="detail">调整构建输出路径，支持替代包名方案。</div>
+      <div class="changes"><span class="add">+52</span><span class="del">-54</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">b4af9c6</span><span class="date">2026-10-24 18:37</span></div>
+      <div class="msg">升级版本至 26.10.24</div>
+      <div class="detail">发布 v26.10.24 版本标签。</div>
+      <div class="changes"></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">2795f61</span><span class="date">2026-10-24 18:29</span></div>
+      <div class="msg">新增开源许可页面及许可清单功能</div>
+      <div class="detail">接入依赖许可清单生成，应用内新增开源许可展示页面。</div>
+      <div class="changes"><span class="add">+437</span><span class="del">-2</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">396a6f3</span><span class="date">2026-10-24 18:03</span></div>
+      <div class="msg">优化按安装状态选择授权逻辑</div>
+      <div class="detail">根据当前安装状态智能选择授权方式（closes #45）；调整按钮样式；移除外部 PR 的 Debug 构建签名配置。</div>
+      <div class="changes"><span class="add">+50</span><span class="del">-31</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">34e2b5e</span><span class="date">2026-10-20 22:28</span></div>
+      <div class="msg">优化 GitHub Actions 构建流程</div>
+      <div class="detail">添加 Debug APK 签名及产物上传；security-crypto 升级至 1.1.0，uiautomator、material3、palette 等依赖批量更新。</div>
+      <div class="changes"><span class="add">+44</span><span class="del">-8</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">311bc4f</span><span class="date">2026-10-16 15:03</span></div>
+      <div class="msg">添加高级设置及实验功能页面</div>
+      <div class="detail">新增高级设置入口与实验室页面，承载实验性功能开关。</div>
+      <div class="changes"><span class="add">+613</span><span class="del">-277</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">1a7c8f4</span><span class="date">2026-10-16 14:27</span></div>
+      <div class="msg">添加应用内新版本检测与提示功能</div>
+      <div class="detail">接入更新检测与升级提示；批量更新 appcompat、apksig、constraintlayout、core-ktx、profileinstaller 等依赖版本。</div>
+      <div class="changes"><span class="add">+292</span><span class="del">-9</span></div>
+    </div>
+  </div>
+
+  <div class="month-sep"><span>2026 年 10 月上旬</span></div>
+
+  <div class="commit">
+    <div class="commit-dot dot-fix"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">0c91d1e</span><span class="date">2026-10-17 10:39</span></div>
+      <div class="msg">优化预测性返回手势及兼容性处理</div>
+      <div class="detail">完善返回手势兼容性；叠加页面返回手势遮罩逻辑优化；更新检测仅在正式包启用。</div>
+      <div class="changes"><span class="add">+92</span><span class="del">-140</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">999b398</span><span class="date">2026-10-14 22:53</span></div>
+      <div class="msg">支持 Android 13+ 系统级应用语言切换</div>
+      <div class="detail">接入 per-app language API，应用语言可与系统设置同步；定义默认请求者和执行者包名。</div>
+      <div class="changes"><span class="add">+95</span><span class="del">-37</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">643c4e0</span><span class="date">2026-10-14 20:50</span></div>
+      <div class="msg">添加 Dependabot 配置</div>
+      <div class="detail">引入 Dependabot 自动依赖更新；重新生成 baselineProfile；持续优化 APK 命名及上传流程。</div>
+      <div class="changes"></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-refactor"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">46869b7</span><span class="date">2026-10-09 19:55</span></div>
+      <div class="msg">实现管道输入支持与终端字符宽度处理</div>
+      <div class="detail">终端支持管道输入场景，正确处理宽字符对齐显示。</div>
+      <div class="changes"><span class="add">+659</span><span class="del">-464</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-refactor"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">7053203</span><span class="date">2026-10-09 18:53</span></div>
+      <div class="msg">迁移终端代码至独立模块</div>
+      <div class="detail">初始化 lib-terminal 独立模块，终端相关代码整体迁出主应用。</div>
+      <div class="changes"><span class="add">+341</span><span class="del">-289</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">f95d58d</span><span class="date">2026-10-06 21:24</span></div>
+      <div class="msg">新增终端使用 Shizuku 会话开关</div>
+      <div class="detail">终端可切换使用 Shizuku 特权会话；同步优化输入焦点和 IME 事件处理。</div>
+      <div class="changes"><span class="add">+109</span><span class="del">-12</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">ba62a7d</span><span class="date">2026-10-06 19:02</span></div>
+      <div class="msg">添加基线配置与启动基准测试模块</div>
+      <div class="detail">引入 baselineprofile 模块（含生成工程），优化构建任务、日志输出与构建产物命名。</div>
+      <div class="changes"><span class="add">+24,569</span><span class="del">-5</span></div>
+    </div>
+  </div>
+
+  <div class="month-sep"><span>2026 年 9 月下旬</span></div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">ae23653</span><span class="date">2026-09-28 10:11</span></div>
+      <div class="msg">清理不必要功能与优化代码结构</div>
+      <div class="detail">收敛功能面，重构冗余代码。</div>
+      <div class="changes"></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">e5482f0</span><span class="date">2026-09-28 07:28</span></div>
+      <div class="msg">添加降级安装支持及版本关系判定</div>
+      <div class="detail">安装前比较新旧版本关系，支持降级安装场景。</div>
+      <div class="changes"><span class="add">+130</span><span class="del">-52</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-fix"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">e9cb6da</span><span class="date">2026-09-28 00:20</span></div>
+      <div class="msg">修复授权按钮禁用逻辑</div>
+      <div class="detail">修正授权按钮禁用判定并完善禁用样式。</div>
+      <div class="changes"></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-refactor"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">c578e5b</span><span class="date">2026-09-28 00:05</span></div>
+      <div class="msg">分离 Shizuku 和 Dhizuku 特权安装开关</div>
+      <div class="detail">两种特权安装方式独立开关，互不干扰。</div>
+      <div class="changes"><span class="add">+352</span><span class="del">-99</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">69d6b8c</span><span class="date">2026-09-27 22:14</span></div>
+      <div class="msg">新增安装与权限设置合并页</div>
+      <div class="detail">设置页合并安装与权限分区并接入缓存管理；统一安装临时文件目录，启动与导入前清理缓存；完善预测性返回容器（进度归一化、退场漂移、低版本降级）。</div>
+      <div class="changes"><span class="add">+473</span><span class="del">-301</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">0366984</span><span class="date">2026-09-27 21:04</span></div>
+      <div class="msg">优化 APK 重命名及上传流程</div>
+      <div class="detail">精简 ABI 支持范围，完善隐藏 API 桩和文件提供器。</div>
+      <div class="changes"><span class="add">+164</span><span class="del">-77</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">42ed8c6</span><span class="date">2026-09-25 21:30</span></div>
+      <div class="msg">优化预测性返回动画逻辑</div>
+      <div class="detail">重构返回动画逻辑并抽取公共组件，降低页面接入成本。</div>
+      <div class="changes"><span class="add">+192</span><span class="del">-98</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">5ef3f03</span><span class="date">2026-09-20 05:14</span></div>
+      <div class="msg">优化签名状态 UI 及叠加页面管理</div>
+      <div class="detail">签名校验结果可视化改进；主界面叠加页面统一管理。</div>
+      <div class="changes"></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">9015751</span><span class="date">2026-09-20 03:52</span></div>
+      <div class="msg">集成全局日志功能</div>
+      <div class="detail">完善安装全流程记录，便于问题定位。</div>
+      <div class="changes"><span class="add">+351</span><span class="del">-54</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">7a42d38</span><span class="date">2026-09-19 23:23</span></div>
+      <div class="msg">添加预判返回手势动画与实验室页面</div>
+      <div class="detail">预测性返回手势动画原型；UI 过渡动画、独立安装对话框动画与缩放动画整体调优。</div>
+      <div class="changes"><span class="add">+274</span><span class="del">-70</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-refactor"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">362b683</span><span class="date">2026-09-19 22:23</span></div>
+      <div class="msg">重构配置界面支持安装行为持久化</div>
+      <div class="detail">安装行为选项持久化存储；重构安装动画与安装参数设置相关界面。</div>
+      <div class="changes"><span class="add">+184</span><span class="del">-167</span></div>
+    </div>
+  </div>
+
+  <div class="month-sep"><span>2026 年 9 月中旬</span></div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">1756ad1</span><span class="date">2026-09-15 22:31</span></div>
+      <div class="msg">实现完整 APK 签名校验与比对机制</div>
+      <div class="detail">基于 apksig 实现签名校验、签名比对；优化安装包加载及按钮加载动画体验；硬编码提示全面替换为资源字符串。</div>
+      <div class="changes"><span class="add">+367</span><span class="del">-79</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">5319654</span><span class="date">2026-09-14 17:21</span></div>
+      <div class="msg">添加智能授权安装流程及签名校验</div>
+      <div class="detail">智能授权安装流程落地；更新构建配置与权限声明优化。</div>
+      <div class="changes"><span class="add">+2,544</span><span class="del">-109</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-refactor"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">64bcec0</span><span class="date">2026-09-12 05:30</span></div>
+      <div class="msg">重构包命名并迁移主题及日志代码</div>
+      <div class="detail">包结构重新划分；主题与日志相关代码归位；移除 AxManager 冗余调用。</div>
+      <div class="changes"><span class="add">+334</span><span class="del">-269</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">f3974fc</span><span class="date">2026-09-07 23:37</span></div>
+      <div class="msg">添加更新日志功能</div>
+      <div class="detail">应用内更新日志页面及性能优化；接入新版 API。</div>
+      <div class="changes"><span class="add">+241</span><span class="del">-14</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">f6c89c7</span><span class="date">2026-09-06 14:10</span></div>
+      <div class="msg">优化终端会话默认工作目录与提示符</div>
+      <div class="detail">统一 TermuxBridge 本地方法命名空间并优化异常捕捉；优化发布工作流。</div>
+      <div class="changes"></div>
+    </div>
+  </div>
+
+  <div class="month-sep"><span>2026 年 9 月上旬</span></div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">778814d</span><span class="date">2026-09-04 01:43</span></div>
+      <div class="msg">添加 MD3 加载动画</div>
+      <div class="detail">Material3 风格加载动画，支持模式切换；优化安装对话框主题与进度指示器。</div>
+      <div class="changes"><span class="add">+11</span><span class="del">-11</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-refactor"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">8f97d48</span><span class="date">2026-09-04 02:12</span></div>
+      <div class="msg">重构软件包与调整 UI</div>
+      <div class="detail">软件包结构再次梳理；移除无用资源并调整构建配置；升级预览版 Compose UI 组件。</div>
+      <div class="changes"><span class="add">+156</span><span class="del">-202</span></div>
+    </div>
+  </div>
+
+  <div class="month-sep"><span>2026 年 7-8 月</span></div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">08c6be9</span><span class="date">2026-08-03 19:06</span></div>
+      <div class="msg">优化签名配置并启用代码优化</div>
+      <div class="detail">R8 代码优化开启；依赖、功能与版本同步调整；修复版本号异常。</div>
+      <div class="changes"></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">4b05c49</span><span class="date">2026-07-28 14:47</span></div>
+      <div class="msg">统一安装器和请求者包名选择对话框</div>
+      <div class="detail">新增安装参数配置；包名选择对话框统一复用；自定义 Compose 重组版本。</div>
+      <div class="changes"><span class="add">+254</span><span class="del">-123</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">ebd05c1</span><span class="date">2026-07-12 20:06</span></div>
+      <div class="msg">适配个人修改包</div>
+      <div class="detail">支持对个人修改（重签名）包的处理；软件包迁移与清单标签版本调整。</div>
+      <div class="changes"><span class="add">+163</span><span class="del">-53</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-fix"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">d36f637</span><span class="date">2026-07-09 20:42</span></div>
+      <div class="msg">修复 Dhizuku 权限状态更新和回调处理</div>
+      <div class="detail">权限状态实时刷新与回调链路修复；同步升级 AGP 与依赖版本。</div>
+      <div class="changes"><span class="add">+79</span><span class="del">-11</span></div>
+    </div>
+  </div>
+
+  <div class="month-sep"><span>2026 年 6 月</span></div>
+
+  <div class="commit">
+    <div class="commit-dot dot-fix"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">6580729</span><span class="date">2026-06-28 00:38</span></div>
+      <div class="msg">修复 DhizukuAPI 安装问题</div>
+      <div class="detail">修复 Dhizuku API 调用安装失败问题；同步修复依赖调用。</div>
+      <div class="changes"><span class="add">+522</span><span class="del">-212</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">7ac44a1</span><span class="date">2026-06-20 01:34</span></div>
+      <div class="msg">新增基于 PTY 的终端模拟支持</div>
+      <div class="detail">伪终端（PTY）引擎落地，支持滚动回看与 shell 页面交互；授权器图标采集显示；语言切换 bug 修复与过渡优化。</div>
+      <div class="changes"><span class="add">+3,578</span><span class="del">-1,464</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-opt"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">730b176</span><span class="date">2026-06-05 18:09</span></div>
+      <div class="msg">移除 C++ 原生库并精简依赖</div>
+      <div class="detail">优化文件代码结构；移除 C++ 原生库与冗余依赖；语言功能与安装对话框优化。</div>
+      <div class="changes"></div>
+    </div>
+  </div>
+
+  <div class="month-sep"><span>2026 年 5 月</span></div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">ce033eb</span><span class="date">2026-05-23 22:29</span></div>
+      <div class="msg">新增安装器包名选择功能</div>
+      <div class="detail">优化安装界面与安装逻辑，支持选择安装器包名。</div>
+      <div class="changes"><span class="add">+349</span><span class="del">-264</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-refactor"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">397be2c</span><span class="date">2026-05-22 11:47</span></div>
+      <div class="msg">迁移 Compose</div>
+      <div class="detail">大规模 Kotlin + Compose 迁移：移除不必要功能、美化 UI、优化功能。本次提交删除量达到峰值。</div>
+      <div class="changes"><span class="add">+810</span><span class="del">-12,982</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">f022138</span><span class="date">2026-05-17 19:01</span></div>
+      <div class="msg">安装对话框设计</div>
+      <div class="detail">Compose 版安装对话框重新设计与 UI 优化，修复编译警告。</div>
+      <div class="changes"><span class="add">+258</span><span class="del">-275</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-refactor"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">604f5b4</span><span class="date">2026-05-17 13:49</span></div>
+      <div class="msg">迁移 Kotlin + Compose</div>
+      <div class="detail">界面由 XML 转向 Compose 实现，增加 UI 适配。</div>
+      <div class="changes"><span class="add">+2,761</span><span class="del">-232</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">137d937</span><span class="date">2026-05-16 14:54</span></div>
+      <div class="msg">实现日志管理功能</div>
+      <div class="detail">日志管理落地并重构相关界面。</div>
+      <div class="changes"><span class="add">+536</span><span class="del">-161</span></div>
+    </div>
+  </div>
+
+  <div class="commit">
+    <div class="commit-dot dot-new"></div>
+    <div class="commit-card">
+      <div class="top"><span class="hash">5fbe3d2</span><span class="date">2026-10-29 13:12</span></div>
+      <div class="msg">Shell 功能与 UI 增强</div>
+      <div class="detail">输出搜索与实时过滤、保存输出到 Download、历史命令对话框、快速滚动按钮、新增 15 个快捷命令、顶部工具栏与 Material You 风格。</div>
+      <div class="changes"><span class="add">+1,115</span><span class="del">-96</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Installer Project &middot; Master Branch &middot; Generated 2026-10-29</div>
+
+</div>
+</div>
+
+<script src="./js/changelog.js?v=20261029"></script>
+</body>
+</html>
