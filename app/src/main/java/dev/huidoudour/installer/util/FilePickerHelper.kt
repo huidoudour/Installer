@@ -1,13 +1,16 @@
 package dev.huidoudour.installer.util
 
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 
 /**
- * 文件选择器辅助工具
- * 优先使用自定义文件管理器 (FileManager)，不存在时回退到系统 SAF
+ * 文件选择与导出辅助工具
+ * 文件选择优先使用自定义文件管理器 (FileManager)，不存在时回退到系统 SAF；
+ * 日志等文件导出同样优先投递给自定义文件管理器，失败时由调用方回退到系统分享
  */
 object FilePickerHelper {
 
@@ -42,5 +45,42 @@ object FilePickerHelper {
                 setPackage(FILE_MANAGER_PACKAGE)
             }
         }
+    }
+
+    /**
+     * 构建日志导出的投递 Intent，交由调用方的 ActivityResultLauncher 启动
+     *
+     * 优先 ACTION_SEND（文件管理器接收并保存），其次 ACTION_VIEW（直接打开）；
+     * 文件管理器未安装或两种请求都无法响应时返回 null，由调用方回退到系统分享面板。
+     */
+    fun createExportDeliverIntent(
+        context: Context,
+        uri: Uri,
+        mimeType: String,
+        subject: String,
+        text: String
+    ): Intent? {
+        if (!isFileManagerInstalled(context)) return null
+
+        val clipData = ClipData.newRawUri(subject, uri)
+        val candidates = listOf(
+            Intent(Intent.ACTION_SEND).apply {
+                type = mimeType
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, text)
+                putExtra(Intent.EXTRA_STREAM, uri)
+                this.clipData = clipData
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                setPackage(FILE_MANAGER_PACKAGE)
+            },
+            Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, mimeType)
+                this.clipData = clipData
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                setPackage(FILE_MANAGER_PACKAGE)
+            }
+        )
+
+        return candidates.firstOrNull { it.resolveActivity(context.packageManager) != null }
     }
 }

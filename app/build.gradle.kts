@@ -29,7 +29,8 @@ val versionTxt = if (git("tag", "--contains", "HEAD").isEmpty()) ".ci" else ""
 val appVersionCode = baseVersionCode + commitCount
 val appVersionName = "$baseVersionName.$commitCount$versionTxt.$commitHash"
 
-//   .\gradlew.bat assembleDebug -PaltApp   → dev.huidoudour.installer
+//   .\gradlew.bat assembleDebug -PaltApp       dev.huidoudour.installer
+//   ./gradlew assembleDebug -PaltApp           dev.huidoudour.installer
 val altApp = providers.gradleProperty("altApp").isPresent
 
 val buildBanner = tasks.register("buildBanner") {

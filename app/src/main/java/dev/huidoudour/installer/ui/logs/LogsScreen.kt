@@ -2,6 +2,8 @@ package dev.huidoudour.installer.ui.logs
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,6 +61,12 @@ fun LogsScreen(
     viewModel: LogsViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    // 与安装页「选择安装包」使用同一套启动通道，沿用系统默认转场
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        // 导出只负责把文件交给文件管理器或系统分享，无需处理返回结果
+    }
     val logs: List<LogEntry> by viewModel.logs.collectAsState()
     val logCount: Int by viewModel.logCount.collectAsState()
 
@@ -154,16 +162,19 @@ fun LogsScreen(
                         val result = viewModel.exportLogs()
                         result.onSuccess { file ->
                             try {
-                                val shareIntent = viewModel.shareLogFile(file)
-                                context.startActivity(
-                                    Intent.createChooser(shareIntent, context.getString(R.string.export_log))
-                                )
-                                Toast.makeText(context, context.getString(R.string.log_exported, file.name), Toast.LENGTH_LONG).show()
+                                // 优先交给自研文件管理器，未安装或无法响应时回退到系统分享
+                                val targetIntent = viewModel.createLogFileManagerIntent(file)
+                                    ?: Intent.createChooser(
+                                        viewModel.shareLogFile(file),
+                                        context.getString(R.string.export_log)
+                                    )
+                                exportLauncher.launch(targetIntent)
+                                Toast.makeText(context, context.getString(R.string.log_exported, file.name), Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
-                                Toast.makeText(context, context.getString(R.string.export_failed, e.message), Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.export_failed, e.message), Toast.LENGTH_SHORT).show()
                             }
                         }.onFailure { error ->
-                            Toast.makeText(context, context.getString(R.string.export_failed, error.message), Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, context.getString(R.string.export_failed, error.message), Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) {

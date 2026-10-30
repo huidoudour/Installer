@@ -1,10 +1,13 @@
 package dev.huidoudour.installer.ui.logs
 
 import android.app.Application
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
+import dev.huidoudour.installer.util.FilePickerHelper
 import dev.huidoudour.installer.util.LogEntry
 import dev.huidoudour.installer.util.LogManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,21 +83,40 @@ class LogsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * 分享日志文件
+     * 日志文件的 content:// URI
+     */
+    private fun logFileUri(logFile: File): Uri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.provider",
+        logFile
+    )
+
+    /**
+     * 构建交给自研文件管理器的导出 Intent
+     *
+     * @return 文件管理器可响应的 Intent；null 表示需回退到系统分享
+     */
+    fun createLogFileManagerIntent(logFile: File): Intent? {
+        return FilePickerHelper.createExportDeliverIntent(
+            context = context,
+            uri = logFileUri(logFile),
+            mimeType = "text/plain",
+            subject = "Installer Log",
+            text = "Log file generated: ${logFile.name}"
+        )
+    }
+
+    /**
+     * 分享日志文件（文件管理器不可用时的回退方案）
      */
     fun shareLogFile(logFile: File): Intent {
+        val uri = logFileUri(logFile)
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_SUBJECT, "Installer Log")
             putExtra(Intent.EXTRA_TEXT, "Log file generated: ${logFile.name}")
-            putExtra(
-                Intent.EXTRA_STREAM,
-                FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.provider",
-                    logFile
-                )
-            )
+            putExtra(Intent.EXTRA_STREAM, uri)
+            clipData = ClipData.newRawUri(logFile.name, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         return shareIntent
