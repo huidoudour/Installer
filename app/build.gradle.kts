@@ -173,6 +173,12 @@ android {
         buildConfig = true
     }
 
+    packaging {
+        jniLibs {
+            excludes += "**/libandroidx.graphics.path.so"
+        }
+    }
+
     lint {
         warningsAsErrors = false
         abortOnError = true
