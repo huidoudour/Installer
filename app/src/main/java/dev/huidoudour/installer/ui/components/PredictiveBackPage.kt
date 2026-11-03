@@ -49,7 +49,8 @@ private const val BUTTON_EXIT_DURATION_MILLIS = 280
  * [content] 会收到一个 `requestBack`：顶部返回按钮等主动返回入口应调用它。
  * 主动返回是**普通返回**——整页向右滑出（RTL 向左），不播放预测性返回的缩放 / 漂移 / 淡出；
  * 那套缩放预览只留给系统返回手势本身，因为它是手势进度的实时预览。
- * 不支持预测性返回手势的版本上，系统返回（滑动/按键）同样只是普通返回：直接关闭。
+ * 不支持预测性返回手势的版本上，系统返回（滑动/按键）同样退化为普通返回：
+ * 复用同一套滑出动画，与入场滑入方向相反，保证进出场一致。
  */
 @Composable
 fun PredictiveBackPage(
@@ -78,6 +79,7 @@ fun PredictiveBackPage(
     var exiting by remember { mutableStateOf(false) }
 
     // 顶部返回按钮：普通返回，整页向右滑出后再关闭页面（不做缩放 / 漂移 / 淡出）。
+    // 放在 BackHandler 之前声明，供低版本系统返回复用同一套滑出动画。
     val requestBack: () -> Unit = remember(scope) {
         {
             if (!exiting) {
@@ -112,7 +114,7 @@ fun PredictiveBackPage(
     }
 
     // 预测性返回的手势进度事件（onBackStarted / onBackProgressed）需要 API 34 及以上；
-    // 更低版本拿不到手势进度，退化为普通返回：直接关闭，不播放退场动画。
+    // 更低版本拿不到手势进度，退化为普通返回。
     val supportsPredictiveBackGesture =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 
@@ -155,9 +157,10 @@ fun PredictiveBackPage(
         }
     }
 
-    // 不支持预测性返回的版本上，系统返回（滑动/按键）退化为普通返回：直接关闭，
-    // 不播放退场动画，避免普通返回也播放一整套“缩小 + 漂移”。
-    BackHandler(enabled = !supportsPredictiveBackGesture) { currentOnBack() }
+    // 不支持预测性返回的版本上，系统返回（滑动/按键）退化为普通返回：
+    // 复用顶部返回按钮的滑出动画（入场从右往左滑入，退场从左往右滑出），
+    // 保证进出场方向一致，且不播放预测性返回那套缩放 / 漂移 / 淡出。
+    BackHandler(enabled = !supportsPredictiveBackGesture) { requestBack() }
 
     val predictiveShape = RoundedCornerShape(32.dp)
     val exitDriftPx = with(density) { 96.dp.toPx() }
