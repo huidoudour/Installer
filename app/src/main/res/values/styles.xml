@@ -177,32 +177,4 @@
         <item name="elevation">8dp</item>
     </style>
     
-    <!-- ============ MD3 状态指示器 ============ -->
-    
-    <!-- MD3 状态指示器基础 -->
-    <style name="MD3.StateIndicator">
-        <item name="android:layout_width">12dp</item>
-        <item name="android:layout_height">12dp</item>
-    </style>
-    
-    <!-- MD3 状态指示器 - 成功 -->
-    <style name="MD3.StateIndicator.Success" parent="MD3.StateIndicator">
-        <item name="android:background">@drawable/shape_indicator_success</item>
-    </style>
-    
-    <!-- MD3 状态指示器 - 警告 -->
-    <style name="MD3.StateIndicator.Warning" parent="MD3.StateIndicator">
-        <item name="android:background">@drawable/shape_indicator_warning</item>
-    </style>
-    
-    <!-- MD3 状态指示器 - 错误 -->
-    <style name="MD3.StateIndicator.Error" parent="MD3.StateIndicator">
-        <item name="android:background">@drawable/shape_indicator_error</item>
-    </style>
-    
-    <!-- MD3 状态指示器 - 中立 -->
-    <style name="MD3.StateIndicator.Neutral" parent="MD3.StateIndicator">
-        <item name="android:background">@drawable/shape_indicator_neutral</item>
-    </style>
-
 </resources>
