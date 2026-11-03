@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 清屏扫帚图标。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 长柄与帚头束口 -->
+    <path
+        android:pathData="M12,2.5 L12,11.5 M9,12.5 L15,12.5"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/shell_function_icon"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round" />
+    <!-- 外扩的帚头和分束刷毛，在小尺寸下仍能辨认。 -->
+    <path
+        android:pathData="M9,13.5 L15,13.5 L18,21 H6 Z M10,15.5 L9,21 M14,15.5 L15,21 M12,15.5 L12,21"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="@color/shell_function_icon"
+        android:strokeWidth="1.5"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round" />
+</vector>

@@ -6,11 +6,11 @@ import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -30,8 +31,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,16 +49,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * 终端 Shell 页面 - 类似 Termux 的全屏终端模拟器
@@ -190,44 +196,94 @@ fun FunctionKeysRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FunctionKeyButton(text = stringResource(R.string.btn_shell_cancel),
+                tooltip = stringResource(R.string.btn_shell_cancel_desc),
                 onClick = onCtrlC, textColor = MaterialTheme.colorScheme.error)
             FunctionKeyButton(text = stringResource(R.string.btn_shell_close),
+                tooltip = stringResource(R.string.btn_shell_close_desc),
                 onClick = onCtrlD, textColor = MaterialTheme.colorScheme.error)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_esc), onClick = onEsc)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_tab), onClick = onTab)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_clear),
-                onClick = onClearScreen, textColor = MaterialTheme.colorScheme.error)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_paste), onClick = onCopy)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_quick), onClick = onQuickCommands)
-            FunctionKeyButton(text = stringResource(R.string.btn_shell_save), onClick = onSave)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_esc),
+                tooltip = stringResource(R.string.btn_shell_esc_desc), onClick = onEsc)
+            FunctionKeyButton(text = stringResource(R.string.btn_shell_tab),
+                tooltip = stringResource(R.string.btn_shell_tab_desc), onClick = onTab)
+            FunctionKeyButton(icon = painterResource(R.drawable.ic_shell_clear),
+                tooltip = stringResource(R.string.btn_shell_clear_desc),
+                onClick = onClearScreen)
+            FunctionKeyButton(icon = painterResource(R.drawable.ic_shell_copy),
+                tooltip = stringResource(R.string.btn_shell_copy_desc), onClick = onCopy)
+            FunctionKeyButton(icon = painterResource(R.drawable.ic_shell_quick),
+                tooltip = stringResource(R.string.btn_shell_quick_desc), onClick = onQuickCommands)
+            FunctionKeyButton(icon = painterResource(R.drawable.ic_shell_save),
+                tooltip = stringResource(R.string.btn_shell_save_desc), onClick = onSave)
         }
     }
 }
 
 @Composable
 fun FunctionKeyButton(
-    text: String,
+    tooltip: String,
     onClick: () -> Unit,
+    text: String = "",
+    icon: Painter? = null,
     textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer
 ) {
-    Button(
-        onClick = onClick,
+    var showTip by remember { mutableStateOf(false) }
+
+    Box(
         modifier = Modifier
             // 不获取焦点: 避免点击功能键时抢走隐藏输入框焦点 (导致 IME 收起/提交挂起组合文本而产生额外字符)
             .focusProperties { canFocus = false }
             .height(36.dp)
-            .width(if (text.length > 2) 54.dp else 44.dp),
-        shape = RoundedCornerShape(4.dp),
-        contentPadding = PaddingValues(0.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = textColor
-        )
+            .width(if (text.length > 2) 54.dp else 44.dp)
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            // 长按功能键: 在按钮下方浮现用途气泡
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = { showTip = true }
+            ),
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = text,
-            fontSize = if (text.length > 2) 11.sp else 16.sp
-        )
+        if (icon != null) {
+            // 保留 XML 图标定义的颜色，不施加 Compose tint。
+            Icon(
+                painter = icon,
+                contentDescription = tooltip,
+                modifier = Modifier.size(20.dp),
+                tint = Color.Unspecified
+            )
+        } else {
+            Text(
+                text = text,
+                fontSize = if (text.length > 2) 11.sp else 16.sp,
+                color = textColor
+            )
+        }
+
+        // 提示气泡: 悬浮于按钮下方, 约 2 秒后自动消失, 不拦截其他点击
+        if (showTip) {
+            LaunchedEffect(true) {
+                delay(2.seconds)
+                showTip = false
+            }
+            val density = LocalDensity.current
+            Popup(
+                alignment = Alignment.TopStart,
+                offset = IntOffset(0, with(density) { 40.dp.toPx().toInt() })
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    modifier = Modifier.widthIn(max = 220.dp)
+                ) {
+                    Text(
+                        text = tooltip,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                    )
+                }
+            }
+        }
     }
 }
 

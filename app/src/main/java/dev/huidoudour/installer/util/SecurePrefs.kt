@@ -17,6 +17,8 @@ object SecurePrefs {
     @Volatile
     private var cached: SharedPreferences? = null
 
+    // 现有 PAT 已按此格式加密；更换存储实现前必须先迁移旧文件。
+    @Suppress("DEPRECATION")
     private fun prefs(context: Context): SharedPreferences {
         cached?.let { return it }
         synchronized(this) {
