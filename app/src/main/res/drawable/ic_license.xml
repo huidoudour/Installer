@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 证书外框 -->
+    <path
+        android:strokeColor="@android:color/black"
+        android:strokeWidth="1.8"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M7,2.8L17,2.8A3,3 0 0,1 20,5.8L20,17.4A3,3 0 0,1 17,20.4L7,20.4A3,3 0 0,1 4,17.4L4,5.8A3,3 0 0,1 7,2.8Z" />
+    <!-- 条款横线 -->
+    <path
+        android:strokeColor="@android:color/black"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M7,6.9L17,6.9M7,9.9L17,9.9M7,12.9L12.4,12.9" />
+    <!-- 印章飘带 -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M13.6,18.1L13.5,22.5L15,21.1L16.5,22.5L16.4,18.1Z" />
+    <!-- 印章圆环 -->
+    <path
+        android:strokeColor="@android:color/black"
+        android:strokeWidth="1.8"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M14.9,14.5A2.2,2.2 0 1,1 14.9,18.9A2.2,2.2 0 1,1 14.9,14.5Z" />
+</vector>

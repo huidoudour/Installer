@@ -481,7 +481,7 @@ private fun AboutAppCard(
         // 开源许可入口：与下方版本信息行保持同一底色、边框与圆角
         SettingListItem(
             item = SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_list),
+                icon = ImageVector.vectorResource(R.drawable.ic_license),
                 title = stringResource(R.string.licenses_title),
                 subtitle = null,
                 colorPreview = null,

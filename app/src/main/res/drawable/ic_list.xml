@@ -1,20 +1,11 @@
-<!-- res/drawable/menu.xml -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
 
-    <!-- 第一条横线 -->
+    <!-- 三行列表项：左方块 + 右横条 -->
     <path
-        android:fillColor="#FF000000"
-        android:pathData="M3,6h18v2h-18z" />
-    <!-- 第二条横线 -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M3,11h18v2h-18z" />
-    <!-- 第三条横线 -->
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M3,16h18v2h-18z" />
+        android:fillColor="@android:color/black"
+        android:pathData="M3.6,5L6,5L6,7.4L3.6,7.4ZM8.4,5.45L19.8,5.45L19.8,6.95L8.4,6.95ZM3.6,10.8L6,10.8L6,13.2L3.6,13.2ZM8.4,11.25L19.8,11.25L19.8,12.75L8.4,12.75ZM3.6,16.6L6,16.6L6,19L3.6,19ZM8.4,17.05L19.8,17.05L19.8,18.55L8.4,18.55Z" />
 </vector>
