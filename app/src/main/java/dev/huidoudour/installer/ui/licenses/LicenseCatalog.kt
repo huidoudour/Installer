@@ -1,16 +1,21 @@
 package dev.huidoudour.installer.ui.licenses
 
+import androidx.annotation.RawRes
+import dev.huidoudour.installer.R
+
 /**
  * 一条开源许可信息。
  *
  * @param name 项目/库名称
  * @param license 许可证标识（如 `Apache-2.0`）；为 null 表示上游未声明许可证
  * @param url 点击后打开的项目主页或许可证原文地址
+ * @param textRes 随包内置的许可证原文；非 null 时点击在应用内展示，不跳转外部
  */
 data class LicenseEntry(
     val name: String,
     val license: String?,
     val url: String,
+    @RawRes val textRes: Int? = null,
 )
 
 /**
@@ -23,12 +28,13 @@ object LicenseCatalog {
 
     private const val PROJECT_URL = "https://github.com/huidoudour/Installer"
 
-    /** 本项目自身：MIT，随安装包一并分发 */
+    /** 本项目自身：MIT，原文内置随包分发，可离线查看 */
     val thisApp = listOf(
         LicenseEntry(
             name = "Installer",
             license = "MIT License",
             url = "$PROJECT_URL/blob/master/LICENSE",
+            textRes = R.raw.license_mit,
         )
     )
 
