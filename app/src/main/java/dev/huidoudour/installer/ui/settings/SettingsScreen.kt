@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -560,7 +561,8 @@ internal fun SettingListItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .height(56.dp)
+            // 最小高度 56dp 保持不变；标题 + 副标题换行或长文案时按内容增高，避免二级文本被裁切。
+            .heightIn(min = 56.dp)
             // 禁用态整体压暗，但仍然占位：功能不可用时保留入口，避免布局跳动。
             .alpha(if (enabled) 1f else DISABLED_ALPHA),
         shape = shape,
@@ -651,7 +653,8 @@ fun SettingsSwitchItem(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
-            .height(56.dp),
+            // 最小高度 56dp 保持不变；标题 + 副标题换行或长文案时按内容增高，避免二级文本被裁切。
+            .heightIn(min = 56.dp),
         shape = shape,
         color = backgroundColor,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),

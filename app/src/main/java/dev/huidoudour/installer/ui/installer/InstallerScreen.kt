@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -476,7 +477,8 @@ fun FileSelectionCard(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                // 最小高度 56dp 保证未选/已选文件时高度稳定；文件名或类型标签换行时按内容增高，避免二级文本被裁切。
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             color = if (hasFile) {
@@ -488,7 +490,8 @@ fun FileSelectionCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    // 纵向内缩 8dp：两行文本（文件名 + 类型标签）共约 40dp，可完整容纳在 56dp 内。
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
