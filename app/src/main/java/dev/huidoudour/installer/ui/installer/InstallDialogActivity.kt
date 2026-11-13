@@ -8,6 +8,10 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import dev.huidoudour.terminal.ShellExecutor
 import dev.huidoudour.installer.ui.theme.AppTheme
@@ -24,7 +28,9 @@ import java.io.File
  */
 class InstallDialogActivity : AppCompatActivity() {
 
-    private var installUri: Uri? = null
+    // 使用 Compose 快照状态：对话框已打开时收到新的安装请求可直接切换数据源，
+    // 由 key(installUri) 重建界面重新解析应用信息
+    private var installUri by mutableStateOf<Uri?>(null)
     private val logManager = LogManager.getInstance()
 
     private fun logInstall(message: String) {
@@ -37,14 +43,20 @@ class InstallDialogActivity : AppCompatActivity() {
     private val supportedMimeTypes = setOf(
         "application/vnd.android.package-archive",
         "application/vnd.apkm",
+        "application/vnd.apks",
+        "application/vnd.xapk",
         "application/x-xapk",
+        "application/x-apkm",
+        "application/zip",
+        "application/x-zip",
+        "application/x-zip-compressed",
         "application/octet-stream"
     )
 
     /**
      * 支持的安装文件扩展名
      */
-    private val supportedExtensions = setOf("apk", "xapk", "apks", "apkm")
+    private val supportedExtensions = setOf("apk", "xapk", "apks", "apkm", "zip")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyUserThemePreference(this)
@@ -56,7 +68,7 @@ class InstallDialogActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         // 获取并验证安装 URI
-        installUri = intent.data
+        installUri = resolveInstallUri(intent)
         logInstall("Received external install request: $installUri")
         val errorResId = validateInstallUri(installUri)
 
@@ -72,23 +84,46 @@ class InstallDialogActivity : AppCompatActivity() {
         setContent {
             AppTheme {
                 if (installUri != null) {
-                    InstallDialog(
-                        installUri = installUri,
-                        onDismiss = {
-                            logInstall("External install dialog closed")
-                            finish()
-                        },
-                        onOpenApp = { packageName ->
-                            // 使用 Shizuku Shell 启动应用，绕过系统链式启动拦截
-                            launchAppViaShizuku(packageName)
-                        }
-                    )
+                    key(installUri) {
+                        InstallDialog(
+                            installUri = installUri,
+                            onDismiss = {
+                                logInstall("External install dialog closed")
+                                finish()
+                            },
+                            onOpenApp = { packageName ->
+                                // 使用 Shizuku Shell 启动应用，绕过系统链式启动拦截
+                                launchAppViaShizuku(packageName)
+                            }
+                        )
+                    }
                 } else {
                     logInstall("Install request has no URI")
                     finish()
                 }
             }
         }
+    }
+
+    /**
+     * 从启动 Intent 中提取安装文件 URI。
+     *
+     * FileManager 等来源可能通过 `data`、`EXTRA_STREAM` 或 `ClipData` 传递文件，
+     * 三种方式都兼容，避免带 zip 的分享请求被丢掉。
+     */
+    private fun resolveInstallUri(intent: Intent?): Uri? {
+        if (intent == null) return null
+
+        intent.data?.let { return it }
+
+        intent.clipData?.let { clip ->
+            if (clip.itemCount > 0) {
+                clip.getItemAt(0).uri?.let { return it }
+            }
+        }
+
+        @Suppress("DEPRECATION")
+        return intent.getParcelableExtra(Intent.EXTRA_STREAM) as? Uri
     }
 
     /**
@@ -284,7 +319,21 @@ class InstallDialogActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        installUri = intent.data
-        logInstall("Received updated external install request: $installUri")
+        setIntent(intent)
+        val newUri = resolveInstallUri(intent)
+        logInstall("Received updated external install request: $newUri")
+        if (newUri == null || newUri == installUri) return
+
+        // 对话框已打开时又收到新的安装请求：校验通过后切换数据源，
+        // 由 key(installUri) 重建界面并重新解析应用信息
+        val errorResId = validateInstallUri(newUri)
+        if (errorResId != 0) {
+            Log.w("InstallDialog", "Validation failed for new URI: $newUri, errorResId=$errorResId")
+            logInstall("Install request rejected: ${getString(errorResId)}")
+            Toast.makeText(this, getString(errorResId), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        installUri = newUri
     }
 }

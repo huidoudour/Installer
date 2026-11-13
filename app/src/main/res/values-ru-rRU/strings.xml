@@ -175,7 +175,7 @@
     <string name="unknown">Неизвестно</string>
     <string name="xapk_package">XAPK пакет</string>
     <string name="invalid_install_request">Недопустимый запрос установки</string>
-    <string name="unsupported_file_type">Неподдерживаемый тип файла, поддерживаются только файлы APK/XAPK/APKS/APKM</string>
+    <string name="unsupported_file_type">Неподдерживаемый тип файла, поддерживаются только APK/XAPK/APKS/APKM/ZIP</string>
     <string name="cannot_access_install_file">Невозможно получить доступ к файлу установки</string>
     <string name="process_install_file_failed">Не удалось обработать файл установки</string>
     <string name="error_processing_install_file">Ошибка при обработке файла установки</string>
@@ -242,7 +242,8 @@
 
     <string name="extract_complete_summary" formatted="false">Извлечение завершено! Обработано %d элементов, извлечено %d APK файлов</string>
     <string name="extract_xapk_error">Ошибка при извлечении XAPK</string>
-    <string name="no_apk_found">APK файлы не найдены в файле XAPK/APKS</string>
+    <string name="no_apk_found">APK файлы не найдены в архиве пакета</string>
+    <string name="container_needs_privilege">Этот пакет содержит split-APK и может быть установлен только через Shizuku или Dhizuku</string>
     <string name="unknown_format">Неизвестно</string>
     <string name="apk_standard">APK (Стандартный пакет)</string>
     <string name="xapk_format">XAPK (Формат APKPure)</string>

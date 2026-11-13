@@ -175,7 +175,7 @@
     <string name="unknown">未知</string>
     <string name="xapk_package">XAPK安装包</string>
     <string name="invalid_install_request">无效的安装请求</string>
-    <string name="unsupported_file_type">不支持的文件类型，仅支持 APK/XAPK/APKS/APKM 文件</string>
+    <string name="unsupported_file_type">不支持的文件类型，仅支持 APK/XAPK/APKS/APKM/ZIP 安装包文件</string>
     <string name="cannot_access_install_file">无法访问安装文件</string>
     <string name="process_install_file_failed">处理安装文件失败</string>
     <string name="error_processing_install_file">处理安装文件时发生错误</string>
@@ -242,7 +242,8 @@
 
     <string name="extract_complete_summary" formatted="false">解压完成！共处理 %d 个条目，提取 %d 个 APK 文件</string>
     <string name="extract_xapk_error">解压 XAPK 过程中发生错误</string>
-    <string name="no_apk_found">XAPK/APKS 文件中未找到任何 APK 文件</string>
+    <string name="no_apk_found">安装包中未找到任何 APK 文件</string>
+    <string name="container_needs_privilege">该安装包包含拆分 APK，只能通过 Shizuku 或 Dhizuku 安装</string>
     <string name="unknown_format">未知</string>
     <string name="apk_standard">APK (标准安装包)</string>
     <string name="xapk_format">XAPK (APKPure 格式)</string>

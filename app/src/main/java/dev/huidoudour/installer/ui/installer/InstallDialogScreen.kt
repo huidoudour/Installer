@@ -193,6 +193,25 @@ private fun InstallDialogContent(
                     }
                     materializedPath = filePath
                     logManager.addLog("Install file ready: $filePath", "External install")
+
+                    // 内容校验：既不是 APK，也不是含 APK 的容器时直接拒绝，
+                    // 避免把普通 ZIP 当成安装包继续走下去
+                    if (!XapkInstaller.isXapkFile(filePath) && !XapkInstaller.isApkFile(filePath)) {
+                        logManager.addLog(
+                            "Rejected file is neither APK nor package archive: ${File(filePath).name}",
+                            "External install"
+                        )
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.unsupported_file_type),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            onDismiss()
+                        }
+                        return@withContext
+                    }
+
                     val apkInfo = parseApkInfo(context, filePath)
                     if (apkInfo != null) {
                         // 先展示 APK 信息，完整的 apksig 签名校验在后台完成后回填
@@ -340,26 +359,37 @@ private fun InstallDialogContent(
                                     ).show()
                                 }
                                 state = state.copy(isInstalling = true)
-                                performRealInstallation(
-                                    context = context,
-                                    filePath = materializedPath ?: getFilePathFromUri(context, installUri),
-                                    mode = currentPrivilegeMode,
-                                    allowDowngrade = isDowngrade,
-                                    onSuccess = {
-                                        state = state.copy(
-                                            isInstalling = false,
-                                            isComplete = true,
-                                            installProgress = 100
-                                        )
-                                    },
-                                    onError = { error ->
-                                        state = state.copy(
-                                            isInstalling = false,
-                                            errorMessage = error
-                                        )
-                                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                                    }
-                                )
+                                val installFilePath = materializedPath
+                                if (installFilePath == null) {
+                                    state = state.copy(isInstalling = false)
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.cannot_access_install_file),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    performRealInstallation(
+                                        context = context,
+                                        filePath = installFilePath,
+                                        installedPackageName = state.packageName,
+                                        mode = currentPrivilegeMode,
+                                        allowDowngrade = isDowngrade,
+                                        onSuccess = {
+                                            state = state.copy(
+                                                isInstalling = false,
+                                                isComplete = true,
+                                                installProgress = 100
+                                            )
+                                        },
+                                        onError = { error ->
+                                            state = state.copy(
+                                                isInstalling = false,
+                                                errorMessage = error
+                                            )
+                                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                                        }
+                                    )
+                                }
                             },
                             onCancel = {
                                 logUiAction("External installation cancelled before start")
@@ -798,9 +828,40 @@ data class ApkInfo(
 /**
  * 解析 APK 信息
  *
- * @param path 已物化到本地的 APK 文件路径（由 [getFilePathFromUri] 提供）
+ * @param path 已物化到本地的安装文件路径（由 [getFilePathFromUri] 提供），
+ *             可以是普通 APK，也可以是 XAPK/APKS/APKM/含 APK 的 ZIP 容器
  */
 private fun parseApkInfo(context: Context, path: String): ApkInfo? {
+    val isContainer = XapkInstaller.isXapkFile(path)
+    var infoApkPath = path
+
+    if (isContainer) {
+        // 容器本身不是 APK，先取出基准 APK（base/base-master）再读取应用信息
+        val baseApk = XapkInstaller.extractBaseApkForInfo(context, path)
+        if (baseApk == null) {
+            Log.e("InstallDialog", "No APK found in package container: $path")
+            LogManager.getInstance().addLog(
+                "No APK found in package container: ${File(path).name}",
+                "External install"
+            )
+            return null
+        }
+        infoApkPath = baseApk.absolutePath
+    }
+
+    return try {
+        parseApkInfoFromApk(context, infoApkPath)
+    } finally {
+        if (isContainer) {
+            File(infoApkPath).delete()
+        }
+    }
+}
+
+/**
+ * 从单个 APK 文件解析应用信息（容器已提前取出基准 APK）。
+ */
+private fun parseApkInfoFromApk(context: Context, path: String): ApkInfo? {
     return try {
         val pm = context.packageManager
 
@@ -874,6 +935,7 @@ private fun parseApkInfo(context: Context, path: String): ApkInfo? {
 private fun performRealInstallation(
     context: Context,
     filePath: String?,
+    installedPackageName: String?,
     mode: PrivilegeHelper.PrivilegeMode,
     allowDowngrade: Boolean,
     onSuccess: () -> Unit,
@@ -884,8 +946,6 @@ private fun performRealInstallation(
         return
     }
 
-    val isXapk = XapkInstaller.isXapkFile(filePath)
-
     val logManager = LogManager.getInstance()
     val mainHandler = Handler(Looper.getMainLooper())
 
@@ -895,17 +955,23 @@ private fun performRealInstallation(
     } else {
         Authorizer.Shizuku
     }
-    val installed = PackageInfoHelper.isApkInstalled(context, filePath)
-    val ordered: List<Authorizer> =
-        SmartAuthorizer.resolveInstallPlan(context, currentAuthorizer, installed)
-
-    if (ordered.isEmpty()) {
-        logManager.addLog("No authorized installation method is available", "External install")
-        onError(context.getString(R.string.no_available_authorizer))
-        return
-    }
-
+    // 优先使用对话框已解析出的包名判断安装状态，避免在 UI 线程解压容器
     Thread {
+        val isXapk = XapkInstaller.isXapkFile(filePath)
+        val installed = if (!installedPackageName.isNullOrBlank()) {
+            PackageInfoHelper.isAppInstalled(context, installedPackageName)
+        } else {
+            PackageInfoHelper.isApkInstalled(context, filePath)
+        }
+        val ordered: List<Authorizer> =
+            SmartAuthorizer.resolveInstallPlan(context, currentAuthorizer, installed)
+
+        if (ordered.isEmpty()) {
+            logManager.addLog("No authorized installation method is available", "External install")
+            mainHandler.post { onError(context.getString(R.string.no_available_authorizer)) }
+            return@Thread
+        }
+
         var lastError: String? = null
 
         for (authorizer in ordered) {
@@ -966,7 +1032,7 @@ private fun performRealInstallation(
 }
 
 /**
- * 快速解析对话框待安装文件的签名摘要（XAPK/APKS 标记为不适用）。
+ * 快速解析对话框待安装文件的签名摘要（XAPK/APKS/APKM/ZIP 容器标记为不适用）。
  */
 private fun computeDialogSignature(
     context: Context,
@@ -1018,6 +1084,7 @@ private fun getFilePathFromUri(context: Context, uri: Uri?): String? {
             ?.substringAfterLast('.', "")
             ?.takeIf { it.isNotBlank() }
             ?.let { ".${it.lowercase()}" }
+            ?: mimeTypeSuffix(context, uri)
             ?: ".apk"
         val cacheFile = File(
             InstallCacheCleaner.installCacheDir(context),
@@ -1054,6 +1121,23 @@ private fun queryDisplayName(context: Context, uri: Uri): String? = try {
 } catch (_: Exception) {
     null
 } ?: uri.lastPathSegment
+
+/**
+ * 显示名没有扩展名时（例如 FileProvider 只给出 `file`），按 MIME 推断后缀，
+ * 避免容器文件被当成 APK 处理。
+ */
+private fun mimeTypeSuffix(context: Context, uri: Uri): String? {
+    val mime = runCatching { context.contentResolver.getType(uri) }.getOrNull()?.lowercase()
+        ?: return null
+    return when (mime) {
+        "application/vnd.android.package-archive" -> ".apk"
+        "application/zip", "application/x-zip-compressed" -> ".zip"
+        "application/vnd.apks" -> ".apks"
+        "application/vnd.apkm", "application/x-apkm" -> ".apkm"
+        "application/x-xapk", "application/vnd.xapk" -> ".xapk"
+        else -> null
+    }
+}
 
 /**
  * 安装对话框内的权限选择对话框

@@ -175,7 +175,7 @@
     <string name="unknown">Unknown</string>
     <string name="xapk_package">XAPK Package</string>
     <string name="invalid_install_request">Invalid install request</string>
-    <string name="unsupported_file_type">Unsupported file type, only APK/XAPK/APKS/APKM files are supported</string>
+    <string name="unsupported_file_type">Unsupported file type, only APK/XAPK/APKS/APKM or ZIP package files are supported</string>
     <string name="cannot_access_install_file">Cannot access install file</string>
     <string name="process_install_file_failed">Failed to process install file</string>
     <string name="error_processing_install_file">Error occurred while processing install file</string>
@@ -242,7 +242,8 @@
 
     <string name="extract_complete_summary" formatted="false">Extraction complete! Processed %d entries, extracted %d APK files</string>
     <string name="extract_xapk_error">Error occurred during XAPK extraction</string>
-    <string name="no_apk_found">No APK files found in XAPK/APKS file</string>
+    <string name="no_apk_found">No APK files found in the package archive</string>
+    <string name="container_needs_privilege">This package contains split APKs and can only be installed with Shizuku or Dhizuku</string>
     <string name="unknown_format">Unknown</string>
     <string name="apk_standard">APK (Standard Package)</string>
     <string name="xapk_format">XAPK (APKPure Format)</string>

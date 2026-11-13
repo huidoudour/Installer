@@ -233,6 +233,21 @@ class InstallerViewModel(application: Application) : AndroidViewModel(applicatio
                 val path = getFilePathFromUri(uri)
                 if (path != null) {
                     val isXapk = XapkInstaller.isXapkFile(path)
+                    // 既不是 APK 也不是含 APK 的容器（例如普通 ZIP）直接拒绝
+                    if (!isXapk && !XapkInstaller.isApkFile(path)) {
+                        logManager.addLog("Selected file is not an installable package: $path")
+                        withContext(Dispatchers.Main) {
+                            _selectedFilePath.value = null
+                            _selectedFileName.value = null
+                            _fileType.value = null
+                            Toast.makeText(
+                                context,
+                                R.string.unsupported_file_type,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        return@launch
+                    }
                     val type = XapkInstaller.getFileTypeDescription(context, path)
 
                     withContext(Dispatchers.Main) {

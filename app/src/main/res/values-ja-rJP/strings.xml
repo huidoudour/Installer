@@ -175,7 +175,7 @@
     <string name="unknown">不明</string>
     <string name="xapk_package">XAPKパッケージ</string>
     <string name="invalid_install_request">無効なインストールリクエスト</string>
-    <string name="unsupported_file_type">サポートされていないファイルタイプです。APK/XAPK/APKS/APKMファイルのみサポートされています</string>
+    <string name="unsupported_file_type">サポートされていないファイルタイプです。APK/XAPK/APKS/APKM/ZIPパッケージファイルのみサポートされています</string>
     <string name="cannot_access_install_file">インストールファイルにアクセスできません</string>
     <string name="process_install_file_failed">インストールファイルの処理に失敗しました</string>
     <string name="error_processing_install_file">インストールファイルの処理中にエラーが発生しました</string>
@@ -242,7 +242,8 @@
 
     <string name="extract_complete_summary" formatted="false">解凍完了！%d 個のエントリを処理し、%d 個のAPKファイルを抽出しました</string>
     <string name="extract_xapk_error">XAPKの解凍中にエラーが発生しました</string>
-    <string name="no_apk_found">XAPK/APKSファイル内にAPKファイルが見つかりません</string>
+    <string name="no_apk_found">パッケージ内にAPKファイルが見つかりません</string>
+    <string name="container_needs_privilege">このパッケージには分割APKが含まれているため、ShizukuまたはDhizukuでのみインストールできます</string>
     <string name="unknown_format">不明</string>
     <string name="apk_standard">APK（標準パッケージ）</string>
     <string name="xapk_format">XAPK（APKPure形式）</string>

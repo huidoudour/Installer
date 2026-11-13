@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.core.content.FileProvider
 import dev.huidoudour.installer.R
 import dev.huidoudour.installer.install.InstallCacheCleaner
+import dev.huidoudour.installer.install.XapkInstaller
 import dev.huidoudour.installer.util.LogManager
 import java.io.File
 
@@ -30,8 +31,8 @@ object InstallDispatcher {
     /**
      * 使用指定授权方式安装单个文件。
      *
-     * @param filePath 待安装文件路径（APK 或 XAPK）
-     * @param isXapk   是否为 XAPK 容器
+     * @param filePath 待安装文件路径（APK 或 XAPK/APKS/APKM/ZIP 容器）
+     * @param isXapk   是否为需要先解压的包容器
      * @param allowDowngrade 是否允许降级安装（仅尝试，能否成功取决于系统）
      */
     fun install(
@@ -111,10 +112,44 @@ object InstallDispatcher {
                 }
             }
 
-                Authorizer.None -> installViaSystemInstaller(context, filePath, recordingCallback)
+                Authorizer.None -> if (isXapk) {
+                    installContainerViaSystemInstaller(context, filePath, recordingCallback)
+                } else {
+                    installViaSystemInstaller(context, filePath, recordingCallback)
+                }
             }
         } catch (e: Exception) {
             recordingCallback.onError("Installation dispatch failed: ${e.message ?: e.javaClass.simpleName}")
+        }
+    }
+
+    /**
+     * 无特权授权器时的容器兜底：
+     * 仅包含单个 APK 的容器可以交给系统安装器；包含 split APK 的容器必须使用 Shizuku/Dhizuku。
+     */
+    private fun installContainerViaSystemInstaller(
+        context: Context,
+        containerPath: String,
+        callback: Callback,
+    ) {
+        callback.onProgress("Extracting package for system installer...")
+        val extracted = XapkInstaller.extractXapk(context, containerPath)
+
+        when {
+            extracted.isEmpty() -> {
+                callback.onError(context.getString(R.string.no_apk_found))
+            }
+
+            extracted.size > 1 -> {
+                XapkInstaller.cleanupTempFiles(extracted)
+                callback.onError(context.getString(R.string.container_needs_privilege))
+            }
+
+            else -> {
+                // 解压产物位于 cacheDir 内，系统安装器读取期间保留，
+                // 下次启动或导入新安装包时由 InstallCacheCleaner 统一回收
+                installViaSystemInstaller(context, extracted.first().absolutePath, callback)
+            }
         }
     }
 
