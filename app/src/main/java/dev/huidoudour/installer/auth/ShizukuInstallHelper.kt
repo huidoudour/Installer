@@ -12,6 +12,7 @@ import android.os.ServiceManager
 import android.util.Log
 import dev.huidoudour.installer.R
 import dev.huidoudour.installer.install.LocalIntentReceiver
+import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
 import rikka.shizuku.ShizukuBinderWrapper
 import java.io.BufferedReader
@@ -221,11 +222,15 @@ object ShizukuInstallHelper {
         val packageInstaller = getPackageInstaller(context)
 
         // 2. 创建 SessionParams
-        val params = if (apkFiles.size == 1) {
+        // 包含基准 APK（单 APK 或 base+split）时必须使用 FULL_INSTALL，
+        // 只有纯 split 集合（不含基准 APK）才使用 INHERIT_EXISTING
+        val hasBaseApk = PackageInfoHelper.containsBaseApk(context, apkFiles)
+        val params = if (hasBaseApk) {
             PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
         } else {
             PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_INHERIT_EXISTING)
         }
+        callback.onProgress("Install mode: ${if (hasBaseApk) "FULL_INSTALL" else "INHERIT_EXISTING"}")
 
         // 3. 设置安装标志
         var flags = 0

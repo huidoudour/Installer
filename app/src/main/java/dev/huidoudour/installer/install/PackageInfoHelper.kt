@@ -2,6 +2,7 @@ package dev.huidoudour.installer.install
 
 import android.content.Context
 import android.content.pm.PackageManager
+import java.io.File
 
 /**
  * 包信息助手类
@@ -56,5 +57,30 @@ object PackageInfoHelper {
         val packageName = getInstallPackageName(context, apkPath) ?: return false
         return isAppInstalled(context, packageName)
     }
+
+    /**
+     * 判断 APK 是否为拆分 APK（split）。
+     *
+     * 基准 APK 没有 split 名，拆分 APK 的 splitNames 非空；
+     * 由此可判断一组 APK 是否构成完整安装包，与文件名无关。
+     */
+    fun isSplitApk(context: Context, apkPath: String): Boolean {
+        val archiveInfo = try {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageArchiveInfo(apkPath, 0)
+        } catch (_: Exception) {
+            null
+        } ?: return false
+        return !archiveInfo.splitNames.isNullOrEmpty()
+    }
+
+    /**
+     * 判断解压出的 APK 集合是否包含基准 APK。
+     *
+     * 包含基准 APK 时安装会话必须使用 MODE_FULL_INSTALL，
+     * 否则系统会以 INSTALL_FAILED_INVALID_APK: Missing existing base package 失败。
+     */
+    fun containsBaseApk(context: Context, apkFiles: List<File>): Boolean =
+        apkFiles.any { !isSplitApk(context, it.absolutePath) }
 
 }

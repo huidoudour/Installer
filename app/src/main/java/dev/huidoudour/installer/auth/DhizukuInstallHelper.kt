@@ -15,6 +15,7 @@ import android.util.Log
 import com.rosan.dhizuku.api.Dhizuku
 import dev.huidoudour.installer.R
 import dev.huidoudour.installer.install.LocalIntentReceiver
+import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
 import java.io.BufferedReader
 import java.io.File
@@ -552,12 +553,16 @@ object DhizukuInstallHelper {
                 }
 
                 // 2. SessionParams
+                // 包含基准 APK（单 APK 或 base+split）时必须使用 FULL_INSTALL，
+                // 只有纯 split 集合（不含基准 APK）才使用 INHERIT_EXISTING
+                val hasBaseApk = PackageInfoHelper.containsBaseApk(context, extractedApks)
                 val params = PackageInstaller.SessionParams(
-                    if (extractedApks.count { it.name == "base.apk" } == 1)
+                    if (hasBaseApk)
                         PackageInstaller.SessionParams.MODE_FULL_INSTALL
                     else
                         PackageInstaller.SessionParams.MODE_INHERIT_EXISTING
                 )
+                callback.onProgress("Install mode: ${if (hasBaseApk) "FULL_INSTALL" else "INHERIT_EXISTING"}")
 
                 var flags = 0
                 if (replaceExisting) flags = flags or 0x00000002
