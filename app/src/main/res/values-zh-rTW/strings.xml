@@ -744,4 +744,56 @@
     <string name="file_not_found">找不到檔案：%s</string>
     <string name="system_installer_failed">系統安裝程式啟動失敗：%s</string>
     <string name="no_available_authorizer">沒有可用的授權方式</string>
+
+    <!-- 安裝失敗分析 -->
+    <string name="install_failure_analysis_title">安裝失敗分析</string>
+    <string name="install_failure_reason_label">可能原因</string>
+    <string name="install_failure_suggestions_label">建議</string>
+    <string name="install_failure_detail_label">技術細節</string>
+    <string name="install_failure_no_detail">暫無技術細節</string>
+    <string name="retry_install">重試</string>
+    <string name="close">關閉</string>
+
+    <string name="install_failure_signature_reason">安裝包簽章與已安裝應用程式不一致，系統拒絕了本次更新。</string>
+    <string name="install_failure_signature_suggestions">• 先解除安裝已安裝的應用程式，再安裝此安裝包。\n• 使用與已安裝應用程式相同憑證簽章的安裝包。\n• 若應用程式支援簽章輪換，請使用含輪換資訊的安裝包。</string>
+    <string name="install_failure_downgrade_reason">此安裝包的版本號低於已安裝版本，系統不允許降級安裝。</string>
+    <string name="install_failure_downgrade_suggestions">• 先解除安裝已安裝版本，再安裝此安裝包。\n• 使用相同或更高版本號的安裝包。\n• 部分系統應用程式無法降級。</string>
+    <string name="install_failure_sdk_reason">此安裝包要求的 Android 版本與本機不相容（minSdk/targetSdk 不相符）。</string>
+    <string name="install_failure_sdk_suggestions">• 將系統更新至相容的 Android 版本。\n• 使用適用於目前 Android 版本的安裝包。\n• 確認裝置符合安裝包要求的最低 Android 版本。</string>
+    <string name="install_failure_abi_reason">安裝包未包含適用於本機 CPU 架構的原生程式庫。</string>
+    <string name="install_failure_abi_suggestions">• 下載適用於本機的版本（arm64-v8a、armeabi-v7a 或 x86_64）。\n• 使用包含全部 ABI 子套件的完整 XAPK/APKS/APKM 安裝包。</string>
+    <string name="install_failure_split_reason">此安裝包是拆分 APK，但缺少部分必要的子套件。</string>
+    <string name="install_failure_split_suggestions">• 使用完整的 XAPK/APKS/APKM 安裝包。\n• 透過 Shizuku 或 Dhizuku 同時安裝基礎 APK 與全部子套件。</string>
+    <string name="install_failure_test_only_reason">這是僅供測試的建置版本（testOnly=true），系統預設會拒絕安裝。</string>
+    <string name="install_failure_test_only_suggestions">• 使用應用程式的正式發行版本。\n• 在安裝設定中允許測試套件（Shizuku 模式）後重試。</string>
+    <string name="install_failure_shared_library_reason">此安裝包依賴的共用程式庫未安裝在本機。</string>
+    <string name="install_failure_shared_library_suggestions">• 安裝提供該共用程式庫的應用程式或程式庫。\n• 改用不依賴該程式庫的安裝包。</string>
+    <string name="install_failure_conflict_reason">此安裝包與現有應用程式衝突（相同套件名稱、共用使用者、權限重複或 Provider 衝突）。</string>
+    <string name="install_failure_conflict_suggestions">• 解除安裝衝突的應用程式，或先更新它。\n• 若仍殘留舊版本，請刪除後重試。\n• 檢查是否有其他應用程式宣告相同的 Provider 或權限。</string>
+    <string name="install_failure_storage_reason">儲存空間不足，無法安裝此安裝包。</string>
+    <string name="install_failure_storage_suggestions">• 清理儲存空間後重試。\n• 解除安裝不常用的應用程式、清除快取並刪除大型檔案。\n• 安裝時至少保留安裝包大小兩倍的可用空間。</string>
+    <string name="install_failure_media_reason">安裝位置（外部儲存或加密儲存）無法使用或無效。</string>
+    <string name="install_failure_media_suggestions">• 確認外部儲存已掛載並解鎖。\n• 將安裝位置設為內部儲存後重試。\n• 若儲存空間無法存取，請重新啟動裝置。</string>
+    <string name="install_failure_invalid_reason">安裝包無效、已損毀，或無法解析其資訊清單。</string>
+    <string name="install_failure_invalid_suggestions">• 從可信任來源重新下載安裝包。\n• 確認檔案完整且未被截斷。\n• 確認檔案是有效的 APK/XAPK/APKS/APKM 安裝包。</string>
+    <string name="install_failure_blocked_reason">系統、安全軟體或裝置原則封鎖了本次安裝。</string>
+    <string name="install_failure_blocked_suggestions">• 在系統設定中允許此應用程式安裝未知來源的應用程式。\n• 暫時關閉 Play 保護機制或安全掃描。\n• 在 MIUI/HyperOS 上關閉 MIUI 最佳化，或在開發人員選項中開啟 USB 安裝。\n• 解除封鎖安裝的裝置管理或工作資料夾原則。</string>
+    <string name="install_failure_aborted_reason">安裝工作階段在完成前被中止或取消。</string>
+    <string name="install_failure_aborted_suggestions">• 重新嘗試安裝。\n• 安裝過程中讓此應用程式保持在前景。\n• 若問題持續，請重新啟動裝置。</string>
+    <string name="install_failure_timeout_reason">安裝包驗證逾時，安裝未能完成。</string>
+    <string name="install_failure_timeout_suggestions">• 重新嘗試安裝。\n• 暫時關閉安裝包驗證或安全掃描。\n• 檢查儲存空間是否已滿或被佔用。</string>
+    <string name="install_failure_dexopt_reason">系統無法最佳化安裝包程式碼（dexopt 失敗）。</string>
+    <string name="install_failure_dexopt_suggestions">• 清理儲存空間後重試。\n• 重新啟動裝置後再試。\n• 使用適用於目前 Android 版本的安裝包。</string>
+    <string name="install_failure_privilege_reason">特權安裝方式（Shizuku/Dhizuku）無法使用、未連線或未授權。</string>
+    <string name="install_failure_privilege_suggestions">• 啟動 Shizuku 或 Dhizuku 並授權此應用程式後重試。\n• 在提示時授予所需權限。\n• 在特權選擇器中切換安裝方式。\n• 拆分安裝包無法透過系統安裝程式安裝。</string>
+    <string name="install_failure_file_reason">找不到安裝檔案、無法讀取或無法解析。</string>
+    <string name="install_failure_file_suggestions">• 重新選擇檔案，確認檔案仍然存在。\n• 使用完整的 APK/XAPK/APKS 安裝包。\n• 拆分安裝包請使用 Shizuku 或 Dhizuku。</string>
+    <string name="install_failure_system_installer_reason">系統安裝程式無法啟動或無法使用。</string>
+    <string name="install_failure_system_installer_suggestions">• 啟用系統的套件安裝程式。\n• 允許此應用程式安裝未知來源的應用程式。\n• 改用 Shizuku 或 Dhizuku 嘗試。</string>
+    <string name="install_failure_user_action_reason">安裝需要在系統安裝畫面確認，但確認未完成。</string>
+    <string name="install_failure_user_action_suggestions">• 在系統對話方塊中確認安裝。\n• 允許此應用程式安裝未知來源的應用程式。\n• 重試並保持對話方塊開啟。</string>
+    <string name="install_failure_system_reason">系統套件安裝程式傳回內部錯誤。</string>
+    <string name="install_failure_system_suggestions">• 重新嘗試安裝。\n• 重新啟動裝置。\n• 換一種安裝方式嘗試。</string>
+    <string name="install_failure_unknown_reason">安裝失敗，原因無法識別。</string>
+    <string name="install_failure_unknown_suggestions">• 查看記錄以取得更多資訊。\n• 確認安裝包完整且未損毀。\n• 換一種安裝方式嘗試。</string>
 </resources>

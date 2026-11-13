@@ -744,4 +744,56 @@
     <string name="file_not_found">文件不存在：%s</string>
     <string name="system_installer_failed">系统安装器启动失败：%s</string>
     <string name="no_available_authorizer">没有可用的授权方式</string>
+
+    <!-- 安装失败分析 -->
+    <string name="install_failure_analysis_title">安装失败分析</string>
+    <string name="install_failure_reason_label">可能原因</string>
+    <string name="install_failure_suggestions_label">建议</string>
+    <string name="install_failure_detail_label">技术细节</string>
+    <string name="install_failure_no_detail">暂无技术细节</string>
+    <string name="retry_install">重试</string>
+    <string name="close">关闭</string>
+
+    <string name="install_failure_signature_reason">安装包签名与已安装应用不一致，系统拒绝了本次更新。</string>
+    <string name="install_failure_signature_suggestions">• 先卸载已安装的应用，再安装该安装包。\n• 使用与已安装应用相同证书签名的安装包。\n• 若应用支持签名轮换，请使用带轮换信息的安装包。</string>
+    <string name="install_failure_downgrade_reason">该安装包的版本号低于已安装版本，系统不允许降级安装。</string>
+    <string name="install_failure_downgrade_suggestions">• 先卸载已安装版本，再安装该安装包。\n• 使用相同或更高版本号的安装包。\n• 部分系统应用无法降级。</string>
+    <string name="install_failure_sdk_reason">该安装包要求的 Android 版本与本机不兼容（minSdk/targetSdk 不匹配）。</string>
+    <string name="install_failure_sdk_suggestions">• 将系统更新到兼容的 Android 版本。\n• 使用适用于当前 Android 版本的安装包。\n• 确认设备满足安装包要求的最低 Android 版本。</string>
+    <string name="install_failure_abi_reason">安装包中不包含适用于本机 CPU 架构的原生库。</string>
+    <string name="install_failure_abi_suggestions">• 下载适用于本机的版本（arm64-v8a、armeabi-v7a 或 x86_64）。\n• 使用包含全部 ABI 分包的完整 XAPK/APKS/APKM 安装包。</string>
+    <string name="install_failure_split_reason">该安装包是拆分 APK，但缺少部分必需的分包。</string>
+    <string name="install_failure_split_suggestions">• 使用完整的 XAPK/APKS/APKM 安装包。\n• 通过 Shizuku 或 Dhizuku 同时安装基础 APK 和全部分包。</string>
+    <string name="install_failure_test_only_reason">这是仅用于测试的构建（testOnly=true），系统默认会拒绝安装。</string>
+    <string name="install_failure_test_only_suggestions">• 使用应用的正式发布版本。\n• 在安装设置中允许测试包（Shizuku 模式）后重试。</string>
+    <string name="install_failure_shared_library_reason">该安装包依赖的共享库未安装在本机。</string>
+    <string name="install_failure_shared_library_suggestions">• 安装提供该共享库的应用或库。\n• 改用不依赖该共享库的安装包。</string>
+    <string name="install_failure_conflict_reason">该安装包与已有应用冲突（相同包名、共享用户、权限重复或 Provider 冲突）。</string>
+    <string name="install_failure_conflict_suggestions">• 卸载冲突的应用，或先更新它。\n• 若仍残留旧版本，请删除后重试。\n• 检查是否有其他应用声明了相同的 Provider 或权限。</string>
+    <string name="install_failure_storage_reason">存储空间不足，无法安装该安装包。</string>
+    <string name="install_failure_storage_suggestions">• 清理存储空间后重试。\n• 卸载不常用的应用、清除缓存并删除大文件。\n• 安装时至少保留安装包体积两倍的空闲空间。</string>
+    <string name="install_failure_media_reason">安装位置（外部存储或加密存储）不可用或无效。</string>
+    <string name="install_failure_media_suggestions">• 确认外部存储已挂载并解锁。\n• 将安装位置设为内部存储后重试。\n• 若存储无法访问，请重启设备。</string>
+    <string name="install_failure_invalid_reason">安装包无效、已损坏，或无法解析其清单文件。</string>
+    <string name="install_failure_invalid_suggestions">• 从可信来源重新下载安装包。\n• 确认文件完整、未被截断。\n• 确认文件是有效的 APK/XAPK/APKS/APKM 安装包。</string>
+    <string name="install_failure_blocked_reason">系统、安全软件或设备策略阻止了本次安装。</string>
+    <string name="install_failure_blocked_suggestions">• 在系统设置中允许该应用安装未知来源应用。\n• 暂时关闭 Play 保护机制或安全扫描。\n• 在 MIUI/HyperOS 上关闭 MIUI 优化，或在开发者选项中开启 USB 安装。\n• 解除阻止安装的设备管理或工作资料策略。</string>
+    <string name="install_failure_aborted_reason">安装会话在完成前被中止或取消。</string>
+    <string name="install_failure_aborted_suggestions">• 重新尝试安装。\n• 安装过程中保持本应用在前台。\n• 若问题持续，请重启设备。</string>
+    <string name="install_failure_timeout_reason">安装包校验超时，安装未能完成。</string>
+    <string name="install_failure_timeout_suggestions">• 重新尝试安装。\n• 暂时关闭安装包校验或安全扫描。\n• 检查存储空间是否已满或被占用。</string>
+    <string name="install_failure_dexopt_reason">系统无法优化安装包代码（dexopt 失败）。</string>
+    <string name="install_failure_dexopt_suggestions">• 清理存储空间后重试。\n• 重启设备后再试。\n• 使用适用于当前 Android 版本的安装包。</string>
+    <string name="install_failure_privilege_reason">特权安装方式（Shizuku/Dhizuku）不可用、未连接或未授权。</string>
+    <string name="install_failure_privilege_suggestions">• 启动 Shizuku 或 Dhizuku 并授权本应用后重试。\n• 在提示时授予所需权限。\n• 在特权选择器中切换安装方式。\n• 拆分安装包无法通过系统安装器安装。</string>
+    <string name="install_failure_file_reason">找不到安装文件、无法读取或无法解析。</string>
+    <string name="install_failure_file_suggestions">• 重新选择文件，确认文件仍然存在。\n• 使用完整的 APK/XAPK/APKS 安装包。\n• 拆分安装包请使用 Shizuku 或 Dhizuku。</string>
+    <string name="install_failure_system_installer_reason">系统安装器无法启动或不可用。</string>
+    <string name="install_failure_system_installer_suggestions">• 启用系统的软件包安装程序。\n• 允许该应用安装未知来源应用。\n• 改用 Shizuku 或 Dhizuku 尝试。</string>
+    <string name="install_failure_user_action_reason">安装需要在系统安装界面确认，但确认未完成。</string>
+    <string name="install_failure_user_action_suggestions">• 在系统弹窗中确认安装。\n• 允许该应用安装未知来源应用。\n• 重试并保持弹窗打开。</string>
+    <string name="install_failure_system_reason">系统软件包安装程序返回了内部错误。</string>
+    <string name="install_failure_system_suggestions">• 重新尝试安装。\n• 重启设备。\n• 换一种安装方式尝试。</string>
+    <string name="install_failure_unknown_reason">安装失败，原因未能识别。</string>
+    <string name="install_failure_unknown_suggestions">• 查看日志获取更多信息。\n• 确认安装包完整且未损坏。\n• 换一种安装方式尝试。</string>
 </resources>

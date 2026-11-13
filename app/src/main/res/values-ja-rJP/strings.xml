@@ -744,4 +744,56 @@
     <string name="file_not_found">ファイルが見つかりません: %s</string>
     <string name="system_installer_failed">システムインストーラーを起動できませんでした: %s</string>
     <string name="no_available_authorizer">利用可能な認証方式がありません</string>
+
+    <!-- Install failure analysis -->
+    <string name="install_failure_analysis_title">インストール失敗の分析</string>
+    <string name="install_failure_reason_label">考えられる原因</string>
+    <string name="install_failure_suggestions_label">対処方法</string>
+    <string name="install_failure_detail_label">技術的な詳細</string>
+    <string name="install_failure_no_detail">技術的な詳細はありません</string>
+    <string name="retry_install">再試行</string>
+    <string name="close">閉じる</string>
+
+    <string name="install_failure_signature_reason">パッケージの署名がインストール済みアプリと一致しないため、システムが更新を拒否しました。</string>
+    <string name="install_failure_signature_suggestions">• インストール済みアプリをアンインストールしてから、このパッケージをインストールしてください。\n• インストール済みアプリと同じ証明書で署名されたパッケージを使用してください。\n• 署名ローテーションに対応している場合は、ローテーション情報を含むパッケージを使用してください。</string>
+    <string name="install_failure_downgrade_reason">このパッケージのバージョンコードがインストール済みバージョンより低く、システムがダウングレードを許可していません。</string>
+    <string name="install_failure_downgrade_suggestions">• インストール済みバージョンをアンインストールしてから、このパッケージをインストールしてください。\n• 同じかより高いバージョンコードのパッケージを使用してください。\n• 一部のシステムアプリはダウングレードできません。</string>
+    <string name="install_failure_sdk_reason">このパッケージが必要とする Android バージョンがこの端末と互換性がありません（minSdk/targetSdk の不一致）。</string>
+    <string name="install_failure_sdk_suggestions">• 互換性のある Android バージョンにシステムを更新してください。\n• この Android バージョン向けにビルドされたパッケージを使用してください。\n• 端末がパッケージの最低 Android バージョンを満たしているか確認してください。</string>
+    <string name="install_failure_abi_reason">この端末の CPU アーキテクチャ向けのネイティブライブラリがパッケージに含まれていません。</string>
+    <string name="install_failure_abi_suggestions">• この端末向けのビルド（arm64-v8a、armeabi-v7a、x86_64）をダウンロードしてください。\n• すべての ABI 分割を含む完全な XAPK/APKS/APKM パッケージを使用してください。</string>
+    <string name="install_failure_split_reason">分割 APK のパッケージですが、必要な分割 APK の一部が不足しています。</string>
+    <string name="install_failure_split_suggestions">• 完全な XAPK/APKS/APKM パッケージを使用してください。\n• Shizuku または Dhizuku でベース APK とすべての分割を一緒にインストールしてください。</string>
+    <string name="install_failure_test_only_reason">これはテスト専用ビルド（testOnly=true）で、システムは既定で拒否します。</string>
+    <string name="install_failure_test_only_suggestions">• アプリのリリースビルドを使用してください。\n• インストール設定（Shizuku モード）でテストパッケージを許可して再試行してください。</string>
+    <string name="install_failure_shared_library_reason">この端末にインストールされていない共有ライブラリに依存しています。</string>
+    <string name="install_failure_shared_library_suggestions">• 必要な共有ライブラリを提供するアプリまたはライブラリをインストールしてください。\n• それに依存しないパッケージを使用してください。</string>
+    <string name="install_failure_conflict_reason">既存のアプリと競合しています（同じパッケージ名、共有ユーザー、重複した権限、競合するプロバイダなど）。</string>
+    <string name="install_failure_conflict_suggestions">• 競合するアプリをアンインストールするか、先に更新してください。\n• 古いバージョンが残っている場合は削除して再試行してください。\n• 同じプロバイダや権限を宣言する他のアプリがないか確認してください。</string>
+    <string name="install_failure_storage_reason">このパッケージをインストールするための空き容量が不足しています。</string>
+    <string name="install_failure_storage_suggestions">• 空き容量を増やして再試行してください。\n• 未使用のアプリを削除し、キャッシュと大きなファイルを整理してください。\n• インストール中はパッケージサイズの 2 倍以上の空き容量を確保してください。</string>
+    <string name="install_failure_media_reason">インストール先（外部ストレージまたは暗号化ストレージ）が使用できないか無効です。</string>
+    <string name="install_failure_media_suggestions">• 外部ストレージがマウントされ、ロック解除されていることを確認してください。\n• インストール先を内部ストレージに設定して再試行してください。\n• ストレージにアクセスできない場合は端末を再起動してください。</string>
+    <string name="install_failure_invalid_reason">パッケージが無効か破損しているか、マニフェストを解析できませんでした。</string>
+    <string name="install_failure_invalid_suggestions">• 信頼できる提供元からパッケージを再ダウンロードしてください。\n• ファイルが完全で途切れていないことを確認してください。\n• 有効な APK/XAPK/APKS/APKM パッケージであることを確認してください。</string>
+    <string name="install_failure_blocked_reason">システム、セキュリティソフト、または端末ポリシーによってインストールがブロックされました。</string>
+    <string name="install_failure_blocked_suggestions">• システム設定でこのアプリに不明なアプリのインストールを許可してください。\n• Play プロテクトやセキュリティスキャンを一時的に無効にしてください。\n• MIUI/HyperOS では MIUI 最適化を無効にするか、開発者向けオプションで USB 経由のインストールを有効にしてください。\n• インストールをブロックする端末管理者や仕事用プロファイルのポリシーを解除してください。</string>
+    <string name="install_failure_aborted_reason">インストールセッションが完了前に中止またはキャンセルされました。</string>
+    <string name="install_failure_aborted_suggestions">• インストールを再試行してください。\n• インストール中はこのアプリを前面に表示してください。\n• 問題が続く場合は端末を再起動してください。</string>
+    <string name="install_failure_timeout_reason">インストールが完了する前にパッケージの検証がタイムアウトしました。</string>
+    <string name="install_failure_timeout_suggestions">• インストールを再試行してください。\n• パッケージの検証やセキュリティスキャンを一時的に無効にしてください。\n• ストレージが満杯または使用中でないか確認してください。</string>
+    <string name="install_failure_dexopt_reason">システムがパッケージのコードを最適化できませんでした（dexopt の失敗）。</string>
+    <string name="install_failure_dexopt_suggestions">• 空き容量を増やして再試行してください。\n• 端末を再起動してもう一度お試しください。\n• この Android バージョン向けにビルドされたパッケージを使用してください。</string>
+    <string name="install_failure_privilege_reason">特権インストール方式（Shizuku/Dhizuku）が利用できないか、接続されていないか、許可されていません。</string>
+    <string name="install_failure_privilege_suggestions">• Shizuku または Dhizuku を起動してこのアプリを許可し、再試行してください。\n• 求められたら必要な権限を付与してください。\n• 特権セレクターでインストール方式を切り替えてください。\n• 分割パッケージはシステムインストーラーではインストールできません。</string>
+    <string name="install_failure_file_reason">インストールファイルが見つからないか、読み取れないか、解析できませんでした。</string>
+    <string name="install_failure_file_suggestions">• ファイルを選択し直し、まだ存在することを確認してください。\n• 完全な APK/XAPK/APKS パッケージを使用してください。\n• 分割パッケージの場合は Shizuku または Dhizuku を使用してください。</string>
+    <string name="install_failure_system_installer_reason">システムインストーラーを起動できないか、利用できません。</string>
+    <string name="install_failure_system_installer_suggestions">• システムのパッケージインストーラーを有効にしてください。\n• このアプリに不明なアプリのインストールを許可してください。\n• 代わりに Shizuku または Dhizuku を試してください。</string>
+    <string name="install_failure_user_action_reason">システムインストーラーの画面で確認が必要ですが、完了していません。</string>
+    <string name="install_failure_user_action_suggestions">• システムのダイアログでインストールを確認してください。\n• このアプリに不明なアプリのインストールを許可してください。\n• ダイアログを開いたまま再試行してください。</string>
+    <string name="install_failure_system_reason">システムのパッケージインストーラーが内部エラーを返しました。</string>
+    <string name="install_failure_system_suggestions">• インストールを再試行してください。\n• 端末を再起動してください。\n• 別のインストール方式を試してください。</string>
+    <string name="install_failure_unknown_reason">原因を特定できないままインストールに失敗しました。</string>
+    <string name="install_failure_unknown_suggestions">• 詳細はログを確認してください。\n• パッケージが完全で破損していないことを確認してください。\n• 別のインストール方式を試してください。</string>
 </resources>

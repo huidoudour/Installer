@@ -5,19 +5,19 @@ plugins {
 
 android {
     namespace = "dev.huidoudour.terminal"
+    buildToolsVersion = "37.0.0"
+    ndkVersion = "30.0.14904198"
     compileSdk {
         version = release(37) {
-            minorApiLevel = 1
+            minorApiLevel = 2
         }
     }
-
-    ndkVersion = "30.0.14904198"
 
     defaultConfig {
         minSdk = 28
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
-            abiFilters += setOf("arm64-v8a", "x86_64")
+            abiFilters += setOf( "arm64-v8a" , "x86_64" , "x86" , "armeabi-v7a" )
         }
     }
 

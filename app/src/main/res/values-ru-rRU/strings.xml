@@ -744,4 +744,56 @@
     <string name="file_not_found">Файл не найден: %s</string>
     <string name="system_installer_failed">Не удалось запустить системный установщик: %s</string>
     <string name="no_available_authorizer">Нет доступного способа авторизации</string>
+
+    <!-- Install failure analysis -->
+    <string name="install_failure_analysis_title">Анализ ошибки установки</string>
+    <string name="install_failure_reason_label">Возможная причина</string>
+    <string name="install_failure_suggestions_label">Рекомендации</string>
+    <string name="install_failure_detail_label">Технические подробности</string>
+    <string name="install_failure_no_detail">Технические подробности отсутствуют</string>
+    <string name="retry_install">Повторить</string>
+    <string name="close">Закрыть</string>
+
+    <string name="install_failure_signature_reason">Подпись пакета не совпадает с подписью установленного приложения, поэтому система отклонила обновление.</string>
+    <string name="install_failure_signature_suggestions">• Сначала удалите установленное приложение, затем установите этот пакет.\n• Используйте пакет, подписанный тем же сертификатом, что и установленное приложение.\n• Если приложение поддерживает ротацию подписи, используйте пакет с данными ротации.</string>
+    <string name="install_failure_downgrade_reason">Код версии этого пакета ниже установленной версии, а система не разрешает понижение версии.</string>
+    <string name="install_failure_downgrade_suggestions">• Сначала удалите установленную версию, затем установите этот пакет.\n• Используйте пакет с таким же или более высоким кодом версии.\n• Некоторые системные приложения нельзя понизить.</string>
+    <string name="install_failure_sdk_reason">Для этого пакета требуется версия Android, несовместимая с этим устройством (несоответствие minSdk/targetSdk).</string>
+    <string name="install_failure_sdk_suggestions">• Обновите систему до совместимой версии Android.\n• Используйте пакет, собранный для этой версии Android.\n• Проверьте, соответствует ли устройство минимальной версии Android, требуемой пакетом.</string>
+    <string name="install_failure_abi_reason">В пакете нет собственных библиотек для архитектуры процессора этого устройства.</string>
+    <string name="install_failure_abi_suggestions">• Загрузите сборку для этого устройства (arm64-v8a, armeabi-v7a или x86_64).\n• Используйте полный пакет XAPK/APKS/APKM со всеми ABI-разделениями.</string>
+    <string name="install_failure_split_reason">Это пакет с разделёнными APK, но некоторые необходимые части отсутствуют.</string>
+    <string name="install_failure_split_suggestions">• Используйте полный пакет XAPK/APKS/APKM.\n• Установите базовый APK вместе со всеми частями через Shizuku или Dhizuku.</string>
+    <string name="install_failure_test_only_reason">Это тестовая сборка (testOnly=true), которую система отклоняет по умолчанию.</string>
+    <string name="install_failure_test_only_suggestions">• Используйте релизную сборку приложения.\n• Включите разрешение тестовых пакетов в настройках установки (режим Shizuku) и повторите.</string>
+    <string name="install_failure_shared_library_reason">Пакет зависит от общей библиотеки, которая не установлена на этом устройстве.</string>
+    <string name="install_failure_shared_library_suggestions">• Установите приложение или библиотеку, предоставляющую нужную общую библиотеку.\n• Используйте пакет, который от неё не зависит.</string>
+    <string name="install_failure_conflict_reason">Пакет конфликтует с существующим приложением (одинаковое имя пакета, общий пользователь, повторяющееся разрешение или конфликтующий провайдер).</string>
+    <string name="install_failure_conflict_suggestions">• Удалите конфликтующее приложение или сначала обновите его.\n• Если осталась старая версия, удалите её и повторите.\n• Проверьте, не объявляет ли другое приложение тот же провайдер или разрешение.</string>
+    <string name="install_failure_storage_reason">Недостаточно свободного места для установки этого пакета.</string>
+    <string name="install_failure_storage_suggestions">• Освободите место и повторите.\n• Удалите неиспользуемые приложения, очистите кеш и большие файлы.\n• Во время установки держите свободными не менее двух размеров пакета.</string>
+    <string name="install_failure_media_reason">Место установки (внешнее или зашифрованное хранилище) недоступно или недопустимо.</string>
+    <string name="install_failure_media_suggestions">• Убедитесь, что внешнее хранилище смонтировано и разблокировано.\n• Выберите внутреннее хранилище для установки и повторите.\n• Перезагрузите устройство, если хранилище недоступно.</string>
+    <string name="install_failure_invalid_reason">Пакет недействителен, повреждён или его манифест не удалось разобрать.</string>
+    <string name="install_failure_invalid_suggestions">• Загрузите пакет заново из надёжного источника.\n• Убедитесь, что файл полный и не обрезан.\n• Проверьте, что файл является допустимым пакетом APK/XAPK/APKS/APKM.</string>
+    <string name="install_failure_blocked_reason">Система, защитное ПО или политика устройства заблокировали установку.</string>
+    <string name="install_failure_blocked_suggestions">• Разрешите установку из неизвестных источников для этого приложения в настройках системы.\n• Временно отключите Play Защиту или проверку безопасности.\n• На MIUI/HyperOS отключите оптимизацию MIUI или включите установку через USB в параметрах разработчика.\n• Снимите политики администратора устройства или рабочего профиля, блокирующие установку.</string>
+    <string name="install_failure_aborted_reason">Сеанс установки был прерван или отменён до завершения.</string>
+    <string name="install_failure_aborted_suggestions">• Повторите установку.\n• Держите это приложение на переднем плане во время установки.\n• Перезагрузите устройство, если проблема повторяется.</string>
+    <string name="install_failure_timeout_reason">Проверка пакета завершилась по тайм-ауту до окончания установки.</string>
+    <string name="install_failure_timeout_suggestions">• Повторите установку.\n• Временно отключите проверку пакетов или сканирование безопасности.\n• Проверьте, не заполнено ли хранилище и не занято ли оно.</string>
+    <string name="install_failure_dexopt_reason">Системе не удалось оптимизировать код пакета (сбой dexopt).</string>
+    <string name="install_failure_dexopt_suggestions">• Освободите место и повторите.\n• Перезагрузите устройство и попробуйте снова.\n• Используйте пакет, собранный для этой версии Android.</string>
+    <string name="install_failure_privilege_reason">Привилегированный способ установки (Shizuku/Dhizuku) недоступен, не подключён или не авторизован.</string>
+    <string name="install_failure_privilege_suggestions">• Запустите Shizuku или Dhizuku, авторизуйте это приложение и повторите.\n• Предоставьте требуемое разрешение при запросе.\n• Смените способ установки в селекторе привилегий.\n• Разделённые пакеты нельзя установить системным установщиком.</string>
+    <string name="install_failure_file_reason">Файл установки не найден, не читается или не разбирается.</string>
+    <string name="install_failure_file_suggestions">• Выберите файл заново и убедитесь, что он существует.\n• Используйте полный пакет APK/XAPK/APKS.\n• Для разделённых пакетов используйте Shizuku или Dhizuku.</string>
+    <string name="install_failure_system_installer_reason">Системный установщик не удалось запустить или он недоступен.</string>
+    <string name="install_failure_system_installer_suggestions">• Включите системное приложение установщика пакетов.\n• Разрешите установку из неизвестных источников для этого приложения.\n• Попробуйте Shizuku или Dhizuku.</string>
+    <string name="install_failure_user_action_reason">Установка требует подтверждения на экране системного установщика, но оно не было выполнено.</string>
+    <string name="install_failure_user_action_suggestions">• Подтвердите установку в системном диалоге.\n• Разрешите установку из неизвестных источников для этого приложения.\n• Повторите, не закрывая диалог.</string>
+    <string name="install_failure_system_reason">Системный установщик пакетов вернул внутреннюю ошибку.</string>
+    <string name="install_failure_system_suggestions">• Повторите установку.\n• Перезагрузите устройство.\n• Попробуйте другой способ установки.</string>
+    <string name="install_failure_unknown_reason">Установка не удалась по неопределённой причине.</string>
+    <string name="install_failure_unknown_suggestions">• Проверьте журнал для подробностей.\n• Убедитесь, что пакет полный и не повреждён.\n• Попробуйте другой способ установки.</string>
 </resources>

@@ -744,4 +744,56 @@
     <string name="file_not_found">File not found: %s</string>
     <string name="system_installer_failed">System installer failed: %s</string>
     <string name="no_available_authorizer">No available authorizer</string>
+
+    <!-- Install failure analysis -->
+    <string name="install_failure_analysis_title">Installation failure analysis</string>
+    <string name="install_failure_reason_label">Possible cause</string>
+    <string name="install_failure_suggestions_label">Suggestions</string>
+    <string name="install_failure_detail_label">Technical details</string>
+    <string name="install_failure_no_detail">No technical details available</string>
+    <string name="retry_install">Retry</string>
+    <string name="close">Close</string>
+
+    <string name="install_failure_signature_reason">The package signature does not match the installed app, so the system rejected the update.</string>
+    <string name="install_failure_signature_suggestions">• Uninstall the installed app first, then install this package.\n• Use a package signed with the same certificate as the installed app.\n• If the app supports signature rotation, use a package that includes the rotation lineage.</string>
+    <string name="install_failure_downgrade_reason">The version code of this package is lower than the installed version, and the system does not allow downgrades.</string>
+    <string name="install_failure_downgrade_suggestions">• Uninstall the installed version first, then install this package.\n• Use a package with the same or a higher version code.\n• Some system apps cannot be downgraded at all.</string>
+    <string name="install_failure_sdk_reason">This package requires an Android version that is not compatible with this device (minSdk/targetSdk mismatch).</string>
+    <string name="install_failure_sdk_suggestions">• Update the system to a compatible Android version.\n• Use a package built for this Android version.\n• Check that the device meets the minimum Android version required by the package.</string>
+    <string name="install_failure_abi_reason">The package does not provide native libraries for the CPU architecture of this device.</string>
+    <string name="install_failure_abi_suggestions">• Download the build for this device (arm64-v8a, armeabi-v7a, or x86_64).\n• Use the complete XAPK/APKS/APKM package that includes all ABI splits.</string>
+    <string name="install_failure_split_reason">The package is a split APK bundle, but some required split APKs are missing.</string>
+    <string name="install_failure_split_suggestions">• Use the complete XAPK/APKS/APKM package.\n• Install the base APK together with all splits via Shizuku or Dhizuku.</string>
+    <string name="install_failure_test_only_reason">This is a test-only build (testOnly=true), which the system rejects by default.</string>
+    <string name="install_failure_test_only_suggestions">• Use a release build of the app.\n• Enable Allow test packages in the install settings (Shizuku mode) and retry.</string>
+    <string name="install_failure_shared_library_reason">The package depends on a shared library that is not installed on this device.</string>
+    <string name="install_failure_shared_library_suggestions">• Install the app or library that provides the required shared library.\n• Use a package that does not depend on it.</string>
+    <string name="install_failure_conflict_reason">The package conflicts with an existing app (same package name, shared user, duplicate permission, or conflicting provider).</string>
+    <string name="install_failure_conflict_suggestions">• Uninstall the conflicting app or update it first.\n• If an older version is still installed, remove it and retry.\n• Check for another app that declares the same provider or permission.</string>
+    <string name="install_failure_storage_reason">There is not enough free storage to install this package.</string>
+    <string name="install_failure_storage_suggestions">• Free up storage space and retry.\n• Uninstall unused apps, clear caches, and remove large files.\n• Keep at least twice the package size free during installation.</string>
+    <string name="install_failure_media_reason">The installation location (external or encrypted storage) is unavailable or invalid.</string>
+    <string name="install_failure_media_suggestions">• Make sure external storage is mounted and unlocked.\n• Set the install location to internal storage and retry.\n• Restart the device if storage is not accessible.</string>
+    <string name="install_failure_invalid_reason">The package is invalid, corrupted, or its manifest could not be parsed.</string>
+    <string name="install_failure_invalid_suggestions">• Re-download the package from a trusted source.\n• Verify that the file is complete and not truncated.\n• Make sure the file is a valid APK/XAPK/APKS/APKM package.</string>
+    <string name="install_failure_blocked_reason">The system, security software, or a device policy blocked this installation.</string>
+    <string name="install_failure_blocked_suggestions">• Allow Install unknown apps for this app in system settings.\n• Temporarily disable Play Protect or security scanning.\n• On MIUI/HyperOS, disable MIUI optimization or enable Install via USB in developer options.\n• Remove device-admin or work-profile policies that block installation.</string>
+    <string name="install_failure_aborted_reason">The installation session was aborted or cancelled before completion.</string>
+    <string name="install_failure_aborted_suggestions">• Retry the installation.\n• Keep this app in the foreground while installing.\n• Restart the device if the problem persists.</string>
+    <string name="install_failure_timeout_reason">The package verification timed out before the installation completed.</string>
+    <string name="install_failure_timeout_suggestions">• Retry the installation.\n• Temporarily disable package verification or security scanning.\n• Check that storage is not full or busy.</string>
+    <string name="install_failure_dexopt_reason">The system could not optimize the package code (dexopt failed).</string>
+    <string name="install_failure_dexopt_suggestions">• Free up storage and retry.\n• Restart the device and try again.\n• Use a package built for this Android version.</string>
+    <string name="install_failure_privilege_reason">The privileged installation method (Shizuku/Dhizuku) is unavailable, not connected, or not authorized.</string>
+    <string name="install_failure_privilege_suggestions">• Start Shizuku or Dhizuku and authorize this app, then retry.\n• Grant the required permission when prompted.\n• Switch the installation method in the privilege selector.\n• Split packages cannot be installed by the system installer.</string>
+    <string name="install_failure_file_reason">The installation file could not be found, read, or parsed.</string>
+    <string name="install_failure_file_suggestions">• Select the file again and make sure it still exists.\n• Use a complete APK/XAPK/APKS package.\n• For split packages, use Shizuku or Dhizuku.</string>
+    <string name="install_failure_system_installer_reason">The system installer could not be launched or is unavailable.</string>
+    <string name="install_failure_system_installer_suggestions">• Enable the system package installer app.\n• Allow Install unknown apps for this app.\n• Try Shizuku or Dhizuku instead.</string>
+    <string name="install_failure_user_action_reason">The installation needs confirmation on the system installer screen, but it was not completed.</string>
+    <string name="install_failure_user_action_suggestions">• Confirm the installation in the system dialog.\n• Allow Install unknown apps for this app.\n• Retry and keep the dialog open.</string>
+    <string name="install_failure_system_reason">The system package installer returned an internal error.</string>
+    <string name="install_failure_system_suggestions">• Retry the installation.\n• Restart the device.\n• Try a different installation method.</string>
+    <string name="install_failure_unknown_reason">The installation failed for an unidentified reason.</string>
+    <string name="install_failure_unknown_suggestions">• Check the logs for more details.\n• Confirm the package is complete and not corrupted.\n• Try a different installation method.</string>
 </resources>

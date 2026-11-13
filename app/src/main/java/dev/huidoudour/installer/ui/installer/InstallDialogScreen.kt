@@ -15,6 +15,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -51,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -68,6 +71,9 @@ import dev.huidoudour.installer.auth.InstallDispatcher
 import dev.huidoudour.installer.auth.PrivilegeHelper
 import dev.huidoudour.installer.auth.SmartAuthorizer
 import dev.huidoudour.installer.install.InstallCacheCleaner
+import dev.huidoudour.installer.install.InstallFailureAnalysis
+import dev.huidoudour.installer.install.InstallFailureAnalyzer
+import dev.huidoudour.installer.install.InstallFailureHints
 import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
 import dev.huidoudour.installer.ui.theme.LocalThemeStateHolder
@@ -114,6 +120,7 @@ data class InstallDialogState(
     val installProgress: Int = 0,
     val isComplete: Boolean = false,
     val errorMessage: String? = null,
+    val failureAnalysis: InstallFailureAnalysis? = null,
     val signature: SignatureSummary? = null,
     val isInfoLoaded: Boolean = false,
     // 正在物化文件 / 解析安装包信息（用于展示加载动画）
@@ -269,6 +276,69 @@ private fun InstallDialogContent(
         return status == PrivilegeHelper.PrivilegeStatus.AUTHORIZED
     }
 
+    /**
+     * 启动一次安装尝试：收集安装前已知的事实作为失败分析的依据，
+     * 失败时由 performRealInstallation 汇总所有授权方式的错误后给出分析结果。
+     */
+    fun startInstallation() {
+        val isDowngrade = state.versionRelation == VersionRelation.DOWNGRADE
+        if (isDowngrade) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.downgrade_attempt_hint),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+        val installFilePath = materializedPath
+        if (installFilePath == null) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.cannot_access_install_file),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        val hints = InstallFailureHints(
+            packageName = state.packageName.takeIf { it.isNotBlank() },
+            isDowngradeAttempt = isDowngrade,
+            signatureMismatch = checkSignature &&
+                state.signature?.status == SignatureMatchStatus.MISMATCH,
+        )
+        state = state.copy(
+            isInstalling = true,
+            errorMessage = null,
+            failureAnalysis = null
+        )
+        performRealInstallation(
+            context = context,
+            filePath = installFilePath,
+            installedPackageName = state.packageName,
+            mode = currentPrivilegeMode,
+            allowDowngrade = isDowngrade,
+            hints = hints,
+            onSuccess = {
+                state = state.copy(
+                    isInstalling = false,
+                    isComplete = true,
+                    installProgress = 100
+                )
+            },
+            onError = { analysis ->
+                state = state.copy(
+                    isInstalling = false,
+                    errorMessage = analysis.technicalDetail,
+                    failureAnalysis = analysis
+                )
+                logManager.addLog(
+                    "Installation failure analyzed: ${analysis.category}" +
+                        " | reason: ${analysis.reason}",
+                    "External install"
+                )
+                Toast.makeText(context, analysis.reason, Toast.LENGTH_LONG).show()
+            }
+        )
+    }
+
     // 最外层容器 - 对应原XML最外层LinearLayout (paddingTop=8dp, paddingBottom=8dp)
     Column(
         modifier = Modifier
@@ -291,6 +361,8 @@ private fun InstallDialogContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
+                    // 失败分析卡会让内容变高，允许滚动以保证原因和建议始终可见
+                    .verticalScroll(rememberScrollState())
             ) {
                 // 加载安装包信息期间：整卡切换为加载动画（参考 InstallerX 的 Preparing/Analysing 阶段）
                 if (state.isLoading) {
@@ -314,6 +386,12 @@ private fun InstallDialogContent(
                     )
                 }
                 
+                val failure = state.failureAnalysis
+                if (failure != null && !state.isInstalling && !state.isComplete) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    InstallFailureCard(analysis = failure)
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 // 根据状态显示不同的按钮区域
@@ -349,47 +427,7 @@ private fun InstallDialogContent(
                             showPrivilege = usePrivilegedAuthorizers,
                             onInstall = {
                                 logUiAction("Install confirmation pressed")
-                                val isDowngrade =
-                                    state.versionRelation == VersionRelation.DOWNGRADE
-                                if (isDowngrade) {
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.downgrade_attempt_hint),
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                                state = state.copy(isInstalling = true)
-                                val installFilePath = materializedPath
-                                if (installFilePath == null) {
-                                    state = state.copy(isInstalling = false)
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.cannot_access_install_file),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    performRealInstallation(
-                                        context = context,
-                                        filePath = installFilePath,
-                                        installedPackageName = state.packageName,
-                                        mode = currentPrivilegeMode,
-                                        allowDowngrade = isDowngrade,
-                                        onSuccess = {
-                                            state = state.copy(
-                                                isInstalling = false,
-                                                isComplete = true,
-                                                installProgress = 100
-                                            )
-                                        },
-                                        onError = { error ->
-                                            state = state.copy(
-                                                isInstalling = false,
-                                                errorMessage = error
-                                            )
-                                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                                        }
-                                    )
-                                }
+                                startInstallation()
                             },
                             onCancel = {
                                 logUiAction("External installation cancelled before start")
@@ -582,6 +620,113 @@ fun InstallInfoHeader(state: InstallDialogState) {
 }
 
 /**
+ * 安装失败分析卡片：展示归类后的失败原因、修复建议，以及可展开的原始错误。
+ * 原始错误在多种授权方式连续失败时会包含每一次的报错，便于定位真正原因。
+ */
+@Composable
+fun InstallFailureCard(
+    analysis: InstallFailureAnalysis,
+    modifier: Modifier = Modifier
+) {
+    var showDetail by remember(analysis) { mutableStateOf(false) }
+    val contentColor = MaterialTheme.colorScheme.onSurface
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.45f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.install_failure_analysis_title),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.error
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(R.string.install_failure_reason_label),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = contentColor
+            )
+            Text(
+                text = analysis.reason,
+                fontSize = 13.sp,
+                lineHeight = 18.sp,
+                color = contentColor,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(R.string.install_failure_suggestions_label),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = contentColor
+            )
+            Text(
+                text = analysis.suggestions,
+                fontSize = 13.sp,
+                lineHeight = 18.sp,
+                color = contentColor,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+
+            val detail = analysis.technicalDetail
+            if (!detail.isNullOrBlank()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showDetail = !showDetail }
+                        .padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(
+                            if (showDetail) R.string.close
+                            else R.string.install_failure_detail_label
+                        ),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .rotate(if (showDetail) 180f else 0f)
+                    )
+                }
+                if (showDetail) {
+                    Text(
+                        text = detail,
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 2.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
  * 安装确认按钮区域 - 完全匹配 dialog_install.xml 布局
  */
 @Composable
@@ -596,8 +741,11 @@ fun InstallButtons(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 依据与已安装版本的版本关系决定按钮文案：升级 / 重装 / 降级 / 安装
-        val installText = when (state.versionRelation) {
+        // 依据与已安装版本的版本关系决定按钮文案：升级 / 重装 / 降级 / 安装；
+        // 上一次安装失败后按钮改为“重试”，让用户知道可以直接再次尝试。
+        val installText = if (state.failureAnalysis != null) {
+            stringResource(R.string.retry_install)
+        } else when (state.versionRelation) {
             VersionRelation.UPGRADE -> stringResource(R.string.upgrade)
             VersionRelation.REINSTALL -> stringResource(R.string.reinstall)
             VersionRelation.DOWNGRADE -> stringResource(R.string.downgrade)
@@ -938,11 +1086,18 @@ private fun performRealInstallation(
     installedPackageName: String?,
     mode: PrivilegeHelper.PrivilegeMode,
     allowDowngrade: Boolean,
+    hints: InstallFailureHints,
     onSuccess: () -> Unit,
-    onError: (String) -> Unit
+    onError: (InstallFailureAnalysis) -> Unit
 ) {
     if (filePath == null) {
-        onError(context.getString(R.string.cannot_access_install_file))
+        onError(
+            InstallFailureAnalyzer.analyze(
+                context = context,
+                errors = listOf(context.getString(R.string.cannot_access_install_file)),
+                hints = hints
+            )
+        )
         return
     }
 
@@ -967,67 +1122,103 @@ private fun performRealInstallation(
             SmartAuthorizer.resolveInstallPlan(context, currentAuthorizer, installed)
 
         if (ordered.isEmpty()) {
-            logManager.addLog("No authorized installation method is available", "External install")
-            mainHandler.post { onError(context.getString(R.string.no_available_authorizer)) }
+            val analysis = InstallFailureAnalyzer.analyze(
+                context = context,
+                errors = listOf(context.getString(R.string.no_available_authorizer)),
+                hints = hints.copy(isContainer = isXapk)
+            )
+            logManager.addLog(
+                "No authorized installation method is available | reason: ${analysis.reason}",
+                "External install"
+            )
+            mainHandler.post { onError(analysis) }
             return@Thread
         }
 
-        var lastError: String? = null
+        // 只使用对话框中选择的授权方式：失败后直接给出原因与建议，不再自动回退/拉起其他安装方式。
+        // 所选方式被设置禁用（或被规划剔除）时，才使用解析出的首选项。
+        val authorizer = if (currentAuthorizer in ordered) currentAuthorizer else ordered.first()
 
-        for (authorizer in ordered) {
+        // 暂不自动拉起系统安装器：没有可用的特权授权方式时，先给出失败原因与建议
+        if (authorizer == Authorizer.None) {
+            val analysis = InstallFailureAnalyzer.analyze(
+                context = context,
+                errors = listOf(context.getString(R.string.no_available_authorizer)),
+                hints = hints.copy(isContainer = isXapk)
+            )
             logManager.addLog(
-                "Trying installation method: ${context.getString(authorizer.displayNameRes)}",
+                "System installer launch skipped | category: ${analysis.category}" +
+                    " | reason: ${analysis.reason} | suggestions: ${analysis.suggestions}",
                 "External install"
             )
-            val latch = CountDownLatch(1)
-            var succeeded = false
-            var errorMessage: String? = null
-
-            InstallDispatcher.install(
-                context = context,
-                authorizer = authorizer,
-                filePath = filePath,
-                isXapk = isXapk,
-                replaceExisting = true,
-                grantPermissions = true,
-                allowDowngrade = allowDowngrade,
-                callback = object : InstallDispatcher.Callback {
-                    override fun onProgress(message: String) {
-                        Log.d("InstallDialog", message)
-                        logManager.addLog(message, "Dialog")
-                    }
-
-                    override fun onSuccess(message: String) {
-                        Log.d("InstallDialog", message)
-                        logManager.addLog(message, "Dialog")
-                        succeeded = true
-                        latch.countDown()
-                    }
-
-                    override fun onError(error: String) {
-                        Log.e("InstallDialog", error)
-                        logManager.addLog("Error: $error", "Dialog")
-                        errorMessage = error
-                        latch.countDown()
-                    }
-                }
-            )
-
-            latch.await()
-
-            if (succeeded) {
-                logManager.addLog("External installation completed", "External install")
-                mainHandler.post { onSuccess() }
-                return@Thread
-            } else {
-                lastError = errorMessage
-                logManager.addLog("Installation method failed: $errorMessage", "External install")
-            }
+            mainHandler.post { onError(analysis) }
+            return@Thread
         }
 
-        val finalError = lastError ?: context.getString(R.string.install_failed, "")
-        logManager.addLog("External installation failed: $finalError", "External install")
-        mainHandler.post { onError(finalError) }
+        logManager.addLog(
+            "Trying installation method: ${context.getString(authorizer.displayNameRes)}",
+            "External install"
+        )
+        val latch = CountDownLatch(1)
+        var succeeded = false
+        var errorMessage: String? = null
+
+        InstallDispatcher.install(
+            context = context,
+            authorizer = authorizer,
+            filePath = filePath,
+            isXapk = isXapk,
+            replaceExisting = true,
+            grantPermissions = true,
+            allowDowngrade = allowDowngrade,
+            callback = object : InstallDispatcher.Callback {
+                override fun onProgress(message: String) {
+                    Log.d("InstallDialog", message)
+                    logManager.addLog(message, "Dialog")
+                }
+
+                override fun onSuccess(message: String) {
+                    Log.d("InstallDialog", message)
+                    logManager.addLog(message, "Dialog")
+                    succeeded = true
+                    latch.countDown()
+                }
+
+                override fun onError(error: String) {
+                    Log.e("InstallDialog", error)
+                    logManager.addLog("Error: $error", "Dialog")
+                    errorMessage = error
+                    latch.countDown()
+                }
+            }
+        )
+
+        latch.await()
+
+        if (succeeded) {
+            logManager.addLog("External installation completed", "External install")
+            mainHandler.post { onSuccess() }
+            return@Thread
+        }
+        logManager.addLog("Installation method failed: $errorMessage", "External install")
+
+        val analysis = InstallFailureAnalyzer.analyze(
+            context = context,
+            errors = listOfNotNull(errorMessage).ifEmpty {
+                listOf(context.getString(R.string.install_failed, ""))
+            },
+            hints = hints.copy(
+                isContainer = isXapk,
+                isDowngradeAttempt = hints.isDowngradeAttempt || allowDowngrade
+            )
+        )
+        logManager.addLog(
+            "External installation failed | category: ${analysis.category}" +
+                " | reason: ${analysis.reason} | suggestions: ${analysis.suggestions}" +
+                " | detail: ${analysis.technicalDetail}",
+            "External install"
+        )
+        mainHandler.post { onError(analysis) }
     }.start()
 }
 

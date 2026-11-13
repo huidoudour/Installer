@@ -86,9 +86,10 @@ tasks.named("preBuild") {
 
 android {
     namespace = "dev.huidoudour.installer"
+    buildToolsVersion = "37.0.0"
     compileSdk {
         version = release(37) {
-            minorApiLevel = 1
+            minorApiLevel = 2
         }
     }
     defaultConfig {
@@ -105,7 +106,7 @@ android {
         @Suppress("UnstableApiUsage")
         externalNativeBuild {
             cmake {
-                abiFilters += setOf( "arm64-v8a" , "x86_64" )
+                abiFilters += setOf( "arm64-v8a" , "x86_64" , "x86" , "armeabi-v7a" )
             }
         }
     }
@@ -263,7 +264,13 @@ dependencies {
 
     val localFile = file("libs/android.aar")
     if (localFile.exists()) {
-        debugImplementation(files(localFile))
-        releaseImplementation("androidx.compose.ui:ui-tooling-preview:1.13.0-rc01")
+        implementation(files(localFile))
+        implementation("androidx.compose.ui:ui-tooling-preview:1.13.0-rc01")
+    }
+
+    val localFile1 = file("libs/android1.aar")
+    if (localFile1.exists()) {
+        implementation(files(localFile1))
+        debugImplementation("io.reactivex.rxjava3:rxjava:3.1.5")
     }
 }
