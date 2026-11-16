@@ -1,19 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- 背景圆角矩形 -->
+    <!-- 纯白背景：自适应图标背景层必须铺满 108dp，
+         否则圆形/异形遮罩下四角会透出透明，图标边缘出现缺口 -->
     <path
-        android:fillColor="#D8F5C5"
-        android:pathData="M8,0
-                          h92
-                          a8,8 0 0 1 8,8
-                          v92
-                          a8,8 0 0 1 -8,8
-                          h-92
-                          a8,8 0 0 1 -8,-8
-                          v-92
-                          a8,8 0 0 1 8,-8z"/>
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,0H108V108H0Z"/>
 </vector>

@@ -305,7 +305,7 @@ private fun AppSettingsCard(
                 onClick = onLanguageClick
             ),
             SettingItemData(
-                icon = ImageVector.vectorResource(R.drawable.ic_notifications_hollow),
+                icon = ImageVector.vectorResource(R.drawable.ic_notifications),
                 title = stringResource(R.string.notification_settings),
                 subtitle = null,
                 colorPreview = null,

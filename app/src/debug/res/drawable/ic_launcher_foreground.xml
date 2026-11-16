@@ -1,90 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- 六边形阴影 -->
+    <!-- 盒身：平顶六边形（顶点半径 28dp，圆角 4.2dp），整幅落在自适应图标安全区内 -->
     <path
-        android:fillColor="#2A4020"
-        android:fillAlpha="0.3"
-        android:pathData="M56,28 l24,14 v28 l-24,14 l-24,-14 v-28z"/>
+        android:fillColor="#0061A4"
+        android:pathData="M37.90,33.39Q40.00,29.75 44.20,29.75L63.80,29.75Q68.00,29.75 70.10,33.39L79.90,50.36Q82.00,54.00 79.90,57.64L70.10,74.61Q68.00,78.25 63.80,78.25L44.20,78.25Q40.00,78.25 37.90,74.61L28.10,57.64Q26.00,54.00 28.10,50.36Z"/>
 
-    <!-- 六边形本体 -->
+    <!-- 盒盖：压深一档，和横向盖缝一起把六边形读成“包裹” -->
     <path
-        android:fillColor="#577539"
-        android:pathData="M54,24 l24,14 v28 l-24,14 l-24,-14 v-28z"/>
+        android:fillColor="#00497D"
+        android:pathData="M35.79,38.60Q34.89,38.60 35.34,37.82L37.90,33.39Q40.00,29.75 44.20,29.75L63.80,29.75Q68.00,29.75 70.10,33.39L72.66,37.82Q73.11,38.60 72.21,38.60Z"/>
 
-    <!-- 蝴蝶  -->
-    <group
-        android:translateX="34"
-        android:translateY="20"
-        android:scaleX="0.4"
-        android:scaleY="0.4">
+    <!-- 安装箭头 · 杆（纸色 #BBDEFB） -->
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M51.05,48.60Q51.05,47.20 52.45,47.20L55.55,47.20Q56.95,47.20 56.95,48.60L56.95,56.40Q56.95,57.80 55.55,57.80L52.45,57.80Q51.05,57.80 51.05,56.40Z"/>
 
-        <!-- 蝴蝶身体 -->
-        <path
-            android:pathData="M51.5,45 A3,12 0 0,1 51.5,69 A3,12 0 0,1 51.5,45 Z"
-            android:strokeColor="#FFB6C1"
-            android:strokeWidth="2"
-            android:fillColor="@null"/>
-
-        <!-- 左侧上翅膀 -->
-        <path
-            android:pathData="M51.5,45 C40,40 25,35 18,45 C15,55 20,65 30,68 C38,70 45,65 51.5,60"
-            android:strokeColor="#FFB6C1"
-            android:strokeWidth="2"
-            android:fillColor="@null"/>
-
-        <!-- 左侧下翅膀 -->
-        <path
-            android:pathData="M51.5,60 C45,65 38,75 35,82 C32,88 38,92 45,88 C50,85 51.5,75 51.5,60"
-            android:strokeColor="#FFB6C1"
-            android:strokeWidth="2"
-            android:fillColor="@null"/>
-
-        <!-- 右侧上翅膀 -->
-        <path
-            android:pathData="M51.5,45 C63,40 78,35 85,45 C88,55 83,65 73,68 C65,70 58,65 51.5,60"
-            android:strokeColor="#FFB6C1"
-            android:strokeWidth="2"
-            android:fillColor="@null"/>
-
-        <!-- 右侧下翅膀 -->
-        <path
-            android:pathData="M51.5,60 C58,65 65,75 68,82 C71,88 65,92 58,88 C53,85 51.5,75 51.5,60"
-            android:strokeColor="#FFB6C1"
-            android:strokeWidth="2"
-            android:fillColor="@null"/>
-
-        <!-- 翅膀中心斑点 -->
-        <path
-            android:pathData="M51.5,45 A2,2 0 0,1 51.5,45 A2,2 0 0,1 51.5,45 Z"
-            android:strokeColor="#FFB6C1"
-            android:strokeWidth="2"
-            android:fillColor="@null"/>
-    </group>
-
-    <!-- 下箭头 + 横杠  -->
-    <group
-        android:translateX="54"
-        android:translateY="60"
-        android:scaleX="0.8"
-        android:scaleY="0.8">
-
-        <!-- 箭头 -->
-        <path
-            android:fillColor="#D8F5C5"
-            android:pathData="M-8,0 l16,0 l-8,10z"/>
-
-        <!-- 横杠 -->
-        <path
-            android:fillColor="#D8F5C5"
-            android:pathData="M-12,12 h24 v3 h-24z"/>
-    </group>
+    <!-- 安装箭头 · 头 -->
+    <path
+        android:fillColor="#BBDEFB"
+        android:pathData="M45.59,57.68Q44.40,56.20 46.30,56.20L61.70,56.20Q63.60,56.20 62.41,57.68L55.19,66.72Q54.00,68.20 52.81,66.72Z"/>
 
     <!-- 右下角小圆圈 -->
     <path
         android:pathData="M75,82 A4,4 0 1,1 75.01,82 Z"
-        android:fillColor="#4A8F4A"/>
+        android:fillColor="#0061A4"/>
 </vector>

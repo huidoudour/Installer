@@ -262,15 +262,19 @@ dependencies {
     implementation(project(":lib-terminal"))
     "baselineProfile"(project(":baselineprofile"))
 
-    val localFile = file("libs/android.aar")
-    if (localFile.exists()) {
-        implementation(files(localFile))
-        implementation("androidx.compose.ui:ui-tooling-preview:1.13.0-rc01")
-    }
+    val localAars = fileTree("libs") { include("*.aar") }
+    if (!localAars.isEmpty) {
+        implementation(localAars)
 
-    val localFile1 = file("libs/android1.aar")
-    if (localFile1.exists()) {
-        implementation(files(localFile1))
-        debugImplementation("io.reactivex.rxjava3:rxjava:3.1.5")
+        val localAarNames = localAars.files.map { it.name }
+        if ("android.aar" in localAarNames) {
+            implementation("androidx.compose.ui:ui-tooling-preview:1.13.0-rc01")
+        }
+        if ("android1.aar" in localAarNames) {
+            implementation("androidx.compose.ui:ui-tooling-preview-android:1.13.0-rc01")
+        }
+        if ("android3.aar" in localAarNames) {
+            implementation("androidx.compose.ui:ui-graphics-android:1.13.0-rc01")
+        }
     }
 }
