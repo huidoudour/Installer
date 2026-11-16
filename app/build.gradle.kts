@@ -271,6 +271,6 @@ dependencies {
     val localFile1 = file("libs/android1.aar")
     if (localFile1.exists()) {
         implementation(files(localFile1))
-        debugImplementation("io.reactivex.rxjava3:rxjava:3.1.5")
+        debugImplementation("io.reactivex.rxjava3:rxjava:3.1.12")
     }
 }
