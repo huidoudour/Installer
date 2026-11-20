@@ -271,7 +271,7 @@ dependencies {
             implementation("androidx.compose.ui:ui-tooling-preview:1.13.0-rc01")
         }
         if ("android1.aar" in localAarNames) {
-            implementation("androidx.compose.ui:ui-tooling-preview-android:1.13.0-rc01")
+            implementation("androidx.compose.ui:ui-tooling-preview-android:1.14.0-alpha01")
         }
         if ("android3.aar" in localAarNames) {
             implementation("androidx.compose.ui:ui-graphics-android:1.13.0-rc01")
