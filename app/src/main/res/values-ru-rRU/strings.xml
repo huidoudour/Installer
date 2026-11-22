@@ -745,6 +745,16 @@
     <string name="system_installer_failed">Не удалось запустить системный установщик: %s</string>
     <string name="no_available_authorizer">Нет доступного способа авторизации</string>
 
+    <!-- Multi-APK archive: a ZIP containing several independent APKs -->
+    <string name="multi_apk_archive_title">В архиве %1$d независимых APK</string>
+    <string name="multi_apk_status_pending">Ожидание</string>
+    <string name="multi_apk_status_installing">Установка</string>
+    <string name="multi_apk_status_success">Установлено</string>
+    <string name="multi_apk_status_failed">Ошибка</string>
+    <string name="multi_apk_install_progress">Установка %1$d/%2$d: %3$s</string>
+    <string name="multi_apk_install_button">Установить APK (%1$d)</string>
+    <string name="multi_apk_needs_privilege">Для последовательной установки нескольких APK требуются Shizuku или Dhizuku</string>
+
     <!-- Install failure analysis -->
     <string name="install_failure_analysis_title">Анализ ошибки установки</string>
     <string name="install_failure_reason_label">Возможная причина</string>

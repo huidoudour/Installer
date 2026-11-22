@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
+import android.text.format.Formatter
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
@@ -35,9 +36,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -74,6 +78,7 @@ import dev.huidoudour.installer.install.InstallCacheCleaner
 import dev.huidoudour.installer.install.InstallFailureAnalysis
 import dev.huidoudour.installer.install.InstallFailureAnalyzer
 import dev.huidoudour.installer.install.InstallFailureHints
+import dev.huidoudour.installer.install.MultiApkZip
 import dev.huidoudour.installer.install.PackageInfoHelper
 import dev.huidoudour.installer.install.XapkInstaller
 import dev.huidoudour.installer.ui.theme.LocalThemeStateHolder
@@ -86,6 +91,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 待安装包与已安装包之间的版本关系，用于决定安装按钮文案。
@@ -124,7 +131,25 @@ data class InstallDialogState(
     val signature: SignatureSummary? = null,
     val isInfoLoaded: Boolean = false,
     // 正在物化文件 / 解析安装包信息（用于展示加载动画）
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    // ZIP 内多个独立 APK 时：压缩包文件名与逐个安装的条目
+    val fileName: String = "",
+    val multiApkItems: List<MultiApkItem> = emptyList()
+)
+
+/** 多 APK 压缩包内单个 APK 的安装状态 */
+enum class MultiApkStatus {
+    PENDING,
+    INSTALLING,
+    SUCCESS,
+    FAILED
+}
+
+/** 多 APK 压缩包内单个 APK 的展示与安装状态 */
+data class MultiApkItem(
+    val entry: MultiApkZip.Entry,
+    val status: MultiApkStatus = MultiApkStatus.PENDING,
+    val error: String? = null
 )
 
 /**
@@ -167,6 +192,9 @@ private fun InstallDialogContent(
     val logManager = LogManager.getInstance()
     fun logUiAction(action: String) = logManager.addLog(action, "External install UI")
     var state by remember { mutableStateOf(InstallDialogState()) }
+
+    // 多 APK 逐个安装的取消标记：取消后不再开始下一个 APK（已开始的会话无法中断）
+    val multiApkCancelFlag = remember { AtomicBoolean(false) }
 
     // installUri 物化到本地后的文件路径（APK 信息解析、签名校验、安装共用同一份缓存文件）
     var materializedPath by remember { mutableStateOf<String?>(null) }
@@ -216,6 +244,21 @@ private fun InstallDialogContent(
                             ).show()
                             onDismiss()
                         }
+                        return@withContext
+                    }
+
+                    // ZIP 内多个“独立 APK”：解压后逐个安装，不再按分包容器处理
+                    val multiApkEntries = MultiApkZip.extract(context, filePath)
+                    if (multiApkEntries != null) {
+                        state = state.copy(
+                            fileName = File(filePath).name,
+                            multiApkItems = multiApkEntries.map { MultiApkItem(it) },
+                            isInfoLoaded = true
+                        )
+                        logManager.addLog(
+                            "Multi-APK archive ready: ${multiApkEntries.size} independent APKs",
+                            "External install"
+                        )
                         return@withContext
                     }
 
@@ -277,10 +320,98 @@ private fun InstallDialogContent(
     }
 
     /**
+     * 逐个安装多 APK 压缩包内的每个 APK：
+     * 每个 APK 独立构建安装会话，前一个结束（成功或失败）后再安装下一个，
+     * 单个失败不会中断后续 APK；失败后重试时跳过已安装成功的条目。
+     */
+    fun startMultiApkInstallation() {
+        val items = state.multiApkItems
+        // 首次安装时全部为 PENDING；重试时只重新安装未成功的条目
+        val targetIndexes = items.indices
+            .filter { items[it].status != MultiApkStatus.SUCCESS }
+            .ifEmpty { items.indices.toList() }
+        multiApkCancelFlag.set(false)
+        state = state.copy(
+            isInstalling = true,
+            installProgress = 0,
+            errorMessage = null,
+            failureAnalysis = null,
+            multiApkItems = items.mapIndexed { index, item ->
+                if (targetIndexes.contains(index)) {
+                    item.copy(status = MultiApkStatus.PENDING, error = null)
+                } else {
+                    item
+                }
+            }
+        )
+        performMultiApkInstallation(
+            context = context,
+            items = items,
+            targetIndexes = targetIndexes,
+            mode = currentPrivilegeMode,
+            isCancelled = { multiApkCancelFlag.get() },
+            onItemStatus = { index, status, error ->
+                state = state.copy(
+                    multiApkItems = state.multiApkItems.mapIndexed { i, item ->
+                        if (i == index) item.copy(status = status, error = error) else item
+                    }
+                )
+            },
+            onItemFinished = { completed ->
+                state = state.copy(installProgress = completed * 100 / targetIndexes.size)
+            },
+            onComplete = { successCount, errors, cancelled ->
+                if (cancelled) {
+                    state = state.copy(isInstalling = false)
+                    logManager.addLog(
+                        "Multi-APK installation cancelled: $successCount/${targetIndexes.size} succeeded",
+                        "External install"
+                    )
+                    return@performMultiApkInstallation
+                }
+                if (errors.isEmpty()) {
+                    state = state.copy(
+                        isInstalling = false,
+                        isComplete = true,
+                        installProgress = 100
+                    )
+                } else {
+                    val analysis = InstallFailureAnalyzer.analyze(
+                        context = context,
+                        errors = errors,
+                        hints = InstallFailureHints()
+                    )
+                    state = state.copy(
+                        isInstalling = false,
+                        errorMessage = analysis.technicalDetail,
+                        failureAnalysis = analysis
+                    )
+                    logManager.addLog(
+                        "Multi-APK installation failure analyzed: ${analysis.category}" +
+                            " | reason: ${analysis.reason}",
+                        "External install"
+                    )
+                    Toast.makeText(context, analysis.reason, Toast.LENGTH_LONG).show()
+                }
+                logManager.addLog(
+                    "Multi-APK installation finished: $successCount/${targetIndexes.size} succeeded",
+                    "External install"
+                )
+            }
+        )
+    }
+
+    /**
      * 启动一次安装尝试：收集安装前已知的事实作为失败分析的依据，
      * 失败时由 performRealInstallation 汇总所有授权方式的错误后给出分析结果。
      */
     fun startInstallation() {
+        // ZIP 内多个独立 APK 需要逐个安装，不能进入分包会话流程
+        if (state.multiApkItems.isNotEmpty()) {
+            startMultiApkInstallation()
+            return
+        }
+
         val isDowngrade = state.versionRelation == VersionRelation.DOWNGRADE
         if (isDowngrade) {
             Toast.makeText(
@@ -370,8 +501,17 @@ private fun InstallDialogContent(
                     return@Column
                 }
 
-                // 应用信息区域 - 始终显示
-                InstallInfoHeader(state = state)
+                // 应用信息区域：多 APK 压缩包展示逐个安装清单，单 APK 显示原有信息头
+                if (state.multiApkItems.isNotEmpty()) {
+                    MultiApkHeader(
+                        fileName = state.fileName,
+                        count = state.multiApkItems.size
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MultiApkList(items = state.multiApkItems)
+                } else {
+                    InstallInfoHeader(state = state)
+                }
 
                 val sigSummary = if (checkSignature) state.signature else null
                 if (sigSummary != null && sigSummary.applicable) {
@@ -392,13 +532,28 @@ private fun InstallDialogContent(
                     InstallFailureCard(analysis = failure)
                 }
 
+                // 多 APK 逐个安装时，进度条下方展示当前正在安装的条目
+                val installingIndex = state.multiApkItems.indexOfFirst {
+                    it.status == MultiApkStatus.INSTALLING
+                }
+                val multiApkProgressLabel = if (installingIndex >= 0) {
+                    val entry = state.multiApkItems[installingIndex].entry
+                    stringResource(
+                        R.string.multi_apk_install_progress,
+                        installingIndex + 1,
+                        state.multiApkItems.size,
+                        entry.label ?: entry.entryName
+                    )
+                } else null
+
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 // 根据状态显示不同的按钮区域
                 when {
                     state.isComplete -> {
-                        // 安装完成按钮
+                        // 安装完成按钮：多 APK 压缩包没有唯一的“打开应用”目标
                         CompletionButtons(
+                            showOpenApp = state.multiApkItems.isEmpty(),
                             onOpenApp = {
                                 logUiAction("Open installed app pressed: ${state.packageName}")
                                 onOpenApp(state.packageName)
@@ -413,8 +568,11 @@ private fun InstallDialogContent(
                         // 安装进度按钮
                         InstallingButtons(
                             progress = state.installProgress,
+                            label = multiApkProgressLabel,
                             onCancel = {
                                 logUiAction("Cancel pressed while installation is in progress")
+                                // 多 APK 时让后台线程在下一个 APK 前退出（当前会话无法中断）
+                                multiApkCancelFlag.set(true)
                                 state = state.copy(isInstalling = false)
                             }
                         )
@@ -423,6 +581,7 @@ private fun InstallDialogContent(
                         // 安装确认按钮
                         InstallButtons(
                             state = state,
+                            multiApkCount = state.multiApkItems.size,
                             isInstallEnabled = isInstallEnabled(),
                             showPrivilege = usePrivilegedAuthorizers,
                             onInstall = {
@@ -508,6 +667,172 @@ private fun PackageLoadingIndicator() {
             text = stringResource(R.string.preparing),
             fontSize = 18.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+/**
+ * 多 APK 压缩包头部：标题与压缩包文件名
+ */
+@Composable
+private fun MultiApkHeader(fileName: String, count: Int) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 4.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.multi_apk_archive_title, count),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        if (fileName.isNotBlank()) {
+            Text(
+                text = fileName,
+                fontSize = 12.sp,
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+/**
+ * 多 APK 清单：逐个展示压缩包内每个 APK 的信息与安装状态。
+ * 外层已负责滚动，这里不再嵌套滚动容器。
+ */
+@Composable
+private fun MultiApkList(items: List<MultiApkItem>) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+        )
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            items.forEachIndexed { index, item ->
+                if (index > 0) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    )
+                }
+                MultiApkRow(item = item)
+            }
+        }
+    }
+}
+
+/**
+ * 多 APK 清单中的单行：图标、应用名、包名/版本/大小与安装状态
+ */
+@Composable
+private fun MultiApkRow(item: MultiApkItem) {
+    val context = LocalContext.current
+    val entry = item.entry
+    val unknown = stringResource(R.string.unknown)
+    val packageText = entry.packageName ?: unknown
+    val versionText = entry.versionName?.takeIf { it.isNotBlank() } ?: unknown
+    val sizeText = Formatter.formatShortFileSize(context, entry.size)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = if (entry.icon != null) {
+                rememberDrawablePainter(drawable = entry.icon)
+            } else {
+                rememberDrawablePainter(
+                    drawable = ContextCompat.getDrawable(
+                        context,
+                        android.R.drawable.sym_def_app_icon
+                    )
+                )
+            },
+            contentDescription = stringResource(R.string.app_icon_description),
+            modifier = Modifier
+                .size(36.dp)
+                .padding(end = 10.dp),
+            contentScale = ContentScale.Fit
+        )
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = entry.label ?: entry.entryName,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = "$packageText · v$versionText · $sizeText",
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+            // 失败时直接给出该 APK 的错误，无需展开继续排查
+            val itemError = item.error
+            if (item.status == MultiApkStatus.FAILED && !itemError.isNullOrBlank()) {
+                Text(
+                    text = itemError,
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp,
+                    color = MaterialTheme.colorScheme.error,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+        MultiApkStatusLabel(status = item.status)
+    }
+}
+
+/**
+ * 多 APK 条目的安装状态标签
+ */
+@Composable
+private fun MultiApkStatusLabel(status: MultiApkStatus) {
+    val (textRes, color) = when (status) {
+        MultiApkStatus.PENDING ->
+            R.string.multi_apk_status_pending to MaterialTheme.colorScheme.onSurfaceVariant
+        MultiApkStatus.INSTALLING ->
+            R.string.multi_apk_status_installing to MaterialTheme.colorScheme.primary
+        MultiApkStatus.SUCCESS ->
+            R.string.multi_apk_status_success to Color(0xFF4CAF50)
+        MultiApkStatus.FAILED ->
+            R.string.multi_apk_status_failed to MaterialTheme.colorScheme.error
+    }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (status == MultiApkStatus.INSTALLING) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(12.dp),
+                strokeWidth = 2.dp,
+                color = color
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+        }
+        Text(
+            text = stringResource(textRes),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = color
         )
     }
 }
@@ -732,6 +1057,7 @@ fun InstallFailureCard(
 @Composable
 fun InstallButtons(
     state: InstallDialogState,
+    multiApkCount: Int = 0,
     isInstallEnabled: Boolean = true,
     showPrivilege: Boolean = true,
     onInstall: () -> Unit,
@@ -742,9 +1068,11 @@ fun InstallButtons(
         modifier = Modifier.fillMaxWidth()
     ) {
         // 依据与已安装版本的版本关系决定按钮文案：升级 / 重装 / 降级 / 安装；
-        // 上一次安装失败后按钮改为“重试”，让用户知道可以直接再次尝试。
+        // 多 APK 压缩包突出待安装数量；上一次安装失败后按钮改为“重试”。
         val installText = if (state.failureAnalysis != null) {
             stringResource(R.string.retry_install)
+        } else if (multiApkCount > 0) {
+            stringResource(R.string.multi_apk_install_button, multiApkCount)
         } else when (state.versionRelation) {
             VersionRelation.UPGRADE -> stringResource(R.string.upgrade)
             VersionRelation.REINSTALL -> stringResource(R.string.reinstall)
@@ -831,6 +1159,7 @@ fun InstallButtons(
 @Composable
 fun InstallingButtons(
     progress: Int,
+    label: String? = null,
     onCancel: () -> Unit
 ) {
     // 默认回退色：淡蓝 0xFF29B6F6；若启用壁纸莫奈动态色(Android 12+)，则跟随主题 primary
@@ -881,6 +1210,19 @@ fun InstallingButtons(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // 多 APK 逐个安装时展示当前正在安装的条目
+        if (!label.isNullOrBlank()) {
+            Text(
+                text = label,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
         
         // 取消按钮 - OutlinedButton，圆角16dp，边框2dp，高度48dp
         OutlinedButton(
@@ -909,34 +1251,37 @@ fun InstallingButtons(
  */
 @Composable
 fun CompletionButtons(
+    showOpenApp: Boolean = true,
     onOpenApp: () -> Unit,
     onFinish: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 打开应用按钮 - 48dp高度，圆角16dp
-        Button(
-            onClick = onOpenApp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF2196F3),  // button_primary_tint blue
-                contentColor = Color.White
-            ),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.open_app),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
+        // 打开应用按钮 - 48dp高度，圆角16dp；多 APK 压缩包没有唯一的启动目标时隐藏
+        if (showOpenApp) {
+            Button(
+                onClick = onOpenApp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2196F3),  // button_primary_tint blue
+                    contentColor = Color.White
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.open_app),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
         }
-        
-        Spacer(modifier = Modifier.height(8.dp))
         
         // 完成按钮 - 48dp高度，圆角12dp，占满整行
         Button(
@@ -1219,6 +1564,144 @@ private fun performRealInstallation(
             "External install"
         )
         mainHandler.post { onError(analysis) }
+    }.start()
+}
+
+/**
+ * 逐个安装多 APK 压缩包内的每个 APK。
+ *
+ * 每个 APK 都是可直接安装的基准包，必须各自走一次完整的安装会话；
+ * 系统安装器无法等待单个会话的结果，因此这里要求 Shizuku / Dhizuku 授权。
+ * 单个 APK 失败不会中断后续 APK，全部结束后一次性上报成功数与错误。
+ *
+ * @param targetIndexes 本次要安装的条目在 [items] 中的下标（重试时跳过已成功项）
+ * @param isCancelled 取消检查：返回 true 时不再开始下一个 APK
+ * @param onItemStatus 单个条目状态变化（主线程回调，参数为条目在 [items] 中的下标）
+ * @param onItemFinished 已完成条目数（主线程回调）
+ * @param onComplete 全部结束：成功数、失败错误列表与是否被取消（主线程回调）
+ */
+private fun performMultiApkInstallation(
+    context: Context,
+    items: List<MultiApkItem>,
+    targetIndexes: List<Int>,
+    mode: PrivilegeHelper.PrivilegeMode,
+    isCancelled: () -> Boolean,
+    onItemStatus: (index: Int, status: MultiApkStatus, error: String?) -> Unit,
+    onItemFinished: (completed: Int) -> Unit,
+    onComplete: (successCount: Int, errors: List<String>, cancelled: Boolean) -> Unit
+) {
+    val logManager = LogManager.getInstance()
+    val mainHandler = Handler(Looper.getMainLooper())
+
+    val currentAuthorizer = if (mode == PrivilegeHelper.PrivilegeMode.DHIZUKU) {
+        Authorizer.Dhizuku
+    } else {
+        Authorizer.Shizuku
+    }
+
+    Thread {
+        // 逐个安装必须等前一个会话结束，系统安装器（None）无法满足，
+        // 因此只接受可用的特权授权器，否则直接上报缺少权限
+        val ordered = SmartAuthorizer.resolveInstallPlan(
+            context = context,
+            current = currentAuthorizer,
+            installed = true
+        )
+        val authorizer = if (currentAuthorizer in ordered) {
+            currentAuthorizer
+        } else {
+            ordered.firstOrNull { it != Authorizer.None }
+        }
+        if (authorizer == null || !SmartAuthorizer.isAvailable(context, authorizer)) {
+            logManager.addLog(
+                "Multi-APK installation requires Shizuku or Dhizuku",
+                "External install"
+            )
+            mainHandler.post {
+                onComplete(0, listOf(context.getString(R.string.multi_apk_needs_privilege)), false)
+            }
+            return@Thread
+        }
+
+        logManager.addLog(
+            "Installing ${targetIndexes.size} APKs one by one with " +
+                context.getString(authorizer.displayNameRes),
+            "External install"
+        )
+
+        var successCount = 0
+        var cancelled = false
+        val errors = mutableListOf<String>()
+
+        for ((position, index) in targetIndexes.withIndex()) {
+            // 用户取消后不再开始新的 APK，已进入的会话仍会等待结果
+            if (isCancelled()) {
+                cancelled = true
+                break
+            }
+            val item = items[index]
+            mainHandler.post { onItemStatus(index, MultiApkStatus.INSTALLING, null) }
+
+            // 已安装且待装版本更低时允许降级尝试，与单 APK 流程保持一致
+            val installedVersionCode = item.entry.packageName?.let { packageName ->
+                runCatching {
+                    context.packageManager.getPackageInfo(packageName, 0).longVersionCode
+                }.getOrNull()
+            }
+            val allowDowngrade = installedVersionCode != null &&
+                item.entry.versionCode < installedVersionCode
+
+            val latch = CountDownLatch(1)
+            var succeeded = false
+            var errorMessage: String? = null
+
+            InstallDispatcher.install(
+                context = context,
+                authorizer = authorizer,
+                filePath = item.entry.file.absolutePath,
+                isXapk = false,
+                replaceExisting = true,
+                grantPermissions = true,
+                allowDowngrade = allowDowngrade,
+                callback = object : InstallDispatcher.Callback {
+                    override fun onProgress(message: String) {
+                        Log.d("InstallDialog", message)
+                        logManager.addLog(message, "Dialog")
+                    }
+
+                    override fun onSuccess(message: String) {
+                        Log.d("InstallDialog", message)
+                        logManager.addLog(message, "Dialog")
+                        succeeded = true
+                        latch.countDown()
+                    }
+
+                    override fun onError(error: String) {
+                        Log.e("InstallDialog", error)
+                        logManager.addLog("Error: $error", "Dialog")
+                        errorMessage = error
+                        latch.countDown()
+                    }
+                }
+            )
+
+            // 会话长时间无结果时按超时处理，避免整个安装队列卡死
+            if (!latch.await(10, TimeUnit.MINUTES)) {
+                errorMessage = context.getString(R.string.install_failure_timeout_reason)
+            }
+
+            if (succeeded) {
+                successCount++
+                mainHandler.post { onItemStatus(index, MultiApkStatus.SUCCESS, null) }
+            } else {
+                val detail = errorMessage ?: context.getString(R.string.install_failed, "")
+                errors += detail
+                mainHandler.post { onItemStatus(index, MultiApkStatus.FAILED, detail) }
+            }
+            mainHandler.post { onItemFinished(position + 1) }
+        }
+
+        mainHandler.post { onComplete(successCount, errors, cancelled) }
     }.start()
 }
 

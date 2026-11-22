@@ -745,6 +745,16 @@
     <string name="system_installer_failed">系統安裝器啟動失敗喵：%s</string>
     <string name="no_available_authorizer">冇可用嘅授權方式喵</string>
 
+    <!-- 多 APK 壓縮包：ZIP 內多個獨立 APK -->
+    <string name="multi_apk_archive_title">呢個壓縮包有 %1$d 個獨立 APK 喵</string>
+    <string name="multi_apk_status_pending">等下裝喵</string>
+    <string name="multi_apk_status_installing">裝緊喵</string>
+    <string name="multi_apk_status_success">裝好喇喵</string>
+    <string name="multi_apk_status_failed">失敗喵</string>
+    <string name="multi_apk_install_progress">而家裝緊 %1$d/%2$d：%3$s 喵</string>
+    <string name="multi_apk_install_button">裝 %1$d 個 APK 喵</string>
+    <string name="multi_apk_needs_privilege">逐個裝多個 APK 要用 Shizuku 或者 Dhizuku 喵</string>
+
     <!-- 安裝失敗分析 -->
     <string name="install_failure_analysis_title">安裝失敗分析喵</string>
     <string name="install_failure_reason_label">可能原因喵</string>

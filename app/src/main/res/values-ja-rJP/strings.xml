@@ -745,6 +745,16 @@
     <string name="system_installer_failed">システムインストーラーを起動できませんでした: %s</string>
     <string name="no_available_authorizer">利用可能な認証方式がありません</string>
 
+    <!-- Multi-APK archive: a ZIP containing several independent APKs -->
+    <string name="multi_apk_archive_title">このアーカイブには独立した APK が %1$d 個含まれています</string>
+    <string name="multi_apk_status_pending">待機中</string>
+    <string name="multi_apk_status_installing">インストール中</string>
+    <string name="multi_apk_status_success">インストール済み</string>
+    <string name="multi_apk_status_failed">失敗</string>
+    <string name="multi_apk_install_progress">%1$d/%2$d をインストール中: %3$s</string>
+    <string name="multi_apk_install_button">%1$d 個の APK をインストール</string>
+    <string name="multi_apk_needs_privilege">複数の APK を順番にインストールするには Shizuku または Dhizuku が必要です</string>
+
     <!-- Install failure analysis -->
     <string name="install_failure_analysis_title">インストール失敗の分析</string>
     <string name="install_failure_reason_label">考えられる原因</string>

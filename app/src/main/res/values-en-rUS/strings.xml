@@ -745,6 +745,16 @@
     <string name="system_installer_failed">System installer failed: %s</string>
     <string name="no_available_authorizer">No available authorizer</string>
 
+    <!-- Multi-APK archive: a ZIP containing several independent APKs -->
+    <string name="multi_apk_archive_title">%1$d independent APKs in this archive</string>
+    <string name="multi_apk_status_pending">Pending</string>
+    <string name="multi_apk_status_installing">Installing</string>
+    <string name="multi_apk_status_success">Installed</string>
+    <string name="multi_apk_status_failed">Failed</string>
+    <string name="multi_apk_install_progress">Installing %1$d/%2$d: %3$s</string>
+    <string name="multi_apk_install_button">Install %1$d APKs</string>
+    <string name="multi_apk_needs_privilege">Installing several APKs one by one requires Shizuku or Dhizuku</string>
+
     <!-- Install failure analysis -->
     <string name="install_failure_analysis_title">Installation failure analysis</string>
     <string name="install_failure_reason_label">Possible cause</string>

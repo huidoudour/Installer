@@ -745,6 +745,16 @@
     <string name="system_installer_failed">系统安装器启动失败：%s</string>
     <string name="no_available_authorizer">没有可用的授权方式</string>
 
+    <!-- 多 APK 压缩包：ZIP 内多个独立 APK -->
+    <string name="multi_apk_archive_title">压缩包内有 %1$d 个独立 APK</string>
+    <string name="multi_apk_status_pending">待安装</string>
+    <string name="multi_apk_status_installing">安装中</string>
+    <string name="multi_apk_status_success">已安装</string>
+    <string name="multi_apk_status_failed">失败</string>
+    <string name="multi_apk_install_progress">正在安装 %1$d/%2$d：%3$s</string>
+    <string name="multi_apk_install_button">安装 %1$d 个 APK</string>
+    <string name="multi_apk_needs_privilege">逐个安装多个 APK 需要 Shizuku 或 Dhizuku</string>
+
     <!-- 安装失败分析 -->
     <string name="install_failure_analysis_title">安装失败分析</string>
     <string name="install_failure_reason_label">可能原因</string>

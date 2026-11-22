@@ -393,6 +393,8 @@ object InstallFailureAnalyzer {
                 context, combined, R.string.no_available_authorizer
             ) || containsResourceMessage(
                 context, combined, R.string.container_needs_privilege
+            ) || containsResourceMessage(
+                context, combined, R.string.multi_apk_needs_privilege
             )
         ) {
             return InstallFailureCategory.PRIVILEGE_UNAVAILABLE
