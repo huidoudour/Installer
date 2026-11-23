@@ -268,7 +268,7 @@ dependencies {
 
         val localAarNames = localAars.files.map { it.name }
         if ("android.aar" in localAarNames) {
-            implementation("androidx.compose.ui:ui-tooling-preview:1.13.0-rc01")
+            implementation("androidx.compose.ui:ui-tooling-preview:1.14.0-alpha01")
         }
         if ("android1.aar" in localAarNames) {
             implementation("androidx.compose.ui:ui-tooling-preview-android:1.14.0-alpha01")
