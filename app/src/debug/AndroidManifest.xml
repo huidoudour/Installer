@@ -4,7 +4,7 @@
     <application >
         <meta-data
             android:name="isDebuggable"
-            android:value="true" />
+            android:value="false" />
     </application>
 
 </manifest>

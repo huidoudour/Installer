@@ -197,7 +197,8 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         return try {
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
             val fileName = "terminal_output_$timestamp.txt"
-            val outputFile = File(context.externalCacheDir, fileName)
+            // 终端输出存到 Android/data/<包名>/files，外部不可用时回退内部 files
+            val outputFile = File(context.getExternalFilesDir(null) ?: context.filesDir, fileName)
             FileWriter(outputFile).use { writer ->
                 writer.write(terminal.getAllText())
             }

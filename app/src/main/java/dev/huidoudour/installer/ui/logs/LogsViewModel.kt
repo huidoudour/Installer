@@ -66,7 +66,8 @@ class LogsViewModel(application: Application) : AndroidViewModel(application) {
         return try {
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
             val fileName = "installer_log_$timestamp.txt"
-            val logFile = File(context.externalCacheDir, fileName)
+            // 导出日志存到 Android/data/<包名>/files，外部不可用时回退内部 files
+            val logFile = File(context.getExternalFilesDir(null) ?: context.filesDir, fileName)
 
             FileWriter(logFile).use { writer ->
                 writer.write("=== Installer Log Export ===\n")

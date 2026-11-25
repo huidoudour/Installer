@@ -329,7 +329,11 @@ fun ExperimentalScreen(
                         if (githubPat.isNotBlank()) R.string.token_configured else R.string.token_not_set
                     ),
                     colorPreview = null,
-                    onClick = { showPatDialog = true }
+                    onClick = {
+                        // 存储文件可被外部编辑，打开前从文件刷新
+                        settingsViewModel.reloadGithubPat()
+                        showPatDialog = true
+                    }
                 ),
                 shape = segmentedShape(1, 2),
                 isLast = true,

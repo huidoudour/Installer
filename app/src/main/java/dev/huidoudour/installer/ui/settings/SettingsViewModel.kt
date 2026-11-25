@@ -62,11 +62,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _updateInfo = MutableStateFlow<UpdateChecker.UpdateInfo?>(null)
     val updateInfo: StateFlow<UpdateChecker.UpdateInfo?> = _updateInfo.asStateFlow()
 
-    // GitHub PAT（可选）：非空时检测走认证 API，提高限流额度。加密存于 SecurePrefs。
+    // GitHub PAT（可选）：非空时检测走认证 API，提高限流额度。存于 SecurePrefs 可编辑文件。
     private val _githubPat = MutableStateFlow(loadGithubPat())
     val githubPat: StateFlow<String> = _githubPat.asStateFlow()
 
-    /** 从加密区读取 PAT；若仅存在历史明文则迁移后清除明文 */
+    /** 从存储文件读取 PAT；若仅存在历史明文则迁移后清除明文 */
     private fun loadGithubPat(): String {
         val secure = SecurePrefs.getString(context, KEY_GITHUB_PAT)
         if (secure.isNotEmpty()) return secure
@@ -141,7 +141,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         val localVersion = BuildConfig.BASE_VERSION_NAME
         val logManager = LogManager.getInstance()
         prefs.edit().putLong(KEY_LAST_AUTO_CHECK, System.currentTimeMillis()).apply()
-        val token = _githubPat.value
+        // 文件可被外部编辑器修改，检测前重新读取，保证使用最新 PAT
+        val token = loadGithubPat().also { _githubPat.value = it }
         logManager.addLog(
             "Update check triggered: local version $localVersion, mode=${if (token.isBlank()) "page" else "api"}",
             "Update"
@@ -169,7 +170,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         result
     }
 
-    /** 保存/清除 GitHub PAT（传空串即清除）；加密存储 */
+    /** 从存储文件重新读取 PAT（文件可被外部编辑器修改，打开对话框前刷新） */
+    fun reloadGithubPat() {
+        _githubPat.value = loadGithubPat()
+    }
+
+    /** 保存/清除 GitHub PAT（传空串即清除）；写入可编辑文件 */
     fun setGithubPat(token: String) {
         val trimmed = token.trim()
         _githubPat.value = trimmed
