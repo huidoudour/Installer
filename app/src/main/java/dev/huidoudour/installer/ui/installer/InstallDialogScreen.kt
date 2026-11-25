@@ -36,7 +36,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -806,6 +805,7 @@ private fun MultiApkRow(item: MultiApkItem) {
 /**
  * 多 APK 条目的安装状态标签
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MultiApkStatusLabel(status: MultiApkStatus) {
     val (textRes, color) = when (status) {
@@ -820,20 +820,21 @@ private fun MultiApkStatusLabel(status: MultiApkStatus) {
     }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
+        // 状态区与安装中动画互斥：待安装/已安装/失败显示文字，安装中只显示动画
         if (status == MultiApkStatus.INSTALLING) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(12.dp),
-                strokeWidth = 2.dp,
+            ContainedLoadingIndicator(
+                modifier = Modifier.size(18.dp),
+                indicatorColor = color,
+                containerColor = color.copy(alpha = 0.12f)
+            )
+        } else {
+            Text(
+                text = stringResource(textRes),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
                 color = color
             )
-            Spacer(modifier = Modifier.width(4.dp))
         }
-        Text(
-            text = stringResource(textRes),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            color = color
-        )
     }
 }
 

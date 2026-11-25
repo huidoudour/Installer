@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -391,7 +393,7 @@ fun ExperimentalScreen(
 
     // GitHub PAT 对话框：填写后检测走认证 API，留空则回退网页跳转检测
     if (showPatDialog) {
-        var patInput by remember { mutableStateOf(githubPat) }
+        val patState = rememberTextFieldState(initialText = githubPat)
         AlertDialog(
             onDismissRequest = { showPatDialog = false },
             title = { Text(stringResource(R.string.github_token)) },
@@ -410,16 +412,15 @@ fun ExperimentalScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
-                        value = patInput,
-                        onValueChange = { patInput = it },
-                        singleLine = true,
+                        state = patState,
+                        lineLimits = TextFieldLineLimits.SingleLine,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
-                    settingsViewModel.setGithubPat(patInput)
+                    settingsViewModel.setGithubPat(patState.text.toString())
                     showPatDialog = false
                     Toast.makeText(
                         context,
