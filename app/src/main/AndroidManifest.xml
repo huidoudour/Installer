@@ -181,7 +181,8 @@
             android:value="56" />
         <meta-data
             android:name="me.huidoudour.file.manager"
-            android:value="true" />
+            android:value="true"
+            android:resource="@string/my_meta_info" />
     </application>
 
 </manifest>

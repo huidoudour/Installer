@@ -5,6 +5,7 @@
     <string name="title_shell">Shell 喵</string>
     <string name="title_notifications">日志喵</string>
     <string name="title_settings">设置喵</string>
+    <string name="my_meta_info">我的文件管理应用喵~</string>
     
     <!-- Install page -->
     <string name="install_title">安装应用喵</string>

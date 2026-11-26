@@ -5,6 +5,7 @@
     <string name="title_shell">Shell</string>
     <string name="title_notifications">日誌</string>
     <string name="title_settings">設定</string>
+    <string name="my_meta_info">我的文件管理app</string>
     
     <!-- Install page -->
     <string name="install_title">安裝應用程式</string>

@@ -5,6 +5,7 @@
     <string name="title_shell">Shell</string>
     <string name="title_notifications">ログ</string>
     <string name="title_settings">設定</string>
+    <string name="my_meta_info">Me FileManager app</string>
     
     <!-- Install page -->
     <string name="install_title">アプリをインストール</string>

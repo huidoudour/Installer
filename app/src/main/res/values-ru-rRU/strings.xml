@@ -5,6 +5,7 @@
     <string name="title_shell">Shell</string>
     <string name="title_notifications">Журналы</string>
     <string name="title_settings">Настройки</string>
+    <string name="my_meta_info">Me FileManager app</string>
     
     <!-- Install page -->
     <string name="install_title">Установить приложение</string>
