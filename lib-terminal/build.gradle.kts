@@ -82,7 +82,7 @@ dependencies {
     implementation(libs.compose.material.icons.extended)
     implementation("androidx.compose.foundation:foundation")
     implementation(libs.lifecycle.viewmodel.ktx)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.1")
     implementation("androidx.core:core-ktx:1.19.1")
     implementation("dev.rikka.shizuku:api:13.1.5")
 }
