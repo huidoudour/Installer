@@ -506,6 +506,9 @@ object DhizukuInstallHelper {
     /**
      * 安装 XAPK（多个 APK）。
      * 使用 IBinder + PackageInstaller.Session API。
+     *
+     * 容器内可能打包多个独立应用（包名不同），而一个安装会话只能承载
+     * 同一个包的 base + splits，因此先按包名分组，再逐包创建会话安装。
      */
     fun installXapk(
         context: Context,
@@ -552,67 +555,30 @@ object DhizukuInstallHelper {
                     ctor.newInstance(iPackageInstaller, installerPackageName, userId)
                 }
 
-                // 2. SessionParams
-                // 包含基准 APK（单 APK 或 base+split）时必须使用 FULL_INSTALL，
-                // 只有纯 split 集合（不含基准 APK）才使用 INHERIT_EXISTING
-                val hasBaseApk = PackageInfoHelper.containsBaseApk(context, extractedApks)
-                val params = PackageInstaller.SessionParams(
-                    if (hasBaseApk)
-                        PackageInstaller.SessionParams.MODE_FULL_INSTALL
-                    else
-                        PackageInstaller.SessionParams.MODE_INHERIT_EXISTING
-                )
-                callback.onProgress("Install mode: ${if (hasBaseApk) "FULL_INSTALL" else "INHERIT_EXISTING"}")
+                // 2. 按包名分组：一个容器可能包含多个独立应用
+                val groups = PackageInfoHelper.groupByPackageName(context, extractedApks)
+                if (groups.size > 1) {
+                    callback.onProgress("Container contains ${groups.size} packages, installing one by one...")
+                }
 
-                var flags = 0
-                if (replaceExisting) flags = flags or 0x00000002
-                if (grantPermissions) flags = flags or 0x00000040
-                if (allowDowngrade) flags = flags or 0x00000080
-                val installFlagsField = PackageInstaller.SessionParams::class.java.getDeclaredField("installFlags")
-                installFlagsField.isAccessible = true
-                installFlagsField.setInt(params, flags)
-
-                params.setSize(extractedApks.sumOf { it.length() })
-
-                // 设置请求者 UID
-                applyRequesterUid(context, params, callback)
-
-                callback.onProgress("Creating install session via Binder...")
-                val sessionId = packageInstaller.createSession(params)
-                callback.onProgress("Session ID: $sessionId")
-
-                val session = packageInstaller.openSession(sessionId)
-                wrapSessionBinder(session)
-
-                // 3. 写入所有 APK
-                for ((index, apkFile) in extractedApks.withIndex()) {
-                    callback.onProgress("[${index + 1}/${extractedApks.size}] ${apkFile.name}")
-                    session.openWrite(apkFile.name, 0, apkFile.length()).use { outputStream ->
-                        FileInputStream(apkFile).use { input ->
-                            input.copyTo(outputStream)
-                        }
-                        session.fsync(outputStream)
+                // 3. 逐包安装
+                var groupIndex = 0
+                for ((packageName, apks) in groups) {
+                    groupIndex++
+                    try {
+                        installPackageGroup(
+                            context, packageInstaller, installerPackageName,
+                            apks, groupIndex, groups.size,
+                            replaceExisting, grantPermissions, allowDowngrade, callback
+                        )
+                    } catch (e: Exception) {
+                        throw Exception("[$groupIndex/${groups.size}] $packageName: ${e.message}", e)
                     }
                 }
 
-                // 4. 提交
-                callback.onProgress("Submitting install...")
-                val receiver = LocalIntentReceiver()
-                session.commit(receiver.getIntentSender())
-
-                val resultIntent = receiver.getResult()
-                val status = resultIntent.getIntExtra(
-                    PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE
+                callback.onSuccess(
+                    context.getString(R.string.xapk_install_success_msg, extractedApks.size)
                 )
-
-                if (status == PackageInstaller.STATUS_SUCCESS) {
-                    callback.onSuccess(
-                        context.getString(R.string.xapk_install_success_msg, extractedApks.size)
-                    )
-                } else {
-                    val msg = resultIntent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                    callback.onError(context.getString(R.string.install_failed, msg))
-                }
 
             } catch (e: Exception) {
                 callback.onError(context.getString(R.string.xapk_install_exception, e.message))
@@ -620,5 +586,110 @@ object DhizukuInstallHelper {
                 extractedApks?.let { XapkInstaller.cleanupTempFiles(it) }
             }
         }.start()
+    }
+
+    /**
+     * 为一个包（base + splits）创建并提交安装会话。
+     *
+     * 必须逐包调用：多个基准 APK 写入同一个会话会被系统拒绝
+     * （INSTALL_FAILED_INVALID_APK: Split null was defined multiple times）。
+     */
+    @Throws(Exception::class)
+    private fun installPackageGroup(
+        context: Context,
+        packageInstaller: PackageInstaller,
+        installerPackageName: String,
+        apks: List<File>,
+        groupIndex: Int,
+        groupCount: Int,
+        replaceExisting: Boolean,
+        grantPermissions: Boolean,
+        allowDowngrade: Boolean,
+        callback: InstallCallback
+    ) {
+        val label = if (groupCount > 1) "($groupIndex/$groupCount) " else ""
+
+        // 包含基准 APK（单 APK 或 base+split）时必须使用 FULL_INSTALL，
+        // 只有纯 split 集合（不含基准 APK）才使用 INHERIT_EXISTING
+        val hasBaseApk = PackageInfoHelper.containsBaseApk(context, apks)
+        val params = PackageInstaller.SessionParams(
+            if (hasBaseApk)
+                PackageInstaller.SessionParams.MODE_FULL_INSTALL
+            else
+                PackageInstaller.SessionParams.MODE_INHERIT_EXISTING
+        )
+        callback.onProgress("${label}Install mode: ${if (hasBaseApk) "FULL_INSTALL" else "INHERIT_EXISTING"}")
+
+        var flags = 0
+        if (replaceExisting) flags = flags or 0x00000002
+        if (grantPermissions) flags = flags or 0x00000040
+        if (allowDowngrade) flags = flags or 0x00000080
+        val installFlagsField = PackageInstaller.SessionParams::class.java.getDeclaredField("installFlags")
+        installFlagsField.isAccessible = true
+        installFlagsField.setInt(params, flags)
+
+        params.setSize(apks.sumOf { it.length() })
+
+        // 设置安装者包名（API 34+）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            try {
+                val setInstallerMethod = PackageInstaller.SessionParams::class.java
+                    .getDeclaredMethod("setInstallerPackageName", String::class.java)
+                setInstallerMethod.isAccessible = true
+                setInstallerMethod.invoke(params, installerPackageName)
+            } catch (_: Exception) {
+                // 忽略，部分设备可能不支持
+            }
+        }
+
+        // 设置请求者 UID（originating Uid）
+        applyRequesterUid(context, params, callback)
+
+        callback.onProgress("${label}Creating install session via Binder...")
+        val sessionId = packageInstaller.createSession(params)
+        callback.onProgress("${label}Session ID: $sessionId")
+
+        val session = packageInstaller.openSession(sessionId)
+        wrapSessionBinder(session)
+
+        // 写入该包的全部 APK
+        for ((index, apkFile) in apks.withIndex()) {
+            callback.onProgress("${label}[${index + 1}/${apks.size}] ${apkFile.name}")
+            session.openWrite(apkFile.name, 0, apkFile.length()).use { outputStream ->
+                FileInputStream(apkFile).use { input ->
+                    input.copyTo(outputStream)
+                }
+                session.fsync(outputStream)
+            }
+        }
+
+        // 提交
+        callback.onProgress("${label}Submitting install...")
+        val receiver = LocalIntentReceiver()
+        session.commit(receiver.getIntentSender())
+
+        var resultIntent = receiver.getResult()
+        var status = resultIntent.getIntExtra(
+            PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE
+        )
+
+        // 需要用户确认（如安装未知来源应用），启动确认界面后重新等待结果
+        if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
+            @Suppress("DEPRECATION")
+            val confirmIntent = resultIntent.getParcelableExtra(Intent.EXTRA_INTENT) as? Intent
+            if (confirmIntent != null) {
+                confirmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(confirmIntent)
+                resultIntent = receiver.getResult()
+                status = resultIntent.getIntExtra(
+                    PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE
+                )
+            }
+        }
+
+        if (status != PackageInstaller.STATUS_SUCCESS) {
+            val msg = resultIntent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
+            throw Exception(context.getString(R.string.install_failed_status, status, msg))
+        }
     }
 }

@@ -221,7 +221,45 @@ object ShizukuInstallHelper {
         // 1. 获取 IPackageInstaller（通过 ShizukuBinderWrapper）
         val packageInstaller = getPackageInstaller(context)
 
-        // 2. 创建 SessionParams
+        // 2. 按包名分组：一个容器可能打包多个独立应用，
+        // 同一个安装会话只能承载同一个包的 base + splits
+        val groups = PackageInfoHelper.groupByPackageName(context, apkFiles)
+        if (groups.size > 1) {
+            callback.onProgress("Container contains ${groups.size} packages, installing one by one...")
+        }
+
+        // 3. 逐包安装
+        var groupIndex = 0
+        for ((packageName, apks) in groups) {
+            groupIndex++
+            try {
+                installPackageGroup(
+                    context, packageInstaller, apks, groupIndex, groups.size, allowDowngrade, callback
+                )
+            } catch (e: Exception) {
+                throw Exception("[$groupIndex/${groups.size}] $packageName: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * 为单个包（base + splits）创建并提交安装会话。
+     *
+     * 必须逐包调用：多个基准 APK 写入同一个会话会被系统拒绝
+     * （INSTALL_FAILED_INVALID_APK: Split null was defined multiple times）。
+     */
+    @Throws(Exception::class)
+    private fun installPackageGroup(
+        context: Context,
+        packageInstaller: PackageInstaller,
+        apkFiles: List<File>,
+        groupIndex: Int,
+        groupCount: Int,
+        allowDowngrade: Boolean,
+        callback: InstallCallback
+    ) {
+        val label = if (groupCount > 1) "($groupIndex/$groupCount) " else ""
+
         // 包含基准 APK（单 APK 或 base+split）时必须使用 FULL_INSTALL，
         // 只有纯 split 集合（不含基准 APK）才使用 INHERIT_EXISTING
         val hasBaseApk = PackageInfoHelper.containsBaseApk(context, apkFiles)
@@ -230,9 +268,9 @@ object ShizukuInstallHelper {
         } else {
             PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_INHERIT_EXISTING)
         }
-        callback.onProgress("Install mode: ${if (hasBaseApk) "FULL_INSTALL" else "INHERIT_EXISTING"}")
+        callback.onProgress("${label}Install mode: ${if (hasBaseApk) "FULL_INSTALL" else "INHERIT_EXISTING"}")
 
-        // 3. 设置安装标志
+        // 设置安装标志
         var flags = 0
         // INSTALL_REPLACE_EXISTING = 0x00000002
         flags = flags or 0x00000002
@@ -248,7 +286,7 @@ object ShizukuInstallHelper {
         installFlagsField.isAccessible = true
         installFlagsField.setInt(params, flags)
 
-        // 4. 设置安装者包名
+        // 设置安装者包名
         val installerPackage = getInstallerPackage(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && installerPackage.isNotEmpty()) {
             try {
@@ -260,27 +298,27 @@ object ShizukuInstallHelper {
             } catch (_: Exception) {}
         }
 
-        // 5. 设置请求者 UID（originating Uid）—— 与 InstallerX 一致
+        // 设置请求者 UID（originating Uid）—— 与 InstallerX 一致
         applyRequesterUid(context, params, callback)
 
-        // 6. 设置 APK 大小
+        // 设置 APK 大小
         val totalSize = apkFiles.sumOf { it.length() }
         params.setSize(totalSize)
 
-        callback.onProgress("Creating install session via Shizuku Binder...")
+        callback.onProgress("${label}Creating install session via Shizuku Binder...")
 
-        // 7. 创建会话
+        // 创建会话
         val sessionId = packageInstaller.createSession(params)
-        callback.onProgress("Session ID: $sessionId")
+        callback.onProgress("${label}Session ID: $sessionId")
 
-        // 8. 打开会话并包装 session 内部 Binder（关键！否则 write/commit 会因权限不足失败）
+        // 打开会话并包装 session 内部 Binder（关键！否则 write/commit 会因权限不足失败）
         val session = packageInstaller.openSession(sessionId)
         wrapSessionBinder(session)
 
-        // 9. 写入 APK 数据
+        // 写入 APK 数据
         for ((index, apkFile) in apkFiles.withIndex()) {
             val name = apkFile.name
-            callback.onProgress("[${index + 1}/${apkFiles.size}] Writing $name...")
+            callback.onProgress("${label}[${index + 1}/${apkFiles.size}] Writing $name...")
             session.openWrite(name, 0, apkFile.length()).use { outputStream ->
                 FileInputStream(apkFile).use { input ->
                     input.copyTo(outputStream)
@@ -289,8 +327,8 @@ object ShizukuInstallHelper {
             }
         }
 
-        // 9. 提交安装
-        callback.onProgress("Submitting install...")
+        // 提交安装
+        callback.onProgress("${label}Submitting install...")
         val receiver = LocalIntentReceiver()
         session.commit(receiver.getIntentSender())
 
@@ -481,48 +519,82 @@ object ShizukuInstallHelper {
         callback.onProgress("Extraction complete, ${extractedApks.size} APKs found (shell fallback)")
 
         try {
-            val createCmd = StringBuilder("pm install-create --user 0")
-            if (replaceExisting) createCmd.append(" -r")
-            if (allowDowngrade) createCmd.append(" -d")
-            if (grantPermissions) createCmd.append(" -g")
-            if (isAllowTestPackages(context)) createCmd.append(" -t")
-
-            val installerPackage = getInstallerPackage(context)
-            if (installerPackage.isNotEmpty()) {
-                createCmd.append(" -i ").append(installerPackage)
+            // 按包名分组：每个包的 base + splits 单独走一次会话
+            val groups = PackageInfoHelper.groupByPackageName(context, extractedApks)
+            if (groups.size > 1) {
+                callback.onProgress("Container contains ${groups.size} packages, installing one by one...")
             }
 
-            callback.onProgress("Creating install session")
-            val createOutput = executeCommand(context, createCmd.toString())
-
-            if (!createOutput.contains("Success")) {
-                throw Exception(context.getString(R.string.install_failed, createOutput))
-            }
-
-            val sessionId = createOutput.substring(
-                createOutput.indexOf("[") + 1,
-                createOutput.indexOf("]")
-            )
-            callback.onProgress("Session ID: $sessionId")
-
-            for ((index, apkFile) in extractedApks.withIndex()) {
-                callback.onProgress("[${index + 1}/${extractedApks.size}] ${apkFile.name}")
-                val writeCmd = "pm install-write -S ${apkFile.length()} $sessionId ${apkFile.name} -"
-                val writeOutput = executeCommandWithInput(context, writeCmd, apkFile)
-                if (!writeOutput.contains("Success")) {
-                    throw Exception(context.getString(R.string.install_failed, "${apkFile.name}: $writeOutput"))
+            var groupIndex = 0
+            for ((packageName, apks) in groups) {
+                groupIndex++
+                try {
+                    installPackageGroupViaShell(
+                        context, apks, replaceExisting, grantPermissions, allowDowngrade, callback
+                    )
+                } catch (e: Exception) {
+                    throw Exception("[$groupIndex/${groups.size}] $packageName: ${e.message}", e)
                 }
-            }
-
-            callback.onProgress("Submitting install...")
-            val commitOutput = executeCommand(context, "pm install-commit $sessionId")
-
-            if (!commitOutput.lowercase().contains("success")) {
-                throw Exception(context.getString(R.string.install_failed, commitOutput))
             }
         } finally {
             // 解压产物若不回收，会永久占满 cacheDir/xapk_temp
             XapkInstaller.cleanupTempFiles(extractedApks)
+        }
+    }
+
+    /**
+     * 通过 shell 的 pm 会话命令安装单个包（base + splits）。
+     *
+     * 必须逐包调用：多个基准 APK 写入同一个会话会被系统拒绝
+     * （INSTALL_FAILED_INVALID_APK: Split null was defined multiple times）。
+     */
+    @Throws(Exception::class)
+    private fun installPackageGroupViaShell(
+        context: Context,
+        apks: List<File>,
+        replaceExisting: Boolean,
+        grantPermissions: Boolean,
+        allowDowngrade: Boolean,
+        callback: InstallCallback
+    ) {
+        val createCmd = StringBuilder("pm install-create --user 0")
+        if (replaceExisting) createCmd.append(" -r")
+        if (allowDowngrade) createCmd.append(" -d")
+        if (grantPermissions) createCmd.append(" -g")
+        if (isAllowTestPackages(context)) createCmd.append(" -t")
+
+        val installerPackage = getInstallerPackage(context)
+        if (installerPackage.isNotEmpty()) {
+            createCmd.append(" -i ").append(installerPackage)
+        }
+
+        callback.onProgress("Creating install session")
+        val createOutput = executeCommand(context, createCmd.toString())
+
+        if (!createOutput.contains("Success")) {
+            throw Exception(context.getString(R.string.install_failed, createOutput))
+        }
+
+        val sessionId = createOutput.substring(
+            createOutput.indexOf("[") + 1,
+            createOutput.indexOf("]")
+        )
+        callback.onProgress("Session ID: $sessionId")
+
+        for ((index, apkFile) in apks.withIndex()) {
+            callback.onProgress("[${index + 1}/${apks.size}] ${apkFile.name}")
+            val writeCmd = "pm install-write -S ${apkFile.length()} $sessionId ${apkFile.name} -"
+            val writeOutput = executeCommandWithInput(context, writeCmd, apkFile)
+            if (!writeOutput.contains("Success")) {
+                throw Exception(context.getString(R.string.install_failed, "${apkFile.name}: $writeOutput"))
+            }
+        }
+
+        callback.onProgress("Submitting install...")
+        val commitOutput = executeCommand(context, "pm install-commit $sessionId")
+
+        if (!commitOutput.lowercase().contains("success")) {
+            throw Exception(context.getString(R.string.install_failed, commitOutput))
         }
     }
 

@@ -83,4 +83,24 @@ object PackageInfoHelper {
     fun containsBaseApk(context: Context, apkFiles: List<File>): Boolean =
         apkFiles.any { !isSplitApk(context, it.absolutePath) }
 
+    /**
+     * 按包名将 APK 分组，保持原始顺序。
+     *
+     * 一个容器可能打包了多个独立应用（包名不同），而同一个安装会话
+     * 只能承载同一个包的 base + splits；若把多个基准 APK 写入同一个会话，
+     * 系统会以 INSTALL_FAILED_INVALID_APK: Split null was defined multiple times 拒绝。
+     * 无法解析包名的 APK 各自单独成组。
+     *
+     * @return 包名 -> 该包的 APK 列表（LinkedHashMap，安装顺序与解压顺序一致）
+     */
+    fun groupByPackageName(context: Context, apkFiles: List<File>): Map<String, List<File>> {
+        val groups = LinkedHashMap<String, MutableList<File>>()
+        for (apkFile in apkFiles) {
+            val key = getApkPackageName(context, apkFile.absolutePath)
+                ?: "unknown(${apkFile.name})"
+            groups.getOrPut(key) { mutableListOf() }.add(apkFile)
+        }
+        return groups.mapValues { it.value.toList() }
+    }
+
 }

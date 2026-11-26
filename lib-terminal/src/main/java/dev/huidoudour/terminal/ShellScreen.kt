@@ -26,6 +26,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -418,28 +420,28 @@ fun ShellBookmarksDialog(
     )
 
     if (showAddDialog) {
-        var newBookmark by remember { mutableStateOf("") }
+        val newBookmarkState = rememberTextFieldState()
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
             shape = RoundedCornerShape(20.dp),
             title = { Text(stringResource(R.string.add_bookmark_title), fontWeight = FontWeight.SemiBold) },
             text = {
                 BasicTextField(
-                    value = newBookmark,
-                    onValueChange = { newBookmark = it },
+                    state = newBookmarkState,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(12.dp),
+                    lineLimits = TextFieldLineLimits.SingleLine,
                     textStyle = TextStyle(
                         fontSize = 14.sp,
                         fontFamily = FontFamily.Monospace
                     ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    decorationBox = { innerTextField ->
+                    decorator = { innerTextField ->
                         Box {
-                            if (newBookmark.isEmpty()) {
+                            if (newBookmarkState.text.isEmpty()) {
                                 Text(
                                     stringResource(R.string.enter_command_bookmark_hint),
                                     style = TextStyle(
@@ -456,8 +458,9 @@ fun ShellBookmarksDialog(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    if (newBookmark.isNotBlank()) {
-                        CommandBookmarks.addBookmark(context, newBookmark.trim())
+                    val newBookmark = newBookmarkState.text.toString().trim()
+                    if (newBookmark.isNotEmpty()) {
+                        CommandBookmarks.addBookmark(context, newBookmark)
                         bookmarks = CommandBookmarks.getBookmarks(context)
                     }
                     showAddDialog = false
