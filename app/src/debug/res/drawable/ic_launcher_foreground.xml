@@ -5,28 +5,49 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- 盒身：平顶六边形（顶点半径 28dp，圆角 4.2dp），整幅落在自适应图标安全区内 -->
-    <path
-        android:fillColor="#0061A4"
-        android:pathData="M37.90,33.39Q40.00,29.75 44.20,29.75L63.80,29.75Q68.00,29.75 70.10,33.39L79.90,50.36Q82.00,54.00 79.90,57.64L70.10,74.61Q68.00,78.25 63.80,78.25L44.20,78.25Q40.00,78.25 37.90,74.61L28.10,57.64Q26.00,54.00 28.10,50.36Z"/>
+    <!--
+        debug 版：与 main 相同的 n2 图形，右下角追加红色小圆点作调试标记。
+        圆点沿用历史位置 (75,82) r4。
+    -->
 
-    <!-- 盒盖：压深一档，和横向盖缝一起把六边形读成“包裹” -->
+    <!-- 底层斜片：樱花粉 -->
     <path
-        android:fillColor="#00497D"
-        android:pathData="M35.79,38.60Q34.89,38.60 35.34,37.82L37.90,33.39Q40.00,29.75 44.20,29.75L63.80,29.75Q68.00,29.75 70.10,33.39L72.66,37.82Q73.11,38.60 72.21,38.60Z"/>
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFB6C1"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M31,65 L54,76 L77,65 L54,54 Z"/>
 
-    <!-- 安装箭头 · 杆（纸色 #BBDEFB） -->
+    <!-- 中层斜片：橙 -->
     <path
-        android:fillColor="#BBDEFB"
-        android:pathData="M51.05,48.60Q51.05,47.20 52.45,47.20L55.55,47.20Q56.95,47.20 56.95,48.60L56.95,56.40Q56.95,57.80 55.55,57.80L52.45,57.80Q51.05,57.80 51.05,56.40Z"/>
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FF9800"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M31,54 L54,65 L77,54 L54,43 Z"/>
 
-    <!-- 安装箭头 · 头 -->
+    <!-- 安装箭头：圆头杆 + 开放 V 头，杆顶藏到蓝片后面 -->
     <path
-        android:fillColor="#BBDEFB"
-        android:pathData="M45.59,57.68Q44.40,56.20 46.30,56.20L61.70,56.20Q63.60,56.20 62.41,57.68L55.19,66.72Q54.00,68.20 52.81,66.72Z"/>
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M54,39 V71 M54,71 L47,64 M54,71 L61,64"/>
 
-    <!-- 右下角小圆圈 -->
+    <!-- 顶层斜片：蓝（最前面的“框”，遮住箭头杆顶） -->
     <path
-        android:pathData="M75,82 A4,4 0 1,1 75.01,82 Z"
-        android:fillColor="#0061A4"/>
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#2196F3"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M31,43 L54,54 L77,43 L54,32 Z"/>
+
+    <!-- debug 标记：右下角红点（(73,79) 内收后完整落在 launcher 可见圆内，不被遮罩裁角） -->
+    <path
+        android:fillColor="#3aaaaa"
+        android:pathData="M73,79 A4,4 0 1,1 73.01,79 Z"/>
 </vector>
