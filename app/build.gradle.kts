@@ -253,14 +253,14 @@ dependencies {
     implementation("io.github.iamr0s:Dhizuku-API:2.7.0")
     implementation("dev.rikka.shizuku:provider:13.1.5")
     implementation("androidx.palette:palette:1.1.0")
-    implementation("androidx.core:core-ktx:1.19.1")
     implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation(libs.core.ktx)
 
     implementation(libs.profileinstaller)
-    compileOnly(project(":hidden-api"))
+    "baselineProfile"(project(":baselineprofile"))
     implementation(project(":lib-mtprovider"))
     implementation(project(":lib-terminal"))
-    "baselineProfile"(project(":baselineprofile"))
+    compileOnly(project(":hidden-api"))
 
     val localAars = fileTree("libs") { include("*.aar") }
     if (!localAars.isEmpty) {
