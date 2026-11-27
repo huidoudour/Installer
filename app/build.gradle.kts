@@ -250,7 +250,7 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling.preview)
 
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:6.1")
-    implementation("io.github.iamr0s:Dhizuku-API:2.7.0")
+    implementation("io.github.iamr0s:Dhizuku-API:2.8.0")
     implementation("dev.rikka.shizuku:provider:13.1.5")
     implementation("androidx.palette:palette:1.1.0")
     implementation("dev.rikka.shizuku:api:13.1.5")
